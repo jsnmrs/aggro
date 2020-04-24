@@ -64,6 +64,8 @@ writable/debugbar/*
 
 php_errors.log
 
+*_ci3*
+
 #-------------------------
 # User Guide Temp Files
 #-------------------------
