@@ -43,8 +43,7 @@ fin hosts add $VIRTUAL_HOST
 # install phpcs addon
 fin addon install phpcs
 
-# install dependencies
-fin composer install
+fin init-site
 
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."

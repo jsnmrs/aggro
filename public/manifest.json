@@ -1,0 +1,20 @@
+{
+  "short_name": "BMXfeed",
+  "name": "BMXfeed",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "background_color": "#FFFFFF",
+  "theme_color": "#005600",
+  "start_url": "/",
+  "display": "browser"
+}

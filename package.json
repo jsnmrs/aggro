@@ -1,0 +1,52 @@
+{
+  "name": "bmxfeed",
+  "description": "bmxfeed.com",
+  "author": "Jason Morris",
+  "version": "1.0.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsnmrs/bmxfeed.git"
+  },
+  "scripts": {
+    "build": "npm run css && npm run js",
+    "css": "npm run prettier:scss && npm run stylelint && npm run scss && npm run autoprefixer",
+    "js": "npm run prettier:js && npm run eslint && npm run uglify",
+    "postinstall": "npm run build",
+    "precommit": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
+    "autoprefixer": "postcss -r \"public/css/*.css\"",
+    "eslint": "eslint public/js/src/bmxfeed.js --fix",
+    "prettier:js": "prettier --write \"public/js/src/bmxfeed.js\"",
+    "prettier:scss": "prettier --write \"public/**/*.scss\"",
+    "scss": "node-sass --output-style compressed -o public/css public/css/scss",
+    "stylelint": "stylelint \"public/css/scss/**/*.scss\" --fix",
+    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/bmxfeed.js\" -m -o public/js/bmxfeed.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precommit"
+    }
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.7.6",
+    "cssnano": "^4.1.10",
+    "eslint": "^6.8.0",
+    "eslint-plugin-es5": "^1.5.0",
+    "husky": "^4.2.5",
+    "moment": "^2.24.0",
+    "node-sass": "^4.14.0",
+    "postcss-cli": "^7.1.0",
+    "postcss-import": "^12.0.1",
+    "prettier": "^2.0.5",
+    "stylelint": "^13.3.3",
+    "stylelint-a11y": "^1.2.3",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-declaration-block-no-ignored-properties": "^2.3.0",
+    "stylelint-declaration-use-variable": "^1.7.2",
+    "stylelint-no-unsupported-browser-features": "^4.0.0",
+    "stylelint-order": "^4.0.0",
+    "stylelint-scss": "^3.17.1",
+    "uglify-js": "^3.9.1"
+  }
+}
