@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-## Initialize stack and site
-## Usage: fin init
+## Install composer and node dependencies
+## Usage: fin init-site
 
 # Abort if anything fails
 set -e
@@ -22,8 +22,15 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
 #-------------------------- Execution --------------------------------
 
+
+cd "$PROJECT_ROOT"
+
+OUTPUT="$(find ./*.sql | head -1)"
+echo -e "Newest DB dump: ${yellow}${OUTPUT}${NC}"
+
+fin db import "$OUTPUT"
+
 # install dependencies
-cd $PROJECT_ROOT
 fin composer install
 fin exec npm install
 
