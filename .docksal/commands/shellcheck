@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+## Run shellcheck on custom commands
+## Usage: fin shellcheck
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+cd "$PROJECT_ROOT"
+
+if test ! "$(shellcheck --version)"
+  then
+  echo -e "\\n\\033[1;33mInstalling ShellCheck...\\033[0m"
+  sudo apt-get update
+  sudo apt-get install shellcheck
+  echo -e "\\nShellCheck installed."
+fi
+
+echo -e "\\n\\033[1;33mRunning ShellCheck on docksal commands...\\033[0m"
+shellcheck .docksal/commands/*
+echo -e "\\nNo issues!"
