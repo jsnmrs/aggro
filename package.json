@@ -15,12 +15,12 @@
     "postinstall": "npm run build",
     "precommit": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
     "autoprefixer": "postcss -r \"public/css/*.css\"",
-    "eslint": "eslint public/js/src/bmxfeed.js --fix",
-    "prettier:js": "prettier --write \"public/js/src/bmxfeed.js\"",
+    "eslint": "eslint public/js/src/scripts.js --fix",
+    "prettier:js": "prettier --write \"public/js/src/scripts.js\"",
     "prettier:scss": "prettier --write \"public/**/*.scss\"",
     "scss": "node-sass --output-style compressed -o public/css public/css/scss",
     "stylelint": "stylelint \"public/css/scss/**/*.scss\" --fix",
-    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/bmxfeed.js\" -m -o public/js/bmxfeed.js"
+    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/scripts.js\" -m -o public/js/scripts.js"
   },
   "husky": {
     "hooks": {
