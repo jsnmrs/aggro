@@ -1,0 +1,143 @@
+* {
+  box-sizing: border-box;
+
+  &::after,
+  &::before {
+    box-sizing: border-box;
+  }
+}
+
+html {
+  font-size: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica",
+    "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+
+  @include bp($small) {
+    font-size: 120%;
+  }
+
+  @include bp($large) {
+    font-size: 130%;
+  }
+}
+
+body {
+  margin: 0;
+  color: $black;
+  line-height: 1.4;
+  background-color: $gray-lighter;
+}
+
+a {
+  position: relative;
+  text-decoration-skip: objects;
+
+  &:link {
+    color: $primary;
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: $primary;
+  }
+
+  // stylelint-disable selector-no-qualifying-type
+  &:focus,
+  &:hover,
+  &.on {
+    color: $primary-selected;
+    text-decoration: underline;
+  }
+  // stylelint-enable
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  border: 0;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+h5 {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1,
+.h1 {
+  font-size: 2.5rem;
+}
+
+h2,
+.h2 {
+  margin-bottom: 0.25rem;
+  color: $gray-darkest;
+  font-size: 1.35rem;
+
+  @include bp($medium) {
+    font-size: 1.75rem;
+  }
+}
+
+h3,
+.h3 {
+  color: $gray-darker;
+  font-size: 1.2rem;
+
+  @include bp($medium) {
+    font-size: 1.35rem;
+  }
+}
+
+h4 {
+  color: $gray-dark;
+  font-size: 1.35rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+ul,
+ol {
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style-type: none;
+}
+
+li {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 0.0625rem solid $gray-lighter;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  font-size: 100%;
+  font-family: sans-serif;
+  line-height: 1.15;
+}
+
+.prose p {
+  max-width: 65ch;
+}

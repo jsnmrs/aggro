@@ -37,14 +37,14 @@ echo -e "${green_bg} Step 2 ${NC}${green} Initializing site...${NC}"
 
 # Clean and import *.docksal to HOSTS file
 echo -e "Adding ${yellow}${VIRTUAL_HOST}${NC} to /etc/hosts"
-fin hosts remove $VIRTUAL_HOST
-fin hosts add $VIRTUAL_HOST
+fin hosts remove "$VIRTUAL_HOST"
+fin hosts add "$VIRTUAL_HOST"
 
-# install phpcs addon
+# install docksal addons
 fin addon install phpcs
+fin addon install sequelpro
 
-# install dependencies
-fin composer install
+fin init-site
 
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."

@@ -63,6 +63,9 @@ writable/uploads/*
 writable/debugbar/*
 
 php_errors.log
+*.sql
+!aggro-db.sql
+*_ci3*
 
 #-------------------------
 # User Guide Temp Files
