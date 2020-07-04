@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\NewsModels;
+
 /**
  * All front-end contollers.
  */
@@ -69,7 +71,29 @@ class Front extends BaseController {
   /**
    * Sites page.
    */
-  public function sites() {
+  public function sites($slug = NULL) {
+    $data = [
+      'title' => 'Directory',
+      'slug' => 'sites',
+    ];
+
+    $model = new NewsModels();
+
+    if ($slug == NULL) {
+      echo view('sites', $data);
+    }
+
+    if ($slug != NULL) {
+      $data['site'] = $model->getSingleSite($slug);
+
+      if (!empty($data['site'])) {
+        echo view('site', $data);
+      }
+
+      if (empty($data['site'])) {
+        $this->error404();
+      }
+    }
   }
 
   /**
@@ -82,6 +106,12 @@ class Front extends BaseController {
    * Submit page.
    */
   public function submit() {
+    $data = [
+      'title' => 'Submit',
+      'slug' => 'submit',
+    ];
+
+    echo view('submit', $data);
   }
 
   /**

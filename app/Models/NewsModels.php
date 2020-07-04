@@ -86,9 +86,9 @@ class NewsModels extends Model {
    */
   public function getSingleSite($slug) {
     $slug = esc($slug);
-    $sql = "SELECT * FROM feeds WHERE site_slug = '$slug' LIMIT 1";
+    $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
     $query = $this->db->query($sql);
-    return $query->result();
+    return $query->getResult();
   }
 
 }

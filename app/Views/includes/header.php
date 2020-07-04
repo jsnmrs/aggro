@@ -55,7 +55,7 @@
           }
           ?>>Videos</a></li>
         <li><a href="/sites/"
-          <?php if ($slug == "directory") {
+          <?php if ($slug == "sites") {
             echo " class=\"on\"";
           }
           ?>>Directory</a></li>

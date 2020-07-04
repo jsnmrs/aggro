@@ -36,9 +36,12 @@ $routes->add('about', 'Front::about');
 $routes->add('featured', 'Front::index');
 $routes->add('out', 'Front::out');
 $routes->add('sites', 'Front::sites');
+$routes->add('sites/(:any)', 'Front::sites/$1');
 $routes->add('stream', 'Front::stream');
 $routes->add('submit', 'Front::submit');
 $routes->add('video', 'Front::video');
+
+
 
 /**
  * --------------------------------------------------------------------
