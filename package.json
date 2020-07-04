@@ -20,6 +20,7 @@
     "prettier:scss": "prettier --write \"public/**/*.scss\"",
     "scss": "node-sass --output-style compressed -o public/css public/css/scss",
     "stylelint": "stylelint \"public/css/scss/**/*.scss\" --fix",
+    "test": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
     "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/scripts.js\" -m -o public/js/scripts.js"
   },
   "husky": {
