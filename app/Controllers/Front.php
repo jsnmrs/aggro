@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\NewsModels;
+use App\Models\UtilityModels;
 
 /**
  * All front-end contollers.
@@ -69,17 +70,19 @@ class Front extends BaseController {
       'slug' => 'sites',
     ];
 
-    $model = new NewsModels();
+    $newsModel = new NewsModels();
+    $utilityModel = new UtilityModels();
 
     if ($slug == NULL) {
-      $data['site'] = $model->getAllSites();
+      $data['site'] = $newsModel->getAllSites();
       echo view('sites', $data);
     }
 
     if ($slug != NULL) {
-      $data['site'] = $model->getSingleSite($slug);
+      $data['site'] = $newsModel->getSingleSite($slug);
 
       if (!empty($data['site'])) {
+        $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0);
         echo view('site', $data);
       }
 

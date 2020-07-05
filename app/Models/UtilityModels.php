@@ -26,51 +26,26 @@ class UtilityModels extends Model {
    *   RSS feed data.
    */
   public function fetchFeed($feed, $spoof) {
-  }
+    $userAgent = $_ENV['UA_BMXFEED'];
 
-  /**
-   * Fetch thumbnail image from video provider, process image, and save locally.
-   *
-   * @param string $videoid
-   *   The videoid.
-   * @param string $thumbnail
-   *   The remote URL of the video thumbnail.
-   *
-   * @return bool
-   *   Video thumbnail fetched and processed.
-   */
-  public function fetchThumbnail($videoid, $thumbnail) {
-  }
+    if ($spoof == 1) {
+      $userAgent = $_ENV['UA_SPOOF'];
+    }
 
-  /**
-   * Fetch contents of URL (via CURL). Decode if XML or JSON.
-   *
-   * @param string $url
-   *   URL to be fetched.
-   * @param string $format
-   *   Format to be returned:
-   *   - text: return as text, no decoding.
-   *   - simplexml: return as decoded XML.
-   *   - json: return as decoded JSON.
-   * @param string $spoof
-   *   Spoof user agent string (1/0).
-   *
-   * @return string
-   *   Contents of requested url with optional decoding.
-   */
-  public function fetchUrl($url, $format = "text", $spoof = 0) {
-  }
+    $rss = new \SimplePie();
+    $rss->set_cache_location(WRITEPATH . '/cache');
+    $rss->set_useragent($userAgent);
+    $rss->set_item_limit(10);
+    $rss->set_timeout(20);
+    $rss->set_feed_url($feed);
+    $rss->init();
 
-  /**
-   * Send message to engine_log table. Typically non-error messages.
-   *
-   * @param string $message
-   *   Message to insert into engine_log table.
-   *
-   * @return bool
-   *   Message inserted into engine_log table.
-   */
-  public function logger($message) {
+    if ($rss->error()) {
+      $errormsg = $feed . " - " . $rss->error();
+      log_message('error', $errormsg);
+    }
+
+    return $rss;
   }
 
 }
