@@ -8,7 +8,14 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 <head>
-  <title><?php echo esc($title) . " | "; ?>BMXfeed</title>
+  <title><?php
+  if (isset($site['site_name'])) {
+    echo $site['site_name'] . " | ";
+  }
+  if (isset($title)) {
+    echo esc($title) . " | ";
+  }
+  ?>BMXfeed</title>
   <meta charset="utf-8">
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="keywords" content="bmx, video, edit, rss, feed, atom, aggregator">
