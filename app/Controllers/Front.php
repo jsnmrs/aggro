@@ -52,14 +52,6 @@ class Front extends BaseController {
     ];
 
     echo view('featured', $data);
-
-    // $this->load->model('FrontendModels');
-    // $data['nav'] = 'Featured';
-    // $data['daily'] = $this->FrontendModels->getPopularLinks(1, 3);
-    // $data['weekly'] = $this->FrontendModels->getPopularLinks(7, 3);
-    // $data['top_videos'] = $this->FrontendModels->getAllVideos('popular', 'threedays', 4, 0, 'video');
-    // $data['built'] = $this->FrontendModels->featuredPage();
-    // $this->load->view('frontend/featured', $data);
   }
 
   /**
