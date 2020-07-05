@@ -76,6 +76,18 @@ class NewsModels extends Model {
   }
 
   /**
+   * Get all sites.
+   *
+   * @return string
+   *   Site data from table.
+   */
+  public function getAllSites() {
+    $sql = "SELECT * FROM news_feeds ORDER BY site_name";
+    $query = $this->db->query($sql);
+    return $query->getResult();
+  }
+
+  /**
    * Get single site.
    *
    * @param string $slug
@@ -88,7 +100,7 @@ class NewsModels extends Model {
     $slug = esc($slug);
     $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
     $query = $this->db->query($sql);
-    return $query->getResult();
+    return $query->getRowArray();
   }
 
 }

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+## Run front end build
+## Usage: fin front
+
+# Abort if anything fails
+set -e
+
+cd "$PROJECT_ROOT"
+
+fin exec npm run build
