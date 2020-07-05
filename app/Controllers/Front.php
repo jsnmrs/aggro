@@ -80,6 +80,7 @@ class Front extends BaseController {
     $model = new NewsModels();
 
     if ($slug == NULL) {
+      $data['site'] = $model->getAllSites();
       echo view('sites', $data);
     }
 
