@@ -48,4 +48,24 @@ class UtilityModels extends Model {
     return $rss;
   }
 
+  /**
+   * Update feed data.
+   *
+   * @param string $slug
+   *   Site slug (as ID).
+   * @param object $feed
+   *   Fetched feed object.
+   */
+  public function updateFeed($slug, $feed) {
+    foreach ($feed->get_items(0, 1) as $item) {
+      $lastPost = $item->get_date('Y-m-d H:i:s');
+    }
+
+    $lastFetch = date('Y-m-d H:i:s');
+
+    $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
+
+    $this->db->query($sql);
+  }
+
 }

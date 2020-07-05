@@ -83,6 +83,7 @@ class Front extends BaseController {
 
       if (!empty($data['site'])) {
         $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0);
+        $utilityModel->updateFeed($slug, $data['feedfetch']);
         echo view('site', $data);
       }
 
