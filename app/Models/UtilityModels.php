@@ -26,51 +26,46 @@ class UtilityModels extends Model {
    *   RSS feed data.
    */
   public function fetchFeed($feed, $spoof) {
+    $userAgent = $_ENV['UA_BMXFEED'];
+
+    if ($spoof == 1) {
+      $userAgent = $_ENV['UA_SPOOF'];
+    }
+
+    $rss = new \SimplePie();
+    $rss->set_cache_location(WRITEPATH . '/cache');
+    $rss->set_useragent($userAgent);
+    $rss->set_item_limit(10);
+    $rss->set_timeout(20);
+    $rss->set_feed_url($feed);
+    $rss->init();
+
+    if ($rss->error()) {
+      $errormsg = $feed . " - " . $rss->error();
+      log_message('error', $errormsg);
+    }
+
+    return $rss;
   }
 
   /**
-   * Fetch thumbnail image from video provider, process image, and save locally.
+   * Update feed data.
    *
-   * @param string $videoid
-   *   The videoid.
-   * @param string $thumbnail
-   *   The remote URL of the video thumbnail.
-   *
-   * @return bool
-   *   Video thumbnail fetched and processed.
+   * @param string $slug
+   *   Site slug (as ID).
+   * @param object $feed
+   *   Fetched feed object.
    */
-  public function fetchThumbnail($videoid, $thumbnail) {
-  }
+  public function updateFeed($slug, $feed) {
+    foreach ($feed->get_items(0, 1) as $item) {
+      $lastPost = $item->get_date('Y-m-d H:i:s');
+    }
 
-  /**
-   * Fetch contents of URL (via CURL). Decode if XML or JSON.
-   *
-   * @param string $url
-   *   URL to be fetched.
-   * @param string $format
-   *   Format to be returned:
-   *   - text: return as text, no decoding.
-   *   - simplexml: return as decoded XML.
-   *   - json: return as decoded JSON.
-   * @param string $spoof
-   *   Spoof user agent string (1/0).
-   *
-   * @return string
-   *   Contents of requested url with optional decoding.
-   */
-  public function fetchUrl($url, $format = "text", $spoof = 0) {
-  }
+    $lastFetch = date('Y-m-d H:i:s');
 
-  /**
-   * Send message to engine_log table. Typically non-error messages.
-   *
-   * @param string $message
-   *   Message to insert into engine_log table.
-   *
-   * @return bool
-   *   Message inserted into engine_log table.
-   */
-  public function logger($message) {
+    $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
+
+    $this->db->query($sql);
   }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\NewsModels;
+use App\Models\UtilityModels;
 
 /**
  * All front-end contollers.
@@ -52,14 +53,6 @@ class Front extends BaseController {
     ];
 
     echo view('featured', $data);
-
-    // $this->load->model('FrontendModels');
-    // $data['nav'] = 'Featured';
-    // $data['daily'] = $this->FrontendModels->getPopularLinks(1, 3);
-    // $data['weekly'] = $this->FrontendModels->getPopularLinks(7, 3);
-    // $data['top_videos'] = $this->FrontendModels->getAllVideos('popular', 'threedays', 4, 0, 'video');
-    // $data['built'] = $this->FrontendModels->featuredPage();
-    // $this->load->view('frontend/featured', $data);
   }
 
   /**
@@ -77,17 +70,20 @@ class Front extends BaseController {
       'slug' => 'sites',
     ];
 
-    $model = new NewsModels();
+    $newsModel = new NewsModels();
+    $utilityModel = new UtilityModels();
 
     if ($slug == NULL) {
-      $data['site'] = $model->getAllSites();
+      $data['site'] = $newsModel->getAllSites();
       echo view('sites', $data);
     }
 
     if ($slug != NULL) {
-      $data['site'] = $model->getSingleSite($slug);
+      $data['site'] = $newsModel->getSingleSite($slug);
 
       if (!empty($data['site'])) {
+        $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0);
+        $utilityModel->updateFeed($slug, $data['feedfetch']);
         echo view('site', $data);
       }
 
