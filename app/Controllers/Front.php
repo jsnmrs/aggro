@@ -52,6 +52,9 @@ class Front extends BaseController {
       'slug' => 'featured',
     ];
 
+    $newsModel = new NewsModels();
+
+    $data['built'] = $newsModel->featuredPage();
     echo view('featured', $data);
   }
 
