@@ -15,6 +15,9 @@ echo $this->include('includes/header'); ?>
       Feed: <a href="<?php echo $site['site_feed']; ?>"><?php echo $site['site_feed']; ?></a></p>
       <h2>Recently on <?php echo $site['site_name']; ?></h2>
       <ul>
+      <?php if ($feedfetch->error) :?>
+        <li>Unable to get <?php echo $site['site_name']; ?> feed.</li>
+      <?php endif; ?>
       <?php foreach ($feedfetch->get_items(0, 10) as $item) :?>
         <li>
           <a href="<?php echo $item->get_permalink(); ?>" class="external">

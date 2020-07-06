@@ -28,11 +28,29 @@ echo $this->include('includes/header'); ?>
       </div>
     </div>
   </div>
+
   <div class="row">
-    <div class="twelve columns">
-      <p>feature page</p>
+  <?php foreach ($built as $row) :?>
+    <div class="six columns feature" role="article">
+      <h2>
+        <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
+        <span class="timeago" title="<?php echo $row['site_date_last_post']; ?>"></span>
+      </h2>
+      <ol>
+      <?php for ($story = 1; $story < 4; $story++) :?>
+        <?php $story_num = "story" . $story; ?>
+        <?php if (isset($row[$story_num])) :?>
+        <li><a href="/go/<?php echo $row[$story_num]['story_hash'] ?>" class="external" rel="nofollow"><?php echo $row[$story_num]['story_title'] ?></a></li>
+        <?php endif; ?>
+        <?php if (!isset($row[$story_num]) && $story == 1) :?>
+        <li>No recent posts</li>
+        <?php endif; ?>
+      <?php endfor; ?>
+      </ol>
     </div>
+  <?php endforeach; ?>
   </div>
+
 </section>
 
 <?php echo $this->include('includes/footer');

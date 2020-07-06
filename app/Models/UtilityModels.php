@@ -21,11 +21,13 @@ class UtilityModels extends Model {
    *   RSS feed URL.
    * @param string $spoof
    *   Spoof user agent string (1/0).
+   * @param string $cache
+   *   Cache duration, in seconds. Default is 30 minutes.
    *
    * @return string
    *   RSS feed data.
    */
-  public function fetchFeed($feed, $spoof) {
+  public function fetchFeed($feed, $spoof, $cache = 1800) {
     $userAgent = $_ENV['UA_BMXFEED'];
 
     if ($spoof == 1) {
@@ -34,6 +36,7 @@ class UtilityModels extends Model {
 
     $rss = new \SimplePie();
     $rss->set_cache_location(WRITEPATH . '/cache');
+    $rss->set_cache_duration($cache);
     $rss->set_useragent($userAgent);
     $rss->set_item_limit(10);
     $rss->set_timeout(20);
@@ -61,11 +64,13 @@ class UtilityModels extends Model {
       $lastPost = $item->get_date('Y-m-d H:i:s');
     }
 
-    $lastFetch = date('Y-m-d H:i:s');
+    if (isset($lastPost)) {
+      $lastFetch = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
+      $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
 
-    $this->db->query($sql);
+      $this->db->query($sql);
+    }
   }
 
 }

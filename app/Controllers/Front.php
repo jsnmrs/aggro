@@ -52,6 +52,9 @@ class Front extends BaseController {
       'slug' => 'featured',
     ];
 
+    $newsModel = new NewsModels();
+
+    $data['built'] = $newsModel->featuredPage();
     echo view('featured', $data);
   }
 
@@ -82,7 +85,7 @@ class Front extends BaseController {
       $data['site'] = $newsModel->getSingleSite($slug);
 
       if (!empty($data['site'])) {
-        $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0);
+        $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0, 3600);
         $utilityModel->updateFeed($slug, $data['feedfetch']);
         echo view('site', $data);
       }
