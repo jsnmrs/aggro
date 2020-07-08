@@ -13,7 +13,6 @@
     "css": "npm run prettier:scss && npm run stylelint && npm run scss && npm run autoprefixer",
     "js": "npm run prettier:js && npm run eslint && npm run uglify",
     "postinstall": "npm run build",
-    "precommit": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
     "autoprefixer": "postcss -r \"public/css/*.css\"",
     "eslint": "eslint public/js/src/scripts.js --fix",
     "prettier:js": "prettier --write \"public/js/src/scripts.js\"",
@@ -23,17 +22,11 @@
     "test": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
     "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/scripts.js\" -m -o public/js/scripts.js"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run precommit"
-    }
-  },
   "devDependencies": {
     "autoprefixer": "^9.8.4",
     "cssnano": "^4.1.10",
     "eslint": "^7.4.0",
     "eslint-plugin-es5": "^1.5.0",
-    "husky": "^4.2.5",
     "moment": "^2.27.0",
     "node-sass": "^4.14.1",
     "postcss-cli": "^7.1.1",
