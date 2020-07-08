@@ -32,12 +32,14 @@ The entire test suite can be run by simply typing one command-line command from 
 
   > ./phpunit
 
-You can limit tests to those within a single test directory by specifying the directory name after phpunit. 
+You can limit tests to those within a single test directory by specifying the directory name after phpunit.
+
   > ./phpunit app/Models
 
 ## Generating Code Coverage
 
-To generate coverage information, including HTML reports you can view in your browser, you can use the following command: 
+To generate coverage information, including HTML reports you can view in your browser, you can use the following command:
+
   > ./phpunit --colors --coverage-text=tests/coverage.txt --coverage-html=tests/coverage/ -d memory_limit=1024m
 
 This runs all of the tests again collecting information about how many lines, functions, and files are tested. It also reports the percentage of the code that is covered by tests. It is collected in two formats: a simple text file that provides an overview as well as a comprehensive collection of HTML files that show the status of every line of code in the project.
@@ -46,11 +48,11 @@ The text file can be found at **tests/coverage.txt**. The HTML files can be view
 
 ## PHPUnit XML Configuration
 
-The repository has a ``phpunit.xml.dist`` file in the project root that's used for
+The repository has a `phpunit.xml.dist` file in the project root that's used for
 PHPUnit configuration. This is used to provide a default configuration if you
 do not have your own configuration file in the project root.
 
-The normal practice would be to copy ``phpunit.xml.dist`` to ``phpunit.xml``
+The normal practice would be to copy `phpunit.xml.dist` to `phpunit.xml`
 (which is git ignored), and to tailor it as you see fit. For instance, you might wish to exclude database tests, or automatically generate HTML code coverage reports.
 
 ## Test Cases
@@ -67,7 +69,10 @@ Most of the time you will want to write your own test cases to hold functions an
 All tests go in the **tests/** directory. Each test file is a class that extends a
 **Test Case** (see above) and contains methods for the individual tests. These method
 names must start with the word "test" and should have descriptive names for precisely what they are testing:
-`testUserCanModifyFile()` `testOutputColorMatchesInput()` `testIsLoggedInFailsWithInvalidUser()`
+
+`testUserCanModifyFile()`
+`testOutputColorMatchesInput()`
+`testIsLoggedInFailsWithInvalidUser()`
 
 Writing tests is an art, and there are many resources available to help learn how.
 Review the links above and always pay attention to your code coverage.
