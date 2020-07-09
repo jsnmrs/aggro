@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\NewsModels;
+
 /**
  * All feed-based contollers.
  */
@@ -18,6 +20,10 @@ class Feed extends BaseController {
    * OPML generator.
    */
   public function opml() {
+    $newsModel = new NewsModels();
+
+    $data['sites'] = $newsModel->getAllSites();
+    echo view('opml', $data);
   }
 
   /**
