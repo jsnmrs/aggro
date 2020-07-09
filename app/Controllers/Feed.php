@@ -13,7 +13,7 @@ class Feed extends BaseController {
    * Index -> RSS feed.
    */
   public function index() {
-    $this->rssfeed();
+    $this->newsfeed();
   }
 
   /**
@@ -23,25 +23,24 @@ class Feed extends BaseController {
     $newsModel = new NewsModels();
 
     $data['sites'] = $newsModel->getAllSites();
-    echo view('opml', $data);
-  }
-
-  /**
-   * RSS feed.
-   */
-  public function rss() {
-  }
-
-  /**
-   * RSS feed.
-   */
-  public function rssfeed() {
+    echo view('xml/opml', $data);
   }
 
   /**
    * Video RSS feed.
    */
-  public function videofeed() {
+  public function rss() {
+    echo "rss";
+  }
+
+  /**
+   * Directory RSS feed.
+   */
+  public function newsfeed() {
+    $newsModel = new NewsModels();
+
+    $data['updates'] = $newsModel->getAllUpdates();
+    echo view('xml/feed', $data);
   }
 
 }
