@@ -77,12 +77,12 @@ class Front extends BaseController {
     $utilityModel = new UtilityModels();
 
     if ($slug == NULL) {
-      $data['site'] = $newsModel->getAllSites();
+      $data['site'] = $newsModel->getSites();
       echo view('sites', $data);
     }
 
     if ($slug != NULL) {
-      $data['site'] = $newsModel->getSingleSite($slug);
+      $data['site'] = $newsModel->getSite($slug);
 
       if (!empty($data['site'])) {
         $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0, 3600);

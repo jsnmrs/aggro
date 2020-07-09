@@ -10,18 +10,6 @@ use CodeIgniter\Model;
 class NewsModels extends Model {
 
   /**
-   * Get all sites.
-   *
-   * @return object
-   *   Site data from table.
-   */
-  public function getAllSites() {
-    $sql = "SELECT * FROM news_feeds ORDER BY site_name";
-    $query = $this->db->query($sql);
-    return $query->getResult();
-  }
-
-  /**
    * Get single site.
    *
    * @param string $slug
@@ -30,11 +18,35 @@ class NewsModels extends Model {
    * @return object
    *   Site data from table.
    */
-  public function getSingleSite($slug) {
+  public function getSite($slug) {
     $slug = esc($slug);
     $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
     $query = $this->db->query($sql);
     return $query->getRowArray();
+  }
+
+  /**
+   * Get all sites.
+   *
+   * @return object
+   *   Site data from table.
+   */
+  public function getSites() {
+    $sql = "SELECT * FROM news_feeds ORDER BY site_name";
+    $query = $this->db->query($sql);
+    return $query->getResult();
+  }
+
+  /**
+   * Get recent directory updates.
+   *
+   * @return object
+   *   All feed data from table.
+   */
+  public function getSitesRecent() {
+    $sql = "SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10";
+    $query = $this->db->query($sql);
+    return $query->getResult();
   }
 
   /**
@@ -66,18 +78,6 @@ class NewsModels extends Model {
     }
 
     return $built;
-  }
-
-  /**
-   * Get all updates.
-   *
-   * @return object
-   *   All feed data from table.
-   */
-  public function getAllUpdates() {
-    $sql = "SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10";
-    $query = $this->db->query($sql);
-    return $query->getResult();
   }
 
 }

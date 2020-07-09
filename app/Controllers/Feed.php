@@ -22,14 +22,14 @@ class Feed extends BaseController {
   public function opml() {
     $newsModel = new NewsModels();
 
-    $data['sites'] = $newsModel->getAllSites();
+    $data['sites'] = $newsModel->getSites();
     echo view('xml/opml', $data);
   }
 
   /**
    * Video RSS feed.
    */
-  public function rss() {
+  public function videofeed() {
     echo "rss";
   }
 
@@ -39,7 +39,7 @@ class Feed extends BaseController {
   public function newsfeed() {
     $newsModel = new NewsModels();
 
-    $data['updates'] = $newsModel->getAllUpdates();
+    $data['updates'] = $newsModel->getSitesRecent();
     echo view('xml/feed', $data);
   }
 
