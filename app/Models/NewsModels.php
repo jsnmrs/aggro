@@ -12,7 +12,7 @@ class NewsModels extends Model {
   /**
    * Get all sites.
    *
-   * @return string
+   * @return object
    *   Site data from table.
    */
   public function getAllSites() {
@@ -27,7 +27,7 @@ class NewsModels extends Model {
    * @param string $slug
    *   Site slug.
    *
-   * @return string
+   * @return object
    *   Site data from table.
    */
   public function getSingleSite($slug) {
@@ -66,6 +66,18 @@ class NewsModels extends Model {
     }
 
     return $built;
+  }
+
+  /**
+   * Get all updates.
+   *
+   * @return object
+   *   All feed data from table.
+   */
+  public function getAllUpdates() {
+    $sql = "SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10";
+    $query = $this->db->query($sql);
+    return $query->getResult();
   }
 
 }
