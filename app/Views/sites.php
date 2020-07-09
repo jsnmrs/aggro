@@ -2,7 +2,7 @@
 
 /**
  * @file
- * About page template.
+ * Directory (sites) page template.
  */
 
 echo $this->include('includes/header'); ?>

@@ -24,7 +24,7 @@ class UtilityModels extends Model {
    * @param string $cache
    *   Cache duration, in seconds. Default is 30 minutes.
    *
-   * @return string
+   * @return object
    *   RSS feed data.
    */
   public function fetchFeed($feed, $spoof, $cache = 1800) {

@@ -10,31 +10,43 @@ use CodeIgniter\Model;
 class NewsModels extends Model {
 
   /**
-   * Get all sites.
+   * Get single site.
    *
-   * @return string
+   * @param string $slug
+   *   Site slug.
+   *
+   * @return object
    *   Site data from table.
    */
-  public function getAllSites() {
+  public function getSite($slug) {
+    $slug = esc($slug);
+    $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
+    $query = $this->db->query($sql);
+    return $query->getRowArray();
+  }
+
+  /**
+   * Get all sites.
+   *
+   * @return object
+   *   Site data from table.
+   */
+  public function getSites() {
     $sql = "SELECT * FROM news_feeds ORDER BY site_name";
     $query = $this->db->query($sql);
     return $query->getResult();
   }
 
   /**
-   * Get single site.
+   * Get recent directory updates.
    *
-   * @param string $slug
-   *   Site slug.
-   *
-   * @return string
-   *   Site data from table.
+   * @return object
+   *   All feed data from table.
    */
-  public function getSingleSite($slug) {
-    $slug = esc($slug);
-    $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
+  public function getSitesRecent() {
+    $sql = "SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10";
     $query = $this->db->query($sql);
-    return $query->getRowArray();
+    return $query->getResult();
   }
 
   /**
