@@ -27,4 +27,3 @@ jobs:
           VALIDATE_JAVASCRIPT_ES: true
           VALIDATE_ENV: true
           VALIDATE_HTML: true
-          VALIDATE_EDITORCONFIG: true
