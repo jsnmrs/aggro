@@ -12,6 +12,19 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
-[tests/**.php]
-indent_size = 2
-indent_style = tab
+# Ignore paths
+[/test/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+[/vendor/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
