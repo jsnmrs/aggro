@@ -12,8 +12,11 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
+[*.php]
+insert_final_newline = false
+
 # Ignore paths
-[/test/**]
+[test/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
@@ -21,7 +24,7 @@ trim_trailing_whitespace = unset
 indent_style = unset
 indent_size = unset
 
-[/vendor/**]
+[vendor/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
