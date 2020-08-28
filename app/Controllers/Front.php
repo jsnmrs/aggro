@@ -97,9 +97,18 @@ class Front extends BaseController {
   }
 
   /**
-   * Featured page.
+   * Stream page.
    */
   public function stream() {
+    $data = [
+      'title' => 'Stream',
+      'slug' => 'stream',
+    ];
+
+    $newsModel = new NewsModels();
+
+    $data['built'] = $newsModel->streamPage();
+    echo view('stream', $data);
   }
 
   /**

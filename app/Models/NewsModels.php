@@ -80,4 +80,21 @@ class NewsModels extends Model {
     return $built;
   }
 
+  /**
+   * Build stream page.
+   *
+   * @return array
+   *   Stream page.
+   */
+  public function streamPage() {
+    $sql = 'SELECT news_feeds.site_name, news_feeds.site_slug, news_featured.story_title, news_featured.story_permalink, news_featured.story_date, news_featured.story_hash
+            FROM news_featured
+            INNER JOIN news_feeds
+            ON news_featured.site_id = news_feeds.site_id
+            ORDER BY news_featured.story_date DESC
+            LIMIT 300';
+    $query = $this->db->query($sql);
+    return $query->getResult();
+  }
+
 }
