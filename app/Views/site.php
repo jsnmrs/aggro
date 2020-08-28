@@ -20,7 +20,7 @@ echo $this->include('includes/header'); ?>
       <?php endif; ?>
       <?php foreach ($feedfetch->get_items(0, 10) as $item) :?>
         <li>
-          <a href="<?php echo $item->get_permalink(); ?>" class="external">
+          <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer" class="external">
             <?php echo $item->get_title(); ?>
           </a>
           <span class="timeago" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
