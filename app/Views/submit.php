@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<section class="block" role="main" id="content">
+<main role="main" id="content">
   <div class="row">
     <div class="twelve columns prose">
       <h1>Submit</h1>
@@ -15,6 +15,6 @@ echo $this->include('includes/header'); ?>
       <p>Email <a href="mailto:jason@bmxfeed.com">jason@bmxfeed.com</a> or tweet <a href="https://twitter.com/bmxfeed/">@bmxfeed</a> and let me know.</p>
     </div>
   </div>
-</section>
+</main>
 
 <?php echo $this->include('includes/footer');

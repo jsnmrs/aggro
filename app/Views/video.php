@@ -13,7 +13,7 @@ if ($build['video_height'] != 0) {
 
 echo $this->include('includes/header'); ?>
 
-<section class="block" role="main" id="content">
+<main role="main" id="content">
   <div class="row">
     <div class="twelve columns player">
       <h1><?php echo $build['video_title']; ?></h1>
@@ -45,6 +45,6 @@ echo $this->include('includes/header'); ?>
       </div>
     </div>
   </div>
-</section>
+</main>
 
 <?php echo $this->include('includes/footer');

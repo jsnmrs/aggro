@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<section class="block" role="main" id="content">
+<main role="main" id="content">
   <div class="row">
     <div class="twelve columns">
       <h1>Log</h1>
@@ -18,6 +18,6 @@ echo $this->include('includes/header'); ?>
       </ul>
   </div>
 
-</section>
+</main>
 
 <?php echo $this->include('includes/footer');

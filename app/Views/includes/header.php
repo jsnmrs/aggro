@@ -6,7 +6,7 @@
  */
 ?>
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
 <head>
   <title><?php
   if (isset($build['site_name'])) {

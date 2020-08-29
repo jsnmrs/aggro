@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<section class="block" role="main" id="content">
+<main role="main" id="content">
   <div class="row">
     <div class="twelve columns player">
       <h1>Recent Videos</h1>
@@ -46,8 +46,6 @@ foreach ($build as $row) {
     </div>
 <?php } ?>
   </div>
-</section>
-
-</section>
+</main>
 
 <?php echo $this->include('includes/footer');

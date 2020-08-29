@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<section class="block" role="main" id="content">
+<main role="main" id="content">
   <div class="row">
     <div class="twelve columns">
       <h1>Page not found</h1>
@@ -15,6 +15,6 @@ echo $this->include('includes/header'); ?>
       <p>Head back to the <a href="/">bmxfeed homepage</a> and maybe you’ll find what you’re looking from there.</p>
     </div>
   </div>
-</section>
+</main>
 
 <?php echo $this->include('includes/footer');

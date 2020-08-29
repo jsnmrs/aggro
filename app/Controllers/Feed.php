@@ -33,7 +33,7 @@ class Feed extends BaseController {
   public function videofeed() {
     $aggroModel = new AggroModels();
 
-    $data['build'] = $aggroModel->getVideos('recent', 'year', 25, 0);
+    $data['build'] = $aggroModel->getVideos('recent', 'month', 25, 0);
     echo view('xml/rss', $data);
   }
 
