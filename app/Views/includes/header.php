@@ -9,8 +9,11 @@
 <html class="no-js" lang="en">
 <head>
   <title><?php
-  if (isset($site['site_name'])) {
-    echo $site['site_name'] . " | ";
+  if (isset($build['site_name'])) {
+    echo $build['site_name'] . " | ";
+  }
+  if (isset($build['video_title'])) {
+    echo $build['video_title'] . " | ";
   }
   if (isset($title)) {
     echo esc($title) . " | ";
@@ -18,7 +21,6 @@
   ?>BMXfeed</title>
   <meta charset="utf-8">
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
-  <meta name="keywords" content="bmx, video, edit, rss, feed, atom, aggregator">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
   <meta name="theme-color" content="#005600">

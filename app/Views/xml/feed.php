@@ -2,7 +2,7 @@
 
 /**
  * @file
- * OPML feed template.
+ * Directory RSS feed template.
  */
 
 header("Content-Type: text/xml");
@@ -13,7 +13,7 @@ echo "<title>BMXfeed</title>\n";
 echo "<link>https://bmxfeed.com</link>\n";
 echo "<description>BMXfeed directory updates</description>\n";
 echo "<atom:link href=\"https://bmxfeed.com/feed/\" rel=\"self\" type=\"application/rss+xml\" />\n";
-foreach ($updates as $row) {
+foreach ($build as $row) {
   echo "<item>\n";
   echo "<title>" . stripslashes($row->site_name) . " on BMXfeed</title>\n";
   echo "<link>https://bmxfeed.com/sites/" . $row->site_slug . "/</link>\n";

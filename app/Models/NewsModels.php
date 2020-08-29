@@ -15,7 +15,7 @@ class NewsModels extends Model {
    * @param string $slug
    *   Site slug.
    *
-   * @return object
+   * @return array
    *   Site data from table.
    */
   public function getSite($slug) {

@@ -15,7 +15,7 @@ echo $this->include('includes/header'); ?>
       <p>Did I miss a site? <a href="/submit/">Let me know</a>.</p>
 
       <ul class="list-col">
-        <?php foreach ($site as $siteResult) :?>
+        <?php foreach ($build as $siteResult) :?>
         <li><a href="/sites/<?php echo $siteResult->site_slug; ?>"><?php echo $siteResult->site_name; ?></a></li>
         <?php endforeach; ?>
       </ul>

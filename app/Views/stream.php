@@ -17,7 +17,7 @@ echo $this->include('includes/header'); ?>
   <div class="row">
     <div class="twelve columns">
       <ul>
-      <?php foreach ($built as $row) :?>
+      <?php foreach ($build as $row) :?>
         <li class="news-item">
           <span class="news-source">
             <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars($row->site_name); ?></a>

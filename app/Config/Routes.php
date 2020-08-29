@@ -42,6 +42,7 @@ $routes->add('sites/(:any)', 'Front::sites/$1');
 $routes->add('stream', 'Front::stream');
 $routes->add('submit', 'Front::submit');
 $routes->add('video', 'Front::video');
+$routes->add('video/(:any)', 'Front::video/$1');
 
 
 /**

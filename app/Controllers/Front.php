@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AggroModels;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
 
@@ -54,7 +55,7 @@ class Front extends BaseController {
 
     $newsModel = new NewsModels();
 
-    $data['built'] = $newsModel->featuredPage();
+    $data['build'] = $newsModel->featuredPage();
     echo view('featured', $data);
   }
 
@@ -77,20 +78,20 @@ class Front extends BaseController {
     $utilityModel = new UtilityModels();
 
     if ($slug == NULL) {
-      $data['site'] = $newsModel->getSites();
+      $data['build'] = $newsModel->getSites();
       echo view('sites', $data);
     }
 
     if ($slug != NULL) {
-      $data['site'] = $newsModel->getSite($slug);
+      $data['build'] = $newsModel->getSite($slug);
 
-      if (!empty($data['site'])) {
-        $data['feedfetch'] = $utilityModel->fetchFeed($data['site']['site_feed'], 0, 3600);
+      if (!empty($data['build'])) {
+        $data['feedfetch'] = $utilityModel->fetchFeed($data['build']['site_feed'], 0, 3600);
         $utilityModel->updateFeed($slug, $data['feedfetch']);
         echo view('site', $data);
       }
 
-      if (empty($data['site'])) {
+      if (empty($data['build'])) {
         $this->error404();
       }
     }
@@ -107,7 +108,7 @@ class Front extends BaseController {
 
     $newsModel = new NewsModels();
 
-    $data['built'] = $newsModel->streamPage();
+    $data['build'] = $newsModel->streamPage();
     echo view('stream', $data);
   }
 
@@ -127,6 +128,63 @@ class Front extends BaseController {
    * Video pages.
    */
   public function video() {
+    $data = [
+      'title' => 'Videos',
+      'slug' => 'video',
+    ];
+
+    $aggroModel = new AggroModels();
+
+    $totalSegments = $this->request->uri->getTotalSegments();
+
+    $slug = esc($this->request->uri->getSegment(2));
+    if ($totalSegments == 3) {
+      $page = esc($this->request->uri->getSegment(3));
+    }
+
+    if ($slug != NULL && $slug != "recent") {
+      $data['build'] = $aggroModel->getVideo($slug);
+
+      if (!empty($data['build'])) {
+        echo view('video', $data);
+      }
+
+      if (empty($data['build'])) {
+        $this->error404();
+      }
+    }
+
+    if ($slug == NULL || $slug == "recent") {
+      if (!isset($page) || $page == 0) {
+        $data['page'] = 1;
+      }
+
+      if (isset($page) && is_numeric($page)) {
+        $data['page'] = intval($page);
+      }
+
+      if ($data['page']) {
+        $data['sort'] = 'recent';
+        $data['range'] = 'year';
+        $data['perpage'] = 24;
+        $data['offset'] = ($data['page'] - 1) * $data['perpage'];
+        $data['total'] = $aggroModel->getVideosTotal();
+        $data['endpage'] = ceil($data['total'] / $data['perpage']);
+
+        if ($data['page'] > $data['endpage']) {
+          $this->error404();
+        }
+
+        if ($data['page'] <= $data['endpage']) {
+          $data['build'] = $aggroModel->getVideos($data['sort'], $data['range'], $data['perpage'], $data['offset']);
+          echo view('videos', $data);
+        }
+      }
+
+      if (!$data['page']) {
+        $this->error404();
+      }
+    }
   }
 
 }

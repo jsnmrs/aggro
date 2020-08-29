@@ -15,7 +15,7 @@ echo $this->include('includes/header'); ?>
   </div>
 
   <div class="row">
-  <?php foreach ($built as $row) :?>
+  <?php foreach ($build as $row) :?>
     <div class="six columns feature" role="article">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
