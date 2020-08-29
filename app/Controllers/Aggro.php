@@ -2,6 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Models\NewsModels;
+use App\Models\UtilityModels;
+
 /**
  * All aggro contollers.
  */
@@ -20,12 +23,28 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function featured() {
+    $newsModel = new NewsModels();
+
+    $status = $newsModel->featuredBuilder();
+    if ($status === TRUE) {
+      echo "Featured page built.";
+    }
+    log_message('error', 'featured build failed');
   }
 
   /**
    * Show aggro log.
    */
   public function log() {
+    $data = [
+      'title' => 'Log',
+      'slug' => 'log',
+    ];
+
+    $utilityModel = new UtilityModels();
+
+    $data['build'] = $utilityModel->getLog();
+    echo view('log', $data);
   }
 
   /**

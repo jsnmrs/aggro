@@ -73,7 +73,7 @@ class AggroModels extends Model {
    *   Total number of active videos.
    */
   public function getVideosTotal() {
-    $sql = 'SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> "0000-00-00 00:00:00"';
+    $sql = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> '0000-00-00 00:00:00'";
     $query = $this->db->query($sql);
     return count($query->getResultArray());
   }
