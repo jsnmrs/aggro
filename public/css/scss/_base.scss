@@ -50,13 +50,22 @@ a {
     color: $primary;
   }
 
-  // stylelint-disable selector-no-qualifying-type
   &:focus,
   &:hover,
   &[aria-current="page"] {
     color: $primary-selected;
   }
-  // stylelint-enable
+
+  &[aria-current="page"] {
+    text-decoration: none;
+    border-bottom: 0.125rem solid $primary-selected;
+  }
+
+  &:focus {
+    text-decoration: none;
+    border: 0;
+    outline: 0.1875rem solid $primary-selected;
+  }
 }
 
 img {
