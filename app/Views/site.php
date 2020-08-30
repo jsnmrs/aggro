@@ -8,7 +8,7 @@
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap prose">
+  <div class="wrap">
     <div class="full">
       <h1><?php echo $build['site_name']; ?></h1>
       <p>Site: <a href="<?php echo $build['site_url']; ?>"><?php echo $build['site_url']; ?></a><br>
@@ -20,10 +20,10 @@ echo $this->include('includes/header'); ?>
       <?php endif; ?>
       <?php foreach ($feedfetch->get_items(0, 10) as $item) :?>
         <li>
-          <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer" class="external">
+          <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer">
             <?php echo $item->get_title(); ?>
           </a>
-          <span class="timeago" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
+          <span class="ago" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
         </li>
       <?php endforeach; ?>
       </ul>

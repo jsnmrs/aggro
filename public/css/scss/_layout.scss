@@ -1,4 +1,5 @@
 .wrap {
+  position: relative;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
@@ -13,17 +14,17 @@
   width: 100%;
 }
 
-.featurebox {
+.box {
   flex-basis: 100%;
+}
 
+.box--feature {
   @include bp($medium) {
     flex-basis: 48%;
   }
 }
 
-.videobox {
-  flex-basis: 100%;
-
+.box--video {
   @include bp($medium) {
     flex-basis: 31%;
   }
@@ -40,8 +41,7 @@ footer {
   padding-right: 0.5rem;
 }
 
-.header,
-.footer {
+.outer {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   background-color: $gray-lighter;
@@ -53,24 +53,20 @@ main {
   background-color: $white;
 }
 
-.timeago {
+.ago {
   padding-left: 0.25rem;
   color: $gray-dark;
   font-weight: 400;
   font-size: 70%;
 
-  .player & {
+  &--inline {
     padding: inherit;
     color: inherit;
     font-size: inherit;
   }
 }
 
-.scroll-nav {
-  text-align: center;
-}
-
-.tagline {
+footer p {
   margin: 0;
   padding-bottom: 0.25rem;
 }
@@ -89,83 +85,7 @@ main {
   }
 }
 
-.flex-video {
-  position: relative;
-  height: 0;
-  margin-bottom: 1rem;
-  padding-top: 1.5rem;
-  padding-bottom: 67.5%;
-  overflow: hidden;
-
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    max-height: 95vh;
-  }
-
-  &.widescreen {
-    padding-bottom: 56.25%;
-  }
-
-  &.vimeo {
-    padding-top: 0;
-  }
-}
-
-.theater {
-  @include bp($medium) {
-    margin-bottom: -1em;
-    padding-top: 2em;
-    padding-bottom: 2em;
-    background-color: $black-print;
-  }
-
-  @include bp($x-large) {
-    padding-top: 3.5em;
-    padding-bottom: 3.5em;
-  }
-}
-
-.label {
-  position: relative;
-  top: -0.25em;
-  display: inline-block;
-  padding: 0.5em;
-  color: $white;
-  font-size: 65%;
-  line-height: 1;
-  background-color: $black;
-  border-radius: 0.4em;
-
-  &:link,
-  &:visited {
-    color: $white;
-  }
-}
-
-.alert {
-  background-color: $alert;
-}
-
-.secondary {
-  background-color: $secondary;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.25em;
-}
-
-input[type="submit"],
-.button {
-  background-color: $gray-lighter;
-  border: 0.0625rem solid $gray;
-}
-
-.news-source {
+.stream__source {
   display: block;
   color: $black;
 
@@ -183,12 +103,51 @@ input[type="submit"],
   }
 }
 
-.list-col {
+.columns {
   @include bp($x-small) {
     column-count: 2;
   }
 
   @include bp($medium) {
     column-count: 3;
+  }
+}
+
+.video {
+  height: 0;
+  margin-bottom: 1rem;
+  padding-top: 1.5rem;
+  padding-bottom: 67.5%;
+  overflow: hidden;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 95vh;
+  }
+
+  &--wide {
+    padding-bottom: 56.25%;
+  }
+
+  &--vimeo {
+    padding-top: 0;
+  }
+
+  &__outer {
+    @include bp($medium) {
+      margin-bottom: -1em;
+      padding-top: 2em;
+      padding-bottom: 2em;
+      background-color: $black-print;
+    }
+
+    @include bp($x-large) {
+      padding-top: 3.5em;
+      padding-bottom: 3.5em;
+    }
   }
 }

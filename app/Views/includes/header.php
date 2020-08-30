@@ -40,39 +40,39 @@
 <body>
 <a href="#content" class="skip">Skip to content</a>
 
-<div class="header">
+<div class="outer">
   <div class="wrap">
     <header>
       <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
-      <p class="u-hidden-visually">The BMX news and video aggregator</p>
+      <p class="u-sr">The BMX news and video aggregator</p>
     </header>
     <nav>
-      <ul class="u-list-inline nav">
+      <ul class="nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>News</a></li>
         <li><a href="/stream/"
           <?php if ($slug == "stream") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Stream</a></li>
         <li><a href="/video/"
           <?php if ($slug == "video") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Videos</a></li>
         <li><a href="/sites/"
           <?php if ($slug == "sites") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Directory</a></li>
         <li><a href="/about/"
           <?php if ($slug == "about") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
-          ?>>About<span class="u-hidden-visually"> BMXfeed</span></a></li>
+          ?>>About<span class="u-sr"> BMXfeed</span></a></li>
       </ul>
     </nav>
   </div>

@@ -8,7 +8,7 @@
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap prose">
+  <div class="wrap">
     <div class="full">
       <h1>Submit</h1>
       <p>BMXfeed does a pretty good job at finding websites and videos automatically, but it can't find everything. <strong>Do you have a site or video I should add?</strong></p>

@@ -53,7 +53,7 @@ a {
   // stylelint-disable selector-no-qualifying-type
   &:focus,
   &:hover,
-  &.on {
+  &[aria-current="page"] {
     color: $primary-selected;
   }
   // stylelint-enable
@@ -71,9 +71,7 @@ h1,
 h2,
 .h2,
 h3,
-.h3,
-h4,
-h5 {
+.h3 {
   margin-top: 0.5rem;
   margin-bottom: 0;
   font-weight: 700;
@@ -110,16 +108,8 @@ h3,
   }
 }
 
-h4 {
-  color: $gray-dark;
-  font-size: 1.2rem;
-}
-
-h5 {
-  font-size: 1.125rem;
-}
-
 p {
+  max-width: 65ch;
   margin-top: 0.5rem;
   margin-bottom: 1rem;
   font-size: 1rem;
@@ -149,6 +139,7 @@ textarea {
   line-height: 1.15;
 }
 
-.prose p {
-  max-width: 65ch;
+input[type="submit"] {
+  background-color: $gray-lighter;
+  border: 0.0625rem solid $gray;
 }

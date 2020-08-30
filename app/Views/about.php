@@ -8,7 +8,7 @@
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap prose">
+  <div class="wrap">
     <div class="full">
       <h1>About BMXfeed</h1>
       <p>Launched in early 2006, BMXfeed has grown from a directory of links to a news and video aggregator for all things bmx.</p>

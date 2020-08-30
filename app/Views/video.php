@@ -14,24 +14,24 @@ if ($build['video_height'] != 0) {
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap player">
+  <div class="wrap">
     <div class="full">
       <h1><?php echo $build['video_title']; ?></h1>
-      <p>Spotted <span class="timeago" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer" class="external"><?php echo $build['video_source_username']; ?></a>.</p>
+      <p>Spotted <span class="ago ago--inline" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer"><?php echo $build['video_source_username']; ?></a>.</p>
     </div>
   </div>
 
-  <div class="theater">
-    <div class="wrap player">
-      <div class="flex-video<?php
+  <div class="video__outer">
+    <div class="wrap">
+      <div class="video<?php
       if ($ratio > 1.5) {
-        echo " widescreen";
+        echo " video--wide";
       }
       if ($build['video_type'] == "vimeo") {
-        echo " vimeo";
+        echo " video--vimeo";
       }
       if ($build['video_type'] == "youtube") {
-        echo " youtube";
+        echo " video--youtube";
       }
       ?>">
         <?php if ($build['video_type'] == "vimeo") :?>

@@ -8,7 +8,7 @@
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap prose">
+  <div class="wrap">
     <div class="full">
       <h1>Page not found</h1>
       <p>We can’t find the page you were looking for.</p>

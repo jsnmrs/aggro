@@ -14,16 +14,16 @@ echo $this->include('includes/header'); ?>
 
   <div class="wrap">
   <?php foreach ($build as $row) :?>
-    <article class="featurebox">
+    <article class="box box--feature">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
-        <span class="timeago" title="<?php echo $row['site_date_last_post']; ?>"></span>
+        <span class="ago" title="<?php echo $row['site_date_last_post']; ?>"></span>
       </h2>
       <ol>
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $story_num = "story" . $story; ?>
         <?php if (isset($row[$story_num])) :?>
-        <li><a href="<?php echo $row[$story_num]['story_permalink']; ?>" class="external" rel="noopener noreferrer" data-outgoing="<?php echo $row[$story_num]['story_hash']; ?>"><?php echo htmlspecialchars_decode($row[$story_num]['story_title']); ?></a></li>
+        <li><a href="<?php echo $row[$story_num]['story_permalink']; ?>" rel="noopener noreferrer" data-outgoing="<?php echo $row[$story_num]['story_hash']; ?>"><?php echo htmlspecialchars_decode($row[$story_num]['story_title']); ?></a></li>
         <?php endif; ?>
         <?php if (!isset($row[$story_num]) && $story == 1) :?>
         <li>No recent posts</li>

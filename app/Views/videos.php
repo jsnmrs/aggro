@@ -8,13 +8,13 @@
 echo $this->include('includes/header'); ?>
 
 <main id="content">
-  <div class="wrap player">
+  <div class="wrap">
     <h1>Recent Videos</h1>
   </div>
 
   <div class="wrap">
 <?php foreach ($build as $row) :?>
-    <div class="videobox">
+    <div class="box box--video">
       <a href="/video/<?php echo $row->video_id; ?>">
         <img src="/thumbs/<?php echo $row->video_id; ?>.jpg" alt="">
         <p><?php echo $row->video_title; ?></p>
@@ -24,8 +24,8 @@ echo $this->include('includes/header'); ?>
   </div>
 
 <?php if ($page != $endpage) { ?>
-  <div class="wrap scroll-nav">
-    <a id="next" href="/video/<?php echo $sort; ?>/<?php echo $page + 1; ?>/">See more videos</a>
+  <div class="wrap">
+    <a href="/video/<?php echo $sort; ?>/<?php echo $page + 1; ?>/">See more videos</a>
   </div>
 <?php } ?>
 </main>
