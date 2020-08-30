@@ -7,16 +7,14 @@
 
 echo $this->include('includes/header'); ?>
 
-<main role="main" id="content">
-  <div class="row">
-    <div class="twelve columns">
-      <h1>News</h1>
-    </div>
+<main id="content">
+  <div class="wrap">
+    <h1>News</h1>
   </div>
 
-  <div class="row">
+  <div class="wrap">
   <?php foreach ($build as $row) :?>
-    <div class="six columns feature" role="article">
+    <article class="featurebox">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
         <span class="timeago" title="<?php echo $row['site_date_last_post']; ?>"></span>
@@ -32,7 +30,7 @@ echo $this->include('includes/header'); ?>
         <?php endif; ?>
       <?php endfor; ?>
       </ol>
-    </div>
+    </article>
   <?php endforeach; ?>
   </div>
 

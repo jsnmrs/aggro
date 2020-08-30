@@ -40,13 +40,13 @@
 <body>
 <a href="#content" class="skip">Skip to content</a>
 
-<header>
-  <div class="row">
-    <div class="four columns" role="banner">
+<div class="header">
+  <div class="wrap">
+    <header>
       <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
       <p class="u-hidden-visually">The BMX news and video aggregator</p>
-    </div>
-    <div class="eight columns" role="navigation">
+    </header>
+    <nav>
       <ul class="u-list-inline nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
@@ -74,6 +74,6 @@
           }
           ?>>About<span class="u-hidden-visually"> BMXfeed</span></a></li>
       </ul>
-    </div>
+    </nav>
   </div>
-</header>
+</div>

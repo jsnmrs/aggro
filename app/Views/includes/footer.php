@@ -5,12 +5,12 @@
  * Site footer include.
  */
 ?>
-<footer>
-  <div class="row">
-    <div class="four columns" role="contentinfo">
+<div class="footer">
+  <div class="wrap">
+    <footer>
       <p class="tagline">BMXfeed. Since '06.</p>
-    </div>
-    <div class="eight columns">
+    </footer>
+    <nav>
       <ul class="u-list-inline nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
@@ -38,9 +38,9 @@
           }
           ?>>About<span class="u-hidden-visually"> BMXfeed</span></a></li>
       </ul>
-    </div>
+    </nav>
   </div>
-</footer>
+</div>
 
 <script src="/js/scripts.js"></script>
 </body>

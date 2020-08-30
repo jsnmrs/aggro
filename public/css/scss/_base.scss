@@ -1,13 +1,23 @@
-* {
+*,
+::before,
+::after {
   box-sizing: border-box;
 
-  &::after,
-  &::before {
-    box-sizing: border-box;
+  @media (prefers-reduced-motion: reduce) {
+    // stylelint-disable declaration-no-important, plugin/no-unsupported-browser-features
+    background-attachment: initial !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+    animation-duration: 1ms !important;
+    animation-delay: -1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    // stylelint-enable
   }
 }
 
 html {
+  scroll-padding-top: 5rem;
   font-size: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica",
     "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
@@ -25,17 +35,15 @@ html {
 body {
   margin: 0;
   color: $black;
-  line-height: 1.4;
+  line-height: 1.5;
   background-color: $gray-lighter;
 }
 
 a {
   position: relative;
-  text-decoration-skip: objects;
 
   &:link {
     color: $primary;
-    text-decoration: none;
   }
 
   &:visited {
@@ -47,7 +55,6 @@ a {
   &:hover,
   &.on {
     color: $primary-selected;
-    text-decoration: underline;
   }
   // stylelint-enable
 }
@@ -71,6 +78,10 @@ h5 {
   margin-bottom: 0;
   font-weight: 700;
   line-height: 1.2;
+
+  :link {
+    text-decoration: none;
+  }
 }
 
 h1,
@@ -101,7 +112,7 @@ h3,
 
 h4 {
   color: $gray-dark;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
 }
 
 h5 {

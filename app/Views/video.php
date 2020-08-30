@@ -13,35 +13,31 @@ if ($build['video_height'] != 0) {
 
 echo $this->include('includes/header'); ?>
 
-<main role="main" id="content">
-  <div class="row">
-    <div class="twelve columns player">
-      <h1><?php echo $build['video_title']; ?></h1>
-      <p>Spotted <span class="timeago" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer" class="external"><?php echo $build['video_source_username']; ?></a>.</p>
-    </div>
+<main id="content">
+  <div class="wrap player">
+    <h1><?php echo $build['video_title']; ?></h1>
+    <p>Spotted <span class="timeago" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer" class="external"><?php echo $build['video_source_username']; ?></a>.</p>
   </div>
 
   <div class="theater">
-    <div class="row">
-      <div class="twelve columns player">
-        <div class="flex-video<?php
-        if ($ratio > 1.5) {
-          echo " widescreen";
-        }
-        if ($build['video_type'] == "vimeo") {
-          echo " vimeo";
-        }
-        if ($build['video_type'] == "youtube") {
-          echo " youtube";
-        }
-        ?>">
-          <?php if ($build['video_type'] == "vimeo") :?>
-            <iframe src="https://player.vimeo.com/video/<?php echo $build['video_id']; ?>?dnt=true&amp;portrait=0&amp;byline=0&amp;title=0&amp;autoplay=0&amp;color=ffffff" frameborder="0" title="<?php echo htmlspecialchars($build['video_title']); ?>" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-          <?php endif; ?>
-          <?php if ($build['video_type'] == "youtube") :?>
-            <iframe src="https://www.youtube-nocookie.com/embed/<?php echo $build['video_id']; ?>?rel=0&amp;showinfo=0" frameborder="0" title="<?php echo htmlspecialchars($build['video_title']); ?>" allowfullscreen></iframe>
-          <?php endif; ?>
-        </div>
+    <div class="wrap player">
+      <div class="flex-video<?php
+      if ($ratio > 1.5) {
+        echo " widescreen";
+      }
+      if ($build['video_type'] == "vimeo") {
+        echo " vimeo";
+      }
+      if ($build['video_type'] == "youtube") {
+        echo " youtube";
+      }
+      ?>">
+        <?php if ($build['video_type'] == "vimeo") :?>
+          <iframe src="https://player.vimeo.com/video/<?php echo $build['video_id']; ?>?dnt=true&amp;portrait=0&amp;byline=0&amp;title=0&amp;autoplay=0&amp;color=ffffff" frameborder="0" title="<?php echo htmlspecialchars($build['video_title']); ?>" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+        <?php endif; ?>
+        <?php if ($build['video_type'] == "youtube") :?>
+          <iframe src="https://www.youtube-nocookie.com/embed/<?php echo $build['video_id']; ?>?rel=0&amp;showinfo=0" frameborder="0" title="<?php echo htmlspecialchars($build['video_title']); ?>" allowfullscreen></iframe>
+        <?php endif; ?>
       </div>
     </div>
   </div>
