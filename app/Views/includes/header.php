@@ -32,6 +32,7 @@
   <style type="text/css">
     <?php
     $file = file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
+    $file = str_replace("/*# sourceMappingURL=styles.css.map */", "", $file);
     echo $file;
     ?>
   </style>
