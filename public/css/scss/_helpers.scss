@@ -1,6 +1,6 @@
 // stylelint-disable plugin/no-unsupported-browser-features
 %u-hidden-visually:not(:focus):not(:active),
-.u-hidden-visually:not(:focus):not(:active) {
+.u-sr:not(:focus):not(:active) {
   position: absolute;
   width: 0.1rem;
   height: 0.1rem;
@@ -15,7 +15,8 @@
 // stylelint-enable
 
 // stylelint-disable plugin/no-unsupported-browser-features
-.u-word-wrap {
+%u-word-wrap,
+.u-wrap {
   word-wrap: break-word;
   -ms-word-break: break-all;
   word-break: break-word;
@@ -27,9 +28,8 @@
 }
 // stylelint-enable
 
-.u-list-inline {
-  margin-top: 1rem;
-  margin-left: 0;
+.nav {
+  margin: 0;
   list-style: none;
 
   li {

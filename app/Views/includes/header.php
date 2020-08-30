@@ -6,11 +6,14 @@
  */
 ?>
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
 <head>
   <title><?php
-  if (isset($site['site_name'])) {
-    echo $site['site_name'] . " | ";
+  if (isset($build['site_name'])) {
+    echo $build['site_name'] . " | ";
+  }
+  if (isset($build['video_title'])) {
+    echo $build['video_title'] . " | ";
   }
   if (isset($title)) {
     echo esc($title) . " | ";
@@ -18,7 +21,6 @@
   ?>BMXfeed</title>
   <meta charset="utf-8">
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
-  <meta name="keywords" content="bmx, video, edit, rss, feed, atom, aggregator">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
   <meta name="theme-color" content="#005600">
@@ -30,6 +32,7 @@
   <style type="text/css">
     <?php
     $file = file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
+    $file = str_replace("/*# sourceMappingURL=styles.css.map */", "", $file);
     echo $file;
     ?>
   </style>
@@ -38,40 +41,40 @@
 <body>
 <a href="#content" class="skip">Skip to content</a>
 
-<header>
-  <div class="row">
-    <div class="four columns" role="banner">
+<div class="outer">
+  <div class="wrap">
+    <header>
       <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
-      <p class="u-hidden-visually">The BMX news and video aggregator</p>
-    </div>
-    <div class="eight columns" role="navigation">
-      <ul class="u-list-inline nav">
+      <p class="u-sr">The BMX news and video aggregator</p>
+    </header>
+    <nav>
+      <ul class="nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>News</a></li>
         <li><a href="/stream/"
           <?php if ($slug == "stream") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Stream</a></li>
         <li><a href="/video/"
           <?php if ($slug == "video") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Videos</a></li>
         <li><a href="/sites/"
           <?php if ($slug == "sites") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
           ?>>Directory</a></li>
         <li><a href="/about/"
           <?php if ($slug == "about") {
-            echo " class=\"on\"";
+            echo " aria-current=\"page\"";
           }
-          ?>>About<span class="u-hidden-visually"> BMXfeed</span></a></li>
+          ?>>About<span class="u-sr"> BMXfeed</span></a></li>
       </ul>
-    </div>
+    </nav>
   </div>
-</header>
+</div>

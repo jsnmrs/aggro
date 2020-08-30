@@ -13,7 +13,7 @@ echo "<title>BMXfeed OPML</title>\n";
 echo "</head>\n";
 echo "<body>\n";
 echo "<outline text=\"BMXfeed\">\n";
-foreach ($sites as $row) {
+foreach ($build as $row) {
   echo "<outline title=\"" . htmlspecialchars($row->site_name) . "\" text=\"" . htmlspecialchars($row->site_name) . "\" type=\"rss\" xmlUrl=\"" . htmlspecialchars($row->site_feed) . "\" htmlUrl=\"" . htmlspecialchars($row->site_url) . "\" />\n";
 }
 echo "</outline>\n";
