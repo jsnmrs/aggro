@@ -15,8 +15,10 @@ echo $this->include('includes/header'); ?>
 
 <main id="content">
   <div class="wrap player">
-    <h1><?php echo $build['video_title']; ?></h1>
-    <p>Spotted <span class="timeago" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer" class="external"><?php echo $build['video_source_username']; ?></a>.</p>
+    <div class="full">
+      <h1><?php echo $build['video_title']; ?></h1>
+      <p>Spotted <span class="timeago" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer" class="external"><?php echo $build['video_source_username']; ?></a>.</p>
+    </div>
   </div>
 
   <div class="theater">

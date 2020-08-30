@@ -1,9 +1,43 @@
 .wrap {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
   width: 100%;
   max-width: $max-width;
   margin: 0 auto;
   padding-right: 1rem;
   padding-left: 1rem;
+}
+
+.full {
+  width: 100%;
+}
+
+.featurebox {
+  flex-basis: 100%;
+
+  @include bp($medium) {
+    flex-basis: 48%;
+  }
+}
+
+.videobox {
+  flex-basis: 100%;
+
+  @include bp($medium) {
+    flex-basis: 31%;
+  }
+}
+
+header,
+footer,
+nav {
+  align-self: end;
+}
+
+header,
+footer {
+  padding-right: 0.5rem;
 }
 
 .header,
@@ -38,6 +72,7 @@ main {
 
 .tagline {
   margin: 0;
+  padding-bottom: 0.25rem;
 }
 
 .skip {
@@ -49,7 +84,7 @@ main {
     left: 0;
     z-index: 25;
     display: block;
-    padding: 0.5em;
+    padding: 0.5rem;
     background-color: $white;
   }
 }
