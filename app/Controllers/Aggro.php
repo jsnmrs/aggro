@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AggroModels;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
 
@@ -53,6 +54,13 @@ class Aggro extends BaseController {
    * Set cron to run every 60 minutes.
    */
   public function sweep() {
+    $aggroModel = new AggroModels();
+
+    $status = $aggroModel->archiveVideos();
+    if ($status === TRUE) {
+      echo "Old videos archived.";
+    }
+    log_message('error', 'Video archiving failed');
   }
 
   /**
