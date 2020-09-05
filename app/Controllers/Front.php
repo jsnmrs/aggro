@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\AggroModels;
 use App\Models\NewsModels;
-use App\Models\UtilityModels;
 
 /**
  * All front-end contollers.
@@ -69,13 +68,13 @@ class Front extends BaseController {
    * Sites page.
    */
   public function sites($slug = NULL) {
+    helper('aggro');
     $data = [
       'title' => 'Directory',
       'slug' => 'sites',
     ];
 
     $newsModel = new NewsModels();
-    $utilityModel = new UtilityModels();
 
     if ($slug == NULL) {
       $data['build'] = $newsModel->getSites();
@@ -86,8 +85,8 @@ class Front extends BaseController {
       $data['build'] = $newsModel->getSite($slug);
 
       if (!empty($data['build'])) {
-        $data['feedfetch'] = $utilityModel->fetchFeed($data['build']['site_feed'], 0, 3600);
-        $utilityModel->updateFeed($slug, $data['feedfetch']);
+        $data['feedfetch'] = fetch_feed($data['build']['site_feed'], 0, 3600);
+        $newsModel->updateFeed($slug, $data['feedfetch']);
         echo view('site', $data);
       }
 
