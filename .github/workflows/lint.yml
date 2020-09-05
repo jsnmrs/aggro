@@ -21,7 +21,6 @@ jobs:
           VALIDATE_JSON: true
           VALIDATE_XML: true
           VALIDATE_MD: true
-          VALIDATE_BASH: true
           VALIDATE_PHP: true
           VALIDATE_JAVASCRIPT_ES: true
           VALIDATE_ENV: true
