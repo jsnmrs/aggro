@@ -51,6 +51,37 @@ class NewsModels extends Model {
   }
 
   /**
+   * Clean featured table.
+   */
+  public function featuredCleaner() {
+    $utilityModel = new UtilityModels();
+    $now = date("Y-m-d H:i:s");
+    $counter = 0;
+    $sql = 'SELECT DISTINCT site_id FROM news_featured';
+    $query = $this->db->query($sql);
+    $featured = $query->getResult();
+    foreach ($featured as $row) {
+      $innersql = "SELECT *
+                    FROM news_featured
+                    WHERE site_id=" . $row->site_id . "
+                    AND story_date < DATE_SUB('" . $now . "',INTERVAL 45 DAY)";
+      $innerquery = $this->db->query($innersql);
+      $sitefeatured = $innerquery->getResult();
+
+      foreach ($sitefeatured as $innerrow) {
+        $cleansql = "DELETE FROM news_featured WHERE story_id='" . $innerrow->story_id . "'";
+        $this->db->query($cleansql);
+        $counter++;
+      }
+    }
+    $cleanup = 'OPTIMIZE TABLE featured';
+    $this->db->query($cleanup);
+    $message = $counter . ' old stories deleted.';
+    $utilityModel->sendLog($message);
+    return TRUE;
+  }
+
+  /**
    * Get featured page.
    *
    * @return array

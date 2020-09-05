@@ -23,29 +23,46 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function featured() {
+  public function featured($slug = NULL) {
     $newsModel = new NewsModels();
 
-    $status = $newsModel->featuredBuilder();
-    if ($status === TRUE) {
-      echo "Featured page built.";
+    if ($slug == "clean") {
+      $status = $newsModel->featuredCleaner();
+      if ($status === TRUE) {
+        echo "Featured news cleaned.";
+      }
+      log_message('error', 'featured clean failed');
     }
-    log_message('error', 'featured build failed');
+
+    if ($slug == NULL) {
+      $status = $newsModel->featuredBuilder();
+      if ($status === TRUE) {
+        echo "Featured page built.";
+      }
+      log_message('error', 'featured build failed');
+    }
   }
 
   /**
    * Show aggro log.
    */
-  public function log() {
+  public function log($slug = NULL) {
+    helper("aggro");
     $data = [
       'title' => 'Log',
       'slug' => 'log',
     ];
 
-    $utilityModel = new UtilityModels();
+    if ($slug == "error") {
+      $data['build'] = fetch_error_logs();
+      echo view('log', $data);
+    }
 
-    $data['build'] = $utilityModel->getLog();
-    echo view('log', $data);
+    if ($slug == NULL) {
+      $utilityModel = new UtilityModels();
+      $data['build'] = $utilityModel->getLog();
+      echo view('log', $data);
+    }
   }
 
   /**
