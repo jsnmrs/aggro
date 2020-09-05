@@ -12,4 +12,4 @@ if [ "$1" == "report" ]; then
 fi
 
 cd "$PROJECT_ROOT"
-fin exec phpcs app/Controllers app/Models app/Views --ignore=*/_ci3/*,*/Views/errors/* ${display_report} --standard='Drupal,DrupalPractice' -s --exclude=DrupalPractice.CodeAnalysis.VariableAnalysis
+fin exec phpcs app/Controllers app/Helpers app/Models app/Views --ignore=*/_ci3/*,*/Views/errors/* ${display_report} --standard='Drupal,DrupalPractice' -s --exclude=DrupalPractice.CodeAnalysis.VariableAnalysis

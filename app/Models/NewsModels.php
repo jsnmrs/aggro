@@ -17,7 +17,7 @@ class NewsModels extends Model {
    */
   public function featuredBuilder() {
     $utilityModel = new UtilityModels();
-    helper('text');
+    helper(['aggro', 'text']);
 
     $sql = "SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name";
     $query = $this->db->query($sql);
@@ -25,7 +25,7 @@ class NewsModels extends Model {
     $counter = 0;
 
     foreach ($featured as $row) {
-      $fetch = $utilityModel->fetchFeed($row->site_feed, $row->flag_spoof);
+      $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
       $sql = "UPDATE news_feeds SET site_date_last_fetch='" . date('Y-m-d H:i:s') . "' WHERE site_id='" . $row->site_id . "'";
       $this->db->query($sql);
       $storyCount = 0;
@@ -138,6 +138,28 @@ class NewsModels extends Model {
             LIMIT 300";
     $query = $this->db->query($sql);
     return $query->getResult();
+  }
+
+  /**
+   * Update feed data.
+   *
+   * @param string $slug
+   *   Site slug (as ID).
+   * @param object $feed
+   *   Fetched feed object.
+   */
+  public function updateFeed($slug, $feed) {
+    foreach ($feed->get_items(0, 1) as $item) {
+      $lastPost = $item->get_date('Y-m-d H:i:s');
+    }
+
+    if (isset($lastPost)) {
+      $lastFetch = date('Y-m-d H:i:s');
+
+      $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
+
+      $this->db->query($sql);
+    }
   }
 
 }

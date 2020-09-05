@@ -10,18 +10,49 @@ use CodeIgniter\Model;
 class AggroModels extends Model {
 
   /**
+   * Archive videos older than 31 days by setting archive flag in video table.
+   *
+   * Write count of archived videos to log.
+   *
+   * @return bool
+   *   Archive complete.
+   *
+   * @see logger()
+   */
+  public function archiveVideos() {
+    $utilityModel = new UtilityModels();
+    $now = date('Y-m-d H:i:s');
+
+    $sql = "SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      $sql = "UPDATE aggro_videos SET flag_archive = 1, flag_tweet = 0 WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
+      $query = $this->db->query($sql);
+    }
+
+    $message = $update . ' videos archived.';
+    $utilityModel->sendLog($message);
+    return TRUE;
+  }
+
+  /**
    * Get single video.
    *
    * @param string $slug
    *   Video id.
    *
    * @return array
-   *   Video data from table.
+   *   Video data from table or FALSE.
    */
   public function getVideo($slug) {
     $slug = esc($slug);
     $sql = "SELECT * FROM aggro_videos WHERE video_id='$slug' LIMIT 1";
     $query = $this->db->query($sql);
+    if ($query->getRowArray() == NULL) {
+      return FALSE;
+    }
     return $query->getRowArray();
   }
 
