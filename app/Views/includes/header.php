@@ -32,7 +32,8 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="alternate" href="/rss/" type="application/rss+xml" title="bmxfeed recent videos">
   <link rel="alternate" href="/feed/" type="application/rss+xml" title="bmxfeed directory updates">
-  <?php if (isset($build['video_title'])) :?><meta name="twitter:card" content="summary_large_image">
+  <?php if (isset($build['video_title'])) :?>
+<meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@bmxfeed">
   <meta name="twitter:title" content="<?php echo $build['video_title']; ?>">
   <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
