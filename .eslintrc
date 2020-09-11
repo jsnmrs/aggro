@@ -119,7 +119,7 @@
     "func-names": "error",
     "func-style": ["error", "declaration"],
     "function-paren-newline": "error",
-    "id-blacklist": "error",
+    "id-denylist": "error",
     "id-match": "error",
     "implicit-arrow-linebreak": "error",
     "indent": ["error", 2],
