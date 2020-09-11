@@ -9,6 +9,9 @@
 <html lang="en">
 <head>
   <title><?php
+  if ($_ENV['CI_ENVIRONMENT'] == "development") {
+    echo "[DEV] ";
+  }
   if (isset($build['site_name'])) {
     echo $build['site_name'] . " | ";
   }
@@ -29,7 +32,12 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="alternate" href="/rss/" type="application/rss+xml" title="bmxfeed recent videos">
   <link rel="alternate" href="/feed/" type="application/rss+xml" title="bmxfeed directory updates">
-  <style type="text/css">
+  <?php if (isset($build['video_title'])) :?>
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@bmxfeed">
+  <meta name="twitter:title" content="<?php echo $build['video_title']; ?>">
+  <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
+  <?php endif; ?><style type="text/css">
     <?php
     $file = file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
     $file = str_replace("/*# sourceMappingURL=styles.css.map */", "", $file);

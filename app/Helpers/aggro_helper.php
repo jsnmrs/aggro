@@ -256,6 +256,42 @@ if (!function_exists('fetch_feed')) {
 
 }
 
+if (!function_exists('fetch_thumbnail')) {
+
+  /**
+   * Fetch thumbnail image from video provider, process image, and save locally.
+   *
+   * @param string $videoid
+   *   The videoid.
+   * @param string $thumbnail
+   *   The remote URL of the video thumbnail.
+   *
+   * @return bool
+   *   Video thumbnail fetched and processed.
+   */
+  function fetch_thumbnail($videoid, $thumbnail) {
+    helper("aggro");
+    $path = ROOTPATH . "public/thumbs/" . $videoid . ".jpg";
+    $buffer = fetch_url($thumbnail);
+
+    if (!empty($buffer)) {
+      $file = @fopen($path, 'w');
+      fwrite($file, $buffer, strlen($buffer));
+      fclose($file);
+
+      $image = \Config\Services::image()
+        ->withFile($path)
+        ->resize(600, 338, FALSE, 'width')
+        ->save($path, 40);
+
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+}
+
 if (!function_exists('fetch_url')) {
 
   /**
