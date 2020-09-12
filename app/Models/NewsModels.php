@@ -52,6 +52,9 @@ class NewsModels extends Model {
 
   /**
    * Clean featured table.
+   *
+   * @return string
+   *   Number of removed stories.
    */
   public function featuredCleaner() {
     $utilityModel = new UtilityModels();
@@ -74,11 +77,11 @@ class NewsModels extends Model {
         $counter++;
       }
     }
-    $cleanup = 'OPTIMIZE TABLE featured';
+    $cleanup = 'OPTIMIZE TABLE news_featured';
     $this->db->query($cleanup);
     $message = $counter . ' old stories deleted.';
     $utilityModel->sendLog($message);
-    return TRUE;
+    return $counter;
   }
 
   /**
