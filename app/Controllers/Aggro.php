@@ -19,31 +19,6 @@ class Aggro extends BaseController {
   }
 
   /**
-   * Update featured/stream pages.
-   *
-   * Set cron to run every 5 minutes.
-   */
-  public function featured($slug = NULL) {
-    $newsModel = new NewsModels();
-
-    if ($slug == "clean") {
-      $status = $newsModel->featuredCleaner();
-      if ($status === TRUE) {
-        echo "Featured news cleaned.";
-      }
-      log_message('error', 'featured clean failed');
-    }
-
-    if ($slug == NULL) {
-      $status = $newsModel->featuredBuilder();
-      if ($status === TRUE) {
-        echo "Featured page built.";
-      }
-      log_message('error', 'featured build failed');
-    }
-  }
-
-  /**
    * Show aggro log.
    */
   public function log($slug = NULL) {
@@ -62,6 +37,40 @@ class Aggro extends BaseController {
       $utilityModel = new UtilityModels();
       $data['build'] = $utilityModel->getLog();
       echo view('log', $data);
+    }
+  }
+
+  /**
+   * Update featured/stream pages.
+   *
+   * Set cron to run every 5 minutes.
+   */
+  public function news($slug = NULL) {
+    helper('aggro');
+    $newsModel = new NewsModels();
+
+    if ($slug == "clean") {
+      $status = $newsModel->featuredCleaner();
+      if (isset($status)) {
+        echo $status . " featured news stories cleared.";
+      }
+      log_message('error', 'featured clean failed');
+    }
+
+    if ($slug == "cc") {
+      $status = clean_feed_cache();
+      if (isset($status)) {
+        echo $status . " feed caches cleared.";
+      }
+      log_message('error', 'featured clean failed');
+    }
+
+    if ($slug == NULL) {
+      $status = $newsModel->featuredBuilder();
+      if ($status === TRUE) {
+        echo "Featured page built.";
+      }
+      log_message('error', 'featured build failed');
     }
   }
 
