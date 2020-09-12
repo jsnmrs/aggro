@@ -74,7 +74,7 @@ class NewsModels extends Model {
         $counter++;
       }
     }
-    $cleanup = 'OPTIMIZE TABLE featured';
+    $cleanup = 'OPTIMIZE TABLE news_featured';
     $this->db->query($cleanup);
     $message = $counter . ' old stories deleted.';
     $utilityModel->sendLog($message);
