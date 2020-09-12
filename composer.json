@@ -6,6 +6,7 @@
   "license": "MIT",
   "require": {
     "php": ">=7.2",
+    "abraham/twitteroauth": "^1.1",
     "codeigniter4/framework": "^4",
     "drupal/coder": "^8.3",
     "simplepie/simplepie": "^1.5"

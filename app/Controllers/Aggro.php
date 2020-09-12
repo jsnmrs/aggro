@@ -95,6 +95,13 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function twitter() {
+    $aggroModel = new AggroModels();
+
+    $status = $aggroModel->twitterPush();
+    if ($status === TRUE) {
+      echo "Pushed any new videos to twitter.";
+    }
+    log_message('error', 'Twitter check failed');
   }
 
   /**

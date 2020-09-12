@@ -109,4 +109,45 @@ class AggroModels extends Model {
     return count($query->getResultArray());
   }
 
+  /**
+   * Post videos to bmxfeed twitter.
+   *
+   * Rate-limited.
+   *
+   * @return bool
+   *   Videos tweeted.
+   *
+   * @see logger()
+   */
+  public function twitterPush() {
+    $utilityModel = new UtilityModels();
+    $tweetCount = 0;
+    $sql = "SELECT * FROM aggro_videos WHERE flag_tweet=1 AND flag_bad = 0 AND flag_archive = 0";
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      $result = $query->getResult();
+
+      $twitter = new TwitterOAuth($_ENV['CONSUMER_KEY'], $_ENV['CONSUMER_SECRET'], $_ENV['ACCESS_TOKEN'], $_ENV['ACCESS_TOKEN_SECRET']);
+
+      foreach ($result as $row) {
+        $cleanTitle = htmlspecialchars_decode($row->title);
+        $tweetText = substr($cleanTitle, 0, 70) . " https://bmxfeed.com/video/" . $row->videoid;
+        if ($_ENV['CI_ENVIRONMENT'] == "production") {
+          $twitter->post('statuses/update', ['status' => $tweetText]);
+        }
+
+        $sql = "UPDATE aggro_videos SET flag_tweet=0 WHERE video_id='" . $row->video_id . "'";
+        $this->db->query($sql);
+        $tweetCount++;
+      }
+    }
+
+    $message = $tweetCount . ' tweets.';
+    $utilityModel->sendLog($message);
+
+    return TRUE;
+  }
+
 }
