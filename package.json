@@ -41,6 +41,6 @@
     "stylelint-no-unsupported-browser-features": "^4.0.0",
     "stylelint-order": "^4.1.0",
     "stylelint-scss": "^3.18.0",
-    "uglify-js": "^3.10.4"
+    "uglify-js": "^3.11.0"
   }
 }
