@@ -110,6 +110,10 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function vimeo() {
+    // Get Vimeo channels that haven't been updated in XX minutes.
+    // Loop feed to find any video ids we don't have.
+    // Add metadata for new videos to DB.
+    // If upload date is > XX days mark video as archived.
   }
 
   /**
@@ -118,6 +122,10 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function youtube() {
+    // Get YouTube channels that haven't been updated in XX minutes.
+    // Loop feed to find any video ids we don't have.
+    // Add metadata for new videos to DB.
+    // If upload date is > XX days mark video as archived.
   }
 
 }
