@@ -1,11 +1,12 @@
 module.exports = {
   map: {
-    inline: false
+    annotation: false,
+    inline: false,
   },
   plugins: [
-    require('autoprefixer')({
-      grid: true
+    require("autoprefixer")({
+      grid: false,
     }),
     require('cssnano')
-  ]
-}
+  ],
+};
