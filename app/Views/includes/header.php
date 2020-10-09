@@ -39,9 +39,7 @@
   <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
   <?php endif; ?><style type="text/css">
     <?php
-    $file = file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
-    $file = str_replace("/*# sourceMappingURL=styles.css.map */", "", $file);
-    echo $file;
+    echo file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
     ?>
   </style>
 </head>

@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "npm run css && npm run js",
-    "css": "npm run prettier:scss && npm run stylelint && npm run scss && npm run autoprefixer",
+    "css": "npm run browser-list && npm run prettier:scss && npm run stylelint && npm run scss && npm run autoprefixer",
     "js": "npm run prettier:js && npm run eslint && npm run uglify",
     "postinstall": "npm run build",
     "autoprefixer": "postcss -r \"public/css/*.css\"",
@@ -20,16 +20,19 @@
     "scss": "node-sass --output-style compressed -o public/css public/css/scss",
     "stylelint": "stylelint \"public/css/scss/**/*.scss\" --fix",
     "test": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
-    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/scripts.js\" -m -o public/js/scripts.js"
+    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/js/src/scripts.js\" -m -o public/js/scripts.js",
+    "browser-list": "echo Browser support list: && npx browserslist",
+    "browser-update": "npx browserslist@latest --update-db"
   },
   "devDependencies": {
-    "autoprefixer": "^9.8.6",
+    "autoprefixer": "^10.0.1",
     "cssnano": "^4.1.10",
     "eslint": "^7.10.0",
     "eslint-plugin-es5": "^1.5.0",
-    "moment": "^2.29.0",
+    "moment": "^2.29.1",
     "node-sass": "^4.14.1",
-    "postcss-cli": "^7.1.2",
+    "postcss": "^8.1.1",
+    "postcss-cli": "^8.1.0",
     "postcss-import": "^12.0.1",
     "prettier": "^2.1.2",
     "stylelint": "^13.7.2",
