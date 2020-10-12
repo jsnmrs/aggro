@@ -33,6 +33,11 @@ class Aggro extends BaseController {
       echo view('log', $data);
     }
 
+    if ($slug == "errorclean") {
+      $data['build'] = clean_error_logs();
+      echo view('log', $data);
+    }
+
     if ($slug == NULL) {
       $utilityModel = new UtilityModels();
       $data['build'] = $utilityModel->getLog();

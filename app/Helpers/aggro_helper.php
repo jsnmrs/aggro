@@ -71,7 +71,7 @@ if (!function_exists('clean_error_log')) {
    * @return bool
    *   Logs deleted.
    */
-  function clean_error_log() {
+  function clean_error_logs() {
     $path = WRITEPATH . "/logs/*.log";
     $files = glob($path);
     $todaylog = WRITEPATH . "/logs/" . date("Y-m-d") . ".log";
