@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+## Run controller from CLI
+## Usage: fin fire [controller] [method]
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+"/usr/local/bin/php" "/var/www/public/index.php" "$1" "$2"
