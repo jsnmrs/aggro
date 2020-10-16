@@ -15,7 +15,7 @@ class Aggro extends BaseController {
    * Aggro front.
    */
   public function index() {
-    echo "<h1>running cron all day.</h1>";
+    echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">running cron all day.</h1>";
   }
 
   /**
@@ -23,6 +23,7 @@ class Aggro extends BaseController {
    */
   public function log($slug = NULL) {
     helper("aggro");
+    $request = \Config\Services::request();
     $data = [
       'title' => 'Log',
       'slug' => 'log',
@@ -33,7 +34,7 @@ class Aggro extends BaseController {
       echo view('log', $data);
     }
 
-    if ($slug == "errorclean") {
+    if ($slug == "errorclean" && $request->isCLI()) {
       $data['build'] = clean_error_logs();
       echo view('log', $data);
     }
@@ -52,9 +53,10 @@ class Aggro extends BaseController {
    */
   public function news($slug = NULL) {
     helper('aggro');
+    $request = \Config\Services::request();
     $newsModel = new NewsModels();
 
-    if ($slug == "clean") {
+    if ($slug == "clean" && $request->isCLI()) {
       $status = $newsModel->featuredCleaner();
       if (isset($status)) {
         echo $status . " featured news stories cleared.";
@@ -62,7 +64,7 @@ class Aggro extends BaseController {
       log_message('error', 'featured clean failed');
     }
 
-    if ($slug == "cc") {
+    if ($slug == "cc" && $request->isCLI()) {
       $status = clean_feed_cache();
       if (isset($status)) {
         echo $status . " feed caches cleared.";
@@ -70,12 +72,16 @@ class Aggro extends BaseController {
       log_message('error', 'featured clean failed');
     }
 
-    if ($slug == NULL) {
+    if ($slug == NULL && $request->isCLI()) {
       $status = $newsModel->featuredBuilder();
       if ($status === TRUE) {
         echo "Featured page built.";
       }
       log_message('error', 'featured build failed');
+    }
+
+    if (!$request->isCLI()) {
+      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">Huey Lewis and the &hellip;</h1>";
     }
   }
 
@@ -85,13 +91,16 @@ class Aggro extends BaseController {
    * Set cron to run every 60 minutes.
    */
   public function sweep() {
+    $request = \Config\Services::request();
     $aggroModel = new AggroModels();
 
-    $status = $aggroModel->archiveVideos();
-    if ($status === TRUE) {
-      echo "Old videos archived.";
+    if ($request->isCLI()) {
+      $status = $aggroModel->archiveVideos();
+      if ($status === TRUE) {
+        echo "Old videos archived.";
+      }
+      log_message('error', 'Video archiving failed');
     }
-    log_message('error', 'Video archiving failed');
   }
 
   /**
@@ -100,13 +109,16 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function twitter() {
+    $request = \Config\Services::request();
     $aggroModel = new AggroModels();
 
-    $status = $aggroModel->twitterPush();
-    if ($status === TRUE) {
-      echo "Pushed any new videos to twitter.";
+    if ($request->isCLI()) {
+      $status = $aggroModel->twitterPush();
+      if ($status === TRUE) {
+        echo "Pushed any new videos to twitter.";
+      }
+      log_message('error', 'Twitter check failed');
     }
-    log_message('error', 'Twitter check failed');
   }
 
   /**
