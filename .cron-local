@@ -1,0 +1,7 @@
+## aggro cron [local]
+
+PHP_PATH='/usr/local/bin/php'
+INDEX_PATH='/var/www/public/index.php'
+
+## Featured/stream build every 2 hours
+0 */2 * * * $PHP_PATH $INDEX_PATH aggro news

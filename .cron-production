@@ -1,0 +1,7 @@
+## aggro cron [production]
+
+PHP_PATH='/usr/bin/php'
+INDEX_PATH='/home/bmxfeed/aggro/public/index.php'
+
+## Featured/stream build every 2 hours
+0 */2 * * * $PHP_PATH $INDEX_PATH aggro news
