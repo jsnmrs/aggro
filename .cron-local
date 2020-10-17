@@ -3,5 +3,15 @@
 PHP_PATH='/usr/local/bin/php'
 INDEX_PATH='/var/www/public/index.php'
 
+## aggro log/errorclean
+
+## aggro news
 ## Featured/stream build every 2 hours
 0 */2 * * * $PHP_PATH $INDEX_PATH aggro news
+
+## aggro news/clean
+## aggro news/cc
+## aggro sweep
+## aggro twitter
+## aggro vimeo
+## aggro youtube
