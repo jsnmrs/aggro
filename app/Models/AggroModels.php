@@ -17,7 +17,7 @@ class AggroModels extends Model {
    * @return bool
    *   Archive complete.
    *
-   * @see logger()
+   * @see sendLog()
    */
   public function archiveVideos() {
     $utilityModel = new UtilityModels();
@@ -35,6 +35,42 @@ class AggroModels extends Model {
     $message = $update . ' videos archived.';
     $utilityModel->sendLog($message);
     return TRUE;
+  }
+
+  /**
+   * Get list of video channels that haven't been updated within timeframe.
+   *
+   * @param string $stale
+   *   Time in minutes to consider a video stale.
+   * @param string $type
+   *   Type of channel to grab:
+   *   - site.
+   *   - youtube.
+   *   - vimeo.
+   * @param string $limit
+   *   Maximum number of videos to grab.
+   *
+   * @return array
+   *   All fields for all video channels matching arguments.
+   */
+  public function getChannels($stale = 30, $type = "youtube", $limit = 10) {
+    $utilityModel = new UtilityModels();
+    $now = date('Y-m-d H:i:s');
+    $sql = "SELECT * FROM aggro_sources WHERE source_type='" . $type . "' AND source_date_updated <= DATE_SUB('" . $now . "',INTERVAL " . $stale . " MINUTE) ORDER BY source_date_updated ASC LIMIT " . $limit;
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      $message = 'Found ' . $update . ' stale ' . $type . ' feeds.';
+      $utilityModel->sendLog($message);
+      return $query->getResult();
+    }
+
+    if ($update == 0) {
+      $message = 'Found 0 stale ' . $type . ' feeds.';
+      $utilityModel->sendLog($message);
+      return FALSE;
+    }
   }
 
   /**
@@ -117,7 +153,7 @@ class AggroModels extends Model {
    * @return bool
    *   Videos tweeted.
    *
-   * @see logger()
+   * @see sendLog()
    */
   public function twitterPush() {
     $utilityModel = new UtilityModels();
@@ -148,6 +184,23 @@ class AggroModels extends Model {
     $utilityModel->sendLog($message);
 
     return TRUE;
+  }
+
+  /**
+   * Update video source last fetch timestamp.
+   *
+   * @param string $source_slug
+   *   Source slug.
+   */
+  public function updateChannel($source_slug) {
+    $utilityModel = new UtilityModels();
+    $now = date('Y-m-d H:i:s');
+    $sql = "UPDATE aggro_sources
+            SET source_date_updated = '" . $now . "'
+            WHERE source_slug = '" . $source_slug . "'";
+    $this->db->query($sql);
+    $message = 'Updated ' . $source_slug . ' last fetch timestamp.';
+    $utilityModel->sendLog($message);
   }
 
 }

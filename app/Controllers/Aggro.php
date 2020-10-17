@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AggroModels;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
+use App\Models\YoutubeModels;
 
 /**
  * All aggro contollers.
@@ -139,10 +140,35 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function youtube() {
-    // Get YouTube channels that haven't been updated in XX minutes.
-    // Loop feed to find any video ids we don't have.
-    // Add metadata for new videos to DB.
-    // If upload date is > XX days mark video as archived.
+    helper('youtube');
+    $request = \Config\Services::request();
+    $aggroModel = new AggroModels();
+    $youtubeModel = new YoutubeModels();
+
+    if (!$request->isCLI()) {
+      $data['stale'] = $aggroModel->getChannels(15, "youtube", 2);
+
+      if ($data['stale'] != FALSE) {
+        foreach ($data['stale'] as $channel) {
+
+          if (substr($channel->source_channel_id, 0, 2) == "UC") {
+            $data['feed'] = youtube_get_channel_feed($channel->source_channel_id);
+          }
+
+          if (substr($channel->source_channel_id, 0, 2) == "PL") {
+            $data['feed'] = youtube_get_playlist_feed($channel->source_channel_id);
+          }
+
+          $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
+
+          echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
+
+          if ($data['feed'] != FALSE || empty($data['feed'])) {
+            $aggroModel->updateChannel($channel->source_slug);
+          }
+        }
+      }
+    }
   }
 
 }
