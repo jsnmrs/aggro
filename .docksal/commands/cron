@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+## Run controller from CLI
+## Usage: fin fire [controller] [method]
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+if [ "$1" == "clear" ]; then
+    echo -e "\\n\\033[1;33mClearing crontab...\\033[0m"
+    crontab -r
+fi
+if [ "$1" == "sync" ]; then
+    echo -e "\\n\\033[1;33mWriting crontab...\\033[0m"
+    crontab .cron-local
+fi
+
+echo -e "\\n\\033[1;33mCurrent crontab...\\033[0m"
+crontab -l
