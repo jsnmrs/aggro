@@ -38,6 +38,30 @@ class AggroModels extends Model {
   }
 
   /**
+   * Check if video exists in video table.
+   *
+   * @param string $videoid
+   *   Videoid to check.
+   *
+   * @return bool
+   *   Video exists in video table.
+   */
+  public function checkVideo($videoid) {
+    $utilityModel = new UtilityModels();
+    $sql = "SELECT video_id FROM aggro_videos WHERE video_id='" . $videoid . "'";
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      return TRUE;
+    }
+
+    $message = $videoid . ' is new to me.';
+    $utilityModel->sendLog($message);
+    return FALSE;
+  }
+
+  /**
    * Get list of video channels that haven't been updated within timeframe.
    *
    * @param string $stale
