@@ -24,7 +24,6 @@ class Aggro extends BaseController {
    */
   public function log($slug = NULL) {
     helper("aggro");
-    $request = \Config\Services::request();
     $data = [
       'title' => 'Log',
       'slug' => 'log',
@@ -35,7 +34,7 @@ class Aggro extends BaseController {
       echo view('log', $data);
     }
 
-    if ($slug == "errorclean" && $request->isCLI()) {
+    if ($slug == "errorclean" && gate_check()) {
       $data['build'] = clean_error_logs();
       echo view('log', $data);
     }
@@ -54,10 +53,9 @@ class Aggro extends BaseController {
    */
   public function news($slug = NULL) {
     helper('aggro');
-    $request = \Config\Services::request();
     $newsModel = new NewsModels();
 
-    if ($slug == "clean" && $request->isCLI()) {
+    if ($slug == "clean" && gate_check()) {
       $status = $newsModel->featuredCleaner();
       if (isset($status)) {
         echo $status . " featured news stories cleared.";
@@ -65,7 +63,7 @@ class Aggro extends BaseController {
       log_message('error', 'featured clean failed');
     }
 
-    if ($slug == "cc" && $request->isCLI()) {
+    if ($slug == "cc" && gate_check()) {
       $status = clean_feed_cache();
       if (isset($status)) {
         echo $status . " feed caches cleared.";
@@ -73,7 +71,7 @@ class Aggro extends BaseController {
       log_message('error', 'featured clean failed');
     }
 
-    if ($slug == NULL && $request->isCLI()) {
+    if ($slug == NULL && gate_check()) {
       $status = $newsModel->featuredBuilder();
       if ($status === TRUE) {
         echo "Featured page built.";
@@ -81,7 +79,7 @@ class Aggro extends BaseController {
       log_message('error', 'featured build failed');
     }
 
-    if (!$request->isCLI()) {
+    if (!gate_check()) {
       echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">Huey Lewis and the &hellip;</h1>";
     }
   }
@@ -92,10 +90,10 @@ class Aggro extends BaseController {
    * Set cron to run every 60 minutes.
    */
   public function sweep() {
-    $request = \Config\Services::request();
+    helper('aggro');
     $aggroModel = new AggroModels();
 
-    if ($request->isCLI()) {
+    if (gate_check()) {
       $status = $aggroModel->archiveVideos();
       if ($status === TRUE) {
         echo "Old videos archived.";
@@ -110,10 +108,10 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function twitter() {
-    $request = \Config\Services::request();
+    helper('aggro');
     $aggroModel = new AggroModels();
 
-    if ($request->isCLI()) {
+    if (gate_check()) {
       $status = $aggroModel->twitterPush();
       if ($status === TRUE) {
         echo "Pushed any new videos to twitter.";
@@ -140,12 +138,11 @@ class Aggro extends BaseController {
    * Set cron to run every 5 minutes.
    */
   public function youtube() {
-    helper('youtube');
-    $request = \Config\Services::request();
+    helper(['aggro', 'youtube']);
     $aggroModel = new AggroModels();
     $youtubeModel = new YoutubeModels();
 
-    if (!$request->isCLI()) {
+    if (gate_check()) {
       $data['stale'] = $aggroModel->getChannels(15, "youtube", 2);
 
       if ($data['stale'] != FALSE) {
