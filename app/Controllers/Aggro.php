@@ -137,7 +137,39 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function youtube() {
+  public function youtube($videoID = NULL) {
+    helper(['aggro', 'youtube']);
+    $aggroModel = new AggroModels();
+    $youtubeModel = new YoutubeModels();
+
+    if ($videoID == NULL) {
+      return $this->youtubeUpdate();
+    }
+
+    if (gate_check()) {
+      if (!$aggroModel->checkVideo(esc($videoID))) {
+        $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . esc($videoID);
+        $result = fetch_url($oEmbed, 'simplexml', 1);
+
+        if (strpos($result->author_url, 'channel/') !== FALSE) {
+          $source_id = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
+        }
+
+        if (strpos($result->author_url, 'user/') !== FALSE) {
+          $source_id = str_replace('https://www.youtube.com/user/', '', $result->author_url);
+        }
+
+        echo "source: " . $source_id . "<br>";
+        // Fetch untracked channel feed.
+        // Send to parseChannel with videoID.
+      }
+    }
+  }
+
+  /**
+   * YouTube channel fetcher.
+   */
+  public function youtubeUpdate() {
     helper(['aggro', 'youtube']);
     $aggroModel = new AggroModels();
     $youtubeModel = new YoutubeModels();
@@ -147,15 +179,7 @@ class Aggro extends BaseController {
 
       if ($data['stale'] != FALSE) {
         foreach ($data['stale'] as $channel) {
-
-          if (substr($channel->source_channel_id, 0, 2) == "UC") {
-            $data['feed'] = youtube_get_channel_feed($channel->source_channel_id);
-          }
-
-          if (substr($channel->source_channel_id, 0, 2) == "PL") {
-            $data['feed'] = youtube_get_playlist_feed($channel->source_channel_id);
-          }
-
+          $data['feed'] = youtube_get_feed($channel->source_channel_id);
           $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
 
           echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";

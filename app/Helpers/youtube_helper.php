@@ -5,23 +5,33 @@
  * YouTube helper functions.
  */
 
-if (!function_exists('youtube_get_channel_feed')) {
+if (!function_exists('youtube_get_feed')) {
 
   /**
    * Fetch YouTube channel feed.
    *
-   * @param string $channelID
-   *   Channel ID.
+   * @param string $feedID
+   *   Channel ID, playlist ID, or username.
    *
    * @return object
    *   SimplePie RSS object.
    *
    * @see fetchUrl()
    */
-  function youtube_get_channel_feed($channelID) {
+  function youtube_get_feed($feedID) {
     helper('aggro');
 
-    $fetch = "https://www.youtube.com/feeds/videos.xml?channel_id=" . $channelID;
+    $baseUrl = "https://www.youtube.com/feeds/videos.xml?user=";
+
+    if (substr($feedID, 0, 2) == "UC") {
+      $baseUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=";
+    }
+
+    if (substr($feedID, 0, 2) == "PL") {
+      $baseUrl = "https://www.youtube.com/feeds/videos.xml?playlist_id=";
+    }
+
+    $fetch = $baseUrl . $feedID;
     $result = fetch_feed($fetch, 1);
 
     if ($result !== FALSE && (is_array($result) || is_object($result))) {
@@ -72,62 +82,6 @@ if (!function_exists('youtube_get_meta')) {
       }
 
       return $video;
-    }
-
-    return FALSE;
-  }
-
-}
-
-if (!function_exists('youtube_get_playlist_feed')) {
-
-  /**
-   * Fetch YouTube playlist feed.
-   *
-   * @param string $playlistID
-   *   YouTube playlist ID.
-   *
-   * @return object
-   *   SimplePie RSS object.
-   *
-   * @see fetchUrl()
-   */
-  function youtube_get_playlist_feed($playlistID) {
-    helper('aggro');
-
-    $fetch = "https://www.youtube.com/feeds/videos.xml?playlist_id=" . $playlistID;
-    $result = fetch_feed($fetch, 1);
-
-    if ($result !== FALSE && (is_array($result) || is_object($result))) {
-      return $result;
-    }
-
-    return FALSE;
-  }
-
-}
-
-if (!function_exists('youtube_get_user_feed')) {
-
-  /**
-   * Fetch YouTube user feed.
-   *
-   * @param string $username
-   *   YouTube username.
-   *
-   * @return object
-   *   SimplePie RSS object.
-   *
-   * @see fetchUrl()
-   */
-  function youtube_get_user_feed($username) {
-    helper('aggro');
-
-    $fetch = "https://www.youtube.com/feeds/videos.xml?user=" . $username;
-    $result = fetch_feed($fetch, 1);
-
-    if ($result !== FALSE && (is_array($result) || is_object($result))) {
-      return $result;
     }
 
     return FALSE;
