@@ -104,7 +104,7 @@ class YoutubeModels extends Model {
     }
 
     if ($addCount >= 1) {
-      $message = "Added " . $addCount . " new-to-me videos via RSS.";
+      $message = "Ran YouTube fetch. Added " . $addCount . " new-to-me videos.";
       $utilityModel->sendLog($message);
     }
 
