@@ -142,51 +142,40 @@ class Aggro extends BaseController {
     $aggroModel = new AggroModels();
     $youtubeModel = new YoutubeModels();
 
-    if ($videoID == NULL) {
-      return $this->youtubeUpdate();
-    }
-
     if (gate_check()) {
-      if (!$aggroModel->checkVideo(esc($videoID))) {
-        $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . esc($videoID);
-        $result = fetch_url($oEmbed, 'simplexml', 1);
+      if ($videoID == NULL) {
+        $data['stale'] = $aggroModel->getChannels(30, "youtube", 5);
 
-        if (strpos($result->author_url, 'channel/') !== FALSE) {
-          $source_id = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
-        }
+        if ($data['stale'] != FALSE) {
+          foreach ($data['stale'] as $channel) {
+            $data['feed'] = youtube_get_feed($channel->source_channel_id);
+            $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
 
-        if (strpos($result->author_url, 'user/') !== FALSE) {
-          $source_id = str_replace('https://www.youtube.com/user/', '', $result->author_url);
-        }
+            echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
 
-        echo "source: " . $source_id . "<br>";
-        // Fetch untracked channel feed.
-        // Send to parseChannel with videoID.
-      }
-    }
-  }
-
-  /**
-   * YouTube channel fetcher.
-   */
-  public function youtubeUpdate() {
-    helper(['aggro', 'youtube']);
-    $aggroModel = new AggroModels();
-    $youtubeModel = new YoutubeModels();
-
-    if (gate_check()) {
-      $data['stale'] = $aggroModel->getChannels(30, "youtube", 5);
-
-      if ($data['stale'] != FALSE) {
-        foreach ($data['stale'] as $channel) {
-          $data['feed'] = youtube_get_feed($channel->source_channel_id);
-          $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
-
-          echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
-
-          if ($data['feed'] != FALSE || empty($data['feed'])) {
-            $aggroModel->updateChannel($channel->source_slug);
+            if ($data['feed'] != FALSE || empty($data['feed'])) {
+              $aggroModel->updateChannel($channel->source_slug);
+            }
           }
+        }
+      }
+
+      if ($videoID !== NULL) {
+        if (!$aggroModel->checkVideo(esc($videoID))) {
+          $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . esc($videoID);
+          $result = fetch_url($oEmbed, 'simplexml', 1);
+
+          if (strpos($result->author_url, 'channel/') !== FALSE) {
+            $source_id = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
+          }
+
+          if (strpos($result->author_url, 'user/') !== FALSE) {
+            $source_id = str_replace('https://www.youtube.com/user/', '', $result->author_url);
+          }
+
+          echo "source: " . $source_id . "<br>";
+          // Fetch untracked channel feed.
+          // Send to parseChannel with videoID.
         }
       }
     }
