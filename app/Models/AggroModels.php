@@ -65,14 +65,14 @@ class AggroModels extends Model {
    * Get list of video channels that haven't been updated within timeframe.
    *
    * @param string $stale
-   *   Time in minutes to consider a video stale.
+   *   Time in minutes to consider a channel stale.
    * @param string $type
    *   Type of channel to grab:
    *   - site.
    *   - youtube.
    *   - vimeo.
    * @param string $limit
-   *   Maximum number of videos to grab.
+   *   Maximum number of channels to grab.
    *
    * @return array
    *   All fields for all video channels matching arguments.

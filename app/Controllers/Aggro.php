@@ -143,7 +143,7 @@ class Aggro extends BaseController {
     $youtubeModel = new YoutubeModels();
 
     if (gate_check()) {
-      $data['stale'] = $aggroModel->getChannels(15, "youtube", 2);
+      $data['stale'] = $aggroModel->getChannels(30, "youtube", 10);
 
       if ($data['stale'] != FALSE) {
         foreach ($data['stale'] as $channel) {
