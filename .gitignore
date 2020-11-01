@@ -66,6 +66,7 @@ php_errors.log
 *.sql
 !aggro-db.sql
 *_ci3*
+public/thumbs/*
 
 #-------------------------
 # User Guide Temp Files
