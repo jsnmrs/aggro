@@ -17,7 +17,7 @@ class AggroModels extends Model {
    * @return bool
    *   Archive complete.
    *
-   * @see logger()
+   * @see sendLog()
    */
   public function archiveVideos() {
     $utilityModel = new UtilityModels();
@@ -35,6 +35,66 @@ class AggroModels extends Model {
     $message = $update . ' videos archived.';
     $utilityModel->sendLog($message);
     return TRUE;
+  }
+
+  /**
+   * Check if video exists in video table.
+   *
+   * @param string $videoid
+   *   Videoid to check.
+   *
+   * @return bool
+   *   Video exists in video table.
+   */
+  public function checkVideo($videoid) {
+    $utilityModel = new UtilityModels();
+    $sql = "SELECT video_id FROM aggro_videos WHERE video_id='" . $videoid . "'";
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      return TRUE;
+    }
+
+    $message = $videoid . ' is new to me.';
+    $utilityModel->sendLog($message);
+    return FALSE;
+  }
+
+  /**
+   * Get list of video channels that haven't been updated within timeframe.
+   *
+   * @param string $stale
+   *   Time in minutes to consider a channel stale.
+   * @param string $type
+   *   Type of channel to grab:
+   *   - site.
+   *   - youtube.
+   *   - vimeo.
+   * @param string $limit
+   *   Maximum number of channels to grab.
+   *
+   * @return array
+   *   All fields for all video channels matching arguments.
+   */
+  public function getChannels($stale = 30, $type = "youtube", $limit = 10) {
+    $utilityModel = new UtilityModels();
+    $now = date('Y-m-d H:i:s');
+    $sql = "SELECT * FROM aggro_sources WHERE source_type='" . $type . "' AND source_date_updated <= DATE_SUB('" . $now . "',INTERVAL " . $stale . " MINUTE) ORDER BY source_date_updated ASC LIMIT " . $limit;
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    if ($update > 0) {
+      $message = 'Found ' . $update . ' stale ' . $type . ' feeds.';
+      $utilityModel->sendLog($message);
+      return $query->getResult();
+    }
+
+    if ($update == 0) {
+      $message = 'Found 0 stale ' . $type . ' feeds.';
+      $utilityModel->sendLog($message);
+      return FALSE;
+    }
   }
 
   /**
@@ -81,15 +141,15 @@ class AggroModels extends Model {
     }
 
     if ($range == "year") {
-      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 365 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 MINUTE)';
+      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 365 DAY) AND DATE_SUB("' . $now . '", INTERVAL 1 MINUTE)';
     }
 
     if ($range == "month") {
-      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 31 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 MINUTE)';
+      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 31 DAY) AND DATE_SUB("' . $now . '", INTERVAL 1 MINUTE)';
     }
 
     if ($range == "week") {
-      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 7 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 MINUTE)';
+      $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 7 DAY) AND DATE_SUB("' . $now . '", INTERVAL 1 MINUTE)';
     }
 
     $sql = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
@@ -117,7 +177,7 @@ class AggroModels extends Model {
    * @return bool
    *   Videos tweeted.
    *
-   * @see logger()
+   * @see sendLog()
    */
   public function twitterPush() {
     $utilityModel = new UtilityModels();
@@ -148,6 +208,23 @@ class AggroModels extends Model {
     $utilityModel->sendLog($message);
 
     return TRUE;
+  }
+
+  /**
+   * Update video source last fetch timestamp.
+   *
+   * @param string $source_slug
+   *   Source slug.
+   */
+  public function updateChannel($source_slug) {
+    $utilityModel = new UtilityModels();
+    $now = date('Y-m-d H:i:s');
+    $sql = "UPDATE aggro_sources
+            SET source_date_updated = '" . $now . "'
+            WHERE source_slug = '" . $source_slug . "'";
+    $this->db->query($sql);
+    $message = 'Updated ' . $source_slug . ' last fetch timestamp.';
+    $utilityModel->sendLog($message);
   }
 
 }

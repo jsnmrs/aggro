@@ -16,7 +16,7 @@ echo $this->include('includes/header'); ?>
 <main id="content">
   <div class="wrap">
     <div class="full">
-      <h1><?php echo $build['video_title']; ?></h1>
+      <h1><?php echo htmlspecialchars_decode($build['video_title']); ?></h1>
       <p>Spotted <span class="ago ago--inline" title="<?php echo $build['aggro_date_added']; ?>"></span> via <a href="<?php echo $build['video_source_url']; ?>" rel="noopener noreferrer"><?php echo $build['video_source_username']; ?></a>.</p>
     </div>
   </div>

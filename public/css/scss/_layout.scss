@@ -25,6 +25,8 @@
 }
 
 .box--video {
+  margin-top: 1rem;
+
   @include bp($medium) {
     flex-basis: 31%;
   }
@@ -66,9 +68,15 @@ main {
   }
 }
 
-footer p {
-  margin: 0;
-  padding-bottom: 0.25rem;
+footer {
+  p {
+    margin: 0;
+    padding-bottom: 0.25rem;
+  }
+
+  .ago {
+    color: $gray-darker;
+  }
 }
 
 .skip {

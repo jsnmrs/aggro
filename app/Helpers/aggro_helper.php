@@ -348,3 +348,22 @@ if (!function_exists('fetch_url')) {
   }
 
 }
+
+if (!function_exists('gate_check')) {
+
+  /**
+   * Check request context for pass through.
+   *
+   * @return bool
+   *   CLI or development.
+   */
+  function gate_check() {
+    $request = \Config\Services::request();
+    if ($request->isCLI() || $_ENV['CI_ENVIRONMENT'] == "development") {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+}

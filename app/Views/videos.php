@@ -17,7 +17,7 @@ echo $this->include('includes/header'); ?>
     <div class="box box--video">
       <a href="/video/<?php echo $row->video_id; ?>">
         <img src="/thumbs/<?php echo $row->video_id; ?>.jpg" alt="">
-        <p><?php echo $row->video_title; ?></p>
+        <p><?php echo htmlspecialchars_decode($row->video_title); ?></p>
       </a>
     </div>
 <?php endforeach; ?>

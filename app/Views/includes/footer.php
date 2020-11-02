@@ -8,7 +8,7 @@
 <div class="outer">
   <div class="wrap">
     <footer>
-      <p>BMXfeed. Since '06.</p>
+      <p>BMXfeed <span class="ago" title="2006-12-24 12:00:00"></span></p>
     </footer>
     <nav>
       <ul class="nav">
