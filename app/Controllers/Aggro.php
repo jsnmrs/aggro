@@ -161,8 +161,9 @@ class Aggro extends BaseController {
       }
 
       if ($videoID !== NULL) {
-        if (!$aggroModel->checkVideo(esc($videoID))) {
-          $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . esc($videoID);
+        $videoID = esc($videoID);
+        if (!$aggroModel->checkVideo($videoID)) {
+          $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
           $result = fetch_url($oEmbed, 'simplexml', 1);
 
           if (strpos($result->author_url, 'channel/') !== FALSE) {
@@ -173,9 +174,10 @@ class Aggro extends BaseController {
             $source_id = str_replace('https://www.youtube.com/user/', '', $result->author_url);
           }
 
-          echo "source: " . $source_id . "<br>";
-          // Fetch untracked channel feed.
-          // Send to parseChannel with videoID.
+          $data['feed'] = youtube_get_feed($source_id);
+          $data['number_added'] = $youtubeModel->parseChannel($data['feed'], $videoID);
+
+          echo "Added https://www.youtube.com/watch?v=" . $videoID . " from " . $source_id . ".<br>";
         }
       }
     }
