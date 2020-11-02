@@ -25,6 +25,8 @@
 }
 
 .box--video {
+  margin-top: 1rem;
+
   @include bp($medium) {
     flex-basis: 31%;
   }
