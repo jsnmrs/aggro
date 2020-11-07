@@ -90,9 +90,9 @@ class AggroModels extends Model {
         continue;
       }
       if (!file_exists($path)) {
-        $message = "<strong>" . $thumb->video_id . "</strong> missing thumbnail";
+        $message = $thumb->video_id . " missing thumbnail";
         fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url);
-        $message .= " &mdash; fetched<br>";
+        $message .= " &mdash; fetched.";
         copy($source . $current, $destination . $current);
         $utilityModel->sendLog($message);
       }
