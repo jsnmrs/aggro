@@ -137,7 +137,7 @@ class Aggro extends BaseController {
 
     if (gate_check()) {
       if ($videoID == NULL) {
-        $data['stale'] = $aggroModel->getChannels(30, "vimeo", 1);
+        $data['stale'] = $aggroModel->getChannels(30, "vimeo", 5);
 
         if ($data['stale'] != FALSE) {
           foreach ($data['stale'] as $channel) {
