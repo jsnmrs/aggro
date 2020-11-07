@@ -321,11 +321,11 @@ if (!function_exists('fetch_url')) {
     curl_setopt($fetch, CURLOPT_CONNECTTIMEOUT, 20);
     curl_setopt($fetch, CURLOPT_RETURNTRANSFER, 1);
     $response = curl_exec($fetch);
-    $http_code = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
+    $httpCode = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
     curl_close($fetch);
 
-    if ($http_code == 403 || $http_code == 404 || $http_code == 500) {
-      $message = $url . ' returned ' . $http_code . '.';
+    if ($httpCode == 403 || $httpCode == 404 || $httpCode == 500) {
+      $message = $url . ' returned ' . $httpCode . '.';
       log_message('error', $message);
       return FALSE;
     }

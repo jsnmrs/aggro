@@ -5,6 +5,34 @@
  * Vimeo helper functions.
  */
 
+if (!function_exists('vimeo_get_feed')) {
+
+  /**
+   * Fetch Vimeo channel feed.
+   *
+   * @param string $feedID
+   *   Channel ID.
+   *
+   * @return object
+   *   JSON object.
+   *
+   * @see fetchUrl()
+   */
+  function vimeo_get_feed($feedID) {
+    helper('aggro');
+
+    $fetch = "https://vimeo.com/api/v2/" . $feedID . "/videos.json";
+    $result = fetch_url($fetch, "json", 0);
+
+    if ($result !== FALSE && (is_array($result) || is_object($result))) {
+      return $result;
+    }
+
+    return FALSE;
+  }
+
+}
+
 if (!function_exists('vimeo_id_from_url')) {
 
   /**

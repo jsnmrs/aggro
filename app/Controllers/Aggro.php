@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AggroModels;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
+use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 
 /**
@@ -125,11 +126,45 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function vimeo() {
-    // Get Vimeo channels that haven't been updated in XX minutes.
-    // Loop feed to find any video ids we don't have.
-    // Add metadata for new videos to DB.
-    // If upload date is > XX days mark video as archived.
+  public function vimeo($videoID = NULL) {
+    helper(['aggro', 'vimeo']);
+    $aggroModel = new AggroModels();
+    $vimeoModel = new VimeoModels();
+
+    if (gate_check()) {
+      if ($videoID == NULL) {
+        $data['stale'] = $aggroModel->getChannels(30, "vimeo", 1);
+
+        if ($data['stale'] != FALSE) {
+          foreach ($data['stale'] as $channel) {
+            $data['feed'] = vimeo_get_feed($channel->source_channel_id);
+            $data['number_added'] = $vimeoModel->parseChannel($data['feed']);
+
+            echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
+
+            if ($data['feed'] != FALSE || empty($data['feed'])) {
+              $aggroModel->updateChannel($channel->source_slug);
+            }
+          }
+        }
+      }
+
+      if ($videoID !== NULL) {
+        $videoID = esc($videoID);
+        if (!$aggroModel->checkVideo($videoID)) {
+          $request = "https://vimeo.com/api/v2/video/" . $videoID . ".json";
+          $result = fetch_url($request, 'json', 0);
+          foreach ($result as $item) {
+            $sourceID = str_replace('https://vimeo.com/', '', $item->user_url);
+          }
+
+          $data['feed'] = vimeo_get_feed($sourceID);
+          $data['number_added'] = $vimeoModel->parseChannel($data['feed'], $videoID);
+
+          echo "Added https://vimeo.com/" . $videoID . " from " . $sourceID . ".<br>";
+        }
+      }
+    }
   }
 
   /**
@@ -167,17 +202,17 @@ class Aggro extends BaseController {
           $result = fetch_url($oEmbed, 'simplexml', 1);
 
           if (strpos($result->author_url, 'channel/') !== FALSE) {
-            $source_id = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
+            $sourceID = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
           }
 
           if (strpos($result->author_url, 'user/') !== FALSE) {
-            $source_id = str_replace('https://www.youtube.com/user/', '', $result->author_url);
+            $sourceID = str_replace('https://www.youtube.com/user/', '', $result->author_url);
           }
 
-          $data['feed'] = youtube_get_feed($source_id);
+          $data['feed'] = youtube_get_feed($sourceID);
           $data['number_added'] = $youtubeModel->parseChannel($data['feed'], $videoID);
 
-          echo "Added https://www.youtube.com/watch?v=" . $videoID . " from " . $source_id . ".<br>";
+          echo "Added https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".<br>";
         }
       }
     }
