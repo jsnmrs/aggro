@@ -66,6 +66,7 @@ class AggroModels extends Model {
    * Clean thumbnail directory.
    */
   public function cleanThumbs() {
+    $utilityModel = new UtilityModels();
     helper('aggro');
     $thumbs = ROOTPATH . "public/thumbs/*.jpg";
     $countBefore = count(glob($thumbs));
@@ -77,7 +78,6 @@ class AggroModels extends Model {
     $sourceAll = $source . "*.jpg";
     $destination = ROOTPATH . "public/thumbholder/";
     $destinationAll = $destination . "*.jpg";
-    $missing = "";
 
     if (!file_exists($destination)) {
       mkdir($destination, 0755, TRUE);
@@ -90,10 +90,11 @@ class AggroModels extends Model {
         continue;
       }
       if (!file_exists($path)) {
-        echo "<strong>" . $thumb->video_id . "</strong> missing thumbnail";
+        $message = "<strong>" . $thumb->video_id . "</strong> missing thumbnail";
         fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url);
-        echo " &mdash; fetched<br>";
+        $message .= " &mdash; fetched<br>";
         copy($source . $current, $destination . $current);
+        $utilityModel->sendLog($message);
       }
 
       if (file_exists($path)) {
@@ -122,8 +123,10 @@ class AggroModels extends Model {
 
     $countAfter = count(glob($thumbs));
 
-    echo "<br><strong>" . $countBefore . "</strong> thumbs to start<br><strong>" . $countActive . "</strong> active videos<br><strong>" . $countAfter . "</strong> thumbs now<br>";
-    echo $missing;
+    $message = $countBefore . " thumbs to start, " . $countActive . " active videos, " . $countAfter . " thumbs now.";
+    $utilityModel->sendLog($message);
+
+    return TRUE;
   }
 
   /**
