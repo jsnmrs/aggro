@@ -5,7 +5,7 @@
  * Site footer include.
  */
 ?>
-<div class="outer">
+<div class="outer floor">
   <div class="wrap">
     <footer>
       <p>BMXfeed <span class="ago" title="2006-12-24 12:00:00"></span></p>

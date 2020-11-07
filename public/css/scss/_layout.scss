@@ -47,6 +47,10 @@ footer {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   background-color: $gray-lighter;
+
+  &.floor {
+    padding-bottom: 2rem;
+  }
 }
 
 main {
