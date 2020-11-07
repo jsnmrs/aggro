@@ -100,6 +100,8 @@ class Aggro extends BaseController {
         echo "Old videos archived.";
       }
       log_message('error', 'Video archiving failed');
+
+      $status = $aggroModel->cleanThumbs();
     }
   }
 

@@ -63,6 +63,70 @@ class AggroModels extends Model {
   }
 
   /**
+   * Clean thumbnail directory.
+   */
+  public function cleanThumbs() {
+    helper('aggro');
+    $thumbs = ROOTPATH . "public/thumbs/*.jpg";
+    $countBefore = count(glob($thumbs));
+    $sql = "SELECT video_id, video_thumbnail_url FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0";
+    $query = $this->db->query($sql);
+    $countActive = count($query->getResultArray());
+    $allThumbs = $query->getResult();
+    $source = ROOTPATH . "public/thumbs/";
+    $sourceAll = $source . "*.jpg";
+    $destination = ROOTPATH . "public/thumbholder/";
+    $destinationAll = $destination . "*.jpg";
+    $missing = "";
+
+    if (!file_exists($destination)) {
+      mkdir($destination, 0755, TRUE);
+    }
+
+    foreach ($allThumbs as $thumb) {
+      $current = $thumb->video_id . ".jpg";
+      $path = $source . $current;
+      if (in_array($current, [".", ".."])) {
+        continue;
+      }
+      if (!file_exists($path)) {
+        echo "<strong>" . $thumb->video_id . "</strong> missing thumbnail";
+        fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url);
+        echo " &mdash; fetched<br>";
+        copy($source . $current, $destination . $current);
+      }
+
+      if (file_exists($path)) {
+        copy($source . $current, $destination . $current);
+      }
+    }
+
+    foreach (glob($sourceAll) as $file) {
+      if (is_file($file)) {
+        @unlink($file);
+      }
+    }
+
+    foreach (glob($destinationAll) as $file) {
+      if (is_file($file)) {
+        $destination = str_replace('thumbholder', 'thumbs', $file);
+        copy($file, $destination);
+      }
+    }
+
+    foreach (glob($destinationAll) as $file) {
+      if (is_file($file)) {
+        @unlink($file);
+      }
+    }
+
+    $countAfter = count(glob($thumbs));
+
+    echo "<br><strong>" . $countBefore . "</strong> thumbs to start<br><strong>" . $countActive . "</strong> active videos<br><strong>" . $countAfter . "</strong> thumbs now<br>";
+    echo $missing;
+  }
+
+  /**
    * Get list of video channels that haven't been updated within timeframe.
    *
    * @param string $stale
