@@ -30,14 +30,21 @@ class Aggro extends BaseController {
       'slug' => 'log',
     ];
 
+    if ($slug == "clean" && gate_check()) {
+      $utilityModel = new UtilityModels();
+      $data['build'] = $utilityModel->cleanLog();
+      $this->response->redirect('/aggro/log');
+    }
+
     if ($slug == "error") {
+      $data['title'] = "Error log";
       $data['build'] = fetch_error_logs();
       echo view('log', $data);
     }
 
     if ($slug == "errorclean" && gate_check()) {
       $data['build'] = clean_error_logs();
-      echo view('log', $data);
+      $this->response->redirect('/aggro/log/error');
     }
 
     if ($slug == NULL) {
