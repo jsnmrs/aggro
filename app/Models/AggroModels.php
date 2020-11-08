@@ -291,8 +291,6 @@ class AggroModels extends Model {
             SET source_date_updated = '" . $now . "'
             WHERE source_slug = '" . $source_slug . "'";
     $this->db->query($sql);
-    $message = 'Updated ' . $source_slug . ' last fetch timestamp.';
-    $utilityModel->sendLog($message);
   }
 
 }
