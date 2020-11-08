@@ -153,13 +153,13 @@ class AggroModels extends Model {
     $update = count($query->getResultArray());
 
     if ($update > 0) {
-      $message = 'Found ' . $update . ' stale ' . $type . ' feeds.';
+      $message = 'Looking for ' . $limit . ' ' . $type . ' channels. Found ' . $update . ' stale ' . $type . ' channels. Updating...';
       $utilityModel->sendLog($message);
       return $query->getResult();
     }
 
     if ($update == 0) {
-      $message = 'Found 0 stale ' . $type . ' feeds.';
+      $message = 'Looking for ' . $limit . ' ' . $type . ' channels. Found 0 stale ' . $type . ' channels.';
       $utilityModel->sendLog($message);
       return FALSE;
     }
