@@ -15,6 +15,23 @@ use CodeIgniter\Model;
 class UtilityModels extends Model {
 
   /**
+   * Clean logs.
+   */
+  public function cleanLog() {
+    $now = date("Y-m-d H:i:s");
+    $sql = 'SELECT * FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '", INTERVAL 3 DAY)';
+    $query = $this->db->query($sql);
+    $update = count($query->getResultArray());
+
+    $sql = 'DELETE FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '",INTERVAL 3 DAY)';
+    $this->db->query($sql);
+    $cleanup = 'OPTIMIZE TABLE engine_log';
+    $this->db->query($cleanup);
+    $message = $update . ' log entries, older than 3 days deleted.';
+    $this->sendLog($message);
+  }
+
+  /**
    * Get log entries from aggro_log.
    *
    * @return string

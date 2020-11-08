@@ -10,7 +10,7 @@ echo $this->include('includes/header'); ?>
 <main id="content">
   <div class="wrap">
     <div class="full">
-      <h1>Log</h1>
+      <h1><?php echo $title; ?></h1>
       <ul>
   <?php if (is_array($build) || is_object($build)) :?>
     <?php foreach ($build as $row) :?>
