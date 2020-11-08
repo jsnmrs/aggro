@@ -35,7 +35,6 @@ $routes->get('/', 'Front::index');
 $routes->add('about', 'Front::about');
 $routes->add('featured', 'Front::index');
 $routes->add('opml', 'Feed::opml');
-$routes->add('out', 'Front::out');
 $routes->add('rss', 'Feed::videofeed');
 $routes->add('sites', 'Front::sites');
 $routes->add('sites/(:any)', 'Front::sites/$1');

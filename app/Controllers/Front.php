@@ -59,12 +59,6 @@ class Front extends BaseController {
   }
 
   /**
-   * Outgoing links.
-   */
-  public function out() {
-  }
-
-  /**
    * Sites page.
    */
   public function sites($slug = NULL) {
