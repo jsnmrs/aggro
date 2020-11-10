@@ -46,3 +46,33 @@ Options All -Indexes
 # Disable server signature start
     ServerSignature Off
 # Disable server signature end
+
+<IfModule mod_deflate.c>
+  <FilesMatch "\\.(js|css|html|xml|htm|ico)$">
+    SetOutputFilter DEFLATE
+  </FilesMatch>
+  AddOutputFilterByType DEFLATE text/html text/plain application/javascript text/css
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresDefault                          "access plus 1 month"
+  ExpiresByType text/cache-manifest       "access plus 0 seconds"
+  ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType application/json          "access plus 0 seconds"
+  ExpiresByType application/xml           "access plus 0 seconds"
+  ExpiresByType text/xml                  "access plus 0 seconds"
+  ExpiresByType application/atom+xml      "access plus 1 hour"
+  ExpiresByType application/rss+xml       "access plus 1 hour"
+  ExpiresByType image/x-icon              "access plus 1 week"
+  ExpiresByType image/jpeg                "access plus 1 month"
+  ExpiresByType image/png                 "access plus 1 month"
+  ExpiresByType application/javascript    "access plus 1 week"
+  ExpiresByType text/css                  "access plus 1 week"
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header unset ETag
+</IfModule>
+
+FileETag None
