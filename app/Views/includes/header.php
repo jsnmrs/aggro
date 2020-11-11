@@ -38,7 +38,7 @@
   <meta name="twitter:site" content="@bmxfeed">
   <meta name="twitter:title" content="<?php echo $build['video_title']; ?>">
   <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
-  <?php endif; ?><style type="text/css">
+  <?php endif; ?><style>
     <?php
     echo file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
     ?>
