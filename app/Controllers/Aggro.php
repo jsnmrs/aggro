@@ -36,7 +36,7 @@ class Aggro extends BaseController {
       $this->response->redirect('/aggro/log');
     }
 
-    if ($slug == "error") {
+    if ($slug == "error" && gate_check()) {
       $data['title'] = "Error log";
       $data['build'] = fetch_error_logs();
       echo view('log', $data);
@@ -47,10 +47,13 @@ class Aggro extends BaseController {
       $this->response->redirect('/aggro/log/error');
     }
 
-    if ($slug == NULL) {
+    if ($slug == NULL && gate_check()) {
       $utilityModel = new UtilityModels();
       $data['build'] = $utilityModel->getLog();
       echo view('log', $data);
+    }
+    if (!gate_check()) {
+      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">it&rsquo;s better than bad, it&rsquo;s good.</h1>";
     }
   }
 

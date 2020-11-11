@@ -29,15 +29,16 @@
   <meta name="theme-color" content="#005600">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" href="/favicon.ico">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/bmxfeed.webmanifest">
   <link rel="alternate" href="/rss/" type="application/rss+xml" title="bmxfeed recent videos">
   <link rel="alternate" href="/feed/" type="application/rss+xml" title="bmxfeed directory updates">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <?php if (isset($build['video_title'])) :?>
 <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@bmxfeed">
   <meta name="twitter:title" content="<?php echo $build['video_title']; ?>">
   <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
-  <?php endif; ?><style type="text/css">
+  <?php endif; ?><style>
     <?php
     echo file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
     ?>

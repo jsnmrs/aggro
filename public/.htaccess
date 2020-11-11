@@ -61,3 +61,101 @@ Options All -Indexes
   RequestHeader unset Proxy
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 </IfModule>
+
+AddDefaultCharset utf-8
+<IfModule mod_mime.c>
+    AddType application/manifest+json   webmanifest
+    AddCharset utf-8 .appcache \
+                     .atom \
+                     .css \
+                     .js \
+                     .json \
+                     .manifest \
+                     .map \
+                     .mjs \
+                     .rdf \
+                     .rss \
+                     .vtt \
+                     .webmanifest \
+                     .xml
+</IfModule>
+
+<IfModule mod_expires.c>
+
+  # Automatically add the `Cache-Control` header (as well as the
+  # equivalent `Expires` header).
+
+    ExpiresActive on
+
+  # By default, inform user agents to cache all resources for 1 year.
+
+    ExpiresDefault                                   "access plus 1 year"
+
+
+  # Overwrite the previous for file types whose content usually changes
+  # very often, and thus, should not be cached for such a long period,
+  # or at all.
+
+    # AppCache manifest files
+
+        ExpiresByType text/cache-manifest            "access plus 0 seconds"
+
+
+    # /favicon.ico (cannot be renamed!)
+
+        # [!] If you have access to the main Apache configuration
+        #     file, you can match the root favicon exactly using the
+        #     `<Location>` directive. The same cannot be done inside
+        #     of a `.htaccess` file where only the `<Files>` directive
+        #     can be used, reason why the best that can be done is match
+        #     all files named `favicon.ico` (but that should work fine
+        #     if filename/path-based revving is used)
+        #
+        # See also: https://httpd.apache.org/docs/current/sections.html#file-and-web.
+
+        <Files "favicon.ico">
+            ExpiresByType image/x-icon               "access plus 1 hour"
+        </Files>
+
+
+    # Data interchange
+
+        ExpiresByType application/atom+xml           "access plus 1 hour"
+        ExpiresByType application/rdf+xml            "access plus 1 hour"
+        ExpiresByType application/rss+xml            "access plus 1 hour"
+
+        ExpiresByType application/json               "access plus 0 seconds"
+        ExpiresByType application/ld+json            "access plus 0 seconds"
+        ExpiresByType application/schema+json        "access plus 0 seconds"
+        ExpiresByType application/vnd.geo+json       "access plus 0 seconds"
+        ExpiresByType text/xml                       "access plus 0 seconds"
+
+
+    # HTML
+
+        ExpiresByType text/html                      "access plus 0 seconds"
+
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    # Where needed add `immutable` value to the `Cache-Control` header
+
+    <IfModule mod_headers.c>
+
+        # Because `mod_headers` cannot match based on the content-type,
+        # the following workaround needs to be done.
+
+        # 1) Add the `immutable` value to the `Cache-Control` header
+        #    to all resources.
+
+        Header merge Cache-Control immutable
+
+        # 2) Remove the value for all resources that shouldn't be have it.
+
+        <FilesMatch "\.(appcache|cur|geojson|ico|json(ld)?|x?html?|topojson|xml)$">
+            Header edit Cache-Control immutable ""
+        </FilesMatch>
+
+    </IfModule>
+
+</IfModule>
