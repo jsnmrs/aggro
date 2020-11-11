@@ -2,7 +2,7 @@
 
 Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com). 
 
-![bmxfeed](https://user-images.githubusercontent.com/1215760/98825352-46ce0580-242c-11eb-8181-c6cde1f2132e.jpg)
+![bmxfeed](https://user-images.githubusercontent.com/1215760/98826155-4a15c100-242d-11eb-81fa-cdbe68a3e872.jpg)
 
 It runs on [CodeIgniter 4](https://github.com/codeigniter4/CodeIgniter4), using [SimplePie](https://github.com/simplepie/simplepie) for feed parsing.
 
