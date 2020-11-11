@@ -39,7 +39,7 @@ class Aggro extends BaseController {
     if ($slug == "error" && gate_check()) {
       $data['title'] = "Error log";
       $data['build'] = fetch_error_logs();
-      echo view('log', $data);
+      echo view('textlog', $data);
     }
 
     if ($slug == "errorclean" && gate_check()) {
@@ -50,7 +50,7 @@ class Aggro extends BaseController {
     if ($slug == NULL && gate_check()) {
       $utilityModel = new UtilityModels();
       $data['build'] = $utilityModel->getLog();
-      echo view('log', $data);
+      echo view('textlog', $data);
     }
     if (!gate_check()) {
       echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">it&rsquo;s better than bad, it&rsquo;s good.</h1>";
@@ -69,7 +69,7 @@ class Aggro extends BaseController {
     if ($slug == "clean" && gate_check()) {
       $status = $newsModel->featuredCleaner();
       if (isset($status)) {
-        echo $status . " featured news stories cleared.";
+        echo "\n" . $status . " featured news stories cleared.\n";
       }
       log_message('error', 'featured clean failed');
     }
@@ -77,7 +77,7 @@ class Aggro extends BaseController {
     if ($slug == "cc" && gate_check()) {
       $status = clean_feed_cache();
       if (isset($status)) {
-        echo $status . " feed caches cleared.";
+        echo "\n" . $status . " feed caches cleared.\n";
       }
       log_message('error', 'featured clean failed');
     }
@@ -85,7 +85,7 @@ class Aggro extends BaseController {
     if ($slug == NULL && gate_check()) {
       $status = $newsModel->featuredBuilder();
       if ($status === TRUE) {
-        echo "Featured page built.";
+        echo "\nFeatured page built.\n";
       }
       log_message('error', 'featured build failed');
     }
@@ -107,12 +107,12 @@ class Aggro extends BaseController {
     if (gate_check()) {
       $status = $aggroModel->archiveVideos();
       if ($status === TRUE) {
-        echo "Old videos archived. ";
+        echo "\nOld videos archived.\n";
       }
 
       $status = $aggroModel->cleanThumbs();
       if ($status === TRUE) {
-        echo "Thumbnails cleaned up.";
+        echo "\nThumbnails cleaned up.\n";
       }
     }
   }
@@ -129,7 +129,7 @@ class Aggro extends BaseController {
     if (gate_check()) {
       $status = $aggroModel->twitterPush();
       if ($status === TRUE) {
-        echo "Pushed any new videos to twitter.";
+        echo "\nPushed all new videos to twitter.\n";
       }
       log_message('error', 'Twitter check failed');
     }
@@ -154,7 +154,7 @@ class Aggro extends BaseController {
             $data['feed'] = vimeo_get_feed($channel->source_channel_id);
             $data['number_added'] = $vimeoModel->parseChannel($data['feed']);
 
-            echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
+            echo "\nAdded " . $data['number_added'] . " videos from " . $channel->source_name . ".\n";
 
             if ($data['feed'] != FALSE || empty($data['feed'])) {
               $aggroModel->updateChannel($channel->source_slug);
@@ -175,7 +175,7 @@ class Aggro extends BaseController {
           $data['feed'] = vimeo_get_feed($sourceID);
           $data['number_added'] = $vimeoModel->parseChannel($data['feed'], $videoID);
 
-          echo "Added https://vimeo.com/" . $videoID . " from " . $sourceID . ".<br>";
+          echo "\nAdded https://vimeo.com/" . $videoID . " from " . $sourceID . ".\n";
         }
       }
     }
@@ -200,7 +200,7 @@ class Aggro extends BaseController {
             $data['feed'] = youtube_get_feed($channel->source_channel_id);
             $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
 
-            echo "Added " . $data['number_added'] . " videos from " . $channel->source_name . ".<br>";
+            echo "\nAdded " . $data['number_added'] . " videos from " . $channel->source_name . ".\n";
 
             if ($data['feed'] != FALSE || empty($data['feed'])) {
               $aggroModel->updateChannel($channel->source_slug);
@@ -226,7 +226,7 @@ class Aggro extends BaseController {
           $data['feed'] = youtube_get_feed($sourceID);
           $data['number_added'] = $youtubeModel->parseChannel($data['feed'], $videoID);
 
-          echo "Added https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".<br>";
+          echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".\n";
         }
       }
     }
