@@ -10,7 +10,7 @@
     <footer>
       <p>BMXfeed <span class="ago" title="2006-12-24 12:00:00"></span></p>
     </footer>
-    <nav>
+    <nav aria-label="Footer navigation">
       <ul class="nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
