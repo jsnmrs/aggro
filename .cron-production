@@ -20,8 +20,8 @@ INDEX_PATH='/home/bmxfeed/aggro/public/index.php'
 0 2 * * * $PHP_PATH $INDEX_PATH aggro sweep
 
 ## aggro twitter
-## Tweet new videos every 10 minutes
-*/10 * * * * $PHP_PATH $INDEX_PATH aggro twitter
+## Tweet new videos every 5 minutes
+*/5 * * * * $PHP_PATH $INDEX_PATH aggro twitter
 
 ## aggro vimeo
 ## Look for new Vimeo videos every 7 minutes
