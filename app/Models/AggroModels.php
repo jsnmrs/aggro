@@ -271,9 +271,10 @@ class AggroModels extends Model {
         $tweetCount++;
       }
     }
-
-    $message = $tweetCount . ' tweets.';
-    $utilityModel->sendLog($message);
+    if ($tweetCount > 0) {
+      $message = $tweetCount . ' tweets.';
+      $utilityModel->sendLog($message);
+    }
 
     return TRUE;
   }
