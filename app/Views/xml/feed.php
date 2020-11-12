@@ -17,8 +17,8 @@ foreach ($build as $row) {
   echo "<title>" . stripslashes($row->site_name) . " on BMXfeed</title>\n";
   echo "<link>https://bmxfeed.com/sites/" . $row->site_slug . "/</link>\n";
   echo "<description>";
-  echo "<![CDATA[<p>Messed with <em>" . stripslashes($row->site_name) . "</em> on BMXfeed.";
-  echo " Jump to <a href=\"https://bmxfeed.com/sites/" . $row->site_slug . "/\">https://bmxfeed.com/sites/" . $row->site_slug . "/</a> for more info.</p>]]>";
+  echo "<![CDATA[<p>Updated <em>" . stripslashes($row->site_name) . "</em> on BMXfeed.";
+  echo " Check out <a href=\"https://bmxfeed.com/sites/" . $row->site_slug . "/\">https://bmxfeed.com/sites/" . $row->site_slug . "/</a> for more info.</p>]]>";
   echo "</description>\n";
   echo "<guid isPermaLink=\"true\">https://bmxfeed.com/sites/" . $row->site_slug . "</guid>\n";
   echo "<pubDate>" . date("D, d M Y H:i:s O", strtotime($row->site_date_added)) . "</pubDate>\n";
