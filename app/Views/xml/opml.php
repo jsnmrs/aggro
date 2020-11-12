@@ -5,7 +5,6 @@
  * OPML feed template.
  */
 
-header("Content-Type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 echo "<opml version=\"1.0\">\n";
 echo "<head>\n";
