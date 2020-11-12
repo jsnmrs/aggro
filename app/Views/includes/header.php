@@ -54,7 +54,7 @@
       <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
       <p class="u-sr">The BMX news and video aggregator</p>
     </header>
-    <nav>
+    <nav aria-label="Main navigation">
       <ul class="nav">
         <li><a href="/"
           <?php if ($slug == "featured") {
