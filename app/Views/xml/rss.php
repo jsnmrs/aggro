@@ -5,7 +5,6 @@
  * Video RSS feed template.
  */
 
-header("Content-Type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 echo "<rss version=\"2.0\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">\n";
 echo "<channel>\n";
