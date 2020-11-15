@@ -18,7 +18,7 @@ echo $this->include('includes/header'); ?>
       <?php foreach ($build as $row) :?>
         <li class="stream__item">
           <span class="stream__source">
-            <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars($row->site_name); ?></a>
+            <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars_decode($row->site_name); ?></a>
           </span>
           <span class="stream__title">
             <a href="<?php echo $row->story_permalink; ?>" rel="noopener noreferrer" data-outgoing="<?php echo $row->story_hash; ?>"><?php echo htmlspecialchars_decode($row->story_title); ?></a>
