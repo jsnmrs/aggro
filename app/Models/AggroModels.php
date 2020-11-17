@@ -260,7 +260,7 @@ class AggroModels extends Model {
       $twitter = new TwitterOAuth($_ENV['CONSUMER_KEY'], $_ENV['CONSUMER_SECRET'], $_ENV['ACCESS_TOKEN'], $_ENV['ACCESS_TOKEN_SECRET']);
 
       foreach ($result as $row) {
-        $cleanTitle = htmlspecialchars_decode($row->video_title);
+        $cleanTitle = html_entity_decode($row->video_title);
         $tweetText = substr($cleanTitle, 0, 70) . " https://bmxfeed.com/video/" . $row->video_id;
         if ($_ENV['CI_ENVIRONMENT'] == "production") {
           $twitter->post('statuses/update', ['status' => $tweetText]);
