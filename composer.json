@@ -13,7 +13,9 @@
   },
   "require-dev": {
     "mikey179/vfsstream": "1.6.*",
-    "phpunit/phpunit": "8.5.*"
+    "phpmd/phpmd": "^2.9",
+    "phpunit/phpunit": "8.5.*",
+    "squizlabs/php_codesniffer": "^3.5"
   },
   "autoload-dev": {
     "psr-4": {

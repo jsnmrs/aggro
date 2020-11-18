@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-## Run specific PHPCS
+## Run static PHP analysis
 ## Usage: fin sniff
 
-# Abort if anything fails
-set -e
-
-display_report=''
-if [ "$1" == "report" ]; then
-    display_report='--report=summary'
-fi
-
-cd "$PROJECT_ROOT"
-fin exec phpcs app/Controllers app/Helpers app/Models app/Views --ignore=*/_ci3/*,*/Views/errors/* ${display_report} --standard='Drupal,DrupalPractice' -s --exclude='DrupalPractice.CodeAnalysis.VariableAnalysis,Drupal.Classes.FullyQualifiedNamespace'
+cd "$PROJECT_ROOT" || exit
+fin exec phpcs --standard=phpcs.xml
+fin exec vendor/bin/phpmd app/Controllers ansi phpmd.xml
+fin exec vendor/bin/phpmd app/Helpers ansi phpmd.xml
+fin exec vendor/bin/phpmd app/Models ansi phpmd.xml
+fin exec vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*

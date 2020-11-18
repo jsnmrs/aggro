@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="aggro">
+  <description>PHP CodeSniffer configuration for aggro development.</description>
+
+  <file>app/Controllers</file>
+  <file>app/Helpers</file>
+  <file>app/Models</file>
+  <file>app/Views</file>
+
+  <exclude-pattern>*/_ci3/*</exclude-pattern>
+  <exclude-pattern>*/Views/errors/*</exclude-pattern>
+
+  <arg name="extensions" value="php"/>
+  <arg name="colors"/>
+  <arg value="s"/>
+
+  <rule ref="Drupal">
+    <exclude name="Drupal.Classes.FullyQualifiedNamespace"/>
+  </rule>
+
+  <rule ref="DrupalPractice">
+    <exclude name="DrupalPractice.CodeAnalysis.VariableAnalysis"/>
+  </rule>
+
+  <rule ref="Generic.Metrics.CyclomaticComplexity">
+    <properties>
+      <property name="complexity" value="10"/>
+      <property name="absoluteComplexity" value="15"/>
+    </properties>
+  </rule>
+
+  <rule ref="Generic.Metrics.NestingLevel">
+    <properties>
+      <property name="nestingLevel" value="4"/>
+      <property name="absoluteNestingLevel" value="7"/>
+    </properties>
+  </rule>
+</ruleset>

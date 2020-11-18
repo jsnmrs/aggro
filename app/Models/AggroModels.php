@@ -286,7 +286,6 @@ class AggroModels extends Model {
    *   Source slug.
    */
   public function updateChannel($source_slug) {
-    $utilityModel = new UtilityModels();
     $now = date('Y-m-d H:i:s');
     $sql = "UPDATE aggro_sources
             SET source_date_updated = '" . $now . "'
