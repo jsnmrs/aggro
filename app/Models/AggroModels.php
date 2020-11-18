@@ -104,7 +104,7 @@ class AggroModels extends Model {
 
     foreach (glob($sourceAll) as $file) {
       if (is_file($file)) {
-        @unlink($file);
+        unlink($file);
       }
     }
 
@@ -117,7 +117,7 @@ class AggroModels extends Model {
 
     foreach (glob($destinationAll) as $file) {
       if (is_file($file)) {
-        @unlink($file);
+        unlink($file);
       }
     }
 
@@ -282,14 +282,14 @@ class AggroModels extends Model {
   /**
    * Update video source last fetch timestamp.
    *
-   * @param string $source_slug
+   * @param string $sourceSlug
    *   Source slug.
    */
-  public function updateChannel($source_slug) {
+  public function updateChannel($sourceSlug) {
     $now = date('Y-m-d H:i:s');
     $sql = "UPDATE aggro_sources
             SET source_date_updated = '" . $now . "'
-            WHERE source_slug = '" . $source_slug . "'";
+            WHERE source_slug = '" . $sourceSlug . "'";
     $this->db->query($sql);
   }
 
