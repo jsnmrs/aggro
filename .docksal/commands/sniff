@@ -6,10 +6,5 @@
 # Abort if anything fails
 set -e
 
-display_report=''
-if [ "$1" == "report" ]; then
-    display_report='--report=summary'
-fi
-
 cd "$PROJECT_ROOT"
-fin exec phpcs app/Controllers app/Helpers app/Models app/Views --ignore=*/_ci3/*,*/Views/errors/* ${display_report} --standard='Drupal,DrupalPractice' -s --exclude='DrupalPractice.CodeAnalysis.VariableAnalysis,Drupal.Classes.FullyQualifiedNamespace'
+fin exec phpcs --standard=phpcs.xml
