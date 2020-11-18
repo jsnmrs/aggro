@@ -71,7 +71,6 @@ class Aggro extends BaseController {
       if (isset($status)) {
         echo "\n" . $status . " featured news stories cleared.\n";
       }
-      log_message('error', 'featured clean failed');
     }
 
     if ($slug == "cc" && gate_check()) {
@@ -79,7 +78,6 @@ class Aggro extends BaseController {
       if (isset($status)) {
         echo "\n" . $status . " feed caches cleared.\n";
       }
-      log_message('error', 'featured clean failed');
     }
 
     if ($slug == NULL && gate_check()) {
@@ -87,7 +85,6 @@ class Aggro extends BaseController {
       if ($status === TRUE) {
         echo "\nFeatured page built.\n";
       }
-      log_message('error', 'featured build failed');
     }
 
     if (!gate_check()) {
@@ -131,7 +128,6 @@ class Aggro extends BaseController {
       if ($status === TRUE) {
         echo "\nPushed all new videos to twitter.\n";
       }
-      log_message('error', 'Twitter check failed');
     }
   }
 
