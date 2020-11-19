@@ -4,6 +4,8 @@
     <!-- List of rules https://phpmd.org/rules/index.html -->
     <rule ref="rulesets/cleancode.xml">
         <exclude name="UndefinedVariable"/>
+        <exclude name="StaticAccess"/>
+        <exclude name="MissingImport"/>
     </rule>
     <rule ref="rulesets/codesize.xml"/>
     <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
