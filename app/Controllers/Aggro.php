@@ -63,29 +63,20 @@ class Aggro extends BaseController {
     helper('aggro');
     $newsModel = new NewsModels();
 
-    if ($slug == "clean" && gate_check()) {
-      $status = $newsModel->featuredCleaner();
-      if (isset($status)) {
-        echo "\n" . $status . " featured news stories cleared.\n";
-      }
-    }
-
-    if ($slug == "cc" && gate_check()) {
-      $status = clean_feed_cache();
-      if (isset($status)) {
-        echo "\n" . $status . " feed caches cleared.\n";
-      }
-    }
-
-    if ($slug == NULL && gate_check()) {
-      $status = $newsModel->featuredBuilder();
-      if ($status === TRUE) {
-        echo "\nFeatured page built.\n";
-      }
-    }
-
     if (!gate_check()) {
-      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">Huey Lewis and the &hellip;</h1>";
+      return FALSE;
+    }
+
+    if ($slug == NULL && $newsModel->featuredBuilder()) {
+      return "Featured page built.";
+    }
+
+    if ($slug == "clean" && $newsModel->featuredCleaner() > 0) {
+      return "Featured news stories cleared.";
+    }
+
+    if ($slug == "cc" && clean_feed_cache()) {
+      return "Feed caches cleared.";
     }
   }
 
