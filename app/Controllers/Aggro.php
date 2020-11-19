@@ -25,35 +25,32 @@ class Aggro extends BaseController {
    */
   public function log($slug = NULL) {
     helper("aggro");
-    $data = [
-      'title' => 'Log',
-      'slug' => 'log',
-    ];
+    $data = ['title' => 'Log'];
+    $utilityModel = new UtilityModels();
 
-    if ($slug == "clean" && gate_check()) {
-      $utilityModel = new UtilityModels();
-      $data['build'] = $utilityModel->cleanLog();
-      $this->response->redirect('/aggro/log');
+    if (!gate_check()) {
+      return FALSE;
     }
 
-    if ($slug == "error" && gate_check()) {
+    if ($slug == NULL) {
+      $data['build'] = $utilityModel->getLog();
+      return view('textlog', $data);
+    }
+
+    if ($slug == "clean") {
+      $data['build'] = $utilityModel->cleanLog();
+      return $this->response->redirect('/aggro/log');
+    }
+
+    if ($slug == "error") {
       $data['title'] = "Error log";
       $data['build'] = fetch_error_logs();
-      echo view('textlog', $data);
+      return view('textlog', $data);
     }
 
-    if ($slug == "errorclean" && gate_check()) {
+    if ($slug == "errorclean") {
       $data['build'] = clean_error_logs();
-      $this->response->redirect('/aggro/log/error');
-    }
-
-    if ($slug == NULL && gate_check()) {
-      $utilityModel = new UtilityModels();
-      $data['build'] = $utilityModel->getLog();
-      echo view('textlog', $data);
-    }
-    if (!gate_check()) {
-      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">it&rsquo;s better than bad, it&rsquo;s good.</h1>";
+      return $this->response->redirect('/aggro/log/error');
     }
   }
 
