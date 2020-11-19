@@ -25,35 +25,32 @@ class Aggro extends BaseController {
    */
   public function log($slug = NULL) {
     helper("aggro");
-    $data = [
-      'title' => 'Log',
-      'slug' => 'log',
-    ];
+    $data = ['title' => 'Log'];
+    $utilityModel = new UtilityModels();
 
-    if ($slug == "clean" && gate_check()) {
-      $utilityModel = new UtilityModels();
-      $data['build'] = $utilityModel->cleanLog();
-      $this->response->redirect('/aggro/log');
+    if (!gate_check()) {
+      return FALSE;
     }
 
-    if ($slug == "error" && gate_check()) {
+    if ($slug == NULL) {
+      $data['build'] = $utilityModel->getLog();
+      return view('textlog', $data);
+    }
+
+    if ($slug == "clean") {
+      $data['build'] = $utilityModel->cleanLog();
+      return $this->response->redirect('/aggro/log');
+    }
+
+    if ($slug == "error") {
       $data['title'] = "Error log";
       $data['build'] = fetch_error_logs();
-      echo view('textlog', $data);
+      return view('textlog', $data);
     }
 
-    if ($slug == "errorclean" && gate_check()) {
+    if ($slug == "errorclean") {
       $data['build'] = clean_error_logs();
-      $this->response->redirect('/aggro/log/error');
-    }
-
-    if ($slug == NULL && gate_check()) {
-      $utilityModel = new UtilityModels();
-      $data['build'] = $utilityModel->getLog();
-      echo view('textlog', $data);
-    }
-    if (!gate_check()) {
-      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">it&rsquo;s better than bad, it&rsquo;s good.</h1>";
+      return $this->response->redirect('/aggro/log/error');
     }
   }
 
@@ -66,29 +63,20 @@ class Aggro extends BaseController {
     helper('aggro');
     $newsModel = new NewsModels();
 
-    if ($slug == "clean" && gate_check()) {
-      $status = $newsModel->featuredCleaner();
-      if (isset($status)) {
-        echo "\n" . $status . " featured news stories cleared.\n";
-      }
-    }
-
-    if ($slug == "cc" && gate_check()) {
-      $status = clean_feed_cache();
-      if (isset($status)) {
-        echo "\n" . $status . " feed caches cleared.\n";
-      }
-    }
-
-    if ($slug == NULL && gate_check()) {
-      $status = $newsModel->featuredBuilder();
-      if ($status === TRUE) {
-        echo "\nFeatured page built.\n";
-      }
-    }
-
     if (!gate_check()) {
-      echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">Huey Lewis and the &hellip;</h1>";
+      return FALSE;
+    }
+
+    if ($slug == NULL && $newsModel->featuredBuilder()) {
+      return "Featured page built.";
+    }
+
+    if ($slug == "clean" && $newsModel->featuredCleaner() > 0) {
+      return "Featured news stories cleared.";
+    }
+
+    if ($slug == "cc" && clean_feed_cache()) {
+      return "Feed caches cleared.";
     }
   }
 

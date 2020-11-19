@@ -275,7 +275,7 @@ if (!function_exists('fetch_thumbnail')) {
     $buffer = fetch_url($thumbnail);
 
     if (!empty($buffer)) {
-      $file = @fopen($path, 'w');
+      $file = fopen($path, 'w');
       fwrite($file, $buffer, strlen($buffer));
       fclose($file);
 
