@@ -67,15 +67,18 @@ class Aggro extends BaseController {
       return FALSE;
     }
 
-    if ($slug == NULL && $newsModel->featuredBuilder()) {
+    if ($slug == NULL) {
+      $data['build'] = $newsModel->featuredBuilder();
       return "Featured page built.";
     }
 
-    if ($slug == "clean" && $newsModel->featuredCleaner() > 0) {
+    if ($slug == "clean") {
+      $data['build'] = $newsModel->featuredCleaner();
       return "Featured news stories cleared.";
     }
 
-    if ($slug == "cc" && clean_feed_cache()) {
+    if ($slug == "cc") {
+      $data['build'] = clean_feed_cache();
       return "Feed caches cleared.";
     }
   }
