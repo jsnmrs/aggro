@@ -41,7 +41,6 @@ fin hosts remove "$VIRTUAL_HOST"
 fin hosts add "$VIRTUAL_HOST"
 
 # install docksal addons
-fin addon install phpcs
 fin addon install sequelpro
 
 fin init-site
