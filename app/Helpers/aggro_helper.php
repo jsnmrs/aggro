@@ -130,67 +130,6 @@ if (!function_exists('clean_thumbnail')) {
 
 }
 
-if (!function_exists('convert_duration_seconds')) {
-
-  /**
-   * Convert duration format (PT##M##S) to seconds.
-   *
-   * @param string $str
-   *   Duration string to convert.
-   *
-   * @return string
-   *   Duration converted to seconds.
-   */
-  function convert_duration_seconds($str) {
-    $seconds = 0;
-    $sections = "";
-    $result = [];
-    preg_match('/^(?:P)([^T]*)(?:T)?(.*)?$/', trim($str), $sections);
-
-    if (!empty($sections[1])) {
-      preg_match_all('/(\d+)([YMWD])/', $sections[1], $parts, PREG_SET_ORDER);
-      $units = [
-        'Y' => 'years',
-        'M' => 'months',
-        'W' => 'weeks',
-        'D' => 'days',
-      ];
-
-      foreach ($parts as $part) {
-        $result[$units[$part[2]]] = $part[1];
-      }
-    }
-
-    if (!empty($sections[2])) {
-      preg_match_all('/(\d+)([HMS])/', $sections[2], $parts, PREG_SET_ORDER);
-      $units = ['H' => 'hours', 'M' => 'minutes', 'S' => 'seconds'];
-
-      foreach ($parts as $part) {
-        $result[$units[$part[2]]] = $part[1];
-      }
-    }
-
-    foreach ($result as $key => $value) {
-      switch ($key) {
-        case "hours":
-          $seconds += $value * 60 * 60;
-          break;
-
-        case "minutes":
-          $seconds += $value * 60;
-          break;
-
-        case "seconds":
-          $seconds += $value;
-          break;
-      }
-    }
-
-    return $seconds;
-  }
-
-}
-
 if (!function_exists('fetch_error_logs')) {
 
   /**
@@ -205,7 +144,7 @@ if (!function_exists('fetch_error_logs')) {
     $files = glob($path);
     foreach ($files as $file) {
       if (is_file($file)) {
-        $myfile = fopen($file, 'r') or die('Unable to open file!');
+        $myfile = fopen($file, 'r');
         $results[] = fread($myfile, filesize($file));
         fclose($myfile);
       }
