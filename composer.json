@@ -8,10 +8,10 @@
     "php": ">=7.2",
     "abraham/twitteroauth": "^1.1",
     "codeigniter4/framework": "^4",
-    "drupal/coder": "^8.3",
     "simplepie/simplepie": "^1.5"
   },
   "require-dev": {
+    "drupal/coder": "^8.3",
     "mikey179/vfsstream": "1.6.*",
     "phpmd/phpmd": "^2.9",
     "phpunit/phpunit": "8.5.*",
