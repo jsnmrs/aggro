@@ -27,15 +27,15 @@
   "devDependencies": {
     "autoprefixer": "^10.0.2",
     "cssnano": "^4.1.10",
-    "eslint": "^7.13.0",
+    "eslint": "^7.14.0",
     "eslint-plugin-es5": "^1.5.0",
     "moment": "^2.29.1",
     "node-sass": "^5.0.0",
-    "postcss": "^8.1.7",
-    "postcss-cli": "^8.2.0",
+    "postcss": "^8.1.9",
+    "postcss-cli": "^8.3.0",
     "postcss-import": "^13.0.0",
-    "prettier": "^2.1.2",
-    "stylelint": "^13.7.2",
+    "prettier": "^2.2.0",
+    "stylelint": "^13.8.0",
     "stylelint-a11y": "^1.2.3",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
@@ -44,6 +44,6 @@
     "stylelint-no-unsupported-browser-features": "^4.1.4",
     "stylelint-order": "^4.1.0",
     "stylelint-scss": "^3.18.0",
-    "uglify-js": "^3.11.6"
+    "uglify-js": "^3.12.0"
   }
 }
