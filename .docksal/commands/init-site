@@ -24,8 +24,8 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
 
 cd "$PROJECT_ROOT"
-
-OUTPUT="$(find ./*.sql | head -1)"
+# shellcheck disable=SC2012
+OUTPUT="$(ls -t -- *.sql | head -n1)"
 echo -e "Newest DB dump: ${yellow}${OUTPUT}${NC}"
 
 fin db import "$OUTPUT"
