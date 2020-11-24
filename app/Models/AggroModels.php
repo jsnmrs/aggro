@@ -39,6 +39,33 @@ class AggroModels extends Model {
   }
 
   /**
+   * Check thumbnails.
+   */
+  public function checkThumbs() {
+    $utilityModel = new UtilityModels();
+    helper('aggro');
+
+    $sql = "SELECT video_id, video_thumbnail_url FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0";
+    $query = $this->db->query($sql);
+    $thumbs = $query->getResult();
+
+    foreach ($thumbs as $thumb) {
+      $path = ROOTPATH . "public/thumbs/" . $thumb->video_id . ".jpg";
+
+      if (!file_exists($path)) {
+        $message = $thumb->video_id . " missing thumbnail";
+
+        if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
+          $message .= " &mdash; fetched.";
+          $utilityModel->sendLog($message);
+        }
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
    * Check if video exists in video table.
    *
    * @param string $videoid
@@ -67,63 +94,20 @@ class AggroModels extends Model {
    */
   public function cleanThumbs() {
     $utilityModel = new UtilityModels();
-    helper('aggro');
     $thumbs = ROOTPATH . "public/thumbs/*.jpg";
-    $countBefore = count(glob($thumbs));
-    $sql = "SELECT video_id, video_thumbnail_url FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0";
-    $query = $this->db->query($sql);
-    $countActive = count($query->getResultArray());
-    $allThumbs = $query->getResult();
-    $source = ROOTPATH . "public/thumbs/";
-    $sourceAll = $source . "*.jpg";
-    $destination = ROOTPATH . "public/thumbholder/";
-    $destinationAll = $destination . "*.jpg";
 
-    if (!file_exists($destination)) {
-      mkdir($destination, 0755, TRUE);
-    }
+    $files = glob($thumbs);
+    $now = time();
 
-    foreach ($allThumbs as $thumb) {
-      $current = $thumb->video_id . ".jpg";
-      $path = $source . $current;
-      if (in_array($current, [".", ".."])) {
-        continue;
-      }
-      if (!file_exists($path)) {
-        $message = $thumb->video_id . " missing thumbnail";
-        fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url);
-        $message .= " &mdash; fetched.";
-        copy($source . $current, $destination . $current);
-        $utilityModel->sendLog($message);
-      }
-
-      if (file_exists($path)) {
-        copy($source . $current, $destination . $current);
-      }
-    }
-
-    foreach (glob($sourceAll) as $file) {
+    foreach ($files as $file) {
       if (is_file($file)) {
-        unlink($file);
+        if ($now - filemtime($file) >= 60 * 60 * 24 * 45) {
+          unlink($file);
+        }
       }
     }
 
-    foreach (glob($destinationAll) as $file) {
-      if (is_file($file)) {
-        $destination = str_replace('thumbholder', 'thumbs', $file);
-        copy($file, $destination);
-      }
-    }
-
-    foreach (glob($destinationAll) as $file) {
-      if (is_file($file)) {
-        unlink($file);
-      }
-    }
-
-    $countAfter = count(glob($thumbs));
-
-    $message = $countBefore . " thumbs to start, " . $countActive . " active videos, " . $countAfter . " thumbs now.";
+    $message = "cleaned thumbnails.";
     $utilityModel->sendLog($message);
 
     return TRUE;
