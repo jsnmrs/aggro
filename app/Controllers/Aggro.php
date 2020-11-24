@@ -188,7 +188,7 @@ class Aggro extends BaseController {
     if ($videoID == NULL) {
       $data['stale'] = $aggroModel->getChannels(30, "youtube", 5);
 
-      if ($data['stale'] != FALSE) {
+      if ($data['stale'] == FALSE) {
         return FALSE;
       }
 
