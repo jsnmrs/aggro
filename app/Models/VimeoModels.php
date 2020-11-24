@@ -60,7 +60,7 @@ class VimeoModels extends Model {
             $video['flag_archive'] = 1;
             $video['flag_tweet'] = 0;
           }
-          $video['video_title'] = htmlentities($item->title, ENT_COMPAT, 'utf-8', FALSE);
+          $video['video_title'] = htmlentities($item->title, ENT_QUOTES, 'utf-8', FALSE);
           $video['video_plays'] = 0;
           if (isset($item->stats_number_of_plays)) {
             $video['video_plays'] = $item->stats_number_of_plays;
@@ -68,7 +68,7 @@ class VimeoModels extends Model {
           $video['video_thumbnail_url'] = $item->thumbnail_large;
           $video['video_source_id'] = str_replace('https://vimeo.com/', '', $item->user_url);
           $video['video_source_url'] = $item->user_url;
-          $video['video_source_username'] = htmlentities($item->user_name, ENT_COMPAT, 'utf-8', FALSE);
+          $video['video_source_username'] = htmlentities($item->user_name, ENT_QUOTES, 'utf-8', FALSE);
           $video['video_width'] = $item->width;
           $video['video_height'] = $item->height;
           $video['video_aspect_ratio'] = round($item->width / $item->height, 3);
