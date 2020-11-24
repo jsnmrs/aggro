@@ -93,13 +93,15 @@ class Aggro extends BaseController {
     $aggroModel = new AggroModels();
 
     if (gate_check()) {
-      $status = $aggroModel->archiveVideos();
-      if ($status === TRUE) {
+      if ($aggroModel->archiveVideos()) {
         echo "\nOld videos archived.\n";
       }
 
-      $status = $aggroModel->cleanThumbs();
-      if ($status === TRUE) {
+      if ($aggroModel->checkThumbs()) {
+        echo "\nThumbnails checked.\n";
+      }
+
+      if ($aggroModel->cleanThumbs()) {
         echo "\nThumbnails cleaned up.\n";
       }
     }
