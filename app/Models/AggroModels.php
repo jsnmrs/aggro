@@ -11,6 +11,38 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 class AggroModels extends Model {
 
   /**
+   * Add video metadata to aggro_videos.
+   *
+   * @param array $video
+   *   Video metadata to add.
+   *
+   * @return bool
+   *   Video added.
+   *
+   * @see sendLog()
+   */
+  public function addVideo(array $video) {
+    $utilityModel = new UtilityModels();
+    helper('aggro');
+
+    $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_source_id, video_source_username, video_source_url, flag_tweet, video_type, video_source_user_slug) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ", 0, " . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ", " . $video['video_height'] . ", " . $video['video_aspect_ratio'] . ", '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', " . $video['flag_tweet'] . ", '" . $video['video_type'] . "', '" . $video['video_source_user_slug'] . "')";
+
+    $this->db->query($sql);
+
+    if ($video['flag_archive'] == 0 && fetch_thumbnail($video['video_id'], $video['video_thumbnail_url'])) {
+      $message = "Added " . $video['video_type'] . " " . $video['video_id'] . " and fetched thumbnail.";
+    }
+
+    if ($video['flag_archive'] == 1) {
+      $message = "Added and archived " . $video['video_type'] . " " . $video['video_id'] . ".";
+    }
+
+    $utilityModel->sendLog($message);
+
+    return TRUE;
+  }
+
+  /**
    * Archive videos older than 31 days by setting archive flag in video table.
    *
    * Write count of archived videos to log.

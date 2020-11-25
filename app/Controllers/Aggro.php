@@ -161,10 +161,8 @@ class Aggro extends BaseController {
       $request = "https://vimeo.com/api/v2/video/" . $videoID . ".json";
       $result = fetch_url($request, 'json', 0);
       $sourceID = str_replace('https://vimeo.com/', '', $result[0]->user_url);
-
       $data['feed'] = vimeo_get_feed($sourceID);
-      $data['number_added'] = $vimeoModel->parseChannel($data['feed'], $videoID);
-
+      $data['number_added'] = $vimeoModel->searchChannel($data['feed'], $videoID);
       echo "\nAdded https://vimeo.com/" . $videoID . " from " . $sourceID . ".\n";
 
       return TRUE;
@@ -212,8 +210,7 @@ class Aggro extends BaseController {
       $sourceID = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
       $sourceID = str_replace('https://www.youtube.com/user/', '', $result->author_url);
       $data['feed'] = youtube_get_feed($sourceID);
-      $data['number_added'] = $youtubeModel->parseChannel($data['feed'], $videoID);
-
+      $youtubeModel->searchChannel($data['feed'], $videoID);
       echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".\n";
 
       return TRUE;
