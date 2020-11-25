@@ -28,14 +28,12 @@ class VimeoModels extends Model {
       return FALSE;
     }
 
-    if (is_array($feed) || is_object($feed)) {
-      foreach ($feed as $item) {
-        if ($videoId == $item->id && !$aggroModel->checkVideo($item->id)) {
-          $video = vimeo_parse_meta($item);
-          $aggroModel->addVideo($video);
+    foreach ($feed as $item) {
+      if ($videoId == $item->id && !$aggroModel->checkVideo($item->id)) {
+        $video = vimeo_parse_meta($item);
+        $aggroModel->addVideo($video);
 
-          return TRUE;
-        }
+        return TRUE;
       }
     }
 
@@ -61,13 +59,11 @@ class VimeoModels extends Model {
       return FALSE;
     }
 
-    if (is_array($feed) || is_object($feed)) {
-      foreach ($feed as $item) {
-        if (!$aggroModel->checkVideo($item->id)) {
-          $video = vimeo_parse_meta($item);
-          $aggroModel->addVideo($video);
-          $addCount++;
-        }
+    foreach ($feed as $item) {
+      if (!$aggroModel->checkVideo($item->id)) {
+        $video = vimeo_parse_meta($item);
+        $aggroModel->addVideo($video);
+        $addCount++;
       }
     }
 
