@@ -15,7 +15,7 @@ set('ssh_multiplexing', TRUE);
 
 set('writable_mode', 'chmod');
 // CodeIgniter shared dirs.
-set('shared_dirs', ['writable/cache', 'writable/logs']);
+set('shared_dirs', ['public/thumbs', 'writable/cache', 'writable/logs']);
 // CodeIgniter writable dirs.
 set('writable_dirs', ['writable/cache', 'writable/logs']);
 
