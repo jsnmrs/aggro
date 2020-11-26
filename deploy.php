@@ -61,8 +61,6 @@ task('deploy', [
   'deploy:release',
   'rsync',
   'deploy:secrets',
-  'deploy:shared',
-  'deploy:writable',
   'deploy:symlink',
   'deploy:unlock',
   'cleanup',
