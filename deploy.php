@@ -14,6 +14,12 @@ set('application', 'aggro');
 // Speed up deployment.
 set('ssh_multiplexing', TRUE);
 
+set('writable_mode', 'chmod');
+// CodeIgniter shared dirs.
+set('shared_dirs', ['writable/cache', 'writable/logs']);
+// CodeIgniter writable dirs.
+set('writable_dirs', ['writable/cache', 'writable/logs']);
+
 set('rsync_src', function () {
   // Project is in root.
   return __DIR__;
@@ -76,6 +82,8 @@ task('deploy', [
   'deploy:lock',
   'deploy:release',
   'rsync',
+  'deploy:shared',
+  'deploy:writable',
   'deploy:secrets',
   'deploy:symlink',
   'deploy:unlock',
