@@ -27,7 +27,7 @@ set('rsync_src', function () {
 add('rsync', [
   'exclude' => [
     '.browserslistrc',
-    '.cron*',
+    '.cron-local',
     '.docksal',
     '.editorconfig',
     '.env*',
