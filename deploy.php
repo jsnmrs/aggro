@@ -62,7 +62,6 @@ task('deploy', [
   'rsync',
   'deploy:secrets',
   'deploy:shared',
-  'deploy:vendors',
   'deploy:writable',
   'deploy:symlink',
   'deploy:unlock',
