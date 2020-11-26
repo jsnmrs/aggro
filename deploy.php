@@ -41,7 +41,7 @@ add('rsync', [
 // Copy dotenv file from github secret to server.
 task('deploy:secrets', function () {
   file_put_contents(__DIR__ . '/.env', getenv('DOT_ENV'));
-  upload('.env', get('deploy_path'));
+  upload('.env', get('release_path'));
 });
 
 
