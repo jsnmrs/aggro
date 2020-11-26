@@ -15,7 +15,7 @@ set('ssh_multiplexing', TRUE);
 
 set('writable_mode', 'chmod');
 // CodeIgniter shared dirs.
-set('shared_dirs', ['writable/cache', 'writable/logs']);
+set('shared_dirs', ['public/thumbs', 'writable/cache', 'writable/logs']);
 // CodeIgniter writable dirs.
 set('writable_dirs', ['writable/cache', 'writable/logs']);
 
@@ -67,7 +67,6 @@ task('deploy:secrets', function () {
 
 // Copy crontab settings from repo.
 task('deploy:cron', function () {
-  run('crontab -r');
   run('crontab ' . get('release_path') . '/.cron-production');
   run('crontab -l');
 });
