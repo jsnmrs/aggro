@@ -6,6 +6,7 @@
 
 namespace Deployer;
 
+require 'recipe/codeigniter.php';
 require 'recipe/rsync.php';
 
 set('application', 'aggro');
