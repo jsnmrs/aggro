@@ -42,6 +42,6 @@
   </div>
 </div>
 
-<script src="/js/scripts.js"></script>
+<script src="/dist/scripts.js"></script>
 </body>
 </html>

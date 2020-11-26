@@ -40,7 +40,10 @@
   <meta name="twitter:image" content="<?php echo $build['video_thumbnail_url']; ?>">
   <?php endif; ?><style>
     <?php
-    echo file_get_contents(ROOTPATH . "public/css/styles.css", TRUE);
+    $styles = ROOTPATH . "public/dist/styles.css";
+    if (file_exists($styles)) {
+      echo file_get_contents($styles, TRUE);
+    }
     ?>
   </style>
 </head>

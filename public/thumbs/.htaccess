@@ -3,5 +3,5 @@
   RewriteEngine on
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^.*(\.gif|\.jpe?g|\.png)$ /assets/img/placeholder.jpg [L]
+  RewriteRule ^.*(\.gif|\.jpe?g|\.png)$ /placeholder.jpg [L]
 </IfModule>
