@@ -1,3 +1,9 @@
+###--- BEGIN DREAMHOST BLOCK
+###--- Changes made to this part of the file WILL be destroyed!
+
+###--- You can make changes below the next line and they will be preserved!
+###--- END DREAMHOST BLOCK
+
 ## aggro cron [production]
 
 PHP_PATH='/usr/bin/php'
