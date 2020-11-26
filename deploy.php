@@ -67,6 +67,7 @@ task('deploy:secrets', function () {
 
 // Copy crontab settings from repo.
 task('deploy:cron', function () {
+  run ('cd ~/');
   run('crontab ' . get('release_path') . '/.cron-production');
   run('crontab -l');
 });
