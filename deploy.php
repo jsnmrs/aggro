@@ -65,6 +65,13 @@ task('deploy:secrets', function () {
   upload('.env', get('release_path'));
 });
 
+// Copy crontab settings from repo.
+task('deploy:cron', function () {
+  run('crontab -r');
+  run('crontab ' . get('release_path') . '.cron-production');
+  run('crontab -l');
+});
+
 
 host('bmxfeed.com')
   ->hostname('bmxfeed.com')
@@ -85,6 +92,7 @@ task('deploy', [
   'deploy:writable',
   'deploy:secrets',
   'deploy:symlink',
+  'deploy:cron',
   'deploy:unlock',
   'cleanup',
 ]);
