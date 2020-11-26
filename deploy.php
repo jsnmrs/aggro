@@ -66,11 +66,11 @@ task('deploy:secrets', function () {
 });
 
 
-host('production.aggro')
+host('bmxfeed.com')
   ->hostname('bmxfeed.com')
   ->stage('production')
   ->user('bmxfeed')
-  ->set('deploy_path', '/home/bmxfeed/aggro-prod');
+  ->set('deploy_path', '/home/bmxfeed/aggro');
 
 after('deploy:failed', 'deploy:unlock');
 
