@@ -1,4 +1,4 @@
-name: Deploy
+name: Build and deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   front:
-    name: Build CSS/JS
+    name: Build CSS and JS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
