@@ -1,9 +1,6 @@
 # ************************************************************
 # MySQL dump
-#
-# MySQL 5.7.28-log
 # Database: aggro_gator
-# Generation Time: 2020-11-08 13:58:58 +0000
 # ************************************************************
 
 
@@ -94,6 +91,17 @@ CREATE TABLE `news_featured` (
   UNIQUE KEY `permalink` (`story_permalink`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+LOCK TABLES `news_featured` WRITE;
+/*!40000 ALTER TABLE `news_featured` DISABLE KEYS */;
+
+INSERT INTO `news_featured` (`story_id`, `story_title`, `story_permalink`, `story_hash`, `story_date`, `site_id`)
+VALUES
+  (1,'BMXFEED: 2020 ROADTRIP – BNGBNGMCR | Ride UK BMX','https://bmxfeed.com/video/NSVIEl6OIzA/','2f69b425dfd72beb8bf5cc7ac1b923cd7b6e4fcb','2020-11-27 13:05:17',1),
+  (2,'BMXFEED: WIN THIS $1400 BIKE  PART TWO - NATHAN RIDES IT','https://bmxfeed.com/video/421pYyzGoTU/','3ed5a45f03b34a444f66bbe9e8618f763470093e','2020-11-27 13:05:16',1),
+  (3,'BMXFEED: BMX IN A GROCERY STORE - TATE ROSKELLEY - GT','https://bmxfeed.com/video/ly5DAElCAXg/','6d6abad832f1edc6aa0e9f50d16f7b5b1bec19c8','2020-11-27 12:20:17',1);
+
+/*!40000 ALTER TABLE `news_featured` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table news_feeds
@@ -118,6 +126,15 @@ CREATE TABLE `news_feeds` (
   PRIMARY KEY (`site_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='bmxfeed feeds table';
 
+LOCK TABLES `news_feeds` WRITE;
+/*!40000 ALTER TABLE `news_feeds` DISABLE KEYS */;
+
+INSERT INTO `news_feeds` (`site_id`, `site_name`, `site_slug`, `site_url`, `site_feed`, `site_category`, `site_date_added`, `site_date_updated`, `site_date_last_fetch`, `site_date_last_post`, `flag_featured`, `flag_stream`, `flag_spoof`)
+VALUES
+  (1,'BMXfeed','bmxfeed','https://bmxfeed.com','https://bmxfeed.com/rss','news','2006-12-24 12:00:00','2006-12-24 12:00:00','2020-11-27 14:31:18','2020-11-27 13:05:17',1,1,0);
+
+/*!40000 ALTER TABLE `news_feeds` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 
