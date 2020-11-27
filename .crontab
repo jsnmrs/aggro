@@ -2,11 +2,11 @@
 ###--- Changes made to this part of the file WILL be destroyed!
 # placeholder
 MAILTO=""
-@monthly /usr/local/bin/setlock -n /tmp/cronlock.3784778264.235475 sh -c pwd
+@monthly /usr/local/bin/setlock -n /tmp/cronlock.3784778264.235475 sh -c whoami
 ###--- You can make changes below the next line and they will be preserved!
 ###--- END DREAMHOST BLOCK
 
-## aggro cron [production]
+## aggro cron
 
 PHP_PATH='/usr/bin/php'
 INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'

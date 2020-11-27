@@ -14,7 +14,7 @@ if [ "$1" == "clear" ]; then
 fi
 if [ "$1" == "sync" ]; then
     echo -e "\\n\\033[1;33mWriting crontab...\\033[0m"
-    crontab .cron-local
+    crontab .crontab
 fi
 
 echo -e "\\n\\033[1;33mCurrent crontab...\\033[0m"
