@@ -10,24 +10,19 @@ require 'recipe/codeigniter.php';
 require 'recipe/rsync.php';
 
 set('application', 'aggro');
-// Speed up deployment.
 set('ssh_multiplexing', TRUE);
-
 set('writable_mode', 'chmod');
-// CodeIgniter shared dirs.
 set('shared_dirs', ['public/thumbs', 'writable/cache', 'writable/logs']);
-// CodeIgniter writable dirs.
 set('writable_dirs', ['writable/cache', 'writable/logs']);
+set('keep_releases', 3);
 
 set('rsync_src', function () {
-  // Project is in root.
   return __DIR__;
 });
 
 add('rsync', [
   'exclude' => [
     '.browserslistrc',
-    '.cron-local',
     '.docksal',
     '.editorconfig',
     '.env*',
@@ -67,8 +62,8 @@ task('deploy:secrets', function () {
 
 // Copy crontab settings from repo.
 task('deploy:cron', function () {
-  run ('cd ~/');
-  run('crontab ' . get('release_path') . '/.cron-production');
+  run('cd ~/');
+  run('crontab ' . get('release_path') . '/.crontab');
   run('crontab -l');
 });
 
