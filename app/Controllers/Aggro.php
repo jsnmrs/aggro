@@ -38,7 +38,7 @@ class Aggro extends BaseController {
     }
 
     if ($slug == "clean") {
-      $data['build'] = $utilityModel->cleanLog();
+      $utilityModel->cleanLog();
       return $this->response->redirect('/aggro/log');
     }
 
@@ -49,7 +49,7 @@ class Aggro extends BaseController {
     }
 
     if ($slug == "errorclean") {
-      $data['build'] = clean_error_logs();
+      clean_error_logs();
       return $this->response->redirect('/aggro/log/error');
     }
   }
@@ -68,17 +68,17 @@ class Aggro extends BaseController {
     }
 
     if ($slug == NULL) {
-      $data['build'] = $newsModel->featuredBuilder();
+      $newsModel->featuredBuilder();
       return "Featured page built.";
     }
 
     if ($slug == "clean") {
-      $data['build'] = $newsModel->featuredCleaner();
+      $newsModel->featuredCleaner();
       return "Featured news stories cleared.";
     }
 
     if ($slug == "cc") {
-      $data['build'] = clean_feed_cache();
+      clean_feed_cache();
       return "Feed caches cleared.";
     }
   }
@@ -92,19 +92,23 @@ class Aggro extends BaseController {
     helper('aggro');
     $aggroModel = new AggroModels();
 
-    if (gate_check()) {
-      if ($aggroModel->archiveVideos()) {
-        echo "\nOld videos archived.\n";
-      }
-
-      if ($aggroModel->checkThumbs()) {
-        echo "\nThumbnails checked.\n";
-      }
-
-      if ($aggroModel->cleanThumbs()) {
-        echo "\nThumbnails cleaned up.\n";
-      }
+    if (!gate_check()) {
+      return FALSE;
     }
+
+    if ($aggroModel->archiveVideos()) {
+      echo "\nOld videos archived.\n";
+    }
+
+    if ($aggroModel->checkThumbs()) {
+      echo "\nThumbnails checked.\n";
+    }
+
+    if ($aggroModel->cleanThumbs()) {
+      echo "\nThumbnails cleaned up.\n";
+    }
+
+    return TRUE;
   }
 
   /**
@@ -116,12 +120,15 @@ class Aggro extends BaseController {
     helper('aggro');
     $aggroModel = new AggroModels();
 
-    if (gate_check()) {
-      $status = $aggroModel->twitterPush();
-      if ($status === TRUE) {
-        echo "\nPushed all new videos to twitter.\n";
-      }
+    if (!gate_check()) {
+      return FALSE;
     }
+
+    if ($aggroModel->twitterPush()) {
+      echo "\nPushed all new videos to twitter.\n";
+    }
+
+    return TRUE;
   }
 
   /**
