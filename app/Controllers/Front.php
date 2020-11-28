@@ -26,7 +26,7 @@ class Front extends BaseController {
       'slug' => 'about',
     ];
 
-    echo view('about', $data);
+    return view('about', $data);
   }
 
   /**

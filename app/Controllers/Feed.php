@@ -25,7 +25,7 @@ class Feed extends BaseController {
 
     $data['build'] = $newsModel->getSites();
     $this->response->setContentType('application/rss+xml');
-    echo view('xml/opml', $data);
+    return view('xml/opml', $data);
   }
 
   /**
@@ -36,7 +36,7 @@ class Feed extends BaseController {
 
     $data['build'] = $aggroModel->getVideos('recent', 'month', 25, 0);
     $this->response->setContentType('application/rss+xml');
-    echo view('xml/rss', $data);
+    return view('xml/rss', $data);
   }
 
   /**
@@ -47,7 +47,7 @@ class Feed extends BaseController {
 
     $data['build'] = $newsModel->getSitesRecent();
     $this->response->setContentType('application/rss+xml');
-    echo view('xml/feed', $data);
+    return view('xml/feed', $data);
   }
 
 }
