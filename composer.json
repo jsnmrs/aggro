@@ -8,10 +8,11 @@
     "php": ">=7.2",
     "abraham/twitteroauth": "^1.1",
     "codeigniter4/framework": "^4",
-    "deployer/deployer": "^6.8",
     "simplepie/simplepie": "^1.5"
   },
   "require-dev": {
+    "deployer/deployer": "^6.8",
+    "deployer/recipes": "^6.2",
     "drupal/coder": "^8.3",
     "mikey179/vfsstream": "1.6.*",
     "phpmd/phpmd": "^2.9",
