@@ -1,3 +1,11 @@
+body {
+  background-color: $gray-lightest;
+}
+
+main {
+  background-color: $white;
+}
+
 .skip:not(:focus):not(:active),
 .u-sr:not(:focus):not(:active) {
   // stylelint-disable plugin/no-unsupported-browser-features

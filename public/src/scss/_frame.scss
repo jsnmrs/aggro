@@ -1,0 +1,49 @@
+.wrap {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.full {
+  width: 100%;
+}
+
+.box {
+  flex-basis: 100%;
+
+  &--feature {
+    @include bp($medium) {
+      flex-basis: 48%;
+    }
+  }
+
+  &--video {
+    margin-top: 1rem;
+
+    @include bp($medium) {
+      flex-basis: 31%;
+    }
+  }
+}
+
+.columns {
+  @include bp($x-small) {
+    column-count: 2;
+  }
+
+  @include bp($medium) {
+    column-count: 3;
+  }
+}
+
+header,
+footer,
+nav {
+  align-self: end;
+}

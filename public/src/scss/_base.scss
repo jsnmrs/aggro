@@ -36,7 +36,6 @@ html {
 body {
   margin: 0;
   color: $black;
-  background-color: $gray-lightest;
 }
 
 h1,
@@ -73,6 +72,7 @@ p {
 
 ul,
 ol {
+  padding-left: 0;
   list-style-type: none;
 }
 
