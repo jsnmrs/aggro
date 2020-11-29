@@ -17,7 +17,7 @@ echo $this->include('includes/header'); ?>
     <article class="box box--feature">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
-        <span class="ago" title="<?php echo $row['site_date_last_post']; ?>"></span>
+        <span class="ago ago--muted" title="<?php echo $row['site_date_last_post']; ?>"></span>
       </h2>
       <ol>
       <?php for ($story = 1; $story < 4; $story++) :?>

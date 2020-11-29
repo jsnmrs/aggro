@@ -1,3 +1,20 @@
+.nav {
+  margin: 0 -0.5rem;
+  list-style: none;
+
+  li {
+    display: inline-block;
+    padding: 0;
+    vertical-align: middle;
+    border-bottom: none;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.5rem;
+  }
+}
+
 .wrap {
   position: relative;
   display: flex;
@@ -43,6 +60,16 @@ footer {
   padding-right: 0.5rem;
 }
 
+.logo {
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+
+  a {
+    display: inline-block;
+    padding: 0.5rem;
+  }
+}
+
 .outer {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -59,41 +86,10 @@ main {
   background-color: $white;
 }
 
-.ago {
-  padding-left: 0.25rem;
-  color: $gray-dark;
-  font-weight: 400;
-  font-size: 70%;
-
-  &--inline {
-    padding: inherit;
-    color: inherit;
-    font-size: inherit;
-  }
-}
-
 footer {
   p {
     margin: 0;
     padding-bottom: 0.25rem;
-  }
-
-  .ago {
-    color: $gray-darker;
-  }
-}
-
-.skip {
-  @extend %u-hidden-visually;
-
-  &:active,
-  &:focus {
-    position: fixed;
-    left: 0;
-    z-index: 25;
-    display: block;
-    padding: 0.5rem;
-    background-color: $white;
   }
 }
 

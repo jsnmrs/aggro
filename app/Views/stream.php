@@ -26,7 +26,7 @@ echo $this->include('includes/header'); ?>
               echo "[missing title]";
             } ?></a>
           </span>
-          <span class="ago" title="<?php echo $row->story_date; ?>"></span>
+          <span class="ago ago--muted" title="<?php echo $row->story_date; ?>"></span>
         </li>
       <?php endforeach; ?>
       </ul>

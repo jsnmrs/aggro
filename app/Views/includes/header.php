@@ -54,7 +54,7 @@
 <div class="outer">
   <div class="wrap">
     <header>
-      <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
+      <p class="h1 logo"><a href="/" title="BMXfeed home">BMXfeed</a></p>
       <p class="u-sr">The BMX news and video aggregator</p>
     </header>
     <nav aria-label="Main navigation">

@@ -23,7 +23,7 @@ echo $this->include('includes/header'); ?>
           <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer">
             <?php echo $item->get_title(); ?>
           </a>
-          <span class="ago" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
+          <span class="ago ago--muted" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
         </li>
       <?php endforeach; ?>
       </ul>
