@@ -13,10 +13,10 @@ NC='\033[0m'
 
 cd "$HOME/.docksal"
 if [ ! -d "certs" ]
-    then
-    echo "Creating certs directory..."
-    mkdir certs
-    fin system reset
+  then
+  echo "Creating certs directory..."
+  mkdir certs
+  fin system reset
 fi
 
 if test ! "$(brew --version)"

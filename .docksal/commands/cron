@@ -9,12 +9,12 @@
 set -e
 
 if [ "$1" == "clear" ]; then
-    echo -e "\\n\\033[1;33mClearing crontab...\\033[0m"
-    crontab -r
+  echo -e "\\n\\033[1;33mClearing crontab...\\033[0m"
+  crontab -r
 fi
 if [ "$1" == "sync" ]; then
-    echo -e "\\n\\033[1;33mWriting crontab...\\033[0m"
-    crontab .crontab
+  echo -e "\\n\\033[1;33mWriting crontab...\\033[0m"
+  crontab .crontab
 fi
 
 echo -e "\\n\\033[1;33mCurrent crontab...\\033[0m"
