@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content">
+<main id="content" class="floor">
   <div class="wrap">
     <h1>Recent Videos</h1>
   </div>

@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content">
+<main id="content" class="floor">
   <div class="wrap">
     <div class="full">
       <h1><?php echo $build['site_name']; ?></h1>

@@ -13,7 +13,7 @@ if ($build['video_height'] != 0) {
 
 echo $this->include('includes/header'); ?>
 
-<main id="content">
+<main id="content" class="floor">
   <div class="wrap">
     <div class="full">
       <h1><?php echo htmlspecialchars_decode($build['video_title']); ?></h1>
