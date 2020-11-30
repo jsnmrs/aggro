@@ -36,8 +36,30 @@ main {
 
 .ago {
   &--muted {
+    padding-left: 0.25rem;
     color: $gray-dark;
     font-weight: 400;
     font-size: 70%;
   }
+}
+
+.nav {
+  li {
+    display: inline-block;
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  a {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+}
+
+.logo {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.25;
 }
