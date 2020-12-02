@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content" class="floor">
+<main id="content" class="floor" tabindex="-1">
   <div class="wrap">
     <div class="full">
       <h1><?php echo $build['site_name']; ?></h1>
@@ -23,7 +23,7 @@ echo $this->include('includes/header'); ?>
           <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer">
             <?php echo $item->get_title(); ?>
           </a>
-          <span class="ago ago--muted" title="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
+          <span class="ago ago--muted" data-date="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
         </li>
       <?php endforeach; ?>
       </ul>

@@ -8,7 +8,7 @@
 <div class="floor">
   <div class="wrap">
     <footer>
-      <p class="tagline">BMXfeed <span class="ago ago--muted" title="2006-12-24 12:00:00"></span></p>
+      <p class="tagline">BMXfeed <span class="ago ago--muted" data-date="2006-12-24 12:00:00"></span></p>
     </footer>
     <nav aria-label="Footer navigation">
       <ul class="nav">

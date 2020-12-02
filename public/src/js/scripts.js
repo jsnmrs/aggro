@@ -8,7 +8,7 @@
 
   // Display relative dates via moment.js
   for (i = 0; i < relativeDates.length; i++) {
-    currentDate = moment(relativeDates[i].getAttribute("title")); // eslint-disable-line no-undef
+    currentDate = moment(relativeDates[i].dataset.date); // eslint-disable-line no-undef
     relativeDates[i].innerHTML = currentDate.from(now);
   }
 }());

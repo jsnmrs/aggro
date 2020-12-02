@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content" class="floor">
+<main id="content" class="floor" tabindex="-1">
   <div class="wrap">
     <h1>Stream</h1>
   </div>
@@ -26,7 +26,7 @@ echo $this->include('includes/header'); ?>
               echo "[missing title]";
             } ?></a>
           </span>
-          <span class="ago ago--muted" title="<?php echo $row->story_date; ?>"></span>
+          <span class="ago ago--muted" data-date="<?php echo $row->story_date; ?>"></span>
         </li>
       <?php endforeach; ?>
       </ul>
