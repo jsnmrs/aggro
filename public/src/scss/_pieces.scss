@@ -53,8 +53,16 @@ main {
   }
 
   a {
+    margin-top: -0.15rem;
+    margin-bottom: 0.25rem;
     padding-right: 0.5rem;
     padding-left: 0.5rem;
+  }
+
+  &--bottom {
+    a {
+      margin-top: 0;
+    }
   }
 }
 
@@ -67,8 +75,7 @@ main {
   line-height: 1.25;
 
   a {
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
+    padding: 0.15rem 0.5rem;
 
     &:link,
     &:visited {
