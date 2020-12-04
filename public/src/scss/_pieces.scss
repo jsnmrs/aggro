@@ -44,19 +44,18 @@ main {
 }
 
 .nav {
-  margin: 0 -0.35rem 0.5rem;
+  margin: 0 -0.25rem 0.5rem;
 
   li {
     display: inline-block;
     padding: 0;
-    vertical-align: middle;
   }
 
   a {
     margin-top: -0.15rem;
     margin-bottom: 0.25rem;
-    padding-right: 0.35rem;
-    padding-left: 0.35rem;
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
   }
 
   &--bottom {
@@ -75,15 +74,16 @@ main {
   line-height: 1.25;
 
   a {
-    padding: 0.15rem 0.5rem;
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
 
     &:link,
-    &:visited {
+    &:visited,
+    &:focus {
       text-decoration: none;
     }
 
-    &:hover,
-    &:focus {
+    &:hover {
       text-decoration: underline;
     }
   }
@@ -91,7 +91,7 @@ main {
 
 .links {
   li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -105,12 +105,11 @@ main {
 
 .stream__source {
   a {
-    padding-top: 0;
-    padding-bottom: 0;
     font-weight: 700;
 
     &:link,
-    &:visited {
+    &:visited,
+    &:focus {
       text-decoration: none;
     }
   }

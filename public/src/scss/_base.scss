@@ -28,7 +28,7 @@ html {
     font-size: 120%;
   }
 
-  @include bp($x-large) {
+  @include bp($large) {
     font-size: 130%;
   }
 }
@@ -45,8 +45,6 @@ body {
 a {
   position: relative;
   display: inline-block;
-  padding-top: 0.15rem;
-  padding-bottom: 0.15rem;
 
   &:link {
     color: $primary;
@@ -63,6 +61,7 @@ a {
   }
 
   &:focus {
+    text-decoration: none;
     outline: 0.1875rem solid $primary-selected;
   }
 
@@ -80,12 +79,12 @@ h3 {
 
   a {
     &:link,
-    &:visited {
+    &:visited,
+    &:focus {
       text-decoration: none;
     }
 
-    &:hover,
-    &:focus {
+    &:hover {
       text-decoration: underline;
     }
   }

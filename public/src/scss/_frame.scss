@@ -37,7 +37,7 @@
 }
 
 .columns {
-  @include bp($x-small) {
+  @include bp($small) {
     column-count: 2;
   }
 
@@ -53,6 +53,6 @@ nav {
 }
 
 header {
-  margin-right: -0.5rem;
-  margin-left: -0.5rem;
+  margin-right: -0.25rem;
+  margin-left: -0.25rem;
 }
