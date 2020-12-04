@@ -95,28 +95,28 @@ main {
   }
 }
 
-.stream__item {
+.stream {
   margin-bottom: 0.75rem;
+
+  &__source {
+    a {
+      font-weight: 700;
+
+      &:link,
+      &:visited,
+      &:focus {
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__title {
+    display: block;
+  }
 
   .ago {
     padding-bottom: 0.15rem;
   }
-}
-
-.stream__source {
-  a {
-    font-weight: 700;
-
-    &:link,
-    &:visited,
-    &:focus {
-      text-decoration: none;
-    }
-  }
-}
-
-.stream__title {
-  display: block;
 }
 
 .box--video {
@@ -133,4 +133,25 @@ main {
 
 .tagline {
   margin-right: 1.5rem;
+}
+
+.curtain {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  background-color: $black-print;
+}
+
+.video {
+  position: relative;
+  height: 0;
+  // falls back to 16:9, but otherwise uses ratio from HTML
+  padding-bottom: calc(var(--aspect-ratio, 0.5625) * 100%);
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }

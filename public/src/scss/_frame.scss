@@ -2,16 +2,20 @@
   padding-bottom: 2rem;
 }
 
+.wrap,
+.randb {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
 .wrap {
   position: relative;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   width: 100%;
-  max-width: $max-width;
-  margin: 0 auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
 }
 
 .full {

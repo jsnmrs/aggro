@@ -14,9 +14,9 @@ echo $this->include('includes/header'); ?>
 
   <div class="wrap">
     <div class="full">
-      <ul class="stream links">
+      <ul class="links">
       <?php foreach ($build as $row) :?>
-        <li class="stream__item">
+        <li class="stream">
           <span class="stream__source">
             <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars_decode($row->site_name); ?></a>
           </span>
