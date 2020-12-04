@@ -29,6 +29,7 @@
 
   &--video {
     margin-top: 1rem;
+    margin-bottom: 1rem;
 
     @include bp($medium) {
       flex-basis: 31%;
