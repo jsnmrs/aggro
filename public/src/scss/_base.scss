@@ -65,6 +65,10 @@ a {
   &:focus {
     outline: 0.1875rem solid $primary-selected;
   }
+
+  &[aria-current="page"] {
+    text-decoration-style: double; // stylelint-disable-line plugin/no-unsupported-browser-features
+  }
 }
 
 h1,

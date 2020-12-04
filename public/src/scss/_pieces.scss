@@ -44,7 +44,7 @@ main {
 }
 
 .nav {
-  margin: 0 -0.5rem 1rem;
+  margin: 0 -0.35rem 0.5rem;
 
   li {
     display: inline-block;
@@ -55,8 +55,8 @@ main {
   a {
     margin-top: -0.15rem;
     margin-bottom: 0.25rem;
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
+    padding-right: 0.35rem;
+    padding-left: 0.35rem;
   }
 
   &--bottom {
@@ -69,7 +69,7 @@ main {
 .logo {
   margin-top: 1rem;
   margin-right: 1.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 700;
   font-size: 2.5rem;
   line-height: 1.25;
@@ -87,6 +87,37 @@ main {
       text-decoration: underline;
     }
   }
+}
+
+.links {
+  li {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.stream__item {
+  margin-bottom: 0.75rem;
+
+  .ago {
+    padding-bottom: 0.15rem;
+  }
+}
+
+.stream__source {
+  a {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-weight: 700;
+
+    &:link,
+    &:visited {
+      text-decoration: none;
+    }
+  }
+}
+
+.stream__title {
+  display: block;
 }
 
 .tagline {

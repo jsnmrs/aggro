@@ -19,7 +19,7 @@ echo $this->include('includes/header'); ?>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
         <span class="ago ago--muted" data-date="<?php echo $row['site_date_last_post']; ?>"></span>
       </h2>
-      <ol>
+      <ol class="links">
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $story_num = "story" . $story; ?>
         <?php if (isset($row[$story_num])) :?>
