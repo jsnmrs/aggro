@@ -9,29 +9,22 @@
     "url": "https://github.com/jsnmrs/aggro.git"
   },
   "scripts": {
-    "build": "npm run css && npm run js",
-    "css": "npm run browser-list && npm run prettier:scss && npm run stylelint && npm run scss && npm run autoprefixer",
-    "js": "npm run prettier:js && npm run eslint && npm run uglify",
+    "build": "npm run css",
+    "css": "npm run browser-list && npm run prettier && npm run stylelint && npm run scss && npm run autoprefixer",
     "postinstall": "npm run build",
     "autoprefixer": "postcss -r \"public/dist/*.css\"",
-    "eslint": "eslint public/src/js/scripts.js --fix",
-    "prettier:js": "prettier --write \"public/src/js/scripts.js\"",
-    "prettier:scss": "prettier --write \"public/src/**/*.scss\"",
-    "scss": "node-sass --output-style compressed -o public/dist public/src/scss",
-    "stylelint": "stylelint \"public/src/scss/**/*.scss\" --fix",
-    "test": "npm run prettier:js && npm run eslint && npm run prettier:scss && npm run stylelint",
-    "uglify": "uglifyjs \"node_modules/moment/min/moment.min.js\" \"public/src/js/scripts.js\" -m -o public/dist/scripts.js",
+    "prettier": "prettier --write \"public/scss/**/*.scss\"",
+    "scss": "node-sass --output-style compressed -o public/dist public/scss",
+    "stylelint": "stylelint \"public/scss/**/*.scss\" --fix",
+    "test": "npm run prettier && npm run stylelint",
     "browser-list": "echo Browser support list: && npx browserslist",
     "browser-update": "npx browserslist@latest --update-db"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.4",
     "cssnano": "^4.1.10",
-    "eslint": "^7.14.0",
-    "eslint-plugin-es5": "^1.5.0",
-    "moment": "^2.29.1",
     "node-sass": "^5.0.0",
-    "postcss": "^8.1.10",
+    "postcss": "^8.1.14",
     "postcss-cli": "^8.3.0",
     "postcss-import": "^13.0.0",
     "prettier": "^2.2.1",
@@ -43,8 +36,7 @@
     "stylelint-declaration-use-variable": "^1.7.2",
     "stylelint-no-unsupported-browser-features": "^4.1.4",
     "stylelint-order": "^4.1.0",
-    "stylelint-scss": "^3.18.0",
-    "uglify-js": "^3.12.0"
+    "stylelint-scss": "^3.18.0"
   },
   "dependencies": {}
 }

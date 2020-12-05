@@ -26,7 +26,6 @@ add('rsync', [
     '.docksal',
     '.editorconfig',
     '.env*',
-    '.eslintrc',
     '.git',
     '.github',
     '.gitignore',

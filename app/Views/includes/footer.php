@@ -47,7 +47,6 @@ use CodeIgniter\I18n\Time;
     </nav>
   </div>
 </div>
-
-<script src="/dist/scripts.js"></script>
+<!-- literally, no-js -->
 </body>
 </html>
