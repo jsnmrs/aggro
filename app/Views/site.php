@@ -5,6 +5,8 @@
  * Single site page template.
  */
 
+use CodeIgniter\I18n\Time;
+
 echo $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
@@ -23,7 +25,11 @@ echo $this->include('includes/header'); ?>
           <a href="<?php echo $item->get_permalink(); ?>" rel="noopener noreferrer">
             <?php echo $item->get_title(); ?>
           </a>
-          <span class="ago ago--muted" data-date="<?php echo $item->get_date('Y-m-d\TH:i:sO'); ?>"></span>
+          <span class="ago--muted"><?php
+          $tempDate = $item->get_date('Y-m-d H:i:s');
+          $time = Time::createFromFormat('Y-m-d H:i:s', $tempDate, 'America/New_York');
+          echo $time->humanize();
+          ?></span>
         </li>
       <?php endforeach; ?>
       </ul>
