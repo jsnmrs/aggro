@@ -5,6 +5,8 @@
  * Homepage template.
  */
 
+use CodeIgniter\I18n\Time;
+
 echo $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
@@ -17,7 +19,10 @@ echo $this->include('includes/header'); ?>
     <article class="box box--feature">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
-        <span class="ago ago--muted" data-date="<?php echo $row['site_date_last_post']; ?>"></span>
+        <span class="ago--muted"><?php
+        $time = Time::createFromFormat('Y-m-d H:i:s', $row['site_date_last_post'], 'America/New_York');
+        echo $time->humanize();
+        ?></span>
       </h2>
       <ol class="links">
       <?php for ($story = 1; $story < 4; $story++) :?>

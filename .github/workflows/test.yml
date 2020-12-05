@@ -6,7 +6,7 @@ on:
 
 jobs:
   front:
-    name: Lint CSS and JS
+    name: Lint CSS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

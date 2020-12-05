@@ -6,7 +6,7 @@ on:
 
 jobs:
   front:
-    name: Build CSS and JS
+    name: Build CSS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
       - name: Upload build files
         uses: actions/upload-artifact@v2
         with:
-          name: css-js
+          name: css
           path: public/dist/
   deploy:
     name: Deploy to Production
@@ -29,7 +29,7 @@ jobs:
     - name: Download build assets
       uses: actions/download-artifact@v2
       with:
-        name: css-js
+        name: css
         path: public/dist/
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
