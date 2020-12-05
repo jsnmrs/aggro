@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content">
+<main id="content" class="floor" tabindex="-1">
   <div class="wrap">
     <div class="full">
       <h1>Page not found</h1>

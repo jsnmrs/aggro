@@ -2,24 +2,13 @@ $primary: #005600;
 $primary-selected: darken($primary, 10%);
 $black-print: #000;
 $black: #222;
-$white: #fff;
 $gray-lightest: #eee;
-$gray-lighter: #e1e1e1;
-$gray-light: #bbb;
-$gray: #999;
-$gray-dark: #757575;
 $gray-darker: #555;
 $gray-darkest: #444;
-$alert: #ff4136;
-$secondary: #0074d9;
+$white: #fff;
 
-$xx-small: 18.75em;
-$x-small: 28.125em;
-$small: 40em;
-$smedium: 45.3125em;
-$medium: 46.875em;
-$large: 62.5em;
-$x-large: 75em;
-$xx-large: 80em;
+$small: 30em; // 480px
+$medium: 48em; // 768px
+$large: 75em; // 1200px
 
-$max-width: 55em;
+$max-width: 55em; // 880px

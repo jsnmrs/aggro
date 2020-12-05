@@ -5,13 +5,13 @@
  * Site footer include.
  */
 ?>
-<div class="outer floor">
+<div class="floor">
   <div class="wrap">
     <footer>
-      <p>BMXfeed <span class="ago" title="2006-12-24 12:00:00"></span></p>
+      <p class="tagline">BMXfeed <span class="ago ago--muted" data-date="2006-12-24 12:00:00"></span></p>
     </footer>
     <nav aria-label="Footer navigation">
-      <ul class="nav">
+      <ul class="nav nav--bottom">
         <li><a href="/"
           <?php if ($slug == "featured") {
             echo " aria-current=\"page\"";

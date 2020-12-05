@@ -135,7 +135,7 @@ class Front extends BaseController {
 
       $data['sort'] = 'recent';
       $data['range'] = 'year';
-      $data['perpage'] = 24;
+      $data['perpage'] = 30;
       $data['offset'] = ($data['page'] - 1) * $data['perpage'];
       $data['total'] = $aggroModel->getVideosTotal();
       $data['endpage'] = ceil($data['total'] / $data['perpage']);

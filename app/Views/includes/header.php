@@ -30,8 +30,8 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="manifest" href="/bmxfeed.webmanifest">
-  <link rel="alternate" href="/rss/" type="application/rss+xml" title="bmxfeed recent videos">
-  <link rel="alternate" href="/feed/" type="application/rss+xml" title="bmxfeed directory updates">
+  <link rel="alternate" href="/rss/" type="application/rss+xml">
+  <link rel="alternate" href="/feed/" type="application/rss+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <?php if (isset($build['video_title'])) :?>
 <meta name="twitter:card" content="summary_large_image">
@@ -54,7 +54,7 @@
 <div class="outer">
   <div class="wrap">
     <header>
-      <p class="h1"><a href="/" title="BMXfeed home">BMXfeed</a></p>
+      <p class="logo"><a href="/">BMXfeed</a></p>
       <p class="u-sr">The BMX news and video aggregator</p>
     </header>
     <nav aria-label="Main navigation">

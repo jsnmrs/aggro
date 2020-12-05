@@ -8,4 +8,8 @@ set -e
 
 cd "$PROJECT_ROOT"
 
-fin exec npm run build
+if [ "$1" != "css" ]; then
+  fin exec npm run js
+fi
+
+fin exec npm run css

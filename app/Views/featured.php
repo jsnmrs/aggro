@@ -7,7 +7,7 @@
 
 echo $this->include('includes/header'); ?>
 
-<main id="content">
+<main id="content" class="floor" tabindex="-1">
   <div class="wrap">
     <h1>News</h1>
   </div>
@@ -17,9 +17,9 @@ echo $this->include('includes/header'); ?>
     <article class="box box--feature">
       <h2>
         <a href="/sites/<?php echo $row['site_slug']; ?>"><?php echo $row['site_name']; ?></a>
-        <span class="ago" title="<?php echo $row['site_date_last_post']; ?>"></span>
+        <span class="ago ago--muted" data-date="<?php echo $row['site_date_last_post']; ?>"></span>
       </h2>
-      <ol>
+      <ol class="links">
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $story_num = "story" . $story; ?>
         <?php if (isset($row[$story_num])) :?>
