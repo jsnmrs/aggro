@@ -4,11 +4,16 @@
  * @file
  * Site footer include.
  */
+
+use CodeIgniter\I18n\Time;
 ?>
 <div class="floor">
   <div class="wrap">
     <footer>
-      <p class="tagline">BMXfeed <span class="ago ago--muted" data-date="2006-12-24 12:00:00"></span></p>
+      <p class="tagline">BMXfeed <span class="ago--muted"><?php
+      $time = Time::createFromFormat('Y-m-d H:i:s', '2006-12-24 12:00:00', 'America/New_York');
+      echo $time->humanize();
+      ?></span></p>
     </footer>
     <nav aria-label="Footer navigation">
       <ul class="nav nav--bottom">
