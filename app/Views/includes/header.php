@@ -26,7 +26,6 @@
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
-  <meta name="theme-color" content="#005600">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="manifest" href="/bmxfeed.webmanifest">
