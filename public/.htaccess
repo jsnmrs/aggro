@@ -8,43 +8,43 @@ Options All -Indexes
 # Turning on the rewrite engine is necessary for the following rules and features.
 # FollowSymLinks must be enabled for this to work.
 <IfModule mod_rewrite.c>
-	Options +FollowSymlinks
-	RewriteEngine On
+  Options +FollowSymlinks
+  RewriteEngine On
 
-	# If you installed CodeIgniter in a subfolder, you will need to
-	# change the following line to match the subfolder you need.
-	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
-	# RewriteBase /
+  # If you installed CodeIgniter in a subfolder, you will need to
+  # change the following line to match the subfolder you need.
+  # http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
+  # RewriteBase /
 
-	# Redirect Trailing Slashes...
-	RewriteCond %{REQUEST_FILENAME} !-d
+  # Redirect Trailing Slashes...
+  RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)/$ /$1 [L,R=301]
 
-	# Rewrite "www.example.com -> example.com"
-	RewriteCond %{HTTPS} !=on
-	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+  # Rewrite "www.example.com -> example.com"
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
 
-	# Checks to see if the user is attempting to access a valid file,
+  # Checks to see if the user is attempting to access a valid file,
   # such as an image or css document, if this isn't true it sends the
   # request to the front controller, index.php
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^(.*)$ index.php?/$1 [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?/$1 [L]
 
-	# Ensure Authorization header is passed along
+  # Ensure Authorization header is passed along
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
 
 <IfModule !mod_rewrite.c>
-    # If we don't have mod_rewrite installed, all 404's
-    # can be sent to index.php, and everything works as normal.
-    ErrorDocument 404 index.php
+  # If we don't have mod_rewrite installed, all 404's
+  # can be sent to index.php, and everything works as normal.
+  ErrorDocument 404 index.php
 </IfModule>
 
 # Disable server signature start
-    ServerSignature Off
+ServerSignature Off
 # Disable server signature end
 
 <IfModule mod_deflate.c>
@@ -54,108 +54,83 @@ Options All -Indexes
   AddOutputFilterByType DEFLATE text/css
   AddOutputFilterByType DEFLATE text/html
   AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/manifest+json
 </Ifmodule>
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options nosniff
   RequestHeader unset Proxy
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  RewriteCond %{REQUEST_URI} ^/thumbs
+  RewriteRule ^ - [ENV=THUMBNAILS:true]
+  Header set Cache-Control "public, max-age=31536000, immutable" env=THUMBNAILS
 </IfModule>
 
 AddDefaultCharset utf-8
 <IfModule mod_mime.c>
-    AddType application/manifest+json   webmanifest
-    AddCharset utf-8 .appcache \
-                     .atom \
-                     .css \
-                     .js \
-                     .json \
-                     .manifest \
-                     .map \
-                     .mjs \
-                     .rdf \
-                     .rss \
-                     .vtt \
-                     .webmanifest \
-                     .xml
+  AddType application/manifest+json   webmanifest
+  AddCharset utf-8 .appcache \
+    .atom \
+    .css \
+    .js \
+    .json \
+    .manifest \
+    .map \
+    .mjs \
+    .rdf \
+    .rss \
+    .svg \
+    .vtt \
+    .webmanifest \
+    .xml
 </IfModule>
 
 <IfModule mod_expires.c>
-
   # Automatically add the `Cache-Control` header (as well as the
   # equivalent `Expires` header).
-
-    ExpiresActive on
+  ExpiresActive on
 
   # By default, inform user agents to cache all resources for 1 year.
-
-    ExpiresDefault                                   "access plus 1 year"
-
+  ExpiresDefault "access plus 1 year"
 
   # Overwrite the previous for file types whose content usually changes
   # very often, and thus, should not be cached for such a long period,
   # or at all.
 
-    # AppCache manifest files
+  # AppCache manifest files
+  ExpiresByType text/cache-manifest "access plus 0 seconds"
 
-        ExpiresByType text/cache-manifest            "access plus 0 seconds"
+  # /favicon.ico (cannot be renamed!)
+  <Files "favicon.ico">
+    ExpiresByType image/x-icon "access plus 1 hour"
+  </Files>
 
+  # Data interchange
+  ExpiresByType application/atom+xml "access plus 20 minutes"
+  ExpiresByType application/rdf+xml "access plus 20 minutes"
+  ExpiresByType application/rss+xml "access plus 20 minutes"
+  ExpiresByType application/json "access plus 0 seconds"
+  ExpiresByType application/ld+json "access plus 0 seconds"
+  ExpiresByType application/schema+json "access plus 0 seconds"
+  ExpiresByType application/vnd.geo+json "access plus 0 seconds"
+  ExpiresByType text/xml "access plus 0 seconds"
 
-    # /favicon.ico (cannot be renamed!)
+  # HTML
+  ExpiresByType text/html "access plus 0 seconds"
 
-        # [!] If you have access to the main Apache configuration
-        #     file, you can match the root favicon exactly using the
-        #     `<Location>` directive. The same cannot be done inside
-        #     of a `.htaccess` file where only the `<Files>` directive
-        #     can be used, reason why the best that can be done is match
-        #     all files named `favicon.ico` (but that should work fine
-        #     if filename/path-based revving is used)
-        #
-        # See also: https://httpd.apache.org/docs/current/sections.html#file-and-web.
+  # Where needed add `immutable` value to the `Cache-Control` header
+  <IfModule mod_headers.c>
+    # Because `mod_headers` cannot match based on the content-type,
+    # the following workaround needs to be done.
 
-        <Files "favicon.ico">
-            ExpiresByType image/x-icon               "access plus 1 hour"
-        </Files>
+    # 1) Add the `immutable` value to the `Cache-Control` header
+    #    to all resources.
+    Header merge Cache-Control immutable
 
-
-    # Data interchange
-
-        ExpiresByType application/atom+xml           "access plus 1 hour"
-        ExpiresByType application/rdf+xml            "access plus 1 hour"
-        ExpiresByType application/rss+xml            "access plus 1 hour"
-
-        ExpiresByType application/json               "access plus 0 seconds"
-        ExpiresByType application/ld+json            "access plus 0 seconds"
-        ExpiresByType application/schema+json        "access plus 0 seconds"
-        ExpiresByType application/vnd.geo+json       "access plus 0 seconds"
-        ExpiresByType text/xml                       "access plus 0 seconds"
-
-
-    # HTML
-
-        ExpiresByType text/html                      "access plus 0 seconds"
-
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    # Where needed add `immutable` value to the `Cache-Control` header
-
-    <IfModule mod_headers.c>
-
-        # Because `mod_headers` cannot match based on the content-type,
-        # the following workaround needs to be done.
-
-        # 1) Add the `immutable` value to the `Cache-Control` header
-        #    to all resources.
-
-        Header merge Cache-Control immutable
-
-        # 2) Remove the value for all resources that shouldn't be have it.
-
-        <FilesMatch "\.(appcache|cur|geojson|ico|json(ld)?|x?html?|topojson|xml)$">
-            Header edit Cache-Control immutable ""
-        </FilesMatch>
-
-    </IfModule>
-
+    # 2) Remove the value for all resources that shouldn't be have it.
+    <FilesMatch "\.(appcache|cur|geojson|ico|json(ld)?|x?html?|topojson|xml)$">
+      Header edit Cache-Control immutable ""
+    </FilesMatch>
+  </IfModule>
 </IfModule>
