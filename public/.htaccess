@@ -1,20 +1,12 @@
 # Disable directory browsing
 Options All -Indexes
 
-# ----------------------------------------------------------------------
-# Rewrite engine
-# ----------------------------------------------------------------------
-
-# Turning on the rewrite engine is necessary for the following rules and features.
-# FollowSymLinks must be enabled for this to work.
 <IfModule mod_rewrite.c>
+  # FollowSymLinks must be enabled for this to work.
   Options +FollowSymlinks
-  RewriteEngine On
 
-  # If you installed CodeIgniter in a subfolder, you will need to
-  # change the following line to match the subfolder you need.
-  # http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
-  # RewriteBase /
+  # Turning on the rewrite engine is necessary for the following rules and features.
+  RewriteEngine On
 
   # Redirect Trailing Slashes...
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -43,9 +35,8 @@ Options All -Indexes
   ErrorDocument 404 index.php
 </IfModule>
 
-# Disable server signature start
+# Disable server signature
 ServerSignature Off
-# Disable server signature end
 
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE image/svg+xml
@@ -58,6 +49,7 @@ ServerSignature Off
 </Ifmodule>
 
 <IfModule mod_headers.c>
+  Header always append X-Frame-Options SAMEORIGIN
   Header always set X-Content-Type-Options nosniff
   RequestHeader unset Proxy
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -65,23 +57,19 @@ ServerSignature Off
   RewriteCond %{REQUEST_URI} ^/thumbs
   RewriteRule ^ - [ENV=THUMBNAILS:true]
   Header set Cache-Control "public, max-age=31536000, immutable" env=THUMBNAILS
+
+  Header set X-XSS-Protection "1; mode=block"
 </IfModule>
 
 AddDefaultCharset utf-8
+
 <IfModule mod_mime.c>
   AddType application/manifest+json   webmanifest
-  AddCharset utf-8 .appcache \
-    .atom \
-    .css \
+  AddCharset utf-8 .css \
     .js \
     .json \
-    .manifest \
     .map \
-    .mjs \
-    .rdf \
-    .rss \
     .svg \
-    .vtt \
     .webmanifest \
     .xml
 </IfModule>
@@ -118,19 +106,8 @@ AddDefaultCharset utf-8
 
   # HTML
   ExpiresByType text/html "access plus 0 seconds"
-
-  # Where needed add `immutable` value to the `Cache-Control` header
-  <IfModule mod_headers.c>
-    # Because `mod_headers` cannot match based on the content-type,
-    # the following workaround needs to be done.
-
-    # 1) Add the `immutable` value to the `Cache-Control` header
-    #    to all resources.
-    Header merge Cache-Control immutable
-
-    # 2) Remove the value for all resources that shouldn't be have it.
-    <FilesMatch "\.(appcache|cur|geojson|ico|json(ld)?|x?html?|topojson|xml)$">
-      Header edit Cache-Control immutable ""
-    </FilesMatch>
-  </IfModule>
 </IfModule>
+
+# Set CSP Header
+Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://www.youtube.com https://www.youtube-nocookie.com https://s.ytimg.com https://vimeo.com https://player.vimeo.com
+
