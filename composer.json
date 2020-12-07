@@ -5,8 +5,8 @@
   "homepage": "https://codeigniter.com",
   "license": "MIT",
   "require": {
-    "php": ">=7.2",
-    "abraham/twitteroauth": "^1.1",
+    "php": ">=7.3",
+    "abraham/twitteroauth": "2.0.1",
     "codeigniter4/framework": "^4",
     "simplepie/simplepie": "^1.5"
   },
@@ -16,7 +16,7 @@
     "drupal/coder": "^8.3",
     "mikey179/vfsstream": "1.6.*",
     "phpmd/phpmd": "^2.9",
-    "phpunit/phpunit": "9.4.*",
+    "phpunit/phpunit": "9.5.*",
     "squizlabs/php_codesniffer": "^3.5"
   },
   "autoload-dev": {
