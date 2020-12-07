@@ -16,7 +16,7 @@
     "drupal/coder": "^8.3",
     "mikey179/vfsstream": "1.6.*",
     "phpmd/phpmd": "^2.9",
-    "phpunit/phpunit": "9.4.*",
+    "phpunit/phpunit": "9.5.*",
     "squizlabs/php_codesniffer": "^3.5"
   },
   "autoload-dev": {
