@@ -211,21 +211,17 @@ class Aggro extends BaseController {
 
     $videoID = esc($videoID);
 
-    if (!$aggroModel->checkVideo($videoID)) {
-      $sourceID = youtube_get_video_source($videoID);
-
-      if (!$sourceID) {
-        return FALSE;
-      }
-
-      $data['feed'] = youtube_get_feed($sourceID);
-      $youtubeModel->searchChannel($data['feed'], $videoID);
-      echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".\n";
-
-      return TRUE;
+    if ($aggroModel->checkVideo($videoID)) {
+      return FALSE;
     }
 
-    return FALSE;
+    $sourceID = youtube_get_video_source($videoID);
+
+    $data['feed'] = youtube_get_feed($sourceID);
+    $youtubeModel->searchChannel($data['feed'], $videoID);
+    echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".\n";
+
+    return TRUE;
   }
 
 }
