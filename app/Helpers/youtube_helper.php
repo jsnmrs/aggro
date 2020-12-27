@@ -165,10 +165,6 @@ if (!function_exists('youtube_parse_meta')) {
     $video['video_width'] = $result->width;
     $video['video_height'] = $result->height;
     $video['video_aspect_ratio'] = round($result->width / $result->height, 3);
-    $video['video_source_user_slug'] = "";
-    if (strpos($result->author_url, 'user/') !== FALSE) {
-      $video['video_source_user_slug'] = str_replace('https://www.youtube.com/user/', '', $result->author_url);
-    }
 
     return $video;
   }
