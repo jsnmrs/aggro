@@ -105,7 +105,6 @@ if (!function_exists('vimeo_parse_meta')) {
     $video['video_width'] = $item->width;
     $video['video_height'] = $item->height;
     $video['video_aspect_ratio'] = round($item->width / $item->height, 3);
-    $video['video_source_user_slug'] = $video['video_source_id'];
 
     return $video;
   }
