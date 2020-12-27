@@ -212,11 +212,12 @@ class Aggro extends BaseController {
     $videoID = esc($videoID);
 
     if (!$aggroModel->checkVideo($videoID)) {
-      $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
-      $result = fetch_url($oEmbed, 'simplexml', 1);
-      $sourceID = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
-      $sourceID = str_replace('https://www.youtube.com/user/', '', $sourceID);
-      echo "sourceID: " . $sourceID;
+      $sourceID = youtube_get_video_source($videoID);
+
+      if (!$sourceID) {
+        return FALSE;
+      }
+
       $data['feed'] = youtube_get_feed($sourceID);
       $youtubeModel->searchChannel($data['feed'], $videoID);
       echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . " from " . $sourceID . ".\n";
