@@ -43,45 +43,41 @@ if (!function_exists('youtube_get_feed')) {
 
 }
 
-if (!function_exists('youtube_get_meta')) {
+if (!function_exists('youtube_get_video_source')) {
 
   /**
-   * Get YouTube video information from YouTube videoID.
+   * Get YouTube sourceID from YouTube videoID.
    *
    * @param string $videoID
    *   YouTube videoID.
    *
-   * @return array
-   *   Video metadata.
+   * @return string
+   *   Video sourceID.
    *
    * @see fetchUrl()
    */
-  function youtube_get_meta($videoID) {
+  function youtube_get_video_source($videoID) {
     helper('aggro');
-    $video = [];
+    $canonicalRegex = "/<link rel=\"canonical\" href=\"https:\/\/www.youtube.com\/channel\/(.*?)\">/";
 
     $fetch = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
     $result = fetch_url($fetch, 'simplexml', 1);
 
-    if ($result !== FALSE && (is_array($result) || is_object($result))) {
-      $video['videoID'] = $videoID;
-      $video['userUrl'] = $result->author_url;
-      $video['width'] = $result->width;
-      $video['height'] = $result->height;
-      $video['aspectRatio'] = round($result->width / $result->height, 3);
-      $video['thumbnail'] = $result->thumbnail_url;
-      $video['title'] = $result->title;
-      $video['username'] = $result->author_name;
+    if ($result == FALSE || !(is_array($result) || is_object($result))) {
+      return FALSE;
+    }
 
-      if (strpos($result->author_url, 'user/') !== FALSE) {
-        $video['usernameSlug'] = str_replace('https://www.youtube.com/user/', '', $result->author_url);
+    if (substr(str_replace('https://www.youtube.com/channel/', '', $result->author_url), 0, 2) == "UC") {
+      return str_replace('https://www.youtube.com/channel/', '', $result->author_url);
+    }
+
+    $channelResult = fetch_url($result->author_url, 'text', 1);
+    preg_match_all($canonicalRegex, $channelResult, $matches, PREG_PATTERN_ORDER);
+
+    if ($matches[1]) {
+      if ($matches[1][0]) {
+        return $matches[1][0];
       }
-
-      if (strpos($result->author_url, 'channel/') !== FALSE) {
-        $video['channelID'] = str_replace('https://www.youtube.com/channel/', '', $result->author_url);
-      }
-
-      return $video;
     }
 
     return FALSE;
