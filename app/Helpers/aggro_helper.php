@@ -261,6 +261,7 @@ if (!function_exists('fetch_url')) {
     curl_setopt($fetch, CURLOPT_RETURNTRANSFER, 1);
     $response = curl_exec($fetch);
     $httpCode = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
+    $errorInfo = curl_error($fetch);
     curl_close($fetch);
 
     if ($httpCode == 403 || $httpCode == 404 || $httpCode == 500) {
@@ -270,7 +271,7 @@ if (!function_exists('fetch_url')) {
     }
 
     if (empty($response)) {
-      $message = $url . ' returned no data.';
+      $message = $url . ' returned no data. Error: ' . $errorInfo;
       log_message('error', $message);
       return FALSE;
     }

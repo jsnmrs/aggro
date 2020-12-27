@@ -67,11 +67,13 @@ if (!function_exists('youtube_get_video_source')) {
       return FALSE;
     }
 
-    if (substr(str_replace('https://www.youtube.com/channel/', '', $result->author_url), 0, 2) == "UC") {
-      return str_replace('https://www.youtube.com/channel/', '', $result->author_url);
+    $channelURL = $result->author_url->asXML();
+
+    if (substr(str_replace('https://www.youtube.com/channel/', '', $channelURL), 0, 2) == "UC") {
+      return str_replace('https://www.youtube.com/channel/', '', $channelURL);
     }
 
-    $channelResult = fetch_url($result->author_url, 'text', 1);
+    $channelResult = fetch_url($channelURL, 'text', 1);
     preg_match_all($canonicalRegex, $channelResult, $matches, PREG_PATTERN_ORDER);
 
     if ($matches[1]) {
