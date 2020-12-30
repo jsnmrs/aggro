@@ -259,6 +259,8 @@ if (!function_exists('fetch_url')) {
     curl_setopt($fetch, CURLOPT_USERAGENT, $agent);
     curl_setopt($fetch, CURLOPT_CONNECTTIMEOUT, 20);
     curl_setopt($fetch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($fetch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($fetch, CURLOPT_MAXREDIRS, 4);
     $response = curl_exec($fetch);
     $httpCode = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
     $errorInfo = curl_error($fetch);
