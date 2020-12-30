@@ -67,7 +67,7 @@ if (!function_exists('youtube_get_video_source')) {
       return FALSE;
     }
 
-    $channelURL = $result->author_url->asXML();
+    $channelURL = strval($result->author_url);
 
     if (substr(str_replace('https://www.youtube.com/channel/', '', $channelURL), 0, 2) == "UC") {
       return str_replace('https://www.youtube.com/channel/', '', $channelURL);
