@@ -74,12 +74,10 @@ if (!function_exists('youtube_get_video_source')) {
     }
 
     $channelResult = fetch_url($channelURL, 'text', 1);
-    preg_match_all($canonicalRegex, $channelResult, $matches, PREG_PATTERN_ORDER);
+    preg_match($canonicalRegex, $channelResult, $matches);
 
     if ($matches[1]) {
-      if ($matches[1][0]) {
-        return $matches[1][0];
-      }
+      return $matches[1];
     }
 
     return FALSE;
