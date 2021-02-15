@@ -24,10 +24,10 @@
     "autoprefixer": "^10.2.4",
     "cssnano": "^4.1.10",
     "node-sass": "^5.0.0",
-    "postcss": "^8.2.5",
+    "postcss": "^8.2.6",
     "postcss-cli": "^8.3.1",
     "prettier": "^2.2.1",
-    "stylelint": "^13.9.0",
+    "stylelint": "^13.10.0",
     "stylelint-a11y": "^1.2.3",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
@@ -35,7 +35,7 @@
     "stylelint-declaration-use-variable": "^1.7.2",
     "stylelint-no-unsupported-browser-features": "^4.1.4",
     "stylelint-order": "^4.1.0",
-    "stylelint-scss": "^3.18.0"
+    "stylelint-scss": "^3.19.0"
   },
   "dependencies": {}
 }
