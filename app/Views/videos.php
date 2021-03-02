@@ -9,7 +9,10 @@ echo $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
-    <h1>Recent Videos</h1>
+    <h1>Recent Videos<?php
+    if ($page >= 2) {
+      echo " " . $page . " of " . $endpage;
+    } ?></h1>
   </div>
 
   <div class="wrap">
