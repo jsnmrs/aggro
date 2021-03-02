@@ -15,7 +15,7 @@ echo $this->include('includes/header'); ?>
 
       <p>The code that runs BMXfeed is called aggro. The entire <a href="https://github.com/jsnmrs/aggro">aggro codebase is open source</a>.</p>
 
-      <p><a href="/submit/">Send me a note</a> if you have a site or video to submit.</p>
+      <p><a href="/submit">Send me a note</a> if you have a site or video to submit.</p>
 
       <p>I&rsquo;m Jason. I built and maintain BMXfeed. See more of my work at <a href="https://jasonmorris.com/">jasonmorris.com</a>.</p>
     </div>

@@ -23,22 +23,22 @@ use CodeIgniter\I18n\Time;
             echo " aria-current=\"page\"";
           }
           ?>>News</a></li>
-        <li><a href="/stream/"
+        <li><a href="/stream"
           <?php if ($slug == "stream") {
             echo " aria-current=\"page\"";
           }
           ?>>Stream</a></li>
-        <li><a href="/video/"
+        <li><a href="/video"
           <?php if ($slug == "video") {
             echo " aria-current=\"page\"";
           }
           ?>>Videos</a></li>
-        <li><a href="/sites/"
+        <li><a href="/sites"
           <?php if ($slug == "sites") {
             echo " aria-current=\"page\"";
           }
           ?>>Directory</a></li>
-        <li><a href="/about/"
+        <li><a href="/about"
           <?php if ($slug == "about") {
             echo " aria-current=\"page\"";
           }
