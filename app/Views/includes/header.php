@@ -18,6 +18,9 @@
   if (isset($build['video_title'])) {
     echo $build['video_title'] . " | ";
   }
+  if (isset($page) && $page >= 2 && isset($endpage)) {
+    echo "Recent Videos " . $page . " of " . $endpage . " | ";
+  }
   if (isset($title)) {
     echo esc($title) . " | ";
   }
@@ -29,8 +32,8 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="manifest" href="/bmxfeed.webmanifest">
-  <link rel="alternate" href="/rss/" type="application/rss+xml">
-  <link rel="alternate" href="/feed/" type="application/rss+xml">
+  <link rel="alternate" href="/rss" type="application/rss+xml">
+  <link rel="alternate" href="/feed" type="application/rss+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <?php if (isset($build['video_title'])) :?>
 <meta name="twitter:card" content="summary_large_image">
@@ -63,22 +66,22 @@
             echo " aria-current=\"page\"";
           }
           ?>>News</a></li>
-        <li><a href="/stream/"
+        <li><a href="/stream"
           <?php if ($slug == "stream") {
             echo " aria-current=\"page\"";
           }
           ?>>Stream</a></li>
-        <li><a href="/video/"
+        <li><a href="/video"
           <?php if ($slug == "video") {
             echo " aria-current=\"page\"";
           }
           ?>>Videos</a></li>
-        <li><a href="/sites/"
+        <li><a href="/sites"
           <?php if ($slug == "sites") {
             echo " aria-current=\"page\"";
           }
           ?>>Directory</a></li>
-        <li><a href="/about/"
+        <li><a href="/about"
           <?php if ($slug == "about") {
             echo " aria-current=\"page\"";
           }
