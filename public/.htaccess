@@ -59,6 +59,8 @@ ServerSignature Off
   Header set Cache-Control "public, max-age=31536000, immutable" env=THUMBNAILS
 
   Header set X-XSS-Protection "1; mode=block"
+
+  Header always set Permissions-Policy: interest-cohort=()
 </IfModule>
 
 AddDefaultCharset utf-8
