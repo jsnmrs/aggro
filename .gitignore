@@ -63,6 +63,8 @@ writable/uploads/*
 
 writable/debugbar/*
 
+writable/patches
+
 php_errors.log
 *.sql
 !aggro-db.sql
