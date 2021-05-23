@@ -5,7 +5,7 @@
   "homepage": "https://codeigniter.com",
   "license": "MIT",
   "require": {
-    "php": ">=7.3",
+    "php": "^7.3||^8.0",
     "abraham/twitteroauth": "2.0.1",
     "codeigniter4/framework": "4.1.2",
     "simplepie/simplepie": "1.5.6"
@@ -14,9 +14,9 @@
     "deployer/deployer": "^6.8",
     "deployer/recipes": "^6.2",
     "drupal/coder": "^8.3",
-    "mikey179/vfsstream": "1.6.*",
+    "mikey179/vfsstream": "^1.6",
     "phpmd/phpmd": "^2.9",
-    "phpunit/phpunit": "9.5.*",
+    "phpunit/phpunit": "^9.1",
     "squizlabs/php_codesniffer": "^3.5",
     "tatter/patches": "^1.1"
   },
@@ -36,9 +36,6 @@
       "vendor/bin/phpmd app/Helpers ansi phpmd.xml",
       "vendor/bin/phpmd app/Models ansi phpmd.xml",
       "vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
-    ],
-    "post-update-cmd": [
-      "@composer dump-autoload"
     ]
   },
   "support": {
