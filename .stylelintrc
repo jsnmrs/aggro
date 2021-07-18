@@ -5,7 +5,7 @@
   "plugins": [
     "stylelint-a11y",
     "stylelint-declaration-block-no-ignored-properties",
-    "stylelint-declaration-use-variable",
+    "stylelint-declaration-strict-value",
     "stylelint-no-unsupported-browser-features",
     "stylelint-scss",
     "stylelint-order",
@@ -174,7 +174,10 @@
     "scss/selector-no-redundant-nesting-selector": true,
 
 
-    "sh-waqar/declaration-use-variable": [["/color/", { ignoreValues: ["auto", "transparent", "inherit", "0"] }]],
+    "scale-unlimited/declaration-strict-value": ["/color$/", {
+      disableFix: true,
+      ignoreValues: ["0", "auto", "currentColor", "inherit", "transparent"]
+    }],
 
 
     "order/properties-order": [],
