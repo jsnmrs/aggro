@@ -21,7 +21,7 @@
     "browser-update": "npx browserslist@latest --update-db"
   },
   "devDependencies": {
-    "autoprefixer": "10.3.4",
+    "autoprefixer": "10.3.6",
     "cssnano": "5.0.8",
     "postcss": "8.3.6",
     "postcss-cli": "8.3.1",
