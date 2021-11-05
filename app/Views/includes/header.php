@@ -29,8 +29,8 @@
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/bmxfeed.webmanifest">
   <link rel="alternate" href="/rss" type="application/rss+xml">
   <link rel="alternate" href="/feed" type="application/rss+xml">
