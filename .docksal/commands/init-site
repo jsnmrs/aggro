@@ -34,4 +34,7 @@ fin db import "$OUTPUT"
 fin composer install
 fin exec npm install
 
+# add Drupal PHPCS sniffs
+fin exec phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+
 #-------------------------- END: Execution --------------------------------
