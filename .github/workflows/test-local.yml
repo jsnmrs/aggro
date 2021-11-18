@@ -2,9 +2,9 @@ name: Test local build
 
 on:
   workflow_dispatch: # enable run button on github.com
-  push:
+  pull_request:
     branches:
-      - docksal-action
+      - main
 
 jobs:
   install-docksal:
