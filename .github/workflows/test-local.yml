@@ -19,6 +19,6 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Init docksal project
         run: |
-          fin init
           mv .env-sample .env
+          fin init
           fin composer lint
