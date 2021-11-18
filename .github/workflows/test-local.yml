@@ -1,0 +1,24 @@
+name: Test local build
+
+on:
+  workflow_dispatch: # enable run button on github.com
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install-docksal:
+    name: Build docksal project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run docksal installer
+        run: curl -fsSL https://get.docksal.io | bash
+      - name: Display docksal system info
+        run: fin sysinfo
+      - name: Checkout branch
+        uses: actions/checkout@v2.4.0
+      - name: Init docksal project
+        run: |
+          mv .env-sample .env
+          fin init
+          fin composer lint
