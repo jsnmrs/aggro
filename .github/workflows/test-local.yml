@@ -16,7 +16,7 @@ jobs:
       - name: Display docksal system info
         run: fin sysinfo
       - name: Checkout branch
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v2
       - name: Init docksal project
         run: |
           mv .env-sample .env
