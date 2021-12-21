@@ -3,7 +3,6 @@
   "description": "running cron all day",
   "author": "Jason Morris",
   "version": "1.0.0",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/jsnmrs/aggro.git"
