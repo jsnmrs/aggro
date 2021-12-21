@@ -4,7 +4,7 @@
 ## Usage: fin sniff
 
 cd "$PROJECT_ROOT" || exit
-fin exec phpcs --standard=phpcs.xml
+fin exec phpcs -v --standard=phpcs.xml
 fin exec vendor/bin/phpmd app/Controllers ansi phpmd.xml
 fin exec vendor/bin/phpmd app/Helpers ansi phpmd.xml
 fin exec vendor/bin/phpmd app/Models ansi phpmd.xml

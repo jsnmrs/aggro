@@ -30,7 +30,7 @@
   },
   "scripts": {
     "lint": [
-      "phpcs --standard=phpcs.xml --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer --",
+      "phpcs -v --standard=phpcs.xml --config-set installed_paths ~/.composer/vendor/drupal/coder/coder_sniffer",
       "vendor/bin/phpmd app/Controllers ansi phpmd.xml",
       "vendor/bin/phpmd app/Helpers ansi phpmd.xml",
       "vendor/bin/phpmd app/Models ansi phpmd.xml",
