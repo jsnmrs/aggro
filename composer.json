@@ -11,8 +11,8 @@
     "simplepie/simplepie": "1.5.6"
   },
   "require-dev": {
-    "deployer/deployer": "6.8",
-    "deployer/recipes": "6.2.2",
+    "deployer/dist": "^6.8",
+    "deployer/recipes": "^6.2",
     "drupal/coder": "8.3.13",
     "mikey179/vfsstream": "1.6.10",
     "phpmd/phpmd": "2.11.0",
@@ -29,7 +29,6 @@
     "sort-packages": true
   },
   "scripts": {
-    "test": "phpunit",
     "lint": [
       "phpcs --standard=phpcs.xml --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer --",
       "vendor/bin/phpmd app/Controllers ansi phpmd.xml",
