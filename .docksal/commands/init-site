@@ -32,6 +32,7 @@ fin db import "$OUTPUT"
 
 # install dependencies
 fin composer install
+fin composer lint
 fin exec nvm install 16
 fin exec nvm use 16
 fin exec npm install
