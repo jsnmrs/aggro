@@ -2,8 +2,7 @@
   "name": "aggro",
   "description": "running cron all day",
   "author": "Jason Morris",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/jsnmrs/aggro.git"
@@ -21,20 +20,20 @@
     "browser-update": "npx browserslist@latest --update-db"
   },
   "devDependencies": {
-    "autoprefixer": "10.4.0",
-    "cssnano": "5.0.10",
-    "postcss": "8.3.11",
-    "postcss-cli": "9.0.2",
-    "prettier": "2.4.1",
-    "sass": "1.43.4",
-    "stylelint": "14.0.1",
+    "autoprefixer": "10.4.1",
+    "cssnano": "5.0.14",
+    "postcss": "8.4.5",
+    "postcss-cli": "9.1.0",
+    "prettier": "2.5.1",
+    "sass": "1.45.1",
+    "stylelint": "14.2.0",
     "stylelint-a11y": "1.2.3",
-    "stylelint-config-standard": "23.0.0",
-    "stylelint-config-standard-scss": "2.0.1",
+    "stylelint-config-standard": "24.0.0",
+    "stylelint-config-standard-scss": "3.0.0",
     "stylelint-declaration-block-no-ignored-properties": "2.5.0",
     "stylelint-declaration-strict-value": "1.8.0",
     "stylelint-no-unsupported-browser-features": "5.0.2",
-    "stylelint-scss": "4.0.0"
+    "stylelint-scss": "4.1.0"
   },
   "dependencies": {}
 }
