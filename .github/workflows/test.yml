@@ -1,8 +1,8 @@
 name: Tests
 
 on:
+  workflow_dispatch: # enable run button on github.com
   pull_request:
-    branches: [main]
 
 jobs:
   front:
