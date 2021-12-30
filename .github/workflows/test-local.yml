@@ -3,8 +3,6 @@ name: Test local build
 on:
   workflow_dispatch: # enable run button on github.com
   pull_request:
-    branches:
-      - main
 
 jobs:
   install-docksal:

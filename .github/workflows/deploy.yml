@@ -1,8 +1,10 @@
 name: Deploy
 
 on:
+  workflow_dispatch: # enable run button on github.com
   push:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   front:
