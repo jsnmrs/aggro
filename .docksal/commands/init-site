@@ -68,7 +68,9 @@ npm install
 composer install
 
 # Adjust permissions
-chmod 600 /var/www/.ssh/aggro*
+if [ -f "/var/www/.ssh/aggro" ]; then
+  chmod 600 /var/www/.ssh/aggro*
+fi;
 
 # Add Drupal PHPCS sniffs
 phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
