@@ -21,10 +21,6 @@ if (file_exists('/var/www/.ssh/config')) {
   host('bmxfeed.com')->setConfigFile('/var/www/.ssh/config');
 }
 
-if (getenv('SSH_PRIVATE_KEY') && getenv('SSH_PASSPHRASE')) {
-  cat getenv('SSH_PASSPHRASE') | ssh-add -p getenv('SSH_PRIVATE_KEY')
-}
-
 // rsync from local.
 set('rsync_src', function () {
   return __DIR__;

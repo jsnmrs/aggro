@@ -48,8 +48,6 @@ jobs:
           tools: composer
       - name: Composer install
         run: composer install
-      - name: SSH key add
-        run: cat ${{ secrets.SSH_PASSPHRASE }} | ssh-add -p ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Deploy
         uses: deployphp/action@v1
         with:
