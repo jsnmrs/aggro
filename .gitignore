@@ -45,6 +45,7 @@ $RECYCLE.BIN/
 !.env-sample
 .vagrant
 Vagrantfile
+.ssh
 
 #-------------------------
 # Temporary Files

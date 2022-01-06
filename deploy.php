@@ -1,21 +1,24 @@
 <?php
-
-/**
- * Aggro deploy script.
- */
-
 namespace Deployer;
 
-require 'recipe/codeigniter.php';
-require 'recipe/rsync.php';
+require 'recipe/common.php';
+require 'contrib/rsync.php';
 
-set('application', 'aggro');
-set('ssh_multiplexing', TRUE);
+// Config
+set('repository', 'https://jsnmrs@github.com/jsnmrs/aggro.git');
 set('writable_mode', 'chmod');
-set('shared_dirs', ['public/thumbs', 'writable/cache', 'writable/logs']);
-set('writable_dirs', ['writable/cache', 'writable/logs']);
 set('keep_releases', 3);
+add('shared_dirs', ['public/thumbs', 'writable/cache', 'writable/logs']);
+add('writable_dirs', ['writable/cache', 'writable/logs']);
 
+// Hosts
+host('bmxfeed.com')
+  ->setHostname('bmxfeed.com')
+  ->setRemoteUser('bmxfeed')
+  ->setConfigFile('/var/www/.ssh/config')
+  ->setDeployPath('/home/bmxfeed/aggro');
+
+// rsync from local.
 set('rsync_src', function () {
   return __DIR__;
 });
@@ -30,11 +33,13 @@ add('rsync', [
     '.github',
     '.gitignore',
     '*.sql',
+    '.ssh',
     '.stylelintrc',
     'build',
     'composer.json',
     'composer.lock',
     'deploy.php',
+    'deploy.sh',
     '*DS_Store',
     'LICENSE',
     'node_modules',
@@ -47,6 +52,7 @@ add('rsync', [
     'public/thumbs',
     'README.md',
     'tests',
+    'vendor/bin',
     'writable/cache',
     'writable/debugbar',
     'writable/logs',
@@ -55,8 +61,7 @@ add('rsync', [
 
 // Copy dotenv file from github secret to server.
 task('deploy:secrets', function () {
-  file_put_contents(__DIR__ . '/.env', getenv('DOT_ENV'));
-  upload('.env', get('release_path'));
+  upload('.env-production', get('release_path') . '/.env');
 });
 
 // Copy crontab settings from repo.
@@ -66,19 +71,10 @@ task('deploy:cron', function () {
   run('crontab -l');
 });
 
-host('bmxfeed.com')
-  ->hostname('bmxfeed.com')
-  ->stage('production')
-  ->user('bmxfeed')
-  ->set('deploy_path', '/home/bmxfeed/aggro');
-
-after('deploy:failed', 'deploy:unlock');
-
 desc('Deploy the application');
 task('deploy', [
   'deploy:info',
   'deploy:prepare',
-  'deploy:lock',
   'deploy:release',
   'rsync',
   'deploy:shared',
@@ -86,6 +82,7 @@ task('deploy', [
   'deploy:secrets',
   'deploy:symlink',
   'deploy:cron',
-  'deploy:unlock',
-  'cleanup',
+  'deploy:unlock'
 ]);
+
+after('deploy:failed', 'deploy:unlock');
