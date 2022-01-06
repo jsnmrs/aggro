@@ -30,17 +30,23 @@ if ! (which nvm); then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
    export NVM_DIR="$HOME/.nvm"
    # Load NVM.
+   # shellcheck source=/dev/null
    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
    # Load NVM  bash_completion.
+   # shellcheck source=/dev/null
    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
    # Source / reload profiles.
+   # shellcheck source=/dev/null
    source ~/.bashrc
+   # shellcheck source=/dev/null
    source ~/.nvm/nvm.sh
 fi
 
 # Source / reload profiles for good measure.
 echo 'Reloading Profiles'
+# shellcheck source=/dev/null
 source ~/.bashrc
+# shellcheck source=/dev/null
 source ~/.nvm/nvm.sh
 
 echo 'Download Node.js 16.x'
