@@ -6,6 +6,9 @@ on:
     branches:
       - "main"
 
+# prevent concurrency between different deploys
+concurrency: production_environment
+
 jobs:
   front:
     name: Build CSS
@@ -44,12 +47,12 @@ jobs:
           tools: composer
       - name: Composer install
         run: composer install
-      # - name: Setup Deployer
-      #   uses: atymic/deployer-php-action@0.3.1
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-      # - name: Deploy to Prod
-      #   env:
-      #     DOT_ENV: ${{ secrets.DOT_ENV }}
-      #   run: dep deploy -vvv
+      - name: Deploy
+        uses: deployphp/action@v1
+        with:
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          dep: list -vvv
+          deployer-version: "7.0.0"
+        env:
+          DOT_ENV: ${{ secrets.DOT_ENV }}
