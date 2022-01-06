@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - "main"
+      - "action-deploy"
 
 # prevent concurrency between different deploys
 concurrency: production_environment
@@ -47,3 +48,11 @@ jobs:
           tools: composer
       - name: Composer install
         run: composer install
+      - name: Deploy
+        uses: deployphp/action@v1
+        with:
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.SSH_/KNOWN_HOSTS }}
+          dep: ssh -vv
+        env:
+          DOT_ENV: ${{ secrets.DOT_ENV }}
