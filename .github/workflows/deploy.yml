@@ -47,3 +47,10 @@ jobs:
           tools: composer
       - name: Composer install
         run: composer install
+      - name: Deploy
+        uses: deployphp/action@v1
+        with:
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          dep: deploy -vvv
+        env:
+          DOT_ENV: ${{ secrets.DOT_ENV }}
