@@ -4,14 +4,6 @@
 ## Usage: fin admin
 
 cd "$PROJECT_ROOT" || exit
-echo -e "\\n\\033[1;33mClearing aggro logs...\\033[0m"
-fin fire aggro log/clean
-
-echo -e "\\n\\033[1;33mClearing error logs...\\033[0m"
-fin fire aggro log/errorclean
-
-echo -e "\\n\\033[1;33mClearing news cache...\\033[0m"
-fin fire aggro news/cc
 
 echo -e "\\n\\033[1;33mUpdating news...\\033[0m"
 fin fire aggro news
@@ -33,3 +25,12 @@ fin fire aggro log
 
 echo -e "\\n\\033[1;33mShow error log...\\033[0m"
 fin fire aggro log/error
+
+echo -e "\\n\\033[1;33mClearing aggro logs...\\033[0m"
+fin fire aggro log/clean
+
+echo -e "\\n\\033[1;33mClearing error logs...\\033[0m"
+fin fire aggro log/errorclean
+
+echo -e "\\n\\033[1;33mClearing news cache...\\033[0m"
+fin fire aggro news/cc

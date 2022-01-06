@@ -40,11 +40,19 @@ echo -e "Adding ${yellow}${VIRTUAL_HOST}${NC} to /etc/hosts"
 fin hosts remove "$VIRTUAL_HOST"
 fin hosts add "$VIRTUAL_HOST"
 
-# install docksal addons
+# Install Docksal addons
 fin addon install sequelpro
+
+# Import latest DB dump
+cd "$PROJECT_ROOT"
+# shellcheck disable=SC2012
+OUTPUT="$(ls -t -- *.sql | head -n1)"
+echo -e "Newest DB dump: ${yellow}${OUTPUT}${NC}"
+fin db import "$OUTPUT"
 
 fin init-site
 fin ssl-cert
+
 
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}https://${VIRTUAL_HOST}${NC} in your browser to verify the setup."

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#: exec_target = cli
+
 ## Install composer and node dependencies
 ## Usage: fin init-site
 
@@ -22,21 +24,55 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
 #-------------------------- Execution --------------------------------
 
+# Node stuff
+# -------------------------------------------
+if ! (which nvm); then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   export NVM_DIR="$HOME/.nvm"
+   # Load NVM.
+   # shellcheck source=/dev/null
+   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+   # Load NVM  bash_completion.
+   # shellcheck source=/dev/null
+   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+   # Source / reload profiles.
+   # shellcheck source=/dev/null
+   source ~/.bashrc
+   # shellcheck source=/dev/null
+   source ~/.nvm/nvm.sh
+fi
 
-cd "$PROJECT_ROOT"
-# shellcheck disable=SC2012
-OUTPUT="$(ls -t -- *.sql | head -n1)"
-echo -e "Newest DB dump: ${yellow}${OUTPUT}${NC}"
+# Source / reload profiles for good measure.
+echo 'Reloading Profiles'
+# shellcheck source=/dev/null
+source ~/.bashrc
+# shellcheck source=/dev/null
+source ~/.nvm/nvm.sh
 
-fin db import "$OUTPUT"
+echo 'Download Node.js 16.x'
+nvm install 16
 
-# install dependencies
-fin composer install
-fin exec nvm install 16
-fin exec nvm use 16
-fin exec npm install
+# Check which Node.js versions are installed and show defaults.
+echo 'Here are the current Node.js versions installed'
+nvm ls
 
-# add Drupal PHPCS sniffs
-fin exec phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+# set the global version of Node.js being used.
+echo 'Set the default version of Node.js to 16.x'
+nvm use 16
+nvm alias default 16
+
+# Install NPM dependencies
+npm install
+
+# Install dependencies
+composer install
+
+# Adjust permissions
+if [ -f "/var/www/.ssh/aggro" ]; then
+  chmod 600 /var/www/.ssh/aggro*
+fi;
+
+# Add Drupal PHPCS sniffs
+phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
 
 #-------------------------- END: Execution --------------------------------
