@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - "main"
-      - "action-deploy"
 
 # prevent concurrency between different deploys
 concurrency: production_environment
