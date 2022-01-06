@@ -15,8 +15,11 @@ add('writable_dirs', ['writable/cache', 'writable/logs']);
 host('bmxfeed.com')
   ->setHostname('bmxfeed.com')
   ->setRemoteUser('bmxfeed')
-  ->setConfigFile('/var/www/.ssh/config')
   ->setDeployPath('/home/bmxfeed/aggro');
+
+if (file_exists('/var/www/.ssh/config')) {
+  host('bmxfeed.com')->setConfigFile('/var/www/.ssh/config');
+}
 
 // rsync from local.
 set('rsync_src', function () {
@@ -59,9 +62,14 @@ add('rsync', [
   ],
 ]);
 
-// Copy dotenv file from github secret to server.
+// Move .env file (from disk or action)
 task('deploy:secrets', function () {
-  upload('.env-production', get('release_path') . '/.env');
+  if (getenv('DOT_ENV')) {
+    file_put_contents(__DIR__ . '/.env-production', getenv('DOT_ENV'));
+  }
+  if (file_exists('.env-production')) {
+    upload('.env-production', get('release_path') . '/.env');
+  }
 });
 
 // Copy crontab settings from repo.
