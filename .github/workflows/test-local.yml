@@ -20,4 +20,5 @@ jobs:
           mv .env-sample .env
           fin init
           fin sniff
+          fin shellcheck
           fin admin
