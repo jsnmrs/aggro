@@ -18,7 +18,7 @@ jobs:
       - name: Init docksal project
         run: |
           mv .env-sample .env
-          fin init
+          fin ci-init
           fin sniff
           fin shellcheck
           fin admin
