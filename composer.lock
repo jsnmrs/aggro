@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd3308d9190ee01f7a59e75880a3ef3d",
+    "content-hash": "9b8d900582930005b12bf5f9c7fd90da",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -69,16 +69,16 @@
         },
         {
             "name": "codeigniter4/framework",
-            "version": "v4.1.6",
+            "version": "v4.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeigniter4/framework.git",
-                "reference": "557705a45a0358f162cc0fa620c22428149f70b8"
+                "reference": "c4edeb3680da7b0f829a5ad597c1c159fe01b902"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/557705a45a0358f162cc0fa620c22428149f70b8",
-                "reference": "557705a45a0358f162cc0fa620c22428149f70b8",
+                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/c4edeb3680da7b0f829a5ad597c1c159fe01b902",
+                "reference": "c4edeb3680da7b0f829a5ad597c1c159fe01b902",
                 "shasum": ""
             },
             "require": {
@@ -123,7 +123,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/codeigniter4/CodeIgniter4"
             },
-            "time": "2022-01-04T02:25:46+00:00"
+            "time": "2022-01-10T01:40:27+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -5168,16 +5168,16 @@
         },
         {
             "name": "tatter/patches",
-            "version": "v2.0.3",
+            "version": "v2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tattersoftware/codeigniter4-patches.git",
-                "reference": "8401b5f5cc4acd8c15a41e5e5b3cadf650a72d42"
+                "reference": "bfffa873bdf0878655e137197abd70993f67ed58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tattersoftware/codeigniter4-patches/zipball/8401b5f5cc4acd8c15a41e5e5b3cadf650a72d42",
-                "reference": "8401b5f5cc4acd8c15a41e5e5b3cadf650a72d42",
+                "url": "https://api.github.com/repos/tattersoftware/codeigniter4-patches/zipball/bfffa873bdf0878655e137197abd70993f67ed58",
+                "reference": "bfffa873bdf0878655e137197abd70993f67ed58",
                 "shasum": ""
             },
             "require": {
@@ -5211,7 +5211,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tattersoftware/codeigniter4-patches/issues",
-                "source": "https://github.com/tattersoftware/codeigniter4-patches/tree/v2.0.3"
+                "source": "https://github.com/tattersoftware/codeigniter4-patches/tree/v2.0.4"
             },
             "funding": [
                 {
@@ -5223,7 +5223,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-06-10T19:03:37+00:00"
+            "time": "2022-01-06T20:43:11+00:00"
         },
         {
             "name": "theseer/tokenizer",
