@@ -27,6 +27,7 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 # Node stuff
 # -------------------------------------------
 if ! (nvm -v); then
+  echo -e "\n${yellow}NVM not found in container. Installing.${NC}"
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
    export NVM_DIR="$HOME/.nvm"
    # Load NVM.
@@ -67,12 +68,19 @@ npm install
 # Install dependencies
 composer install
 
+# Add Drupal PHPCS sniffs
+phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+
 # Adjust permissions
 if [ -f "/var/www/.ssh/aggro" ]; then
   chmod 600 /var/www/.ssh/aggro*
+else
+  echo -e "\n${yellow}No SSH keys found${NC}"
 fi;
 
-# Add Drupal PHPCS sniffs
-phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+if ! [ -f "/var/www/.env" ]; then
+  echo -e "\n${yellow}Using .env-sample${NC}"
+  cp .env-sample .env
+fi;
 
 #-------------------------- END: Execution --------------------------------
