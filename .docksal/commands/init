@@ -51,10 +51,8 @@ echo -e "Newest DB dump: ${yellow}${OUTPUT}${NC}"
 fin db import "$OUTPUT"
 
 fin init-site
-fin ssl-cert
-
 
 echo -en "${green_bg} DONE! ${NC} "
-echo -e "Open ${yellow}https://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
+echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
 
 #-------------------------- END: Execution --------------------------------
