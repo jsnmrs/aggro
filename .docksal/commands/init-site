@@ -26,24 +26,7 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
 # Node stuff
 # -------------------------------------------
-if ! (nvm -v); then
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-   export NVM_DIR="$HOME/.nvm"
-   # Load NVM.
-   # shellcheck source=/dev/null
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-   # Load NVM  bash_completion.
-   # shellcheck source=/dev/null
-   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-   # Source / reload profiles.
-   # shellcheck source=/dev/null
-   source ~/.bashrc
-   # shellcheck source=/dev/null
-   source ~/.nvm/nvm.sh
-fi
 
-# Source / reload profiles for good measure.
-echo 'Reloading Profiles'
 # shellcheck source=/dev/null
 source ~/.bashrc
 # shellcheck source=/dev/null
@@ -67,12 +50,19 @@ npm install
 # Install dependencies
 composer install
 
+# Add Drupal PHPCS sniffs
+phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+
 # Adjust permissions
 if [ -f "/var/www/.ssh/aggro" ]; then
   chmod 600 /var/www/.ssh/aggro*
+else
+  echo -e "\\n${yellow}No SSH keys found${NC}"
 fi;
 
-# Add Drupal PHPCS sniffs
-phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
+if ! [ -f "/var/www/.env" ]; then
+  echo -e "\\n${yellow}Using .env-sample${NC}"
+  cp .env-sample .env
+fi;
 
 #-------------------------- END: Execution --------------------------------
