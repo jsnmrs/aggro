@@ -26,22 +26,23 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
 # Node stuff
 # -------------------------------------------
-if ! (nvm -v); then
-  echo -e "\\n${yellow}NVM not found in container. Installing.${NC}"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-   export NVM_DIR="$HOME/.nvm"
-   # Load NVM.
-   # shellcheck source=/dev/null
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-   # Load NVM  bash_completion.
-   # shellcheck source=/dev/null
-   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-   # Source / reload profiles.
-   # shellcheck source=/dev/null
-   source ~/.bashrc
-   # shellcheck source=/dev/null
-   source ~/.nvm/nvm.sh
-fi
+
+# if ! [ -f "$HOME/.nvm" ]; then
+#   echo -e "\\n${yellow}NVM not found in container. Installing.${NC}"
+#   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+#    export NVM_DIR="$HOME/.nvm"
+#    # Load NVM.
+#    # shellcheck source=/dev/null
+#    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+#    # Load NVM  bash_completion.
+#    # shellcheck source=/dev/null
+#    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+#    # Source / reload profiles.
+#    # shellcheck source=/dev/null
+#    source ~/.bashrc
+#    # shellcheck source=/dev/null
+#    source ~/.nvm/nvm.sh
+# fi
 
 # Source / reload profiles for good measure.
 echo 'Reloading Profiles'
