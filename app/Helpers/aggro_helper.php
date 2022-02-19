@@ -279,7 +279,15 @@ if (!function_exists('fetch_url')) {
     }
 
     if ($format == "simplexml") {
-      $response = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOWARNING);
+      libxml_use_internal_errors(TRUE);
+      $response = simplexml_load_string($response);
+      $errors = libxml_get_errors();
+
+      if (!empty($errors)) {
+        $message = $url . ' is throwing XML errors.';
+        log_message('error', $message);
+        return FALSE;
+      }
     }
 
     if ($format == "json") {

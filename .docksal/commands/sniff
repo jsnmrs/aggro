@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-#: exec_target = cli
-
 ## Run static PHP analysis
 ## Usage: fin sniff
 
+
 cd "$PROJECT_ROOT" || exit
-phpcs --standard="phpcs.xml"
-vendor/bin/phpmd app/Controllers ansi phpmd.xml
-vendor/bin/phpmd app/Helpers ansi phpmd.xml
-vendor/bin/phpmd app/Models ansi phpmd.xml
-vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*
+fin composer lint
