@@ -158,8 +158,8 @@ if (!function_exists('youtube_parse_meta')) {
 
     $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $video['video_id'];
     $result = fetch_url($oEmbed, 'simplexml', 1);
-    $video['video_width'] = 600;
-    $video['video_height'] = 338;
+    $video['video_width'] = 800;
+    $video['video_height'] = 450;
     if ($result !== FALSE) {
       $video['video_width'] = $result->width;
       $video['video_height'] = $result->height;
