@@ -11,7 +11,7 @@
     "simplepie/simplepie": "1.5.8"
   },
   "require-dev": {
-    "deployer/deployer": "v7.0.0-rc.4",
+    "deployer/deployer": "v7.0.0-rc.8",
     "drupal/coder": "8.3.14",
     "mikey179/vfsstream": "1.6.10",
     "phpmd/phpmd": "2.12.0",
