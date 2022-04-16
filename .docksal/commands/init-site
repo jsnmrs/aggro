@@ -32,17 +32,8 @@ source ~/.bashrc
 # shellcheck source=/dev/null
 source ~/.nvm/nvm.sh
 
-echo 'Download Node.js 16.x'
-nvm install 16
-
-# Check which Node.js versions are installed and show defaults.
-echo 'Here are the current Node.js versions installed'
-nvm ls
-
-# set the global version of Node.js being used.
-echo 'Set the default version of Node.js to 16.x'
-nvm use 16
-nvm alias default 16
+# Print Node version and location
+which node
 
 # Install NPM dependencies
 npm install
