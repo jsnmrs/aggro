@@ -1,0 +1,19 @@
+name: Test NPM build
+
+on:
+  workflow_dispatch: # enable run button on github.com
+  pull_request:
+
+jobs:
+  build-npm:
+    name: Run NPM build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+      - name: Process and lint
+        run: |
+          npm install
+          npm run build
