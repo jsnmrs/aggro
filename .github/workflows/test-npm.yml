@@ -15,5 +15,7 @@ jobs:
           cache: "npm"
       - name: Process and lint
         run: |
+          node -v
+          npm -v
           npm install
           npm run build
