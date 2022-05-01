@@ -8,7 +8,7 @@
     "php": "^7.3||^8.0",
     "abraham/twitteroauth": "4.0.0",
     "codeigniter4/framework": "v4.1.9",
-    "simplepie/simplepie": "1.5.8"
+    "simplepie/simplepie": "1.6.0"
   },
   "require-dev": {
     "deployer/deployer": "v7.0.0-rc.8",
