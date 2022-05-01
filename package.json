@@ -22,7 +22,7 @@
   "devDependencies": {
     "autoprefixer": "10.4.4",
     "cssnano": "5.1.7",
-    "postcss": "8.4.12",
+    "postcss": "8.4.13",
     "postcss-cli": "9.1.0",
     "prettier": "2.6.2",
     "sass": "1.50.0",
