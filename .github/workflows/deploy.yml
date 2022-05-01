@@ -23,7 +23,7 @@ jobs:
           npm install
           npm run build
       - name: Upload build files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: css
           path: public/dist/
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Download build assets
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: css
           path: public/dist/
