@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-## Run front end build
-## Usage: fin front
+## Run front-end build
+## Usage: fin frontend
 
 # Abort if anything fails
 set -e
