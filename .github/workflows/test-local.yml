@@ -21,3 +21,13 @@ jobs:
           fin sniff
           fin shellcheck
           fin admin
+      - name: Run Accessibility Insights site-wide
+        uses: microsoft/accessibility-insights-action@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          url: http://aggro.docksal.site
+      - name: Upload Accessibility Insights report as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: accessibility-reports
+          path: ${{ github.workspace }}/_accessibility-reports
