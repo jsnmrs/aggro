@@ -1,7 +1,6 @@
 {
   "extends": ["stylelint-config-standard-scss"],
   "plugins": [
-    "stylelint-a11y",
     "stylelint-declaration-block-no-ignored-properties",
     "stylelint-declaration-strict-value",
     "stylelint-no-unsupported-browser-features",
@@ -150,14 +149,6 @@
     "value-list-comma-space-after": "always-single-line",
     "value-list-comma-space-before": "never",
     "value-no-vendor-prefix": true,
-
-    "a11y/no-outline-none": true,
-    "a11y/selector-pseudo-class-focus": true,
-    "a11y/font-size-is-readable": [true, { "severity": "warning" }],
-    "a11y/no-spread-text": [true, { "severity": "warning" }],
-    "a11y/no-obsolete-attribute": [true, { "severity": "warning" }],
-    "a11y/no-obsolete-element": [true, { "severity": "warning" }],
-    "a11y/no-text-align-justify": [true, { "severity": "error" }],
 
     "plugin/declaration-block-no-ignored-properties": true,
 
