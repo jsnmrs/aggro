@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Welcome page.
  */
 ?>
 <!DOCTYPE html>

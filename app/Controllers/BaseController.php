@@ -3,8 +3,10 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
+// phpcs:disable Drupal.Classes.UnusedUseStatement.UnusedUse
 use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
+// phpcs:enable Drupal.Classes.UnusedUseStatement.UnusedUse
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -28,6 +30,8 @@ abstract class BaseController extends Controller {
   protected $request;
 
   /**
+   * Array of helpers.
+   *
    * An array of helpers to be loaded automatically upon
    * class instantiation. These helpers will be available
    * to all other controllers that extend BaseController.
