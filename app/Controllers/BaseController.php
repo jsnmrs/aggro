@@ -19,39 +19,37 @@ use Psr\Log\LoggerInterface;
  *
  * For security be sure to declare any new methods as protected or private.
  */
-abstract class BaseController extends Controller
-{
-    /**
-     * Instance of the main Request object.
-     *
-     * @var CLIRequest|IncomingRequest
-     */
-    protected $request;
+abstract class BaseController extends Controller {
+  /**
+   * Instance of the main Request object.
+   *
+   * @var \CodeIgniter\HTTP\CLIRequest|IncomingRequest
+   */
+  protected $request;
 
-    /**
-     * An array of helpers to be loaded automatically upon
-     * class instantiation. These helpers will be available
-     * to all other controllers that extend BaseController.
-     *
-     * @var array
-     */
-    protected $helpers = [];
+  /**
+   * An array of helpers to be loaded automatically upon
+   * class instantiation. These helpers will be available
+   * to all other controllers that extend BaseController.
+   *
+   * @var array
+   */
+  protected $helpers = [];
 
-    /**
-     * Constructor.
-     */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
-    {
-        // Do Not Edit This Line
-        parent::initController($request, $response, $logger);
+  /**
+   * Constructor.
+   */
+  public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger) {
+    // Do Not Edit This Line.
+    parent::initController($request, $response, $logger);
 
     // --------------------------------------------------------------------
-        // Preload any models, libraries, etc, here.
+    // Preload any models, libraries, etc, here.
     // --------------------------------------------------------------------
     // E.g.: $this->session = \Config\Services::session();
     date_default_timezone_set('America/New_York');
   }
 
-        // E.g.: $this->session = \Config\Services::session();
-    }
+  // E.g.: $this->session = \Config\Services::session();
+}
 }
