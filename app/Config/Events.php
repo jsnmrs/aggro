@@ -33,8 +33,6 @@ Events::on('pre_system', static function () {
         }
 
         ob_start(static fn ($buffer) => $buffer);
-            return $buffer;
-        });
     }
 
     /*
