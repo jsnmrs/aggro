@@ -16,14 +16,14 @@ class Aggro extends BaseController {
   /**
    * Aggro front.
    */
-  public function index() {
+  public function getIndex() {
     echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">running cron all day.</h1>";
   }
 
   /**
    * Show aggro log.
    */
-  public function log($slug = NULL) {
+  public function getLog($slug = NULL) {
     helper("aggro");
     $data = ['title' => 'Log'];
     $utilityModel = new UtilityModels();
@@ -59,7 +59,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function news($slug = NULL) {
+  public function getNews($slug = NULL) {
     helper('aggro');
     $newsModel = new NewsModels();
 
@@ -88,7 +88,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 60 minutes.
    */
-  public function sweep() {
+  public function getSweep() {
     helper('aggro');
     $aggroModel = new AggroModels();
 
@@ -116,7 +116,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function twitter() {
+  public function postTwitter() {
     helper('aggro');
     $aggroModel = new AggroModels();
 
@@ -136,7 +136,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function vimeo($videoID = NULL) {
+  public function getVimeo($videoID = NULL) {
     helper(['aggro', 'vimeo']);
     $aggroModel = new AggroModels();
     $vimeoModel = new VimeoModels();
@@ -183,7 +183,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function youtube($videoID = NULL) {
+  public function getYoutube($videoID = NULL) {
     helper(['aggro', 'youtube']);
     $aggroModel = new AggroModels();
     $youtubeModel = new YoutubeModels();

@@ -10,7 +10,7 @@ class Home extends BaseController {
   /**
    * Default home index.
    */
-  public function index() {
+  public function getIndex() {
     return view('welcome_message');
   }
 

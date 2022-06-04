@@ -20,7 +20,7 @@ $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('Front');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
-$routes->set404Override('App\Controllers\Front::error404');
+$routes->set404Override('App\Controllers\Front::getError404');
 // The Auto Routing (Legacy) is very dangerous. It is easy to create vulnerable apps
 // where controller filters or CSRF protection are bypassed.
 // If you don't want to define all routes, please use the Auto Routing (Improved).
@@ -35,18 +35,18 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Front::index');
+$routes->get('/', 'Front::getIndex');
 
-$routes->add('about', 'Front::about');
-$routes->add('featured', 'Front::index');
-$routes->add('opml', 'Feed::opml');
-$routes->add('rss', 'Feed::videofeed');
-$routes->add('sites', 'Front::sites');
-$routes->add('sites/(:any)', 'Front::sites/$1');
-$routes->add('stream', 'Front::stream');
-$routes->add('submit', 'Front::submit');
-$routes->add('video', 'Front::video');
-$routes->add('video/(:any)', 'Front::video/$1');
+$routes->add('about', 'Front::getAbout');
+$routes->add('featured', 'Front::getIndex');
+$routes->add('opml', 'Feed::getOpml');
+$routes->add('rss', 'Feed::getVideofeed');
+$routes->add('sites', 'Front::getSites');
+$routes->add('sites/(:any)', 'Front::getSites/$1');
+$routes->add('stream', 'Front::getStream');
+$routes->add('submit', 'Front::getSubmit');
+$routes->add('video', 'Front::getVideo');
+$routes->add('video/(:any)', 'Front::getVideo/$1');
 
 /*
  * --------------------------------------------------------------------
