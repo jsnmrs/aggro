@@ -33,12 +33,17 @@
   },
   "scripts": {
     "test": "phpunit",
-    "lint": [
-      "phpcs --standard=phpcs.xml -v --colors  --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
+    "phpcs": "phpcs --standard=phpcs.xml -v --colors  --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
+    "phpcbf": "phpcbf --standard=phpcs.xml -v --colors --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
+    "phpmd": [
       "vendor/bin/phpmd app/Controllers ansi phpmd.xml",
       "vendor/bin/phpmd app/Helpers ansi phpmd.xml",
       "vendor/bin/phpmd app/Models ansi phpmd.xml",
       "vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
+    ],
+    "lint": [
+      "composer phpcs",
+      "composer phpmd"
     ]
   },
   "support": {
