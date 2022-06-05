@@ -36,17 +36,17 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Front::getIndex');
-
-$routes->add('about', 'Front::getAbout');
-$routes->add('featured', 'Front::getIndex');
-$routes->add('opml', 'Feed::getOpml');
-$routes->add('rss', 'Feed::getVideofeed');
-$routes->add('sites', 'Front::getSites');
-$routes->add('sites/(:any)', 'Front::getSites/$1');
-$routes->add('stream', 'Front::getStream');
-$routes->add('submit', 'Front::getSubmit');
-$routes->add('video', 'Front::getVideo');
-$routes->add('video/(:any)', 'Front::getVideo/$1');
+$routes->get('about', 'Front::getAbout');
+$routes->get('featured', 'Front::getIndex');
+$routes->get('opml', 'Feed::getOpml');
+$routes->get('rss', 'Feed::getVideofeed');
+$routes->get('sites', 'Front::getSites');
+$routes->get('sites/(:any)', 'Front::getSites/$1');
+$routes->get('stream', 'Front::getStream');
+$routes->get('submit', 'Front::getSubmit');
+$routes->get('video', 'Front::getVideo');
+$routes->get('video/(:any)', 'Front::getVideo/$1');
+$routes->add('aggro', 'Aggro::getIndex');
 
 /*
  * --------------------------------------------------------------------
