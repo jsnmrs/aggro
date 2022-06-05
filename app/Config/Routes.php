@@ -41,11 +41,11 @@ $routes->get('featured', 'Front::getIndex');
 $routes->get('opml', 'Feed::getOpml');
 $routes->get('rss', 'Feed::getVideofeed');
 $routes->get('sites', 'Front::getSites');
-$routes->get('sites/(:any)', 'Front::getSites/$1');
+$routes->get('sites/(:segment)', 'Front::getSites/$1');
 $routes->get('stream', 'Front::getStream');
 $routes->get('submit', 'Front::getSubmit');
 $routes->get('video', 'Front::getVideo');
-$routes->get('video/(:any)', 'Front::getVideo/$1');
+$routes->get('video/(:segment)', 'Front::getVideo/$1');
 $routes->add('aggro', 'Aggro::getIndex');
 
 /*
