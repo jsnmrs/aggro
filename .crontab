@@ -8,7 +8,7 @@ MAILTO=""
 
 ## aggro cron
 
-PHP_PATH='/usr/local/php74/bin/php'
+PHP_PATH='/usr/bin/php'
 INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro news
