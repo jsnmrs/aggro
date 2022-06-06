@@ -47,6 +47,18 @@ $routes->get('submit', 'Front::getSubmit');
 $routes->get('video', 'Front::getVideo');
 $routes->get('video/(:segment)', 'Front::getVideo/$1');
 $routes->add('aggro', 'Aggro::getIndex');
+$routes->add('aggro/log', 'Aggro::getLog');
+$routes->add('aggro/log-error', 'Aggro::getLogError');
+$routes->add('aggro/news', 'Aggro::getNews');
+$routes->add('aggro/twitter', 'Aggro::postTwitter');
+$routes->add('aggro/vimeo', 'Aggro::getVimeo');
+$routes->add('aggro/youtube', 'Aggro::getYoutube');
+$routes->cli('aggro/log-clean', 'Aggro::getLogClean');
+$routes->cli('aggro/log-error-clean', 'Aggro::getLogErrorClean');
+$routes->cli('aggro/news-cache', 'Aggro::getNewsCache');
+$routes->cli('aggro/news-clean', 'Aggro::getNewsClean');
+$routes->cli('aggro/sweep', 'Aggro::getSweep');
+
 
 /*
  * --------------------------------------------------------------------
