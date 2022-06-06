@@ -23,7 +23,7 @@ class Aggro extends BaseController {
   /**
    * Show aggro log.
    */
-  public function getLog($slug = NULL) {
+  public function getLog() {
     helper("aggro");
     $data = ['title' => 'Log'];
     $utilityModel = new UtilityModels();
@@ -32,26 +32,53 @@ class Aggro extends BaseController {
       return FALSE;
     }
 
-    if ($slug == NULL) {
-      $data['build'] = $utilityModel->getLog();
-      return view('textlog', $data);
+    $data['build'] = $utilityModel->getLog();
+    return view('textlog', $data);
+  }
+
+  /**
+   * Clean aggro log.
+   */
+  public function getLogClean() {
+    helper("aggro");
+    $utilityModel = new UtilityModels();
+
+    if (!gate_check()) {
+      return FALSE;
     }
 
-    if ($slug == "clean") {
-      $utilityModel->cleanLog();
-      return $this->response->redirect('/aggro/log');
+    $utilityModel->cleanLog();
+    return $this->response->redirect('/aggro/log');
+  }
+
+  /**
+   * Show aggro error log.
+   */
+  public function getLogError() {
+    helper("aggro");
+    $data = ['title' => 'Error log'];
+
+    if (!gate_check()) {
+      return FALSE;
     }
 
-    if ($slug == "error") {
-      $data['title'] = "Error log";
-      $data['build'] = fetch_error_logs();
-      return view('textlog', $data);
+    $data['title'] = "Error log";
+    $data['build'] = fetch_error_logs();
+    return view('textlog', $data);
+  }
+
+  /**
+   * Clean aggro error logs.
+   */
+  public function getLogErrorClean() {
+    helper("aggro");
+
+    if (!gate_check()) {
+      return FALSE;
     }
 
-    if ($slug == "errorclean") {
-      clean_error_logs();
-      return $this->response->redirect('/aggro/log/error');
-    }
+    clean_error_logs();
+    return $this->response->redirect('/aggro/log/error');
   }
 
   /**
@@ -81,6 +108,35 @@ class Aggro extends BaseController {
       clean_feed_cache();
       return "Feed caches cleared.";
     }
+  }
+
+  /**
+   * Clear featured/stream cache.
+   */
+  public function getNewsCache() {
+    helper('aggro');
+
+    if (!gate_check()) {
+      return FALSE;
+    }
+
+    clean_feed_cache();
+    return "Feed caches cleared.";
+  }
+
+  /**
+   * Clean featured/stream pages.
+   */
+  public function getNewsClean() {
+    helper('aggro');
+    $newsModel = new NewsModels();
+
+    if (!gate_check()) {
+      return FALSE;
+    }
+
+    $newsModel->featuredCleaner();
+    return "Featured news stories cleared.";
   }
 
   /**
