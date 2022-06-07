@@ -13,6 +13,7 @@ add('writable_dirs', ['writable/cache', 'writable/logs']);
 
 // Hosts
 host('bmxfeed.com')
+->set('labels', ['stage' => 'prod'])
   ->setHostname('bmxfeed.com')
   ->setRemoteUser('bmxfeed')
   ->setDeployPath('/home/bmxfeed/aggro');
