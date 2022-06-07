@@ -3,6 +3,10 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
+// phpcs:disable Drupal.Classes.UnusedUseStatement.UnusedUse
+use CodeIgniter\HTTP\CLIRequest;
+use CodeIgniter\HTTP\IncomingRequest;
+// phpcs:enable Drupal.Classes.UnusedUseStatement.UnusedUse
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -17,16 +21,20 @@ use Psr\Log\LoggerInterface;
  *
  * For security be sure to declare any new methods as protected or private.
  */
-class BaseController extends Controller {
+abstract class BaseController extends Controller {
   /**
    * Instance of the main Request object.
    *
-   * @var IncomingRequest|CLIRequest
+   * @var \CodeIgniter\HTTP\CLIRequest|IncomingRequest
    */
   protected $request;
 
   /**
-   * An array of helpers to be loaded automatically upon class instantiation.
+   * Array of helpers.
+   *
+   * An array of helpers to be loaded automatically upon
+   * class instantiation. These helpers will be available
+   * to all other controllers that extend BaseController.
    *
    * @var array
    */
@@ -46,4 +54,5 @@ class BaseController extends Controller {
     date_default_timezone_set('America/New_York');
   }
 
+  // E.g.: $this->session = \Config\Services::session();
 }

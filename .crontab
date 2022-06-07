@@ -8,7 +8,7 @@ MAILTO=""
 
 ## aggro cron
 
-PHP_PATH='/usr/local/php74/bin/php'
+PHP_PATH='/usr/bin/php'
 INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro news
@@ -17,11 +17,11 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro news/clean
 ## Clean news featured table every 7 days
-0 0 * * 0 $PHP_PATH $INDEX_PATH aggro news/clean
+0 0 * * 0 $PHP_PATH $INDEX_PATH aggro news-clean
 
 ## aggro news/cc
 ## Clear feed cache files every month (on day 15)
-0 0 15 * * $PHP_PATH $INDEX_PATH aggro news/cc
+0 0 15 * * $PHP_PATH $INDEX_PATH aggro news-cache
 
 ## aggro sweep
 ## Archive old videos every day (at 2am)
