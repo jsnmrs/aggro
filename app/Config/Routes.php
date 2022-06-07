@@ -45,7 +45,7 @@ $routes->get('sites/(:segment)', 'Front::getSites/$1');
 $routes->get('stream', 'Front::getStream');
 $routes->get('submit', 'Front::getSubmit');
 $routes->get('video', 'Front::getVideo');
-$routes->get('video/(:segment)', 'Front::getVideo/$1');
+$routes->get('video/(:any)', 'Front::getVideo/$1');
 $routes->add('aggro', 'Aggro::getIndex');
 $routes->add('aggro/log', 'Aggro::getLog');
 $routes->add('aggro/log-error', 'Aggro::getLogError');
