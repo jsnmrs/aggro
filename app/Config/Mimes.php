@@ -260,7 +260,6 @@ class Mimes
             'image/png',
             'image/x-png',
         ],
-        'webp' => 'image/webp',
         'tif'  => 'image/tiff',
         'tiff' => 'image/tiff',
         'css'  => [
@@ -510,7 +509,7 @@ class Mimes
     {
         $type = trim(strtolower($type), '. ');
 
-        $proposedExtension = trim(strtolower($proposedExtension ?? ''));
+        $proposedExtension = trim(strtolower($proposedExtension));
 
         if ($proposedExtension !== '') {
             if (array_key_exists($proposedExtension, static::$mimes) && in_array($type, is_string(static::$mimes[$proposedExtension]) ? [static::$mimes[$proposedExtension]] : static::$mimes[$proposedExtension], true)) {
