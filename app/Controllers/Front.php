@@ -140,8 +140,8 @@ class Front extends BaseController {
       $data['total'] = $aggroModel->getVideosTotal();
       $data['endpage'] = ceil($data['total'] / $data['perpage']);
 
-      if ($data['page'] > $data['endpage']) {
-        return $this->error404();
+      if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
+        return $this->getError404();
       }
 
       $data['build'] = $aggroModel->getVideos($data['sort'], $data['range'], $data['perpage'], $data['offset']);
