@@ -47,6 +47,7 @@ $routes->get('submit', 'Front::getSubmit');
 $routes->get('video', 'Front::getVideo');
 $routes->get('video/(:any)', 'Front::getVideo/$1');
 $routes->add('aggro', 'Aggro::getIndex');
+$routes->add('aggro/info', 'Aggro::getInfo');
 $routes->add('aggro/log', 'Aggro::getLog');
 $routes->add('aggro/log-error', 'Aggro::getLogError');
 $routes->add('aggro/news', 'Aggro::getNews');

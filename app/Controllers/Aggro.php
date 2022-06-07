@@ -21,6 +21,13 @@ class Aggro extends BaseController {
   }
 
   /**
+   * Aggro info.
+   */
+  public function getInfo() {
+    echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">CI " . \CodeIgniter\CodeIgniter::CI_VERSION . "<br>PHP " . phpversion() . "</h1>";
+  }
+
+  /**
    * Show aggro log.
    */
   public function getLog() {
