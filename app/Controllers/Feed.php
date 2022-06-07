@@ -13,14 +13,14 @@ class Feed extends BaseController {
   /**
    * Index -> RSS feed.
    */
-  public function getIndex() {
-    $this->getNewsfeed();
+  public function index() {
+    $this->newsfeed();
   }
 
   /**
    * OPML generator.
    */
-  public function getOpml() {
+  public function opml() {
     $newsModel = new NewsModels();
 
     $data['build'] = $newsModel->getSites();
@@ -31,7 +31,7 @@ class Feed extends BaseController {
   /**
    * Video RSS feed.
    */
-  public function getVideofeed() {
+  public function videofeed() {
     $aggroModel = new AggroModels();
 
     $data['build'] = $aggroModel->getVideos('recent', 'month', 25, 0);
@@ -42,7 +42,7 @@ class Feed extends BaseController {
   /**
    * Directory RSS feed.
    */
-  public function getNewsfeed() {
+  public function newsfeed() {
     $newsModel = new NewsModels();
 
     $data['build'] = $newsModel->getSitesRecent();

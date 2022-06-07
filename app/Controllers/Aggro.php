@@ -16,14 +16,14 @@ class Aggro extends BaseController {
   /**
    * Aggro front.
    */
-  public function getIndex() {
+  public function index() {
     echo "<h1 style=\"color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;\">running cron all day.</h1>";
   }
 
   /**
    * Show aggro log.
    */
-  public function getLog() {
+  public function log($slug = NULL) {
     helper("aggro");
     $data = ['title' => 'Log'];
     $utilityModel = new UtilityModels();
@@ -32,53 +32,26 @@ class Aggro extends BaseController {
       return FALSE;
     }
 
-    $data['build'] = $utilityModel->getLog();
-    return view('textlog', $data);
-  }
-
-  /**
-   * Clean aggro log.
-   */
-  public function getLogClean() {
-    helper("aggro");
-    $utilityModel = new UtilityModels();
-
-    if (!gate_check()) {
-      return FALSE;
+    if ($slug == NULL) {
+      $data['build'] = $utilityModel->getLog();
+      return view('textlog', $data);
     }
 
-    $utilityModel->cleanLog();
-    return $this->response->redirect('/aggro/log');
-  }
-
-  /**
-   * Show aggro error log.
-   */
-  public function getLogError() {
-    helper("aggro");
-    $data = ['title' => 'Error log'];
-
-    if (!gate_check()) {
-      return FALSE;
+    if ($slug == "clean") {
+      $utilityModel->cleanLog();
+      return $this->response->redirect('/aggro/log');
     }
 
-    $data['title'] = "Error log";
-    $data['build'] = fetch_error_logs();
-    return view('textlog', $data);
-  }
-
-  /**
-   * Clean aggro error logs.
-   */
-  public function getLogErrorClean() {
-    helper("aggro");
-
-    if (!gate_check()) {
-      return FALSE;
+    if ($slug == "error") {
+      $data['title'] = "Error log";
+      $data['build'] = fetch_error_logs();
+      return view('textlog', $data);
     }
 
-    clean_error_logs();
-    return $this->response->redirect('/aggro/log/error');
+    if ($slug == "errorclean") {
+      clean_error_logs();
+      return $this->response->redirect('/aggro/log/error');
+    }
   }
 
   /**
@@ -86,7 +59,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function getNews($slug = NULL) {
+  public function news($slug = NULL) {
     helper('aggro');
     $newsModel = new NewsModels();
 
@@ -111,40 +84,11 @@ class Aggro extends BaseController {
   }
 
   /**
-   * Clear featured/stream cache.
-   */
-  public function getNewsCache() {
-    helper('aggro');
-
-    if (!gate_check()) {
-      return FALSE;
-    }
-
-    clean_feed_cache();
-    return "Feed caches cleared.";
-  }
-
-  /**
-   * Clean featured/stream pages.
-   */
-  public function getNewsClean() {
-    helper('aggro');
-    $newsModel = new NewsModels();
-
-    if (!gate_check()) {
-      return FALSE;
-    }
-
-    $newsModel->featuredCleaner();
-    return "Featured news stories cleared.";
-  }
-
-  /**
    * Update archive old videos, run cleanup.
    *
    * Set cron to run every 60 minutes.
    */
-  public function getSweep() {
+  public function sweep() {
     helper('aggro');
     $aggroModel = new AggroModels();
 
@@ -172,7 +116,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function postTwitter() {
+  public function twitter() {
     helper('aggro');
     $aggroModel = new AggroModels();
 
@@ -192,7 +136,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function getVimeo($videoID = NULL) {
+  public function vimeo($videoID = NULL) {
     helper(['aggro', 'vimeo']);
     $aggroModel = new AggroModels();
     $vimeoModel = new VimeoModels();
@@ -239,7 +183,7 @@ class Aggro extends BaseController {
    *
    * Set cron to run every 5 minutes.
    */
-  public function getYoutube($videoID = NULL) {
+  public function youtube($videoID = NULL) {
     helper(['aggro', 'youtube']);
     $aggroModel = new AggroModels();
     $youtubeModel = new YoutubeModels();

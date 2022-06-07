@@ -135,5 +135,3 @@ nb-configuration.xml
 
 /public/dist/*.css*
 /public/dist/*.js
-
-node_modules

@@ -13,14 +13,14 @@ class Front extends BaseController {
   /**
    * Home -> featured page.
    */
-  public function getIndex() {
-    $this->getFeatured();
+  public function index() {
+    $this->featured();
   }
 
   /**
    * About page.
    */
-  public function getAbout() {
+  public function about() {
     $data = [
       'title' => 'About',
       'slug' => 'about',
@@ -32,7 +32,7 @@ class Front extends BaseController {
   /**
    * Error page.
    */
-  public function getError404() {
+  public function error404() {
     $this->response->setStatusCode(404);
 
     $data = [
@@ -46,7 +46,7 @@ class Front extends BaseController {
   /**
    * Featured page.
    */
-  public function getFeatured() {
+  public function featured() {
     $data = [
       'title' => 'Featured',
       'slug' => 'featured',
@@ -61,7 +61,7 @@ class Front extends BaseController {
   /**
    * Sites page.
    */
-  public function getSites($slug = NULL) {
+  public function sites($slug = NULL) {
     helper('aggro');
     $data = [
       'title' => 'Directory',
@@ -85,13 +85,13 @@ class Front extends BaseController {
       return view('site', $data);
     }
 
-    return $this->getError404();
+    return $this->error404();
   }
 
   /**
    * Stream page.
    */
-  public function getStream() {
+  public function stream() {
     $data = [
       'title' => 'Stream',
       'slug' => 'stream',
@@ -106,7 +106,7 @@ class Front extends BaseController {
   /**
    * Submit page.
    */
-  public function getSubmit() {
+  public function submit() {
     $data = [
       'title' => 'Submit',
       'slug' => 'submit',
@@ -118,7 +118,7 @@ class Front extends BaseController {
   /**
    * Video pages.
    */
-  public function getVideo($slug = NULL) {
+  public function video($slug = NULL) {
     $data = [
       'title' => 'Videos',
       'slug' => 'video',
@@ -155,7 +155,7 @@ class Front extends BaseController {
       return view('video', $data);
     }
 
-    return $this->getError404();
+    return $this->error404();
   }
 
 }
