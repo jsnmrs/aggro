@@ -13,14 +13,14 @@ class Front extends BaseController {
   /**
    * Home -> featured page.
    */
-  public function index() {
-    $this->featured();
+  public function getIndex() {
+    $this->getFeatured();
   }
 
   /**
    * About page.
    */
-  public function about() {
+  public function getAbout() {
     $data = [
       'title' => 'About',
       'slug' => 'about',
@@ -32,7 +32,7 @@ class Front extends BaseController {
   /**
    * Error page.
    */
-  public function error404() {
+  public function getError404() {
     $this->response->setStatusCode(404);
 
     $data = [
@@ -46,7 +46,7 @@ class Front extends BaseController {
   /**
    * Featured page.
    */
-  public function featured() {
+  public function getFeatured() {
     $data = [
       'title' => 'Featured',
       'slug' => 'featured',
@@ -61,7 +61,7 @@ class Front extends BaseController {
   /**
    * Sites page.
    */
-  public function sites($slug = NULL) {
+  public function getSites($slug = NULL) {
     helper('aggro');
     $data = [
       'title' => 'Directory',
@@ -85,13 +85,13 @@ class Front extends BaseController {
       return view('site', $data);
     }
 
-    return $this->error404();
+    return $this->getError404();
   }
 
   /**
    * Stream page.
    */
-  public function stream() {
+  public function getStream() {
     $data = [
       'title' => 'Stream',
       'slug' => 'stream',
@@ -106,7 +106,7 @@ class Front extends BaseController {
   /**
    * Submit page.
    */
-  public function submit() {
+  public function getSubmit() {
     $data = [
       'title' => 'Submit',
       'slug' => 'submit',
@@ -118,7 +118,7 @@ class Front extends BaseController {
   /**
    * Video pages.
    */
-  public function video($slug = NULL) {
+  public function getVideo($slug = NULL) {
     $data = [
       'title' => 'Videos',
       'slug' => 'video',
@@ -140,8 +140,8 @@ class Front extends BaseController {
       $data['total'] = $aggroModel->getVideosTotal();
       $data['endpage'] = ceil($data['total'] / $data['perpage']);
 
-      if ($data['page'] > $data['endpage']) {
-        return $this->error404();
+      if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
+        return $this->getError404();
       }
 
       $data['build'] = $aggroModel->getVideos($data['sort'], $data['range'], $data['perpage'], $data['offset']);
@@ -155,7 +155,7 @@ class Front extends BaseController {
       return view('video', $data);
     }
 
-    return $this->error404();
+    return $this->getError404();
   }
 
 }

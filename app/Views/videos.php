@@ -16,6 +16,9 @@ echo $this->include('includes/header'); ?>
   </div>
 
   <div class="wrap">
+<?php if ($endpage == 0) { ?>
+    <p>No videos found.</p>
+<?php } ?>
 <?php foreach ($build as $row) :?>
     <div class="box box--video">
       <a href="/video/<?php echo $row->video_id; ?>">
@@ -26,7 +29,7 @@ echo $this->include('includes/header'); ?>
 <?php endforeach; ?>
   </div>
 
-<?php if ($page != $endpage) { ?>
+<?php if ($page != $endpage && $endpage != 0) { ?>
   <div class="wrap">
     <a href="/video/<?php echo $sort; ?>/<?php echo $page + 1; ?>" class="cta">Jump to page <?php echo $page + 1; ?></a>
   </div>

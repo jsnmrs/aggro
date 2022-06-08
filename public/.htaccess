@@ -1,11 +1,14 @@
 # Disable directory browsing
 Options All -Indexes
 
-<IfModule mod_rewrite.c>
-  # FollowSymLinks must be enabled for this to work.
-  Options +FollowSymlinks
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
 
-  # Turning on the rewrite engine is necessary for the following rules and features.
+# Turning on the rewrite engine is necessary for the following rules and features.
+# FollowSymLinks must be enabled for this to work.
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks
   RewriteEngine On
 
   # Redirect Trailing Slashes...
@@ -35,7 +38,7 @@ Options All -Indexes
   ErrorDocument 404 index.php
 </IfModule>
 
-# Disable server signature
+# Disable server signature start
 ServerSignature Off
 
 <IfModule mod_deflate.c>

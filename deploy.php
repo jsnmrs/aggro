@@ -13,9 +13,16 @@ add('writable_dirs', ['writable/cache', 'writable/logs']);
 
 // Hosts
 host('bmxfeed.com')
+->set('labels', ['stage' => 'prod'])
   ->setHostname('bmxfeed.com')
   ->setRemoteUser('bmxfeed')
   ->setDeployPath('/home/bmxfeed/aggro');
+
+host('dev.bmxfeed.com')
+  ->set('labels', ['stage' => 'dev'])
+  ->setHostname('dev.bmxfeed.com')
+  ->setRemoteUser('bmxfeed')
+  ->setDeployPath('/home/bmxfeed/aggro-dev');
 
 if (file_exists('/var/www/.ssh/config')) {
   host('bmxfeed.com')->setConfigFile('/var/www/.ssh/config');
