@@ -33,7 +33,7 @@ echo -e "\\n\\033[1;33mClearing error logs...\\033[0m"
 fin fire aggro log-error-clean
 
 echo -e "\\n\\033[1;33mClearing news cache...\\033[0m"
-fin fire aggro news-cc
+fin fire aggro news-cache
 
 echo -e "\\n\\033[1;33mClearing news stories...\\033[0m"
 fin fire aggro news-clean
