@@ -308,8 +308,7 @@ if (!function_exists('gate_check')) {
    *   CLI or development.
    */
   function gate_check() {
-    $request = \Config\Services::request();
-    if ($request->isCLI() || $_ENV['CI_ENVIRONMENT'] == "development") {
+    if (is_cli() || $_ENV['CI_ENVIRONMENT'] == "development") {
       return TRUE;
     }
 
