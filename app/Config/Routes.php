@@ -54,11 +54,11 @@ $routes->add('aggro/news', 'Aggro::getNews');
 $routes->add('aggro/twitter', 'Aggro::postTwitter');
 $routes->add('aggro/vimeo', 'Aggro::getVimeo');
 $routes->add('aggro/youtube', 'Aggro::getYoutube');
-$routes->cli('aggro/log-clean', 'Aggro::getLogClean');
-$routes->cli('aggro/log-error-clean', 'Aggro::getLogErrorClean');
-$routes->cli('aggro/news-cache', 'Aggro::getNewsCache');
-$routes->cli('aggro/news-clean', 'Aggro::getNewsClean');
-$routes->cli('aggro/sweep', 'Aggro::getSweep');
+$routes->add('aggro/log-clean', 'Aggro::getLogClean');
+$routes->add('aggro/log-error-clean', 'Aggro::getLogErrorClean');
+$routes->add('aggro/news-cache', 'Aggro::getNewsCache');
+$routes->add('aggro/news-clean', 'Aggro::getNewsClean');
+$routes->add('aggro/sweep', 'Aggro::getSweep');
 
 
 /*
