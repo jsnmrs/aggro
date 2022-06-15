@@ -12,7 +12,7 @@ jobs:
     runs-on: macos-12
     steps:
       - name: Install docker
-        run: brew install docker docker-machine
+        run: brew install docker docker-machine socat
       - name: Run docksal installer
         run: curl -fsSL https://get.docksal.io | bash
       - name: Display docksal system info
