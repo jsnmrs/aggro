@@ -1,0 +1,38 @@
+name: Test macOS build
+
+on:
+  workflow_dispatch: # enable run button on github.com
+  schedule:
+    - cron: "0 2 7,21 * *" # At 02:00 on day-of-month 7 and 21.
+
+jobs:
+  install-docksal:
+    name: Build docksal project on macOS
+    runs-on: macos-12
+    steps:
+      - name: Install docker
+        run: brew install docker docker-machine socat
+      - name: Run docksal installer
+        run: curl -fsSL https://get.docksal.io | bash
+      - name: Display docksal system info
+        run: fin sysinfo
+      - name: Checkout branch
+        uses: actions/checkout@v3
+      - name: Init docksal project
+        run: |
+          fin init
+          fin sniff
+          fin shellcheck
+          fin admin
+      - name: Run Accessibility Insights site-wide
+        uses: microsoft/accessibility-insights-action@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          max-urls: 1
+          url: http://aggro.docksal.site
+          input-urls: http://aggro.docksal.site/sites http://aggro.docksal.site/sites/bmxfeed http://aggro.docksal.site/stream http://aggro.docksal.site/submit http://aggro.docksal.site/about http://aggro.docksal.site/video
+      - name: Upload Accessibility Insights report as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: accessibility-reports
+          path: ${{ github.workspace }}/_accessibility-reports
