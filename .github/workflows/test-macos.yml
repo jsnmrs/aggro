@@ -1,14 +1,13 @@
-name: Test macOS local build
+name: Test macOS build
 
 on:
   workflow_dispatch: # enable run button on github.com
-  push:
-    branches:
-      - "macos-build"
+  schedule:
+    - cron: "0 2 7,21 * *" # At 02:00 on day-of-month 7 and 21.
 
 jobs:
   install-docksal:
-    name: Build docksal project
+    name: Build docksal project on macOS
     runs-on: macos-12
     steps:
       - name: Install docker
