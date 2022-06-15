@@ -11,6 +11,8 @@ jobs:
     name: Build docksal project
     runs-on: macos-12
     steps:
+      - name: Install docker
+        run: brew install docker docker-machine
       - name: Run docksal installer
         run: curl -fsSL https://get.docksal.io | bash
       - name: Display docksal system info
