@@ -2,9 +2,6 @@ name: Test macOS build
 
 on:
   workflow_dispatch: # enable run button on github.com
-  push:
-    branches:
-      - "macos-action"
   schedule:
     - cron: "0 2 7,21 * *" # At 02:00 on day-of-month 7 and 21.
 
