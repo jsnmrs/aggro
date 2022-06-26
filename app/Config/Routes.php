@@ -38,6 +38,7 @@ $routes->setAutoRoute(false);
 $routes->add('/', 'Front::getIndex');
 $routes->add('about', 'Front::getAbout');
 $routes->add('featured', 'Front::getIndex');
+$routes->add('feed', 'Feed::getNewsfeed');
 $routes->add('opml', 'Feed::getOpml');
 $routes->add('rss', 'Feed::getVideofeed');
 $routes->add('sites', 'Front::getSites');
