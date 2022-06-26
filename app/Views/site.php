@@ -13,8 +13,8 @@ echo $this->include('includes/header'); ?>
   <div class="wrap">
     <div class="full">
       <h1><?php echo $build['site_name']; ?></h1>
-      <p>Site: <a href="<?php echo $build['site_url']; ?>"><?php echo $build['site_url']; ?></a><br>
-      Feed: <a href="<?php echo $build['site_feed']; ?>"><?php echo $build['site_feed']; ?></a></p>
+      <p class="hug">Site: <a href="<?php echo $build['site_url']; ?>"><?php echo $build['site_url']; ?></a></p>
+      <p class="hug">Feed: <a href="<?php echo $build['site_feed']; ?>"><?php echo $build['site_feed']; ?></a></p>
       <h2>Recently on <?php echo $build['site_name']; ?></h2>
       <ul class="links">
       <?php if ($feedfetch->error) :?>
