@@ -16,7 +16,7 @@ use CodeIgniter\I18n\Time;
       echo $time->humanize();
       ?></span></p>
     </footer>
-    <nav aria-label="Footer navigation">
+    <nav aria-label="Footer">
       <ul class="nav nav--bottom">
         <li><a href="/"
           <?php if ($slug == "featured") {
