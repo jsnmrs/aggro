@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef1c04485c5125bfc808568704010e09",
+    "content-hash": "47e55a489271a4f4c5ea05bce75a0ab1",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -1834,16 +1834,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.20",
+            "version": "9.5.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "12bc8879fb65aef2138b26fc633cb1e3620cffba"
+                "reference": "0e32b76be457de00e83213528f6bb37e2a38fcb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/12bc8879fb65aef2138b26fc633cb1e3620cffba",
-                "reference": "12bc8879fb65aef2138b26fc633cb1e3620cffba",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0e32b76be457de00e83213528f6bb37e2a38fcb1",
+                "reference": "0e32b76be457de00e83213528f6bb37e2a38fcb1",
                 "shasum": ""
             },
             "require": {
@@ -1877,7 +1877,6 @@
                 "sebastian/version": "^3.0.2"
             },
             "require-dev": {
-                "ext-pdo": "*",
                 "phpspec/prophecy-phpunit": "^2.0.1"
             },
             "suggest": {
@@ -1921,7 +1920,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.20"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.21"
             },
             "funding": [
                 {
@@ -1933,7 +1932,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-01T12:37:26+00:00"
+            "time": "2022-06-19T12:14:25+00:00"
         },
         {
             "name": "psr/container",
@@ -3742,16 +3741,16 @@
         },
         {
             "name": "tatter/patches",
-            "version": "v2.0.4",
+            "version": "v2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tattersoftware/codeigniter4-patches.git",
-                "reference": "bfffa873bdf0878655e137197abd70993f67ed58"
+                "reference": "2ab870e5aa4517e480ac479c401211e623aa275c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tattersoftware/codeigniter4-patches/zipball/bfffa873bdf0878655e137197abd70993f67ed58",
-                "reference": "bfffa873bdf0878655e137197abd70993f67ed58",
+                "url": "https://api.github.com/repos/tattersoftware/codeigniter4-patches/zipball/2ab870e5aa4517e480ac479c401211e623aa275c",
+                "reference": "2ab870e5aa4517e480ac479c401211e623aa275c",
                 "shasum": ""
             },
             "require": {
@@ -3785,7 +3784,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tattersoftware/codeigniter4-patches/issues",
-                "source": "https://github.com/tattersoftware/codeigniter4-patches/tree/v2.0.4"
+                "source": "https://github.com/tattersoftware/codeigniter4-patches/tree/v2.0.5"
             },
             "funding": [
                 {
@@ -3797,7 +3796,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-06T20:43:11+00:00"
+            "time": "2022-06-30T23:14:51+00:00"
         },
         {
             "name": "theseer/tokenizer",

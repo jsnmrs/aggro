@@ -15,9 +15,9 @@
     "drupal/coder": "8.3.15",
     "mikey179/vfsstream": "1.6.10",
     "phpmd/phpmd": "2.12.0",
-    "phpunit/phpunit": "9.5.20",
+    "phpunit/phpunit": "9.5.21",
     "squizlabs/php_codesniffer": "3.7.1",
-    "tatter/patches": "v2.0.4"
+    "tatter/patches": "v2.0.5"
   },
   "autoload-dev": {
     "psr-4": {
