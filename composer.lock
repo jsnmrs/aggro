@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47e55a489271a4f4c5ea05bce75a0ab1",
+    "content-hash": "83ac04ac1dcd1bf8c54e72ebd14d2134",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -669,20 +669,20 @@
         },
         {
             "name": "deployer/deployer",
-            "version": "v7.0.0-rc.8",
+            "version": "v7.0.0-rc.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deployphp/deployer.git",
-                "reference": "629973ee3d0ce78953b18500cba0695feec28c2b"
+                "reference": "9f7ceda159998803db17c7073daa33091fa596f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deployphp/deployer/zipball/629973ee3d0ce78953b18500cba0695feec28c2b",
-                "reference": "629973ee3d0ce78953b18500cba0695feec28c2b",
+                "url": "https://api.github.com/repos/deployphp/deployer/zipball/9f7ceda159998803db17c7073daa33091fa596f7",
+                "reference": "9f7ceda159998803db17c7073daa33091fa596f7",
                 "shasum": ""
             },
             "bin": [
-                "deployer.phar"
+                "dep"
             ],
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -708,7 +708,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-22T14:33:06+00:00"
+            "time": "2022-07-24T11:28:25+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -827,16 +827,16 @@
         },
         {
             "name": "mikey179/vfsstream",
-            "version": "v1.6.10",
+            "version": "v1.6.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bovigo/vfsStream.git",
-                "reference": "250c0825537d501e327df879fb3d4cd751933b85"
+                "reference": "17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/250c0825537d501e327df879fb3d4cd751933b85",
-                "reference": "250c0825537d501e327df879fb3d4cd751933b85",
+                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f",
+                "reference": "17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f",
                 "shasum": ""
             },
             "require": {
@@ -874,7 +874,7 @@
                 "source": "https://github.com/bovigo/vfsStream/tree/master",
                 "wiki": "https://github.com/bovigo/vfsStream/wiki"
             },
-            "time": "2021-09-25T08:05:01+00:00"
+            "time": "2022-02-23T02:02:42+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -3918,5 +3918,5 @@
         "php": "^7.3||^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
