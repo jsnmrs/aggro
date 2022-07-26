@@ -11,9 +11,9 @@
     "simplepie/simplepie": "1.6.0"
   },
   "require-dev": {
-    "deployer/deployer": "v7.0.0-rc.8",
+    "deployer/deployer": "v7.0.0-rc.9",
     "drupal/coder": "8.3.15",
-    "mikey179/vfsstream": "1.6.10",
+    "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.12.0",
     "phpunit/phpunit": "9.5.21",
     "squizlabs/php_codesniffer": "3.7.1",
