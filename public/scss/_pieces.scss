@@ -6,8 +6,8 @@ main {
   background-color: $white;
 }
 
-.skip:not(:focus):not(:active),
-.u-sr:not(:focus):not(:active) {
+.skip:not(:focus, :active),
+.u-sr:not(:focus, :active) {
   // stylelint-disable plugin/no-unsupported-browser-features
   position: absolute;
   width: 0.1rem;
