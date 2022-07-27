@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83ac04ac1dcd1bf8c54e72ebd14d2134",
+    "content-hash": "6f4f887f9c554fedc93ac0608137af70",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -669,16 +669,16 @@
         },
         {
             "name": "deployer/deployer",
-            "version": "v7.0.0-rc.9",
+            "version": "v7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deployphp/deployer.git",
-                "reference": "9f7ceda159998803db17c7073daa33091fa596f7"
+                "reference": "04788d6c8ccbd985534fee1705175ea44e4213dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deployphp/deployer/zipball/9f7ceda159998803db17c7073daa33091fa596f7",
-                "reference": "9f7ceda159998803db17c7073daa33091fa596f7",
+                "url": "https://api.github.com/repos/deployphp/deployer/zipball/04788d6c8ccbd985534fee1705175ea44e4213dd",
+                "reference": "04788d6c8ccbd985534fee1705175ea44e4213dd",
                 "shasum": ""
             },
             "bin": [
@@ -708,7 +708,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-07-24T11:28:25+00:00"
+            "time": "2022-07-26T22:25:15+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -3909,14 +3909,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "deployer/deployer": 5
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3||^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
