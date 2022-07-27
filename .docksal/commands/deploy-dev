@@ -6,4 +6,4 @@
 cd "$PROJECT_ROOT" || exit
 
 echo -e "\\n\\033[1;33mDeploying to development server...\\033[0m"
-fin exec vendor/bin/deployer.phar deploy stage=dev
+fin exec vendor/bin/dep deploy stage=dev
