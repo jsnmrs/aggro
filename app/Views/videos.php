@@ -22,7 +22,7 @@ echo $this->include('includes/header'); ?>
 <?php foreach ($build as $row) :?>
     <div class="box box--video">
       <a href="/video/<?php echo $row->video_id; ?>">
-        <img src="/thumbs/<?php echo $row->video_id; ?>.jpg" alt="">
+        <img src="/thumbs/<?php echo $row->video_id; ?>.jpg" width="340" height="192" alt="">
         <p><?php echo htmlspecialchars_decode($row->video_title); ?></p>
       </a>
     </div>
