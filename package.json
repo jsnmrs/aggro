@@ -20,7 +20,7 @@
     "browser-update": "npx browserslist@latest --update-db"
   },
   "devDependencies": {
-    "@double-great/stylelint-a11y": "2.0.0",
+    "@double-great/stylelint-a11y": "2.0.1",
     "autoprefixer": "10.4.8",
     "cssnano": "5.1.13",
     "postcss": "8.4.16",
