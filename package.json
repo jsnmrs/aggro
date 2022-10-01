@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@double-great/stylelint-a11y": "2.0.0",
-    "autoprefixer": "10.4.8",
+    "autoprefixer": "10.4.12",
     "cssnano": "5.1.13",
     "postcss": "8.4.16",
     "postcss-cli": "10.0.0",
