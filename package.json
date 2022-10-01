@@ -23,7 +23,7 @@
     "@double-great/stylelint-a11y": "2.0.0",
     "autoprefixer": "10.4.8",
     "cssnano": "5.1.13",
-    "postcss": "8.4.16",
+    "postcss": "8.4.17",
     "postcss-cli": "10.0.0",
     "prettier": "2.7.1",
     "sass": "1.54.8",
