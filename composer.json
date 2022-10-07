@@ -7,7 +7,7 @@
   "require": {
     "php": "^7.3||^8.0",
     "abraham/twitteroauth": "4.0.1",
-    "codeigniter4/framework": "v4.2.6",
+    "codeigniter4/framework": "v4.2.7",
     "simplepie/simplepie": "1.7.0"
   },
   "require-dev": {
