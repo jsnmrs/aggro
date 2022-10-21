@@ -8,10 +8,11 @@
     "php": "^7.3||^8.0",
     "abraham/twitteroauth": "4.0.1",
     "codeigniter4/framework": "v4.2.7",
-    "simplepie/simplepie": "1.7.0"
+    "simplepie/simplepie": "1.7.0",
+    "symfony/yaml": "v6.1.6"
   },
   "require-dev": {
-    "deployer/deployer": "v7.0.1",
+    "deployer/deployer": "v7.0.2",
     "drupal/coder": "8.3.16",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
