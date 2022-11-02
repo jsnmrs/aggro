@@ -7,7 +7,7 @@
   "require": {
     "php": "^7.3||^8.0",
     "abraham/twitteroauth": "4.0.1",
-    "codeigniter4/framework": "v4.2.7",
+    "codeigniter4/framework": "v4.2.9",
     "simplepie/simplepie": "1.7.0",
     "symfony/yaml": "v6.1.6"
   },
@@ -16,7 +16,7 @@
     "drupal/coder": "8.3.16",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
-    "phpunit/phpunit": "9.5.25",
+    "phpunit/phpunit": "9.5.26",
     "squizlabs/php_codesniffer": "3.7.1",
     "tatter/patches": "v2.0.5"
   },
