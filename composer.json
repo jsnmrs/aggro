@@ -9,7 +9,7 @@
     "abraham/twitteroauth": "4.0.1",
     "codeigniter4/framework": "v4.2.11",
     "simplepie/simplepie": "1.7.0",
-    "symfony/yaml": "v6.2.0"
+    "symfony/yaml": "v6.2.2"
   },
   "require-dev": {
     "deployer/deployer": "v7.0.1",
