@@ -12,7 +12,7 @@
     "symfony/yaml": "v6.2.2"
   },
   "require-dev": {
-    "deployer/deployer": "v7.1.1",
+    "deployer/deployer": "v7.0.1",
     "drupal/coder": "8.3.16",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
