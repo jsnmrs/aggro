@@ -75,14 +75,14 @@ task('deploy:secrets', function () {
     file_put_contents(__DIR__ . '/.env-production', getenv('DOT_ENV'));
   }
   if (file_exists('.env-production')) {
-    upload('.env-production', get('release_path') . '/.env');
+    upload('.env-production', get('release_or_current_path') . '/.env');
   }
 });
 
 // Copy crontab settings from repo.
 task('deploy:cron', function () {
   run('cd ~/');
-  run('crontab ' . get('release_path') . '/.crontab');
+  run('crontab ' . get('release_or_current_path') . '/.crontab');
   run('crontab -l');
 });
 
@@ -90,7 +90,6 @@ desc('Deploy the application');
 task('deploy', [
   'deploy:info',
   'deploy:prepare',
-  'deploy:release',
   'rsync',
   'deploy:shared',
   'deploy:writable',
