@@ -176,7 +176,7 @@ if (!function_exists('fetch_feed')) {
       $userAgent = $_ENV['UA_SPOOF'];
     }
 
-    $rss = new \SimplePie();
+    $rss = new SimplePie\SimplePie();
     $rss->set_cache_location(WRITEPATH . '/cache');
     $rss->set_cache_duration($cache);
     $rss->set_useragent($userAgent);
