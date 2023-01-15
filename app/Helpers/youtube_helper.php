@@ -160,7 +160,7 @@ if (!function_exists('youtube_parse_meta')) {
     $result = fetch_url($oEmbed, 'simplexml', 1);
     $video['video_width'] = 800;
     $video['video_height'] = 450;
-    if ($result !== FALSE) {
+    if ($result !== FALSE && (is_array($result) || is_object($result))) {
       $video['video_width'] = $result->width;
       $video['video_height'] = $result->height;
     }
