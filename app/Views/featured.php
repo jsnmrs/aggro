@@ -29,7 +29,7 @@ echo $this->include('includes/header'); ?>
         <?php $story_num = "story" . $story; ?>
         <?php if (isset($row[$story_num])) :?>
         <li><a href="<?php echo $row[$story_num]['story_permalink']; ?>" rel="noopener noreferrer" data-outgoing="<?php echo $row[$story_num]['story_hash']; ?>"><?php
-        echo htmlspecialchars_decode($row[$story_num]['story_title']);
+        echo htmlspecialchars_decode($row[$story_num]['story_title'] ?? '');
         if (htmlspecialchars_decode($row[$story_num]['story_title']) == "") {
           echo "[missing title]";
         } ?></a></li>
