@@ -38,7 +38,7 @@ class UtilityModels extends Model {
    *   Recent log entries.
    */
   public function getLog() {
-    $sql = "SELECT * FROM aggro_log ORDER BY log_date DESC LIMIT 250";
+    $sql = "SELECT * FROM aggro_log ORDER BY log_date LIMIT 100";
     $query = $this->db->query($sql);
     return $query->getResult();
   }
