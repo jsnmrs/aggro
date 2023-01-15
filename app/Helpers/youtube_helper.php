@@ -60,8 +60,8 @@ if (!function_exists('youtube_get_video_source')) {
     helper('aggro');
     $canonicalRegex = "/<link rel=\"canonical\" href=\"https:\/\/www.youtube.com\/channel\/(.*?)\">/";
 
-    $fetch = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
-    $result = fetch_url($fetch, 'simplexml', 1);
+    $fetch = "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
+    $result = fetch_url($fetch, 'json', 0);
 
     if ($result == FALSE || !(is_array($result) || is_object($result))) {
       return FALSE;
