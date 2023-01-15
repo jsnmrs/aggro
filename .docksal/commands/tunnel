@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+## Run remote controller from CLI
+## Usage: fin tunnel [controller] [method]
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+vendor/bin/dep run "'/usr/local/php81/bin/php' '/home/bmxfeed/aggro/current/public/index.php' '$1' '$2'" stage=prod
