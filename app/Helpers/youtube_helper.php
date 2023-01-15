@@ -60,8 +60,8 @@ if (!function_exists('youtube_get_video_source')) {
     helper('aggro');
     $canonicalRegex = "/<link rel=\"canonical\" href=\"https:\/\/www.youtube.com\/channel\/(.*?)\">/";
 
-    $fetch = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
-    $result = fetch_url($fetch, 'simplexml', 1);
+    $fetch = "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $videoID;
+    $result = fetch_url($fetch, 'json', 0);
 
     if ($result == FALSE || !(is_array($result) || is_object($result))) {
       return FALSE;
@@ -142,11 +142,11 @@ if (!function_exists('youtube_parse_meta')) {
       $video['flag_tweet'] = 0;
     }
     $video['video_title'] = htmlentities($item->get_title(), ENT_QUOTES, 'utf-8', FALSE);
-    $group = $item->get_item_tags(SIMPLEPIE_NAMESPACE_MEDIARSS, 'group');
-    $community = $group[0]['child'][SIMPLEPIE_NAMESPACE_MEDIARSS]['community'];
-    $statistics = $community[0]['child'][SIMPLEPIE_NAMESPACE_MEDIARSS]['statistics'];
+    $group = $item->get_item_tags(\SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
+    $community = $group[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'];
+    $statistics = $community[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'];
     $video['video_plays'] = $statistics[0]['attribs']['']['views'];
-    $thumbnail = $group[0]['child'][SIMPLEPIE_NAMESPACE_MEDIARSS]['thumbnail'];
+    $thumbnail = $group[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
     $video['video_thumbnail_url'] = $thumbnail[0]['attribs']['']['url'];
     $channelID = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'channelId');
     $video['video_source_id'] = $channelID[0]['data'];
@@ -156,11 +156,11 @@ if (!function_exists('youtube_parse_meta')) {
     $authorName = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
     $video['video_source_username'] = htmlentities($authorName[0]['data'], ENT_QUOTES, 'utf-8', FALSE);
 
-    $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $video['video_id'];
-    $result = fetch_url($oEmbed, 'simplexml', 1);
+    $oEmbed = "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $video['video_id'];
+    $result = fetch_url($oEmbed, 'json', 0);
     $video['video_width'] = 800;
     $video['video_height'] = 450;
-    if ($result !== FALSE) {
+    if ($result !== FALSE && (is_array($result) || is_object($result))) {
       $video['video_width'] = $result->width;
       $video['video_height'] = $result->height;
     }
