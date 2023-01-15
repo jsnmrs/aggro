@@ -156,8 +156,8 @@ if (!function_exists('youtube_parse_meta')) {
     $authorName = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
     $video['video_source_username'] = htmlentities($authorName[0]['data'], ENT_QUOTES, 'utf-8', FALSE);
 
-    $oEmbed = "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $video['video_id'];
-    $result = fetch_url($oEmbed, 'simplexml', 1);
+    $oEmbed = "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" . $video['video_id'];
+    $result = fetch_url($oEmbed, 'json', 0);
     $video['video_width'] = 800;
     $video['video_height'] = 450;
     if ($result !== FALSE && (is_array($result) || is_object($result))) {
