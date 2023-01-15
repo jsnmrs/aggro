@@ -20,15 +20,15 @@ echo $this->include('includes/header'); ?>
       <?php foreach ($build as $row) :?>
         <li class="stream">
           <span class="stream__source">
-            <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars_decode($row->site_name); ?></a>
+            <a href="/sites/<?php echo $row->site_slug; ?>" ><?php echo htmlspecialchars_decode($row->site_name ?? ''); ?></a>
           </span>
           <span class="ago--muted"><?php
           $time = Time::createFromFormat('Y-m-d H:i:s', $row->story_date, 'America/New_York');
           echo $time->humanize();
           ?></span>
           <span class="stream__title">
-            <a href="<?php echo $row->story_permalink; ?>" rel="noopener noreferrer" data-outgoing="<?php echo $row->story_hash; ?>"><?php echo htmlspecialchars_decode($row->story_title);
-            if (htmlspecialchars_decode($row->story_title) == "") {
+            <a href="<?php echo $row->story_permalink; ?>" rel="noopener noreferrer" data-outgoing="<?php echo $row->story_hash; ?>"><?php echo htmlspecialchars_decode($row->story_title ?? '');
+            if (htmlspecialchars_decode($row->story_title ?? '') == "") {
               echo "[missing title]";
             } ?></a>
           </span>
