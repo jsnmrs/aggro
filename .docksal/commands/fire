@@ -8,4 +8,21 @@
 # Abort if anything fails
 set -e
 
-"/usr/local/bin/php" "/var/www/public/index.php" "$1" "$2"
+if [ "$1" ] && [ "$2" ];
+  then
+    "/usr/local/bin/php" "/var/www/public/index.php" "$1" "$2"
+  else
+    echo -e "\\n\\033[1;33mSpecify a controller and method.\\033[0m"
+    echo -e "\\033[1;33mDo you need one of these?\\033[0m"
+    echo -e "aggro log"
+    echo -e "aggro log-error"
+    echo -e "aggro log-clean"
+    echo -e "aggro log-error-clean"
+    echo -e "aggro news-clean"
+    echo -e "aggro news-cache"
+    echo -e "aggro vimeo/VIDEO_ID"
+    echo -e "aggro youtube/VIDEO_ID"
+    echo -e "aggro news"
+    echo -e "aggro sweep"
+    echo -e "aggro twitter"
+fi;
