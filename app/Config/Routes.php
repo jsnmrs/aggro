@@ -52,7 +52,6 @@ $routes->add('aggro/info', 'Aggro::getInfo');
 $routes->add('aggro/log', 'Aggro::getLog');
 $routes->add('aggro/log-error', 'Aggro::getLogError');
 $routes->add('aggro/news', 'Aggro::getNews');
-$routes->add('aggro/twitter', 'Aggro::postTwitter');
 $routes->add('aggro/vimeo', 'Aggro::getVimeo');
 $routes->add('aggro/vimeo/(:segment)', 'Aggro::getVimeo/$1');
 $routes->add('aggro/youtube', 'Aggro::getYoutube');

@@ -135,11 +135,9 @@ if (!function_exists('youtube_parse_meta')) {
     $video['video_date_uploaded'] = date("Y-m-d H:i:s", strtotime($published[0]['data']));
     $video['flag_bad'] = 0;
     $video['flag_archive'] = 0;
-    $video['flag_tweet'] = 1;
     $video['video_type'] = 'youtube';
     if ($video['video_date_uploaded'] <= $archive) {
       $video['flag_archive'] = 1;
-      $video['flag_tweet'] = 0;
     }
     $video['video_title'] = htmlentities($item->get_title(), ENT_QUOTES, 'utf-8', FALSE);
     $group = $item->get_item_tags(\SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');

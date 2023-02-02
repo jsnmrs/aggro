@@ -87,11 +87,9 @@ if (!function_exists('vimeo_parse_meta')) {
     $video['video_date_uploaded'] = date("Y-m-d H:i:s", strtotime($item->upload_date));
     $video['flag_bad'] = 0;
     $video['flag_archive'] = 0;
-    $video['flag_tweet'] = 1;
     $video['video_type'] = 'vimeo';
     if ($video['video_date_uploaded'] <= $archive) {
       $video['flag_archive'] = 1;
-      $video['flag_tweet'] = 0;
     }
     $video['video_title'] = htmlentities($item->title, ENT_QUOTES, 'utf-8', FALSE);
     $video['video_plays'] = 0;

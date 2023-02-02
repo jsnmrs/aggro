@@ -24,5 +24,4 @@ if [ "$1" ] && [ "$2" ];
     echo -e "aggro youtube/VIDEO_ID"
     echo -e "aggro news"
     echo -e "aggro sweep"
-    echo -e "aggro twitter"
 fi;

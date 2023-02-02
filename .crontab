@@ -27,10 +27,6 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 ## Archive old videos every day (at 2am)
 0 2 * * * $PHP_PATH $INDEX_PATH aggro sweep
 
-## aggro twitter
-## Tweet new videos every 5 minutes
-*/5 * * * * $PHP_PATH $INDEX_PATH aggro twitter
-
 ## aggro vimeo
 ## Look for new Vimeo videos every 7 minutes
 */7 * * * * $PHP_PATH $INDEX_PATH aggro vimeo
