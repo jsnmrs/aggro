@@ -175,26 +175,6 @@ class Aggro extends BaseController {
   }
 
   /**
-   * Tweeter.
-   *
-   * Set cron to run every 5 minutes.
-   */
-  public function postTwitter() {
-    helper('aggro');
-    $aggroModel = new AggroModels();
-
-    if (!gate_check()) {
-      return FALSE;
-    }
-
-    if ($aggroModel->twitterPush()) {
-      echo "\nPushed all new videos to twitter.\n";
-    }
-
-    return TRUE;
-  }
-
-  /**
    * Vimeo video fetcher.
    *
    * Set cron to run every 5 minutes.

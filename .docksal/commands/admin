@@ -17,8 +17,6 @@ fin fire aggro youtube
 echo -e "\\n\\033[1;33mCleaning up...\\033[0m"
 fin fire aggro sweep
 
-echo -e "\\n\\033[1;33mTweet (test)...\\033[0m"
-fin fire aggro twitter
 
 echo -e "\\n\\033[1;33mShow aggro log...\\033[0m"
 fin fire aggro log

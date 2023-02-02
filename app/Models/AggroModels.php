@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use Abraham\TwitterOAuth\TwitterOAuth;
 
 /**
  * All interactions with aggro_* tables.
@@ -25,7 +24,7 @@ class AggroModels extends Model {
     $utilityModel = new UtilityModels();
     helper('aggro');
 
-    $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_source_id, video_source_username, video_source_url, flag_tweet, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ", 0, " . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ", " . $video['video_height'] . ", " . $video['video_aspect_ratio'] . ", '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', " . $video['flag_tweet'] . ", '" . $video['video_type'] . "')";
+    $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ", 0, " . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ", " . $video['video_height'] . ", " . $video['video_aspect_ratio'] . ", '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
 
     $this->db->query($sql);
 
@@ -61,7 +60,7 @@ class AggroModels extends Model {
     $update = count($query->getResultArray());
 
     if ($update > 0) {
-      $sql = "UPDATE aggro_videos SET flag_archive = 1, flag_tweet = 0 WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
+      $sql = "UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
       $query = $this->db->query($sql);
     }
 
@@ -251,48 +250,6 @@ class AggroModels extends Model {
     $sql = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> '0000-00-00 00:00:00'";
     $query = $this->db->query($sql);
     return count($query->getResultArray());
-  }
-
-  /**
-   * Post videos to bmxfeed twitter.
-   *
-   * Rate-limited.
-   *
-   * @return bool
-   *   Videos tweeted.
-   *
-   * @see sendLog()
-   */
-  public function twitterPush() {
-    $utilityModel = new UtilityModels();
-    $tweetCount = 0;
-    $sql = "SELECT * FROM aggro_videos WHERE flag_tweet=1 AND flag_bad = 0 AND flag_archive = 0";
-    $query = $this->db->query($sql);
-    $update = count($query->getResultArray());
-
-    if ($update > 0) {
-      $result = $query->getResult();
-
-      $twitter = new TwitterOAuth($_ENV['CONSUMER_KEY'], $_ENV['CONSUMER_SECRET'], $_ENV['ACCESS_TOKEN'], $_ENV['ACCESS_TOKEN_SECRET']);
-
-      foreach ($result as $row) {
-        $cleanTitle = html_entity_decode($row->video_title);
-        $tweetText = substr($cleanTitle, 0, 70) . " https://bmxfeed.com/video/" . $row->video_id;
-        if ($_ENV['CI_ENVIRONMENT'] == "production") {
-          $twitter->post('statuses/update', ['status' => $tweetText]);
-        }
-
-        $sql = "UPDATE aggro_videos SET flag_tweet=0 WHERE video_id='" . $row->video_id . "'";
-        $this->db->query($sql);
-        $tweetCount++;
-      }
-    }
-    if ($tweetCount > 0) {
-      $message = $tweetCount . ' tweets.';
-      $utilityModel->sendLog($message);
-    }
-
-    return TRUE;
   }
 
   /**
