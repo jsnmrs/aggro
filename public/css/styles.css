@@ -1,0 +1,390 @@
+:root {
+  --black-print: #000;
+  --black: #222;
+  --white: #fff;
+  --primary: #005600;
+  --primary-selected: #002300;
+  --gray-lightest: #eee;
+  --gray-darker: #555;
+  --gray-darkest: #444;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* stylelint-disable declaration-no-important */
+    background-attachment: initial !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+    animation-duration: 1ms !important;
+    animation-delay: -1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+
+    /* stylelint-enable declaration-no-important */
+  }
+}
+
+html {
+  scroll-padding-top: 5rem;
+  font-size: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  line-height: 1.4;
+  text-size-adjust: none;
+}
+
+@media screen and (min-width: 48em) {
+  html {
+    font-size: 120%;
+  }
+}
+
+@media screen and (min-width: 75em) {
+  html {
+    font-size: 130%;
+  }
+}
+
+body {
+  margin: 0;
+  color: var(--black);
+  background-color: var(--gray-lightest);
+}
+
+:any-link {
+  position: relative;
+  display: inline-block;
+  text-decoration-skip-ink: auto;
+}
+
+:any-link:link {
+  color: var(--primary);
+}
+
+:any-link:visited {
+  color: var(--primary);
+}
+
+:any-link:focus,
+:any-link:hover,
+:any-link[aria-current="page"] {
+  color: var(--primary-selected);
+}
+
+:any-link:focus {
+  text-decoration: none;
+  outline: 0.1875rem solid var(--primary-selected);
+}
+
+:any-link:hover,
+:any-link[aria-current="page"] {
+  text-decoration-thickness: 0.12rem;
+}
+
+:any-link:focus-visible {
+  color: var(--primary);
+  text-decoration: none;
+  outline: 0.1875rem solid var(--primary-selected);
+  outline-offset: 0;
+}
+
+:any-link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 1rem 0 0;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h1 :any-link:link,
+h1 :any-link:visited,
+h1 :any-link:focus,
+h2 :any-link:link,
+h2 :any-link:visited,
+h2 :any-link:focus,
+h3 :any-link:link,
+h3 :any-link:visited,
+h3 :any-link:focus {
+  text-decoration: none;
+}
+
+h1 :any-link:hover,
+h2 :any-link:hover,
+h3 :any-link:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  margin-top: 1.5rem;
+  font-size: 2.25rem;
+}
+
+h2 {
+  color: var(--gray-darkest);
+  font-size: 1.75rem;
+}
+
+h3 {
+  color: var(--gray-darker);
+  font-size: 1.35rem;
+}
+
+p {
+  max-width: 65ch;
+  font-size: 1rem;
+}
+
+ul,
+ol {
+  margin-top: 0.5rem;
+  padding-left: 0;
+  list-style-type: none;
+}
+
+img,
+svg,
+video,
+iframe {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 0;
+}
+
+img {
+  width: 100%;
+}
+
+main {
+  background-color: var(--white);
+}
+
+.skip:not(:focus, :active),
+.u-sr:not(:focus, :active) {
+  position: absolute;
+  width: 0.1rem;
+  height: 0.1rem;
+  margin: -0.1rem;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(100%);
+}
+
+.skip:active,
+.skip:focus {
+  position: fixed;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  z-index: 25;
+  display: block;
+  padding: 0.5rem;
+  background-color: var(--white);
+  outline: 0.1875rem solid var(--primary);
+}
+
+.ago--muted {
+  padding-left: 0.25rem;
+  color: var(--gray-darker);
+  font-weight: 400;
+  font-size: 70%;
+}
+
+footer .ago--muted {
+  color: var(--gray-darkest);
+}
+
+.nav {
+  margin: 0 -0.25rem 0.5rem;
+}
+
+.nav li {
+  display: inline-block;
+  padding: 0;
+}
+
+.nav a {
+  margin-top: -0.15rem;
+  margin-bottom: 0.25rem;
+  padding-right: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+.nav--bottom a {
+  margin-top: 0;
+}
+
+.logo {
+  margin-top: 1rem;
+  margin-right: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1.25;
+}
+
+.logo a {
+  padding-right: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+.logo :any-link:link,
+.logo :any-link:visited,
+.logo :any-link:focus {
+  text-decoration: none;
+}
+
+.logo :any-link:hover {
+  text-decoration: underline;
+}
+
+.links li {
+  margin-bottom: 0.5rem;
+}
+
+.stream {
+  margin-bottom: 0.75rem;
+}
+
+.stream__source a {
+  font-weight: 700;
+}
+
+.stream__source :any-link:link,
+.stream__source :any-link:visited,
+.stream__source :any-link:focus {
+  text-decoration: none;
+}
+
+.stream__title {
+  display: block;
+}
+
+.stream .ago {
+  padding-bottom: 0.15rem;
+}
+
+.box--video p {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.cta {
+  margin: 0.5rem auto;
+  font-size: 1.35rem;
+}
+
+.tagline {
+  margin-right: 1.5rem;
+}
+
+.curtain {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  background-color: var(--black-print);
+}
+
+.video {
+  position: relative;
+  height: 0;
+
+  /* falls back to 16:9, but otherwise uses ratio from HTML */
+  padding-bottom: calc(var(--aspect-ratio, 0.5625) * 100%);
+}
+
+.video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hug {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.floor {
+  padding-bottom: 2rem;
+}
+
+.wrap,
+.randb {
+  max-width: 55em;
+  margin: 0 auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.full {
+  width: 100%;
+}
+
+.box {
+  flex-basis: 100%;
+}
+
+@media screen and (min-width: 48em) {
+  .box--feature {
+    flex-basis: 48%;
+  }
+}
+
+.box--video {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media screen and (min-width: 48em) {
+  .box--video {
+    flex-basis: 31%;
+  }
+}
+
+@media screen and (min-width: 30em) {
+  .columns {
+    column-count: 2;
+  }
+}
+
+@media screen and (min-width: 48em) {
+  .columns {
+    column-count: 3;
+  }
+}
+
+header,
+footer,
+nav {
+  align-self: baseline;
+}
+
+header {
+  margin-right: -0.25rem;
+  margin-left: -0.25rem;
+}

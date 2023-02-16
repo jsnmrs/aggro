@@ -9,15 +9,12 @@
   },
   "scripts": {
     "build": "npm run css",
-    "css": "npm run browser-list && npm run prettier && npm run stylelint && npm run scss && npm run autoprefixer",
+    "css": "npm run prettier && npm run stylelint && npm run postcss",
     "postinstall": "npm run build",
-    "autoprefixer": "postcss -r \"public/dist/*.css\"",
-    "prettier": "prettier --write \"public/scss/**/*.scss\"",
-    "scss": "sass --style=compressed public/scss:public/dist",
-    "stylelint": "stylelint \"public/scss/**/*.scss\" --fix",
-    "test": "npm run prettier && npm run stylelint",
-    "browser-list": "echo Browser support list: && npx browserslist",
-    "browser-update": "npx browserslist@latest --update-db"
+    "postcss": "postcss \"public/css/*.css\" --no-map --dir \"public/dist\"",
+    "prettier": "prettier --write \"public/css/*.css\"",
+    "stylelint": "stylelint \"public/css/*.css\" --fix",
+    "test": "npm run prettier && npm run stylelint"
   },
   "devDependencies": {
     "@double-great/stylelint-a11y": "2.0.2",
@@ -26,13 +23,7 @@
     "postcss": "8.4.21",
     "postcss-cli": "10.1.0",
     "prettier": "2.8.3",
-    "sass": "1.58.0",
-    "stylelint": "14.16.1",
-    "stylelint-config-standard": "29.0.0",
-    "stylelint-config-standard-scss": "6.1.0",
-    "stylelint-declaration-block-no-ignored-properties": "2.6.0",
-    "stylelint-declaration-strict-value": "1.9.1",
-    "stylelint-no-unsupported-browser-features": "6.0.1",
-    "stylelint-scss": "4.3.0"
+    "stylelint": "15.1.0",
+    "stylelint-config-standard": "30.0.1"
   }
 }
