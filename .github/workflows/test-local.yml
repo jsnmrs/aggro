@@ -21,14 +21,13 @@ jobs:
           fin sniff
           fin shellcheck
           fin admin
-      - name: Run Accessibility Insights site-wide
-        uses: microsoft/accessibility-insights-action@v3
+      - name: Scan site
+        uses: double-great/accessibility-scan-action@v0.2.0
         with:
-          max-urls: 1
-          url: http://aggro.docksal.site
-          input-urls: http://aggro.docksal.site/sites http://aggro.docksal.site/sites/bmxfeed http://aggro.docksal.site/stream http://aggro.docksal.site/submit http://aggro.docksal.site/about http://aggro.docksal.site/video
-      - name: Upload Accessibility Insights report as artifact
+          url: "http://aggro.docksal.site"
+      - name: Upload report as artifact
         uses: actions/upload-artifact@v3
+        if: success() || failure()
         with:
-          name: accessibility-reports
-          path: ${{ github.workspace }}/_accessibility-reports
+          name: "Accessibility report"
+          path: ${{ github.workspace }}/_accessibility-reports/
