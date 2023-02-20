@@ -6,16 +6,16 @@
   "license": "MIT",
   "require": {
     "php": "^7.3||^8.0",
-    "codeigniter4/framework": "v4.3.1",
-    "simplepie/simplepie": "1.7.0",
-    "symfony/yaml": "v6.2.2"
+    "codeigniter4/framework": "v4.3.2",
+    "simplepie/simplepie": "1.8.0",
+    "symfony/yaml": "v6.2.5"
   },
   "require-dev": {
-    "deployer/deployer": "v7.1.1",
-    "drupal/coder": "8.3.16",
+    "deployer/deployer": "v7.1.4",
+    "drupal/coder": "8.3.17",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
-    "phpunit/phpunit": "9.5.28",
+    "phpunit/phpunit": "10.0.9",
     "squizlabs/php_codesniffer": "3.7.1",
     "tatter/patches": "v2.0.5"
   },
