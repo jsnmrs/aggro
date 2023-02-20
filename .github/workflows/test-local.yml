@@ -21,6 +21,14 @@ jobs:
           fin sniff
           fin shellcheck
           fin admin
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "npm"
+          cache-dependency-path: "./package-lock.json"
+      - name: Install dependencies
+        run: npm install
       - name: Scan site
         uses: double-great/accessibility-scan-action@v0.2.0
         with:
