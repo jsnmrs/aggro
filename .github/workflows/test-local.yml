@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Scan site
-        uses: double-great/accessibility-scan-action@v0.2.0
+        uses: double-great/accessibility-scan-action@main
         with:
           url: "http://aggro.docksal.site"
           snapshot: true
