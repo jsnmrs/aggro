@@ -33,9 +33,12 @@ jobs:
         uses: double-great/accessibility-scan-action@v0.2.0
         with:
           url: "http://aggro.docksal.site"
-      - name: Upload report as artifact
+          snapshot: true
+      - name: Upload report and snapshots as artifact
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: "Accessibility report"
-          path: ${{ github.workspace }}/_accessibility-reports/
+          name: "Accessibility report with snapshots"
+          path: |
+            ${{ github.workspace }}/_accessibility-reports/index.html
+            ${{ github.workspace }}/_accessibility-reports/key_value_stores/scan-results/*.jpeg
