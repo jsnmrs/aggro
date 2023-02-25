@@ -137,3 +137,4 @@ nb-configuration.xml
 /public/dist/*.js
 
 node_modules
+*.cache
