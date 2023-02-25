@@ -1,11 +1,7 @@
-<?php
-
-/**
+<?=/**
  * @file
  * Directory (sites) page template.
- */
-
-echo $this->include('includes/header'); ?>
+ */ $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
@@ -16,11 +12,11 @@ echo $this->include('includes/header'); ?>
 
       <ul class="columns links">
         <?php foreach ($build as $siteResult) :?>
-        <li><a href="/sites/<?php echo $siteResult->site_slug; ?>"><?php echo $siteResult->site_name; ?></a></li>
+        <li><a href="/sites/<?= $siteResult->site_slug; ?>"><?= $siteResult->site_name; ?></a></li>
         <?php endforeach; ?>
       </ul>
     </div>
   </div>
 </main>
 
-<?php echo $this->include('includes/footer');
+<?= $this->include('includes/footer');
