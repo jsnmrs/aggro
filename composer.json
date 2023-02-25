@@ -11,8 +11,8 @@
     "symfony/yaml": "v6.2.5"
   },
   "require-dev": {
+    "codeigniter/coding-standard": "1.7",
     "deployer/deployer": "v7.1.4",
-    "drupal/coder": "8.3.17",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
     "phpunit/phpunit": "10.0.9",
@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "phpunit",
-    "phpcs": "phpcs --standard=phpcs.xml -v --colors  --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
+    "phpcs": "phpcs --standard=phpcs.xml -v --colors",
     "phpcbf": "phpcbf --standard=phpcs.xml -v --colors --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
     "phpmd": [
       "vendor/bin/phpmd app/Controllers ansi phpmd.xml",
@@ -41,7 +41,11 @@
       "vendor/bin/phpmd app/Models ansi phpmd.xml",
       "vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
     ],
+    "phpfix": [
+      "vendor/bin/php-cs-fixer fix --verbose"
+    ],
     "lint": [
+      "composer phpfix",
       "composer phpcs",
       "composer phpmd"
     ]
