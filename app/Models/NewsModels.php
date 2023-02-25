@@ -7,193 +7,207 @@ use CodeIgniter\Model;
 /**
  * All interactions with news_* tables.
  */
-class NewsModels extends Model {
+class NewsModels extends Model
+{
+    /**
+     * Build featured, stream entries.
+     *
+     * @return bool
+     *              Fetched true.
+     */
+    public function featuredBuilder()
+    {
+        $utilityModel = new UtilityModels();
+        helper(['aggro', 'text']);
 
-  /**
-   * Build featured, stream entries.
-   *
-   * @return bool
-   *   Fetched true.
-   */
-  public function featuredBuilder() {
-    $utilityModel = new UtilityModels();
-    helper(['aggro', 'text']);
+        $sql      = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
+        $query    = $this->db->query($sql);
+        $featured = $query->getResult();
+        $counter  = 0;
 
-    $sql = "SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name";
-    $query = $this->db->query($sql);
-    $featured = $query->getResult();
-    $counter = 0;
+        foreach ($featured as $row) {
+            $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
+            $sql   = "UPDATE news_feeds SET site_date_last_fetch='" . date('Y-m-d H:i:s') . "' WHERE site_id='" . $row->site_id . "'";
+            $this->db->query($sql);
+            $storyCount = 0;
 
-    foreach ($featured as $row) {
-      $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
-      $sql = "UPDATE news_feeds SET site_date_last_fetch='" . date('Y-m-d H:i:s') . "' WHERE site_id='" . $row->site_id . "'";
-      $this->db->query($sql);
-      $storyCount = 0;
+            foreach ($fetch->get_items(0, 10) as $item) {
+                if ($storyCount === 0) {
+                    $lastPost = $item->get_date('Y-m-d H:i:s');
+                    $sql      = "UPDATE news_feeds SET site_date_last_post='" . $lastPost . "' WHERE site_id='" . $row->site_id . "'";
+                    $this->db->query($sql);
+                }
 
-      foreach ($fetch->get_items(0, 10) as $item) {
-        if ($storyCount == 0) {
-          $lastPost = $item->get_date('Y-m-d H:i:s');
-          $sql = "UPDATE news_feeds SET site_date_last_post='" . $lastPost . "' WHERE site_id='" . $row->site_id . "'";
-          $this->db->query($sql);
+                $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES ('" . $row->site_id . "', '" . quotes_to_entities($item->get_title()) . "', '" . quotes_to_entities($item->get_permalink()) . "', '" . sha1($item->get_permalink()) . "', '" . quotes_to_entities($item->get_date('Y-m-d H:i:s')) . "')";
+                $this->db->query($sql);
+                $storyCount++;
+            }
+
+            $counter++;
         }
 
-        $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES ('" . $row->site_id . "', '" . quotes_to_entities($item->get_title()) . "', '" . quotes_to_entities($item->get_permalink()) . "', '" . sha1($item->get_permalink()) . "', '" . quotes_to_entities($item->get_date('Y-m-d H:i:s')) . "')";
-        $this->db->query($sql);
-        $storyCount++;
-      }
+        $message = $counter . ' featured and stream sites updated.';
+        $utilityModel->sendLog($message);
 
-      $counter++;
+        return true;
     }
 
-    $message = $counter . ' featured and stream sites updated.';
-    $utilityModel->sendLog($message);
-    return TRUE;
-  }
+    /**
+     * Clean featured table.
+     *
+     * @return string
+     *                Number of removed stories.
+     */
+    public function featuredCleaner()
+    {
+        $utilityModel = new UtilityModels();
+        $now          = date('Y-m-d H:i:s');
+        $counter      = 0;
+        $sql          = 'SELECT DISTINCT site_id FROM news_featured';
+        $query        = $this->db->query($sql);
+        $featured     = $query->getResult();
 
-  /**
-   * Clean featured table.
-   *
-   * @return string
-   *   Number of removed stories.
-   */
-  public function featuredCleaner() {
-    $utilityModel = new UtilityModels();
-    $now = date("Y-m-d H:i:s");
-    $counter = 0;
-    $sql = 'SELECT DISTINCT site_id FROM news_featured';
-    $query = $this->db->query($sql);
-    $featured = $query->getResult();
-    foreach ($featured as $row) {
-      $innersql = "SELECT *
+        foreach ($featured as $row) {
+            $innersql = 'SELECT *
                     FROM news_featured
-                    WHERE site_id=" . $row->site_id . "
+                    WHERE site_id=' . $row->site_id . "
                     AND story_date < DATE_SUB('" . $now . "',INTERVAL 45 DAY)";
-      $innerquery = $this->db->query($innersql);
-      $sitefeatured = $innerquery->getResult();
+            $innerquery   = $this->db->query($innersql);
+            $sitefeatured = $innerquery->getResult();
 
-      foreach ($sitefeatured as $innerrow) {
-        $cleansql = "DELETE FROM news_featured WHERE story_id='" . $innerrow->story_id . "'";
-        $this->db->query($cleansql);
-        $counter++;
-      }
-    }
-    $cleanup = 'OPTIMIZE TABLE news_featured';
-    $this->db->query($cleanup);
-    $message = $counter . ' old stories deleted.';
-    $utilityModel->sendLog($message);
-    return $counter;
-  }
+            foreach ($sitefeatured as $innerrow) {
+                $cleansql = "DELETE FROM news_featured WHERE story_id='" . $innerrow->story_id . "'";
+                $this->db->query($cleansql);
+                $counter++;
+            }
+        }
+        $cleanup = 'OPTIMIZE TABLE news_featured';
+        $this->db->query($cleanup);
+        $message = $counter . ' old stories deleted.';
+        $utilityModel->sendLog($message);
 
-  /**
-   * Get featured page.
-   *
-   * @return array
-   *   Featured page.
-   */
-  public function featuredPage() {
-    $sql = "SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name";
-    $query = $this->db->query($sql);
-
-    $built = [];
-
-    foreach ($query->getResult('array') as $row) {
-      $counter = 1;
-      $built[$row['site_slug']]['site_name'] = $row['site_name'];
-      $built[$row['site_slug']]['site_slug'] = $row['site_slug'];
-      $built[$row['site_slug']]['site_date_last_post'] = $row['site_date_last_post'];
-
-      $innerSql = "SELECT * FROM news_featured WHERE site_id = " . $row['site_id'] . " ORDER BY story_date DESC LIMIT 3";
-      $innerQuery = $this->db->query($innerSql);
-
-      foreach ($innerQuery->getResult('array') as $innerRow) {
-        $storyNum = "story" . $counter;
-        $built[$row['site_slug']][$storyNum]['story_title'] = $innerRow['story_title'];
-        $built[$row['site_slug']][$storyNum]['story_permalink'] = $innerRow['story_permalink'];
-        $built[$row['site_slug']][$storyNum]['story_hash'] = $innerRow['story_hash'];
-        $counter++;
-      }
+        return $counter;
     }
 
-    return $built;
-  }
+    /**
+     * Get featured page.
+     *
+     * @return array
+     *               Featured page.
+     */
+    public function featuredPage()
+    {
+        $sql   = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
+        $query = $this->db->query($sql);
 
-  /**
-   * Get single site.
-   *
-   * @param string $slug
-   *   Site slug.
-   *
-   * @return array
-   *   Site data from table.
-   */
-  public function getSite($slug) {
-    $slug = esc($slug);
-    $sql = "SELECT * FROM news_feeds WHERE site_slug = '$slug' LIMIT 1";
-    $query = $this->db->query($sql);
-    return $query->getRowArray();
-  }
+        $built = [];
 
-  /**
-   * Get all sites.
-   *
-   * @return object
-   *   Site data from table.
-   */
-  public function getSites() {
-    $sql = "SELECT * FROM news_feeds ORDER BY site_name";
-    $query = $this->db->query($sql);
-    return $query->getResult();
-  }
+        foreach ($query->getResult('array') as $row) {
+            $counter                                         = 1;
+            $built[$row['site_slug']]['site_name']           = $row['site_name'];
+            $built[$row['site_slug']]['site_slug']           = $row['site_slug'];
+            $built[$row['site_slug']]['site_date_last_post'] = $row['site_date_last_post'];
 
-  /**
-   * Get recent directory updates.
-   *
-   * @return object
-   *   All feed data from table.
-   */
-  public function getSitesRecent() {
-    $sql = "SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10";
-    $query = $this->db->query($sql);
-    return $query->getResult();
-  }
+            $innerSql   = 'SELECT * FROM news_featured WHERE site_id = ' . $row['site_id'] . ' ORDER BY story_date DESC LIMIT 3';
+            $innerQuery = $this->db->query($innerSql);
 
-  /**
-   * Build stream page.
-   *
-   * @return array
-   *   Stream page.
-   */
-  public function streamPage() {
-    $sql = "SELECT news_feeds.site_name, news_feeds.site_slug, news_featured.story_title, news_featured.story_permalink, news_featured.story_date, news_featured.story_hash
+            foreach ($innerQuery->getResult('array') as $innerRow) {
+                $storyNum                                               = 'story' . $counter;
+                $built[$row['site_slug']][$storyNum]['story_title']     = $innerRow['story_title'];
+                $built[$row['site_slug']][$storyNum]['story_permalink'] = $innerRow['story_permalink'];
+                $built[$row['site_slug']][$storyNum]['story_hash']      = $innerRow['story_hash'];
+                $counter++;
+            }
+        }
+
+        return $built;
+    }
+
+    /**
+     * Get single site.
+     *
+     * @param string $slug
+     *                     Site slug.
+     *
+     * @return array
+     *               Site data from table.
+     */
+    public function getSite($slug)
+    {
+        $slug  = esc($slug);
+        $sql   = "SELECT * FROM news_feeds WHERE site_slug = '{$slug}' LIMIT 1";
+        $query = $this->db->query($sql);
+
+        return $query->getRowArray();
+    }
+
+    /**
+     * Get all sites.
+     *
+     * @return object
+     *                Site data from table.
+     */
+    public function getSites()
+    {
+        $sql   = 'SELECT * FROM news_feeds ORDER BY site_name';
+        $query = $this->db->query($sql);
+
+        return $query->getResult();
+    }
+
+    /**
+     * Get recent directory updates.
+     *
+     * @return object
+     *                All feed data from table.
+     */
+    public function getSitesRecent()
+    {
+        $sql   = 'SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10';
+        $query = $this->db->query($sql);
+
+        return $query->getResult();
+    }
+
+    /**
+     * Build stream page.
+     *
+     * @return array
+     *               Stream page.
+     */
+    public function streamPage()
+    {
+        $sql = 'SELECT news_feeds.site_name, news_feeds.site_slug, news_featured.story_title, news_featured.story_permalink, news_featured.story_date, news_featured.story_hash
             FROM news_featured
             INNER JOIN news_feeds
             ON news_featured.site_id = news_feeds.site_id
             ORDER BY news_featured.story_date DESC
-            LIMIT 300";
-    $query = $this->db->query($sql);
-    return $query->getResult();
-  }
+            LIMIT 300';
+        $query = $this->db->query($sql);
 
-  /**
-   * Update feed data.
-   *
-   * @param string $slug
-   *   Site slug (as ID).
-   * @param object $feed
-   *   Fetched feed object.
-   */
-  public function updateFeed($slug, $feed) {
-    foreach ($feed->get_items(0, 1) as $item) {
-      $lastPost = $item->get_date('Y-m-d H:i:s');
+        return $query->getResult();
     }
 
-    if (isset($lastPost)) {
-      $lastFetch = date('Y-m-d H:i:s');
+    /**
+     * Update feed data.
+     *
+     * @param string $slug
+     *                     Site slug (as ID).
+     * @param object $feed
+     *                     Fetched feed object.
+     */
+    public function updateFeed($slug, $feed)
+    {
+        foreach ($feed->get_items(0, 1) as $item) {
+            $lastPost = $item->get_date('Y-m-d H:i:s');
+        }
 
-      $sql = "UPDATE news_feeds SET site_date_last_fetch = '$lastFetch', site_date_last_post = '$lastPost' WHERE site_slug = '$slug'";
+        if (isset($lastPost)) {
+            $lastFetch = date('Y-m-d H:i:s');
 
-      $this->db->query($sql);
+            $sql = "UPDATE news_feeds SET site_date_last_fetch = '{$lastFetch}', site_date_last_post = '{$lastPost}' WHERE site_slug = '{$slug}'";
+
+            $this->db->query($sql);
+        }
     }
-  }
-
 }

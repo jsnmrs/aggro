@@ -62,7 +62,6 @@ $routes->add('aggro/news-cache', 'Aggro::getNewsCache');
 $routes->add('aggro/news-clean', 'Aggro::getNewsClean');
 $routes->add('aggro/sweep', 'Aggro::getSweep');
 
-
 /*
  * --------------------------------------------------------------------
  * Additional Routing

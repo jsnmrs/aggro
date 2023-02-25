@@ -9,22 +9,22 @@
 <html lang="en">
 <head>
   <title><?php
-  if ($_ENV['CI_ENVIRONMENT'] == "development") {
-    echo "[DEV] ";
+  if ($_ENV['CI_ENVIRONMENT'] === 'development') {
+      echo '[DEV] ';
   }
   if (isset($build['site_name'])) {
-    echo $build['site_name'] . " | ";
+      echo $build['site_name'] . ' | ';
   }
   if (isset($build['video_title'])) {
-    echo $build['video_title'] . " | ";
+      echo $build['video_title'] . ' | ';
   }
   if (isset($page) && $page >= 2 && isset($endpage)) {
-    echo "Recent Videos " . $page . " of " . $endpage . " | ";
+      echo 'Recent Videos ' . $page . ' of ' . $endpage . ' | ';
   }
   if (isset($title)) {
-    echo esc($title) . " | ";
+      echo esc($title) . ' | ';
   }
-  ?>BMXfeed</title>
+?>BMXfeed</title>
   <meta charset="utf-8">
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,11 +37,11 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <style>
     <?php
-    $styles = ROOTPATH . "public/dist/styles.css";
-    if (file_exists($styles)) {
-      echo file_get_contents($styles, TRUE);
-    }
-    ?>
+  $styles = ROOTPATH . 'public/dist/styles.css';
+if (file_exists($styles)) {
+    echo file_get_contents($styles, true);
+}
+?>
   </style>
 </head>
 
@@ -57,30 +57,30 @@
     <nav aria-label="Main">
       <ul class="nav">
         <li><a href="/"
-          <?php if ($slug == "featured") {
-            echo " aria-current=\"page\"";
+          <?php if ($slug === 'featured') {
+              echo ' aria-current="page"';
           }
-          ?>>News</a></li>
+?>>News</a></li>
         <li><a href="/stream"
-          <?php if ($slug == "stream") {
-            echo " aria-current=\"page\"";
+          <?php if ($slug === 'stream') {
+              echo ' aria-current="page"';
           }
-          ?>>Stream</a></li>
+?>>Stream</a></li>
         <li><a href="/video"
-          <?php if ($slug == "video") {
-            echo " aria-current=\"page\"";
+          <?php if ($slug === 'video') {
+              echo ' aria-current="page"';
           }
-          ?>>Videos</a></li>
+?>>Videos</a></li>
         <li><a href="/sites"
-          <?php if ($slug == "sites") {
-            echo " aria-current=\"page\"";
+          <?php if ($slug === 'sites') {
+              echo ' aria-current="page"';
           }
-          ?>>Directory</a></li>
+?>>Directory</a></li>
         <li><a href="/about"
-          <?php if ($slug == "about") {
-            echo " aria-current=\"page\"";
+          <?php if ($slug === 'about') {
+              echo ' aria-current="page"';
           }
-          ?>>About<span class="u-sr"> BMXfeed</span></a></li>
+?>>About<span class="u-sr"> BMXfeed</span></a></li>
       </ul>
     </nav>
   </div>

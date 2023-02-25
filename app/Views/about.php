@@ -1,11 +1,7 @@
-<?php
-
-/**
+<?= /**
  * @file
  * About page template.
- */
-
-echo $this->include('includes/header'); ?>
+ */ $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
@@ -22,4 +18,4 @@ echo $this->include('includes/header'); ?>
   </div>
 </main>
 
-<?php echo $this->include('includes/footer');
+<?= $this->include('includes/footer');

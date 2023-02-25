@@ -14,14 +14,6 @@
   <arg name="colors"/>
   <arg value="s"/>
 
-  <rule ref="Drupal">
-    <exclude name="Drupal.Classes.FullyQualifiedNamespace"/>
-  </rule>
-
-  <rule ref="DrupalPractice">
-    <exclude name="DrupalPractice.CodeAnalysis.VariableAnalysis"/>
-  </rule>
-
   <rule ref="Generic.Metrics.CyclomaticComplexity">
     <properties>
       <property name="complexity" value="7"/>
