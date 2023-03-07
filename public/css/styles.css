@@ -1,12 +1,12 @@
 :root {
-  --black-print: #000;
-  --black: #222;
-  --white: #fff;
-  --primary: #005600;
-  --primary-selected: #002300;
-  --gray-lightest: #eee;
-  --gray-darker: #555;
-  --gray-darkest: #444;
+  --black-print: hsl(0deg 0% 0%);
+  --black: hsl(0deg 0% 13.3%);
+  --white: hsl(0deg 0% 100%);
+  --primary: hsl(120deg 100% 16.9%);
+  --primary-selected: hsl(120deg 100% 6.9%);
+  --gray-lightest: hsl(0deg 0% 93.3%);
+  --gray-darker: hsl(0deg 0% 33.3%);
+  --gray-darkest: hsl(0deg 0% 26.7%);
 }
 
 *,
