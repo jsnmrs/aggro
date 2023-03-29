@@ -6,16 +6,16 @@
   "license": "MIT",
   "require": {
     "php": "^7.3||^8.0",
-    "codeigniter4/framework": "v4.3.2",
+    "codeigniter4/framework": "v4.3.3",
     "simplepie/simplepie": "1.8.0",
     "symfony/yaml": "v6.2.7"
   },
   "require-dev": {
-    "codeigniter/coding-standard": "1.7",
-    "deployer/deployer": "v7.2.1",
+    "codeigniter/coding-standard": "^1.7",
+    "deployer/deployer": "v7.3.0",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
-    "phpunit/phpunit": "10.0.14",
+    "phpunit/phpunit": "10.0.19",
     "squizlabs/php_codesniffer": "3.7.2",
     "tatter/patches": "v2.0.5"
   },
