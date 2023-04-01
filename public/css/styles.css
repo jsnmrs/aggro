@@ -41,13 +41,13 @@ html {
   text-size-adjust: none;
 }
 
-@media screen and (min-width: 48em) {
+@media screen and (width >= 48em) {
   html {
     font-size: 120%;
   }
 }
 
-@media screen and (min-width: 75em) {
+@media screen and (width >= 75em) {
   html {
     font-size: 130%;
   }
@@ -349,7 +349,7 @@ footer .ago--muted {
   flex-basis: 100%;
 }
 
-@media screen and (min-width: 48em) {
+@media screen and (width >= 48em) {
   .box--feature {
     flex-basis: 48%;
   }
@@ -360,19 +360,19 @@ footer .ago--muted {
   margin-bottom: 1rem;
 }
 
-@media screen and (min-width: 48em) {
+@media screen and (width >= 48em) {
   .box--video {
     flex-basis: 31%;
   }
 }
 
-@media screen and (min-width: 30em) {
+@media screen and (width >= 30em) {
   .columns {
     column-count: 2;
   }
 }
 
-@media screen and (min-width: 48em) {
+@media screen and (width >= 48em) {
   .columns {
     column-count: 3;
   }
