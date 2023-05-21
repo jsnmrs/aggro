@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20e8260c1551f014151b196ce3721de4",
+    "content-hash": "f6f487191b15c89002b77cab4987499a",
     "packages": [
         {
             "name": "codeigniter4/framework",
-            "version": "v4.3.4",
+            "version": "v4.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeigniter4/framework.git",
-                "reference": "5d3d4b202ad271d4e5d8480949c3d8e572cf7712"
+                "reference": "b41bca4ff6efd9baffdb7a1bba33f946fb8580d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/5d3d4b202ad271d4e5d8480949c3d8e572cf7712",
-                "reference": "5d3d4b202ad271d4e5d8480949c3d8e572cf7712",
+                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/b41bca4ff6efd9baffdb7a1bba33f946fb8580d9",
+                "reference": "b41bca4ff6efd9baffdb7a1bba33f946fb8580d9",
                 "shasum": ""
             },
             "require": {
@@ -78,7 +78,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/codeigniter4/CodeIgniter4"
             },
-            "time": "2023-04-27T12:36:37+00:00"
+            "time": "2023-05-21T13:41:12+00:00"
         },
         {
             "name": "composer/pcre",
@@ -2337,21 +2337,21 @@
     "packages-dev": [
         {
             "name": "codeigniter/coding-standard",
-            "version": "v1.7.2",
+            "version": "v1.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CodeIgniter/coding-standard.git",
-                "reference": "f8eeead80974165bdf3c0fc98ac9d5747826693d"
+                "reference": "52a94d76cb9b120b6e594fd5c03746bb5843432d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/f8eeead80974165bdf3c0fc98ac9d5747826693d",
-                "reference": "f8eeead80974165bdf3c0fc98ac9d5747826693d",
+                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/52a94d76cb9b120b6e594fd5c03746bb5843432d",
+                "reference": "52a94d76cb9b120b6e594fd5c03746bb5843432d",
                 "shasum": ""
             },
             "require": {
                 "ext-tokenizer": "*",
-                "friendsofphp/php-cs-fixer": "^3.14",
+                "friendsofphp/php-cs-fixer": "^3.16",
                 "nexusphp/cs-config": "^3.6",
                 "php": "^7.4 || ^8.0"
             },
@@ -2387,7 +2387,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/CodeIgniter/coding-standard"
             },
-            "time": "2023-03-05T09:07:26+00:00"
+            "time": "2023-05-05T09:13:29+00:00"
         },
         {
             "name": "deployer/deployer",
@@ -2544,21 +2544,21 @@
         },
         {
             "name": "nexusphp/cs-config",
-            "version": "v3.9.0",
+            "version": "v3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NexusPHP/cs-config.git",
-                "reference": "9ed62cbc3cb48136e7ef2c18f3d6579a05638e13"
+                "reference": "6acffa7e358395dd66c2523558570c50297af998"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/9ed62cbc3cb48136e7ef2c18f3d6579a05638e13",
-                "reference": "9ed62cbc3cb48136e7ef2c18f3d6579a05638e13",
+                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/6acffa7e358395dd66c2523558570c50297af998",
+                "reference": "6acffa7e358395dd66c2523558570c50297af998",
                 "shasum": ""
             },
             "require": {
                 "ext-tokenizer": "*",
-                "friendsofphp/php-cs-fixer": "^3.14",
+                "friendsofphp/php-cs-fixer": "^3.16",
                 "php": "^8.0.1"
             },
             "conflict": {
@@ -2606,7 +2606,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-05T08:58:43+00:00"
+            "time": "2023-05-05T08:48:11+00:00"
         },
         {
             "name": "nikic/php-parser",
