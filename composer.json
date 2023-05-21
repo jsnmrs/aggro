@@ -6,13 +6,13 @@
   "license": "MIT",
   "require": {
     "php": "^7.3||^8.0",
-    "codeigniter4/framework": "v4.3.4",
+    "codeigniter4/framework": "v4.3.5",
     "friendsofphp/php-cs-fixer": "v3.16.0",
     "simplepie/simplepie": "1.8.0",
     "symfony/yaml": "v6.2.10"
   },
   "require-dev": {
-    "codeigniter/coding-standard": "^1.7",
+    "codeigniter/coding-standard": "v1.7.3",
     "deployer/deployer": "v7.3.1",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
