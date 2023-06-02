@@ -9,7 +9,7 @@
     "codeigniter4/framework": "v4.3.5",
     "friendsofphp/php-cs-fixer": "v3.16.0",
     "simplepie/simplepie": "1.8.0",
-    "symfony/yaml": "v6.2.10"
+    "symfony/yaml": "v6.3.0"
   },
   "require-dev": {
     "codeigniter/coding-standard": "v1.7.3",
