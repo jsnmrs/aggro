@@ -7,7 +7,7 @@
   "require": {
     "php": "^7.3||^8.0",
     "codeigniter4/framework": "v4.3.5",
-    "friendsofphp/php-cs-fixer": "v3.16.0",
+    "friendsofphp/php-cs-fixer": "v3.17.0",
     "simplepie/simplepie": "1.8.0",
     "symfony/yaml": "v6.3.0"
   },
