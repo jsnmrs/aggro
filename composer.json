@@ -6,7 +6,7 @@
   "license": "MIT",
   "require": {
     "php": "^7.3||^8.0",
-    "codeigniter4/framework": "v4.3.6",
+    "codeigniter4/framework": "v4.3.7",
     "friendsofphp/php-cs-fixer": "v3.20.0",
     "simplepie/simplepie": "1.8.0",
     "symfony/yaml": "v6.3.0"
