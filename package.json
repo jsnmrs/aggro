@@ -23,7 +23,7 @@
     "postcss": "8.4.26",
     "postcss-cli": "10.1.0",
     "prettier": "3.0.0",
-    "stylelint": "15.10.1",
+    "stylelint": "15.10.2",
     "stylelint-config-standard": "34.0.0"
   }
 }
