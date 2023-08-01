@@ -12,7 +12,7 @@
     "symfony/yaml": "v6.3.0"
   },
   "require-dev": {
-    "codeigniter/coding-standard": "v1.7.4",
+    "codeigniter/coding-standard": "v1.7.5",
     "deployer/deployer": "v7.3.1",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.13.0",
