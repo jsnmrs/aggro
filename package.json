@@ -22,7 +22,7 @@
     "cssnano": "6.0.1",
     "postcss": "8.4.27",
     "postcss-cli": "10.1.0",
-    "prettier": "3.0.2",
+    "prettier": "3.0.3",
     "stylelint": "15.10.2",
     "stylelint-config-standard": "34.0.0"
   }
