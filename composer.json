@@ -8,7 +8,7 @@
     "php": "^7.3||^8.0",
     "codeigniter4/framework": "v4.3.7",
     "friendsofphp/php-cs-fixer": "v3.22.0",
-    "nexusphp/cs-config": "v3.14.1",
+    "nexusphp/cs-config": "v3.14.2",
     "pdepend/pdepend": "2.14.0",
     "simplepie/simplepie": "1.8.0",
     "symfony/config": "v6.3.2",
