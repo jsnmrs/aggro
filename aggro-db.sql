@@ -68,7 +68,8 @@ CREATE TABLE `aggro_videos` (
   `video_source_url` varchar(255) DEFAULT NULL,
   `flag_archive` int(1) NOT NULL DEFAULT '0',
   `flag_bad` int(1) NOT NULL DEFAULT '0',
-  `flag_tweet` int(1) NOT NULL DEFAULT '0',
+  `flag_favorite` int(1) NOT NULL DEFAULT '0',
+  `notes` text,
   PRIMARY KEY (`aggro_id`),
   UNIQUE KEY `videoid` (`video_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
