@@ -12,7 +12,7 @@
     "pdepend/pdepend": "2.14.0",
     "simplepie/simplepie": "1.8.0",
     "symfony/config": "v6.3.2",
-    "symfony/dependency-injection": "v6.3.4",
+    "symfony/dependency-injection": "v6.3.5",
     "symfony/var-exporter": "v6.3.4",
     "symfony/yaml": "v6.3.3"
   },
