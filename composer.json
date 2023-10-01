@@ -9,7 +9,7 @@
     "codeigniter4/framework": "v4.3.8",
     "friendsofphp/php-cs-fixer": "v3.25.0",
     "nexusphp/cs-config": "v3.15.0",
-    "pdepend/pdepend": "2.14.0",
+    "pdepend/pdepend": "2.15.1",
     "simplepie/simplepie": "1.8.0",
     "symfony/config": "v6.3.2",
     "symfony/dependency-injection": "v6.3.4",
