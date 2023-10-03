@@ -31,6 +31,8 @@ echo-yellow () { echo -e "${yellow}$1${NC}"; }
 source ~/.bashrc
 # shellcheck source=/dev/null
 source ~/.nvm/nvm.sh
+nvm install --lts
+nvm use --lts
 
 # Print Node version and location
 which node
