@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e19261747d141e917834221a35bd4a5",
+    "content-hash": "8571183443974da7cc2caef421720060",
     "packages": [
         {
             "name": "codeigniter4/framework",
-            "version": "v4.3.8",
+            "version": "v4.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeigniter4/framework.git",
-                "reference": "10c23e96db99171bc7632184d0e986e6eecc242d"
+                "reference": "844616ef291ca07b726c1aaca552e16aadc3ceeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/10c23e96db99171bc7632184d0e986e6eecc242d",
-                "reference": "10c23e96db99171bc7632184d0e986e6eecc242d",
+                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/844616ef291ca07b726c1aaca552e16aadc3ceeb",
+                "reference": "844616ef291ca07b726c1aaca552e16aadc3ceeb",
                 "shasum": ""
             },
             "require": {
@@ -78,7 +78,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/codeigniter4/CodeIgniter4"
             },
-            "time": "2023-08-25T01:47:10+00:00"
+            "time": "2023-09-05T00:46:08+00:00"
         },
         {
             "name": "composer/pcre",
