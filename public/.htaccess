@@ -116,5 +116,5 @@ AddDefaultCharset utf-8
 </IfModule>
 
 # Set CSP Header
-Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://www.youtube.com https://www.youtube-nocookie.com https://s.ytimg.com https://vimeo.com https://player.vimeo.com
+Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://www.youtube.com https://youtube.com https://m.youtube.com https://s.ytimg.com https://vimeo.com https://player.vimeo.com
 
