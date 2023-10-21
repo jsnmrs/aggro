@@ -38,7 +38,7 @@ if ($build['video_type'] === 'youtube') {
           <iframe src="https://player.vimeo.com/video/<?= $build['video_id']; ?>?dnt=true&amp;portrait=0&amp;byline=0&amp;title=0&amp;autoplay=0&amp;color=ffffff" title="<?= $build['video_title']; ?> (embedded video)" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
         <?php endif; ?>
         <?php if ($build['video_type'] === 'youtube') :?>
-          <iframe src="https://www.youtube-nocookie.com/embed/<?= $build['video_id']; ?>?rel=0&amp;showinfo=0" title="<?= $build['video_title']; ?> (embedded video)" allowfullscreen></iframe>
+          <iframe src="https://www.youtube.com/embed/<?= $build['video_id']; ?>?rel=0&amp;showinfo=0" title="<?= $build['video_title']; ?> (embedded video)" allowfullscreen></iframe>
         <?php endif; ?>
       </div>
     </div>
