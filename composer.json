@@ -18,7 +18,7 @@
   },
   "require-dev": {
     "codeigniter/coding-standard": "v1.7.10",
-    "deployer/deployer": "v7.3.1",
+    "deployer/deployer": "v7.3.2",
     "mikey179/vfsstream": "v1.6.11",
     "phpmd/phpmd": "2.14.1",
     "phpunit/phpunit": "10.3.5",
