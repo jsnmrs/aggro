@@ -7,7 +7,7 @@
   "require": {
     "php": "^7.3||^8.0",
     "codeigniter4/framework": "v4.4.3",
-    "friendsofphp/php-cs-fixer": "v3.37.1",
+    "friendsofphp/php-cs-fixer": "v3.40.0",
     "nexusphp/cs-config": "v3.18.0",
     "pdepend/pdepend": "2.15.1",
     "simplepie/simplepie": "1.8.0",
