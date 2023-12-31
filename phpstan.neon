@@ -1,4 +1,25 @@
+includes:
+    - vendor/codeigniter/phpstan-codeigniter/extension.neon
 parameters:
     level: 0
+    scanDirectories:
+        - app\config
+        - app\controllers
+        - app\database
+        - app\filters
+        - app\helpers
+        - app\language
+        - app\libraries
+        - app\models
+        - app\thirdparty
+        - app\views
     paths:
-        - app
+        - app/Controllers
+        - app/Models
+        - app/Views
+    ignoreErrors:
+        - '#Function view not found.#'
+        - '#Function base_url not found.#'
+        - '#Function redirect not found.#'
+        - '#Function config not found.#'
+        - '#Function helper not found.#'
