@@ -1,7 +1,5 @@
-includes:
-    - vendor/codeigniter/phpstan-codeigniter/extension.neon
 parameters:
-    level: 0
+    level: 5
     scanDirectories:
         - app\config
         - app\controllers
