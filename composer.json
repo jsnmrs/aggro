@@ -55,7 +55,8 @@
       "composer phpfix",
       "composer phpcs",
       "composer phpmd"
-    ]
+    ],
+    "phpstan": "phpstan analyse --configuration=phpstan.neon"
   },
   "support": {
     "forum": "http://forum.codeigniter.com/",
