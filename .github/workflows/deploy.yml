@@ -24,7 +24,7 @@ jobs:
           npm install
           npm run build
       - name: Upload build files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: css
           path: public/dist/
