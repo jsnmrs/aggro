@@ -1,6 +1,6 @@
 <?php
-use CodeIgniter\CodeIgniter;
 use Config\Services;
+use CodeIgniter\CodeIgniter;
 
 $errorId = uniqid('error', true);
 ?>
@@ -44,6 +44,29 @@ $errorId = uniqid('error', true);
         <?php endif; ?>
     </div>
 
+    <div class="container">
+        <?php
+        $last = $exception;
+
+        while ($prevException = $last->getPrevious()) {
+            $last = $prevException;
+            ?>
+
+    <pre>
+    Caused by:
+    <?= esc(get_class($prevException)), esc($prevException->getCode() ? ' #' . $prevException->getCode() : '') ?>
+
+    <?= nl2br(esc($prevException->getMessage())) ?>
+    <a href="https://www.duckduckgo.com/?q=<?= urlencode(get_class($prevException) . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $prevException->getMessage())) ?>"
+       rel="noreferrer" target="_blank">search &rarr;</a>
+    <?= esc(clean_path($prevException->getFile()) . ':' . $prevException->getLine()) ?>
+    </pre>
+
+        <?php
+        }
+        ?>
+    </div>
+
     <?php if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) : ?>
     <div class="container">
 
@@ -74,7 +97,7 @@ $errorId = uniqid('error', true);
                                 } else {
                                     echo esc(clean_path($row['file']) . ' : ' . $row['line']);
                                 }
-                    ?>
+                                ?>
                             <?php else: ?>
                                 {PHP internal code}
                             <?php endif; ?>
@@ -89,14 +112,14 @@ $errorId = uniqid('error', true);
                                         <table cellspacing="0">
 
                                         <?php
-                            $params = null;
-                                    // Reflection by name is not available for closure function
-                                    if (substr($row['function'], -1) !== '}') {
-                                        $mirror = isset($row['class']) ? new ReflectionMethod($row['class'], $row['function']) : new ReflectionFunction($row['function']);
-                                        $params = $mirror->getParameters();
-                                    }
+                                        $params = null;
+                                        // Reflection by name is not available for closure function
+                                        if (substr($row['function'], -1) !== '}') {
+                                            $mirror = isset($row['class']) ? new ReflectionMethod($row['class'], $row['function']) : new ReflectionFunction($row['function']);
+                                            $params = $mirror->getParameters();
+                                        }
 
-                                    foreach ($row['args'] as $key => $value) : ?>
+                                        foreach ($row['args'] as $key => $value) : ?>
                                             <tr>
                                                 <td><code><?= esc(isset($params[$key]) ? '$' . $params[$key]->name : "#{$key}") ?></code></td>
                                                 <td><pre><?= esc(print_r($value, true)) ?></pre></td>
@@ -304,8 +327,8 @@ $errorId = uniqid('error', true);
             <!-- Response -->
             <?php
                 $response = Services::response();
-$response->setStatusCode(http_response_code());
-?>
+                $response->setStatusCode(http_response_code());
+            ?>
             <div class="content" id="response">
                 <table>
                     <tr>
