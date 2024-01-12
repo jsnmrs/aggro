@@ -3,7 +3,7 @@
 /**
  * @internal
  */
-final class ExampleSessionTest extends \Tests\Support\SessionTestCase
+final class ExampleSessionTest extends Tests\Support\SessionTestCase
 {
     protected function setUp(): void
     {

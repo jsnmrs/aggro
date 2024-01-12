@@ -216,7 +216,7 @@ if (! function_exists('fetch_thumbnail')) {
             fwrite($file, $buffer, strlen($buffer));
             fclose($file);
 
-            \Config\Services::image()
+            Config\Services::image()
                 ->withFile($path)
                 ->resize(600, 338, false, 'width')
                 ->save($path, 40);

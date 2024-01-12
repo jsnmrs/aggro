@@ -3,7 +3,7 @@
 /**
  * @internal
  */
-final class HealthTest extends \CodeIgniter\Test\CIUnitTestCase
+final class HealthTest extends CodeIgniter\Test\CIUnitTestCase
 {
     protected function setUp(): void
     {
@@ -27,7 +27,7 @@ final class HealthTest extends \CodeIgniter\Test\CIUnitTestCase
         }
 
         // Then check the actual config file
-        $reader = new \Tests\Support\Libraries\ConfigReader();
+        $reader = new Tests\Support\Libraries\ConfigReader();
         $config = ! empty($reader->baseUrl);
 
         $this->assertTrue($env || $config);

@@ -110,9 +110,6 @@ if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
      *
-     * @param object $item
-     *                     Node from RSS feed.
-     *
      * @return array
      *               Video metadata added.
      */
@@ -136,11 +133,11 @@ if (! function_exists('youtube_parse_meta')) {
             $video['flag_archive'] = 1;
         }
         $video['video_title']           = htmlentities($item->get_title(), ENT_QUOTES, 'utf-8', false);
-        $group                          = $item->get_item_tags(\SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
-        $community                      = $group[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'];
-        $statistics                     = $community[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'];
+        $group                          = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
+        $community                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'];
+        $statistics                     = $community[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'];
         $video['video_plays']           = $statistics[0]['attribs']['']['views'];
-        $thumbnail                      = $group[0]['child'][\SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
+        $thumbnail                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
         $video['video_thumbnail_url']   = $thumbnail[0]['attribs']['']['url'];
         $channelID                      = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'channelId');
         $video['video_source_id']       = $channelID[0]['data'];
