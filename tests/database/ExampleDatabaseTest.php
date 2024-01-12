@@ -5,7 +5,7 @@ use Tests\Support\Models\ExampleModel;
 /**
  * @internal
  */
-final class ExampleDatabaseTest extends \Tests\Support\DatabaseTestCase
+final class ExampleDatabaseTest extends Tests\Support\DatabaseTestCase
 {
     protected function setUp(): void
     {

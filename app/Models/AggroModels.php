@@ -12,9 +12,6 @@ class AggroModels extends Model
     /**
      * Add video metadata to aggro_videos.
      *
-     * @param array $video
-     *                     Video metadata to add.
-     *
      * @return bool
      *              Video added.
      *
