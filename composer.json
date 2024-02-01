@@ -8,7 +8,7 @@
     "php": "^7.3||^8.0",
     "codeigniter4/framework": "v4.4.4",
     "friendsofphp/php-cs-fixer": "v3.46.0",
-    "nexusphp/cs-config": "v3.19.0",
+    "nexusphp/cs-config": "v3.20.0",
     "nikic/php-parser": "v5.0.0",
     "pdepend/pdepend": "2.16.2",
     "sebastian/complexity": "3.2.0",
