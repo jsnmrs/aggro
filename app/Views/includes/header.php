@@ -12,18 +12,18 @@
   if ($_ENV['CI_ENVIRONMENT'] === 'development') {
       echo '[DEV] ';
   }
-  if (isset($build['site_name'])) {
-      echo $build['site_name'] . ' | ';
-  }
-  if (isset($build['video_title'])) {
-      echo $build['video_title'] . ' | ';
-  }
-  if (isset($page) && $page >= 2 && isset($endpage)) {
-      echo 'Recent Videos ' . $page . ' of ' . $endpage . ' | ';
-  }
-  if (isset($title)) {
-      echo esc($title) . ' | ';
-  }
+if (isset($build['site_name'])) {
+    echo $build['site_name'] . ' | ';
+}
+if (isset($build['video_title'])) {
+    echo $build['video_title'] . ' | ';
+}
+if (isset($page) && $page >= 2 && isset($endpage)) {
+    echo 'Recent Videos ' . $page . ' of ' . $endpage . ' | ';
+}
+if (isset($title)) {
+    echo esc($title) . ' | ';
+}
 ?>BMXfeed</title>
   <meta charset="utf-8">
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
