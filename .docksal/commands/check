@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+## Check response code from local URLs
+## Usage: fin check
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+cd "$PROJECT_ROOT"
+
+echo -e "\\n\\033[1;33mChecking local URL responses for errors...\\033[0m"
+
+curl -o /dev/null -s -f -w "%{http_code}" http://aggro.docksal.site | grep -q "^200$" || { echo "Error on http://aggro.docksal.site: Response code is not 200"; exit 1; }
+
+curl -o /dev/null -s -f -w "%{http_code}" http://aggro.docksal.site/stream | grep -q "^200$" || { echo "Error on http://aggro.docksal.site/stream: Response code is not 200"; exit 1; }
+
+curl -o /dev/null -s -f -w "%{http_code}" http://aggro.docksal.site/video | grep -q "^200$" || { echo "Error on http://aggro.docksal.site/video: Response code is not 200"; exit 1; }
+
+echo -e "\\n\\033[1;33mAll URLs returned 200...\\033[0m"
