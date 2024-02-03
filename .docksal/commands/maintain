@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+## Run upgrade and local environment tests
+## Usage: fin maintain
+
+
+cd "$PROJECT_ROOT" || exit
+fin upgrade
+fin init
+fin check
+fin sniff
+fin shellcheck
+fin admin

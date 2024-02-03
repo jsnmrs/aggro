@@ -20,15 +20,15 @@ class UtilityModels extends Model
     public function cleanLog()
     {
         $now    = date('Y-m-d H:i:s');
-        $sql    = 'SELECT * FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '", INTERVAL 3 DAY)';
+        $sql    = 'SELECT * FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '", INTERVAL 1 DAY)';
         $query  = $this->db->query($sql);
         $update = count($query->getResultArray());
 
-        $sql = 'DELETE FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '",INTERVAL 3 DAY)';
+        $sql = 'DELETE FROM aggro_log WHERE log_date < DATE_SUB("' . $now . '",INTERVAL 1 DAY)';
         $this->db->query($sql);
         $cleanup = 'OPTIMIZE TABLE engine_log';
         $this->db->query($cleanup);
-        $message = $update . ' log entries, older than 3 days deleted.';
+        $message = $update . ' log entries, older than 1 day deleted.';
         $this->sendLog($message);
     }
 
