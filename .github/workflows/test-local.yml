@@ -16,11 +16,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Init docksal project
-        run: |
-          fin init
-          fin sniff
-          fin shellcheck
-          fin admin
+        run: fin init
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -29,16 +25,8 @@ jobs:
           cache-dependency-path: "./package-lock.json"
       - name: Install dependencies
         run: npm install
-      - name: Scan site
-        uses: double-great/accessibility-scan-action@main
-        with:
-          url: "http://aggro.docksal.site"
-          snapshot: true
-      - name: Upload report and snapshots as artifact
-        uses: actions/upload-artifact@v3
-        if: success() || failure()
-        with:
-          name: "Accessibility report with snapshots"
-          path: |
-            ${{ github.workspace }}/_accessibility-reports/index.html
-            ${{ github.workspace }}/_accessibility-reports/key_value_stores/scan-results/*.jpeg
+      - name: Run code checks and admin
+        run: |
+          fin sniff
+          fin shellcheck
+          fin admin

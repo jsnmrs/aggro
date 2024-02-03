@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+## Run local environment tests
+## Usage: fin test
+
+
+cd "$PROJECT_ROOT" || exit
+fin init
+fin sniff
+fin shellcheck
+fin admin

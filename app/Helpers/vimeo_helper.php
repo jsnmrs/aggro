@@ -66,9 +66,6 @@ if (! function_exists('vimeo_parse_meta')) {
     /**
      * Parse vimeo video metadata for DB import.
      *
-     * @param object $item
-     *                     Node from RSS feed.
-     *
      * @return array
      *               Video metadata added.
      */
