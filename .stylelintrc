@@ -2,6 +2,9 @@
   "extends": [
     "stylelint-config-standard"
   ],
+  "plugins": [
+    "@double-great/stylelint-a11y"
+  ],
   "rules": {
     "declaration-property-value-no-unknown": true,
     "import-notation": "string",
@@ -17,6 +20,12 @@
       "vw",
       "deg",
       "fr"
-    ]
+    ],
+    "a11y/selector-pseudo-class-focus": true,
+    "a11y/font-size-is-readable": [true, { "severity": "warning" }],
+    "a11y/no-spread-text": [true, { "severity": "warning" }],
+    "a11y/no-obsolete-attribute": [true, { "severity": "warning" }],
+    "a11y/no-obsolete-element": [true, { "severity": "warning" }],
+    "a11y/no-text-align-justify": [true, { "severity": "error" }]
   }
 }
