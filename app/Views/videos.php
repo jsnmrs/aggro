@@ -18,7 +18,7 @@
 <?php foreach ($build as $row) :?>
     <div class="box box--video">
       <a href="/video/<?= $row->video_id; ?>">
-        <img src="/thumbs/<?= $row->video_id; ?>.jpg" width="340" height="192" alt="">
+        <img src="/thumbs/<?= $row->video_id; ?>.webp" width="340" height="192" alt="">
         <p><?= htmlspecialchars_decode($row->video_title ?? ''); ?></p>
       </a>
     </div>

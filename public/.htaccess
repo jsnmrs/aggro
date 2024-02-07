@@ -1,6 +1,10 @@
 # Disable directory browsing
 Options All -Indexes
 
+# Add webp and avif image format support
+AddType image/webp .webp
+AddType image/avif .avif
+
 # ----------------------------------------------------------------------
 # Rewrite engine
 # ----------------------------------------------------------------------

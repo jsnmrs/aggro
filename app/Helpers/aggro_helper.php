@@ -119,7 +119,7 @@ if (! function_exists('clean_thumbnail')) {
      */
     function clean_thumbnail($videoid)
     {
-        $path = ROOTPATH . 'public/thumbs/' . $videoid . '.jpg';
+        $path = ROOTPATH . 'public/thumbs/' . $videoid . 'webp';
         if (file_exists($path)) {
             unlink($path);
         }
@@ -208,7 +208,7 @@ if (! function_exists('fetch_thumbnail')) {
     function fetch_thumbnail($videoid, $thumbnail)
     {
         helper('aggro');
-        $path   = ROOTPATH . 'public/thumbs/' . $videoid . '.jpg';
+        $path   = ROOTPATH . 'public/thumbs/' . $videoid . '.webp';
         $buffer = fetch_url($thumbnail);
 
         if (! empty($buffer)) {
@@ -219,6 +219,7 @@ if (! function_exists('fetch_thumbnail')) {
             Config\Services::image()
                 ->withFile($path)
                 ->resize(600, 338, false, 'width')
+                ->convert(IMAGETYPE_WEBP)
                 ->save($path, 40);
 
             return true;
