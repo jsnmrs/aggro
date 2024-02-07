@@ -82,7 +82,7 @@ class AggroModels extends Model
         $thumbs = $query->getResult();
 
         foreach ($thumbs as $thumb) {
-            $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.jpg';
+            $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.webp';
 
             if (! file_exists($path)) {
                 $message = $thumb->video_id . ' missing thumbnail';
@@ -129,7 +129,7 @@ class AggroModels extends Model
     public function cleanThumbs()
     {
         $utilityModel = new UtilityModels();
-        $thumbs       = ROOTPATH . 'public/thumbs/*.jpg';
+        $thumbs       = ROOTPATH . 'public/thumbs/*.webp';
 
         $files = glob($thumbs);
         $now   = time();
