@@ -1,6 +1,6 @@
 <?php
-use CodeIgniter\CodeIgniter;
 use Config\Services;
+use CodeIgniter\CodeIgniter;
 
 $errorId = uniqid('error', true);
 ?>
@@ -23,6 +23,12 @@ $errorId = uniqid('error', true);
 
     <!-- Header -->
     <div class="header">
+        <div class="environment">
+            Displayed at <?= esc(date('H:i:sa')) ?> &mdash;
+            PHP: <?= esc(PHP_VERSION) ?>  &mdash;
+            CodeIgniter: <?= esc(CodeIgniter::CI_VERSION) ?> --
+            Environment: <?= ENVIRONMENT ?>
+        </div>
         <div class="container">
             <h1><?= esc($title), esc($exception->getCode() ? ' #' . $exception->getCode() : '') ?></h1>
             <p>
@@ -48,9 +54,9 @@ $errorId = uniqid('error', true);
         <?php
         $last = $exception;
 
-while ($prevException = $last->getPrevious()) {
-    $last = $prevException;
-    ?>
+        while ($prevException = $last->getPrevious()) {
+            $last = $prevException;
+            ?>
 
     <pre>
     Caused by:
@@ -63,8 +69,8 @@ while ($prevException = $last->getPrevious()) {
     </pre>
 
         <?php
-}
-?>
+        }
+        ?>
     </div>
 
     <?php if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) : ?>
@@ -92,12 +98,12 @@ while ($prevException = $last->getPrevious()) {
                             <!-- Trace info -->
                             <?php if (isset($row['file']) && is_file($row['file'])) : ?>
                                 <?php
-                        if (isset($row['function']) && in_array($row['function'], ['include', 'include_once', 'require', 'require_once'], true)) {
-                            echo esc($row['function'] . ' ' . clean_path($row['file']));
-                        } else {
-                            echo esc(clean_path($row['file']) . ' : ' . $row['line']);
-                        }
-                    ?>
+                                if (isset($row['function']) && in_array($row['function'], ['include', 'include_once', 'require', 'require_once'], true)) {
+                                    echo esc($row['function'] . ' ' . clean_path($row['file']));
+                                } else {
+                                    echo esc(clean_path($row['file']) . ' : ' . $row['line']);
+                                }
+                                ?>
                             <?php else: ?>
                                 {PHP internal code}
                             <?php endif; ?>
@@ -112,14 +118,14 @@ while ($prevException = $last->getPrevious()) {
                                         <table cellspacing="0">
 
                                         <?php
-                            $params = null;
-                                    // Reflection by name is not available for closure function
-                                    if (substr($row['function'], -1) !== '}') {
-                                        $mirror = isset($row['class']) ? new ReflectionMethod($row['class'], $row['function']) : new ReflectionFunction($row['function']);
-                                        $params = $mirror->getParameters();
-                                    }
+                                        $params = null;
+                                        // Reflection by name is not available for closure function
+                                        if (substr($row['function'], -1) !== '}') {
+                                            $mirror = isset($row['class']) ? new ReflectionMethod($row['class'], $row['function']) : new ReflectionFunction($row['function']);
+                                            $params = $mirror->getParameters();
+                                        }
 
-                                    foreach ($row['args'] as $key => $value) : ?>
+                                        foreach ($row['args'] as $key => $value) : ?>
                                             <tr>
                                                 <td><code><?= esc(isset($params[$key]) ? '$' . $params[$key]->name : "#{$key}") ?></code></td>
                                                 <td><pre><?= esc(print_r($value, true)) ?></pre></td>
@@ -327,8 +333,8 @@ while ($prevException = $last->getPrevious()) {
             <!-- Response -->
             <?php
                 $response = Services::response();
-$response->setStatusCode(http_response_code());
-?>
+                $response->setStatusCode(http_response_code());
+            ?>
             <div class="content" id="response">
                 <table>
                     <tr>
@@ -400,19 +406,6 @@ $response->setStatusCode(http_response_code());
 
     </div> <!-- /container -->
     <?php endif; ?>
-
-    <div class="footer">
-        <div class="container">
-
-            <p>
-                Displayed at <?= esc(date('H:i:sa')) ?> &mdash;
-                PHP: <?= esc(PHP_VERSION) ?>  &mdash;
-                CodeIgniter: <?= esc(CodeIgniter::CI_VERSION) ?> --
-                Environment: <?= ENVIRONMENT ?>
-            </p>
-
-        </div>
-    </div>
 
 </body>
 </html>
