@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4176f07e5058caaa5e10a2b87890755",
+    "content-hash": "0a1e9850a23a71237c52db5610800914",
     "packages": [
         {
             "name": "codeigniter4/framework",
-            "version": "v4.4.6",
+            "version": "v4.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeigniter4/framework.git",
-                "reference": "7d393f85e8410f16654fa9b486694ff68c354c99"
+                "reference": "e6a2f707966ac74e41918434c84b3fb9d8291562"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/7d393f85e8410f16654fa9b486694ff68c354c99",
-                "reference": "7d393f85e8410f16654fa9b486694ff68c354c99",
+                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/e6a2f707966ac74e41918434c84b3fb9d8291562",
+                "reference": "e6a2f707966ac74e41918434c84b3fb9d8291562",
                 "shasum": ""
             },
             "require": {
@@ -79,7 +79,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/codeigniter4/CodeIgniter4"
             },
-            "time": "2024-02-24T02:42:57+00:00"
+            "time": "2024-03-29T04:23:09+00:00"
         },
         {
             "name": "composer/pcre",
@@ -301,16 +301,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.51.0",
+            "version": "v3.52.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "127fa74f010da99053e3f5b62672615b72dd6efd"
+                "reference": "6e77207f0d851862ceeb6da63e6e22c01b1587bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/127fa74f010da99053e3f5b62672615b72dd6efd",
-                "reference": "127fa74f010da99053e3f5b62672615b72dd6efd",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/6e77207f0d851862ceeb6da63e6e22c01b1587bc",
+                "reference": "6e77207f0d851862ceeb6da63e6e22c01b1587bc",
                 "shasum": ""
             },
             "require": {
@@ -381,7 +381,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.51.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.52.1"
             },
             "funding": [
                 {
@@ -389,7 +389,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-02-28T19:50:06+00:00"
+            "time": "2024-03-19T21:02:43+00:00"
         },
         {
             "name": "laminas/laminas-escaper",
@@ -455,16 +455,16 @@
         },
         {
             "name": "nexusphp/cs-config",
-            "version": "v3.22.0",
+            "version": "v3.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NexusPHP/cs-config.git",
-                "reference": "83846efa29c867e6cbccd614b2e0ceef71060eb5"
+                "reference": "f248265866b517d016f5035250b578739b1dc9bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/83846efa29c867e6cbccd614b2e0ceef71060eb5",
-                "reference": "83846efa29c867e6cbccd614b2e0ceef71060eb5",
+                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/f248265866b517d016f5035250b578739b1dc9bf",
+                "reference": "f248265866b517d016f5035250b578739b1dc9bf",
                 "shasum": ""
             },
             "require": {
@@ -481,7 +481,7 @@
                 "phpstan/phpstan": "^1.10",
                 "phpstan/phpstan-phpunit": "^1.3",
                 "phpstan/phpstan-strict-rules": "^1.5",
-                "phpunit/phpunit": "^10.5"
+                "phpunit/phpunit": "^10.5 || ^11.0"
             },
             "type": "library",
             "extra": {
@@ -510,30 +510,20 @@
                 "slack": "https://nexusphp.slack.com",
                 "source": "https://github.com/NexusPHP/cs-config.git"
             },
-            "funding": [
-                {
-                    "url": "https://www.paypal.me/paulbalandan",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/paulbalandan",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-02-24T14:35:58+00:00"
+            "time": "2024-03-24T13:42:08+00:00"
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.0.1",
+            "version": "v5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "2218c2252c874a4624ab2f613d86ac32d227bc69"
+                "reference": "139676794dc1e9231bf7bcd123cfc0c99182cb13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/2218c2252c874a4624ab2f613d86ac32d227bc69",
-                "reference": "2218c2252c874a4624ab2f613d86ac32d227bc69",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/139676794dc1e9231bf7bcd123cfc0c99182cb13",
+                "reference": "139676794dc1e9231bf7bcd123cfc0c99182cb13",
                 "shasum": ""
             },
             "require": {
@@ -576,9 +566,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.0.1"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.0.2"
             },
-            "time": "2024-02-21T19:24:10+00:00"
+            "time": "2024-03-05T20:51:40+00:00"
         },
         {
             "name": "pdepend/pdepend",
@@ -2652,16 +2642,16 @@
     "packages-dev": [
         {
             "name": "codeigniter/coding-standard",
-            "version": "v1.7.14",
+            "version": "v1.7.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CodeIgniter/coding-standard.git",
-                "reference": "d79e773fffa1b33d58f68b1c8816534432f426eb"
+                "reference": "cb5010ab7e8388fe908b2f483a23ae2077e6c533"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/d79e773fffa1b33d58f68b1c8816534432f426eb",
-                "reference": "d79e773fffa1b33d58f68b1c8816534432f426eb",
+                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/cb5010ab7e8388fe908b2f483a23ae2077e6c533",
+                "reference": "cb5010ab7e8388fe908b2f483a23ae2077e6c533",
                 "shasum": ""
             },
             "require": {
@@ -2702,7 +2692,7 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/CodeIgniter/coding-standard"
             },
-            "time": "2024-02-25T15:28:32+00:00"
+            "time": "2024-03-24T13:32:07+00:00"
         },
         {
             "name": "deployer/deployer",
@@ -3374,16 +3364,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.11",
+            "version": "10.5.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "0d968f6323deb3dbfeba5bfd4929b9415eb7a9a4"
+                "reference": "18f8d4a5f52b61fdd9370aaae3167daa0eeb69cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0d968f6323deb3dbfeba5bfd4929b9415eb7a9a4",
-                "reference": "0d968f6323deb3dbfeba5bfd4929b9415eb7a9a4",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/18f8d4a5f52b61fdd9370aaae3167daa0eeb69cd",
+                "reference": "18f8d4a5f52b61fdd9370aaae3167daa0eeb69cd",
                 "shasum": ""
             },
             "require": {
@@ -3455,7 +3445,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.11"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.16"
             },
             "funding": [
                 {
@@ -3471,7 +3461,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-25T14:05:00+00:00"
+            "time": "2024-03-28T10:08:10+00:00"
         },
         {
             "name": "sebastian/cli-parser",
