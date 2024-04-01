@@ -7,6 +7,8 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     name: calibreapp/image-actions
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
