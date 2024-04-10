@@ -140,9 +140,9 @@ class Front extends BaseController
         if ($slug === null || $slug === 'recent') {
             $data['page'] = 1;
 
-            if ($this->request->uri->getTotalSegments() === 3
-              && is_numeric($this->request->uri->getSegment(3))) {
-                $data['page'] = (int) (esc($this->request->uri->getSegment(3)));
+            if ($this->request->getUri()->getTotalSegments() === 3
+              && is_numeric($this->request->getUri()->getSegment(3))) {
+                $data['page'] = (int) (esc($this->request->getUri()->getSegment(3)));
             }
 
             $data['sort']    = 'recent';
