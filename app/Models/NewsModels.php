@@ -98,8 +98,8 @@ class NewsModels extends Model
     public function featuredPage()
     {
         // Fetch all featured news feeds in one query
-        $sql = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
-        $query = $this->db->query($sql);
+        $sql       = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
+        $query     = $this->db->query($sql);
         $newsFeeds = $query->getResult('array');
 
         // Initialize an array to hold the built structure
@@ -109,30 +109,29 @@ class NewsModels extends Model
         foreach ($newsFeeds as $row) {
             // Initialize the site's data
             $built[$row['site_slug']] = [
-                'site_name' => $row['site_name'],
-                'site_slug' => $row['site_slug'],
+                'site_name'           => $row['site_name'],
+                'site_slug'           => $row['site_slug'],
                 'site_date_last_post' => $row['site_date_last_post'],
             ];
 
             // Fetch the top 3 featured stories for this site in one query
-            $innerSql = 'SELECT * FROM news_featured WHERE site_id = ? ORDER BY story_date DESC LIMIT 3';
+            $innerSql   = 'SELECT * FROM news_featured WHERE site_id = ? ORDER BY story_date DESC LIMIT 3';
             $innerQuery = $this->db->query($innerSql, [$row['site_id']]);
-            $stories = $innerQuery->getResult('array');
+            $stories    = $innerQuery->getResult('array');
 
             // Add the stories to the built structure
             foreach ($stories as $index => $story) {
-                $storyNum = 'story' . ($index + 1);
+                $storyNum                            = 'story' . ($index + 1);
                 $built[$row['site_slug']][$storyNum] = [
-                    'story_title' => $story['story_title'],
+                    'story_title'     => $story['story_title'],
                     'story_permalink' => $story['story_permalink'],
-                    'story_hash' => $story['story_hash'],
+                    'story_hash'      => $story['story_hash'],
                 ];
             }
         }
 
         return $built;
     }
-
 
     /**
      * Get single site.
