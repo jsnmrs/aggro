@@ -97,31 +97,42 @@ class NewsModels extends Model
      */
     public function featuredPage()
     {
-        $sql   = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
+        // Fetch all featured news feeds in one query
+        $sql = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
         $query = $this->db->query($sql);
+        $newsFeeds = $query->getResult('array');
 
+        // Initialize an array to hold the built structure
         $built = [];
 
-        foreach ($query->getResult('array') as $row) {
-            $counter                                         = 1;
-            $built[$row['site_slug']]['site_name']           = $row['site_name'];
-            $built[$row['site_slug']]['site_slug']           = $row['site_slug'];
-            $built[$row['site_slug']]['site_date_last_post'] = $row['site_date_last_post'];
+        // Loop through each news feed
+        foreach ($newsFeeds as $row) {
+            // Initialize the site's data
+            $built[$row['site_slug']] = [
+                'site_name' => $row['site_name'],
+                'site_slug' => $row['site_slug'],
+                'site_date_last_post' => $row['site_date_last_post'],
+            ];
 
-            $innerSql   = 'SELECT * FROM news_featured WHERE site_id = ' . $row['site_id'] . ' ORDER BY story_date DESC LIMIT 3';
-            $innerQuery = $this->db->query($innerSql);
+            // Fetch the top 3 featured stories for this site in one query
+            $innerSql = 'SELECT * FROM news_featured WHERE site_id = ? ORDER BY story_date DESC LIMIT 3';
+            $innerQuery = $this->db->query($innerSql, [$row['site_id']]);
+            $stories = $innerQuery->getResult('array');
 
-            foreach ($innerQuery->getResult('array') as $innerRow) {
-                $storyNum                                               = 'story' . $counter;
-                $built[$row['site_slug']][$storyNum]['story_title']     = $innerRow['story_title'];
-                $built[$row['site_slug']][$storyNum]['story_permalink'] = $innerRow['story_permalink'];
-                $built[$row['site_slug']][$storyNum]['story_hash']      = $innerRow['story_hash'];
-                $counter++;
+            // Add the stories to the built structure
+            foreach ($stories as $index => $story) {
+                $storyNum = 'story' . ($index + 1);
+                $built[$row['site_slug']][$storyNum] = [
+                    'story_title' => $story['story_title'],
+                    'story_permalink' => $story['story_permalink'],
+                    'story_hash' => $story['story_hash'],
+                ];
             }
         }
 
         return $built;
     }
+
 
     /**
      * Get single site.
