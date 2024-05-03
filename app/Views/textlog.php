@@ -1,7 +1,4 @@
-<?= /**
- * @file
- * Log template.
- */ $title . "\n\n";
+<?= $title . "\n\n";
 
 if (is_array($build) || is_object($build)) {
     foreach ($build as $row) {
