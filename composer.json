@@ -12,8 +12,8 @@
     "nikic/php-parser": "^5.0",
     "pdepend/pdepend": "^2.16",
     "simplepie/simplepie": "^1.8",
-    "symfony/config": "^7.0",
-    "symfony/dependency-injection": "^7.0",
+    "symfony/config": "v7.1.0",
+    "symfony/dependency-injection": "v7.1.0",
     "symfony/var-exporter": "^7.1",
     "symfony/yaml": "^7.1"
   },
