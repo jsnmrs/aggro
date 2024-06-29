@@ -6,7 +6,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.1",
-    "codeigniter4/framework": "^4.5",
+    "codeigniter4/framework": "v4.5.3",
     "friendsofphp/php-cs-fixer": "^3.59",
     "nexusphp/cs-config": "^3.23",
     "nikic/php-parser": "^5.0",
