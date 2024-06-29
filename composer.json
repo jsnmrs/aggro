@@ -6,7 +6,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.1",
-    "codeigniter4/framework": "v4.5.3",
+    "codeigniter4/framework": "^4.5",
     "friendsofphp/php-cs-fixer": "^3.59",
     "nexusphp/cs-config": "^3.23",
     "nikic/php-parser": "^5.0",
@@ -22,7 +22,7 @@
     "deployer/deployer": "^7.4",
     "mikey179/vfsstream": "^1.6",
     "phpmd/phpmd": "^2.15",
-    "phpunit/phpunit": "^11.2",
+    "phpunit/phpunit": "11.2.5",
     "sebastian/complexity": "^4.0",
     "sebastian/lines-of-code": "^3.0",
     "squizlabs/php_codesniffer": "^3.10",
