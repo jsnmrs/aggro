@@ -70,6 +70,13 @@ ServerSignature Off
 
   Header always set Permissions-Policy: interest-cohort=()
   Header unset Expires
+
+  # Disable info page caching
+  <FilesMatch "^/aggro/info/.*$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Thu, 1 Jan 1970 00:00:00 GMT"
+  </FilesMatch>
 </IfModule>
 
 AddDefaultCharset utf-8
