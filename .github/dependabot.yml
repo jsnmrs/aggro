@@ -4,11 +4,26 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      github:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      composer:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      frontend:
+        update-types:
+          - "minor"
+          - "patch"
