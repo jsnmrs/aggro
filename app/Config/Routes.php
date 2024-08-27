@@ -26,6 +26,7 @@ $routes->add('aggro/news', 'Aggro::getNews');
 $routes->add('aggro/vimeo', 'Aggro::getVimeo');
 $routes->add('aggro/vimeo/(:segment)', 'Aggro::getVimeo/$1');
 $routes->add('aggro/youtube', 'Aggro::getYoutube');
+$routes->add('aggro/duration', 'Aggro::getYouTubeDuration');
 $routes->add('aggro/youtube/(:segment)', 'Aggro::getYoutube/$1');
 $routes->add('aggro/log-clean', 'Aggro::getLogClean');
 $routes->add('aggro/log-error-clean', 'Aggro::getLogErrorClean');
