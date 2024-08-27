@@ -196,6 +196,26 @@ class Aggro extends BaseController
     }
 
     /**
+     * Update duration value for videos.
+     */
+    public function getYouTubeDuration()
+    {
+        helper('aggro');
+        helper('youtube');
+        $youtubeModel = new YoutubeModels();
+
+        if (! gate_check()) {
+            return false;
+        }
+
+        if ($youtubeModel->getDuration()) {
+            echo "\nDurations fetched.\n";
+        }
+
+        return true;
+    }
+
+    /**
      * Vimeo video fetcher.
      *
      * Set cron to run every 5 minutes.
