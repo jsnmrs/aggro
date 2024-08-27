@@ -88,10 +88,9 @@ class YoutubeModels extends Model
     public function getDuration()
     {
         $utilityModel = new UtilityModels();
-        $now          = date('Y-m-d H:i:s');
         helper('youtube');
 
-        $sql    = "SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0 AND video_duration=0 AND video_type='youtube' LIMIT 10";
+        $sql    = "SELECT * FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0 AND video_duration=0 AND video_type='youtube' LIMIT 10";
         $query  = $this->db->query($sql);
         $update = count($query->getResultArray());
 
