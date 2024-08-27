@@ -157,6 +157,13 @@ if (! function_exists('youtube_parse_meta')) {
         }
         $video['video_aspect_ratio'] = round($video['video_width'] / $video['video_height'], 3);
 
+        $videoPage = 'https://www.youtube.com/watch?v=' . $video['video_id'];
+        $resultPage = fetch_url($videoPage, 'text', 0);
+        if ($resultPage !== false && is_string($resultPage)) {
+            if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
+                $video['video_duration'] = $matches[1];
+            }
+        }
         return $video;
     }
 }
