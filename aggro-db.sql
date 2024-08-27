@@ -61,6 +61,7 @@ CREATE TABLE `aggro_videos` (
   `video_width` int(6) NOT NULL DEFAULT '0',
   `video_height` int(6) NOT NULL DEFAULT '0',
   `video_aspect_ratio` float NOT NULL DEFAULT '0',
+  `video_duration` int(10) NOT NULL DEFAULT '0',
   `video_type` varchar(255) DEFAULT NULL,
   `video_source_id` varchar(255) DEFAULT NULL,
   `video_source_username` varchar(255) DEFAULT NULL,
