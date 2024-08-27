@@ -200,13 +200,8 @@ class Aggro extends BaseController
      */
     public function getYouTubeDuration()
     {
-        helper('aggro');
         helper('youtube');
         $youtubeModel = new YoutubeModels();
-
-        if (! gate_check()) {
-            return false;
-        }
 
         if ($youtubeModel->getDuration()) {
             echo "\nDurations fetched.\n";
