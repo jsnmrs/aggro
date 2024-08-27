@@ -245,7 +245,7 @@ class AggroModels extends Model
             $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 7 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
         }
 
-        $sql   = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
+        $sql   = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
         $query = $this->db->query($sql);
 
         return $query->getResult();
@@ -259,7 +259,7 @@ class AggroModels extends Model
      */
     public function getVideosTotal()
     {
-        $sql   = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> '0000-00-00 00:00:00'";
+        $sql   = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> '0000-00-00 00:00:00'";
         $query = $this->db->query($sql);
 
         return count($query->getResultArray());
