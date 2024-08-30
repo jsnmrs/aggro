@@ -5,7 +5,7 @@
     <div class="full">
       <h1>Submit</h1>
       <p>BMXfeed does a pretty good job at finding websites and videos automatically, but it can't find everything. <strong>Do you have a site or video I should add?</strong></p>
-      <p>Email <a href="mailto:jason@bmxfeed.com">jason@bmxfeed.com</a> and let me know.</p>
+      <p>Call or text (240) 232-6851 and let me know what&rsquo;s up.</p>
     </div>
   </div>
 </main>
