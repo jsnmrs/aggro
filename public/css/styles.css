@@ -256,6 +256,11 @@ footer .ago--muted {
   margin-bottom: 0.5rem;
 }
 
+.show {
+  list-style-type: decimal;
+  padding-left: 1rem;
+}
+
 .stream {
   margin-bottom: 0.75rem;
 }
@@ -270,9 +275,9 @@ footer .ago--muted {
   text-decoration: none;
 }
 
-.stream__title {
+/* .stream__title {
   display: block;
-}
+} */
 
 .stream .ago {
   padding-bottom: 0.15rem;
