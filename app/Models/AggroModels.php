@@ -273,13 +273,25 @@ class AggroModels extends Model
      */
     public function getWatchPage()
     {
-        $sql   = "SELECT * FROM aggro_videos WHERE flag_favorite=1 AND notes <> '' LIMIT 1";
+        $sql   = "SELECT * FROM watch WHERE completed = '0000-00-00' ORDER BY sortorder LIMIT 1; ";
         $query = $this->db->query($sql);
         if ($query->getRowArray() === null) {
             return false;
         }
 
-        return $query->getRowArray();
+        $build = $query->getRowArray();
+        return $this->getVideo($build['video_id']);
+    }
+
+    /**
+     * Update watch page.
+     *
+     * @return bool
+     */
+    public function updateWatchPage()
+    {
+        return true;
+        // set timestamp so the next video shows
     }
 
     /**
