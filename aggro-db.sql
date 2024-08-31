@@ -138,6 +138,32 @@ VALUES
 /*!40000 ALTER TABLE `news_feeds` ENABLE KEYS */;
 UNLOCK TABLES;
 
+--
+-- Table structure for table `watch`
+--
+
+DROP TABLE IF EXISTS `watch`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `watch` (
+  `watch_id` int NOT NULL AUTO_INCREMENT,
+  `video_id` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sortorder` int NOT NULL DEFAULT '0',
+  `completed` date NOT NULL,
+  PRIMARY KEY (`watch_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `watch`
+--
+
+LOCK TABLES `watch` WRITE;
+/*!40000 ALTER TABLE `watch` DISABLE KEYS */;
+INSERT INTO `watch` VALUES (1,'82538293','Diggest: Joe Rich.',1,'0000-00-00');
+/*!40000 ALTER TABLE `watch` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
