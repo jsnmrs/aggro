@@ -5,33 +5,33 @@
  * YouTube helper functions.
  */
 if (! function_exists('youtube_get_duration')) {
-  /**
-   * Fetch YouTube video duration.
-   *
-   * @param string $videoID
-   *                        YouTube videoID.
-   *
-   * @return string
-   *                Video duration.
-   */
-  function youtube_get_duration($videoID)
-  {
-      helper('aggro');
+    /**
+     * Fetch YouTube video duration.
+     *
+     * @param string $videoID
+     *                        YouTube videoID.
+     *
+     * @return string
+     *                Video duration.
+     */
+    function youtube_get_duration($videoID)
+    {
+        helper('aggro');
 
-      $videoPage = 'https://www.youtube.com/watch?v=' . $videoID;
-      $resultPage = fetch_url($videoPage, 'text', 0);
+        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
+        $resultPage = fetch_url($videoPage, 'text', 0);
 
-      if ($resultPage !== false && is_string($resultPage)) {
-          if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
-              return $matches[1];
-          }
-      }
+        if ($resultPage !== false && is_string($resultPage)) {
+            if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
+                return $matches[1];
+            }
+        }
 
-      return false;
-  }
+        return false;
+    }
 }
 
- if (! function_exists('youtube_get_feed')) {
+if (! function_exists('youtube_get_feed')) {
     /**
      * Fetch YouTube channel feed.
      *

@@ -22,7 +22,7 @@ class AggroModels extends Model
         $utilityModel = new UtilityModels();
         helper('aggro');
 
-        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ', 0, ' . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ', ' . $video['video_height'] . ', ' . $video['video_aspect_ratio'] . ", ". $video['video_duration'] ." , '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
+        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ', 0, ' . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ', ' . $video['video_height'] . ', ' . $video['video_aspect_ratio'] . ', ' . $video['video_duration'] . " , '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
 
         $this->db->query($sql);
 
@@ -280,6 +280,7 @@ class AggroModels extends Model
         }
 
         $build = $query->getRowArray();
+
         return $this->getVideo($build['video_id']);
     }
 
