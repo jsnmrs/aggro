@@ -22,6 +22,24 @@ class Aggro extends BaseController
     }
 
     /**
+     * Change watch page.
+     */
+    public function changeWatch()
+    {
+        helper('aggro');
+        if (! gate_check()) {
+            return false;
+        }
+
+        $aggroModel = new AggroModels();
+
+        if ($aggroModel->updateWatchPage()) {
+            echo "\nWatch video updated.\n";
+        }
+        return true;
+    }
+
+    /**
      * Aggro info.
      */
     public function getInfo()
