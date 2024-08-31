@@ -4,9 +4,6 @@
  * @file
  * Single watch page template.
  */
-
-use CodeIgniter\I18n\Time;
-
 if ($build['video_height'] !== 0) {
     $ratio = round($build['video_height'] / $build['video_width'], 4);
 }

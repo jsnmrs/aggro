@@ -75,7 +75,7 @@ class YoutubeModels extends Model
         return $addCount;
     }
 
-        /**
+    /**
      * Get duration for YouTube videos.
      *
      * Write count of updated videos to log.
@@ -95,12 +95,13 @@ class YoutubeModels extends Model
         $update = count($query->getResultArray());
 
         if ($update > 0) {
-          $results = $query->getResult();
-          foreach ($results as $result) {
-            $videoDuration = youtube_get_duration($result->video_id);
-            $sql   = "UPDATE aggro_videos SET video_duration = " . $videoDuration . " WHERE video_id = '" . $result->video_id . "'";
-            $query = $this->db->query($sql);
-          }
+            $results = $query->getResult();
+
+            foreach ($results as $result) {
+                $videoDuration = youtube_get_duration($result->video_id);
+                $sql           = 'UPDATE aggro_videos SET video_duration = ' . $videoDuration . " WHERE video_id = '" . $result->video_id . "'";
+                $query         = $this->db->query($sql);
+            }
         }
 
         $message = $update . ' video durations fetched.';
@@ -108,5 +109,4 @@ class YoutubeModels extends Model
 
         return true;
     }
-
 }

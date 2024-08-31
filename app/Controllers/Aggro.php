@@ -36,6 +36,7 @@ class Aggro extends BaseController
         if ($aggroModel->updateWatchPage()) {
             echo "\nWatch video updated.\n";
         }
+
         return true;
     }
 
