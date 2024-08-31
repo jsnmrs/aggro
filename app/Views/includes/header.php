@@ -71,6 +71,11 @@ if (file_exists($styles)) {
               echo ' aria-current="page"';
           }
 ?>>Videos</a></li>
+        <li><a href="/watch"
+          <?php if ($slug === 'watch') {
+              echo ' aria-current="page"';
+          }
+?>>Watch</a></li>
         <li><a href="/sites"
           <?php if ($slug === 'sites') {
               echo ' aria-current="page"';

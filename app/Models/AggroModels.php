@@ -266,6 +266,23 @@ class AggroModels extends Model
     }
 
     /**
+     * Get watch page.
+     *
+     * @return array
+     *               Video data from table or FALSE.
+     */
+    public function getWatchPage()
+    {
+        $sql   = "SELECT * FROM aggro_videos WHERE flag_favorite=1 AND notes <> '' LIMIT 1";
+        $query = $this->db->query($sql);
+        if ($query->getRowArray() === null) {
+            return false;
+        }
+
+        return $query->getRowArray();
+    }
+
+    /**
      * Update video source last fetch timestamp.
      *
      * @param string $sourceSlug
