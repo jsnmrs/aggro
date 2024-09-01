@@ -291,8 +291,21 @@ class AggroModels extends Model
      */
     public function updateWatchPage()
     {
+        $now = date('Y-m-d');
+
+        $sql   = "SELECT * FROM watch WHERE completed = '0000-00-00' ORDER BY sortorder LIMIT 1; ";
+        $query = $this->db->query($sql);
+        if ($query->getRowArray() === null) {
+            return false;
+        }
+
+        $build = $query->getRowArray();
+        $sql   = "UPDATE watch
+            SET completed = '" . $now . "'
+            WHERE video_id = '" . $build['video_id'] . "'";
+        $this->db->query($sql);
+
         return true;
-        // set timestamp so the next video shows
     }
 
     /**
