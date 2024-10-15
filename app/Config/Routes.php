@@ -20,7 +20,6 @@ $routes->add('video', 'Front::getVideo');
 $routes->add('video/(:any)', 'Front::getVideo/$1');
 $routes->add('watch', 'Front::getWatch');
 $routes->add('aggro', 'Aggro::getIndex');
-$routes->add('aggro/watch', 'Aggro::changeWatch');
 $routes->add('aggro/info', 'Aggro::getInfo');
 $routes->add('aggro/log', 'Aggro::getLog');
 $routes->add('aggro/log-error', 'Aggro::getLogError');
