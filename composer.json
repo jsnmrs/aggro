@@ -7,9 +7,9 @@
   "require": {
     "php": "^8.1",
     "codeigniter4/framework": "^4.5",
-    "friendsofphp/php-cs-fixer": "^3.61",
+    "friendsofphp/php-cs-fixer": "^3.64",
     "nexusphp/cs-config": "^3.24",
-    "nikic/php-parser": "^5.1",
+    "nikic/php-parser": "^5.3",
     "pdepend/pdepend": "^2.16",
     "simplepie/simplepie": "^1.8",
     "symfony/config": "^7.1",
@@ -19,13 +19,13 @@
   },
   "require-dev": {
     "codeigniter/coding-standard": "^1.8",
-    "deployer/deployer": "^7.4",
+    "deployer/deployer": "^7.5",
     "mikey179/vfsstream": "^1.6",
     "phpmd/phpmd": "^2.15",
-    "phpunit/phpunit": "^11.3",
+    "phpunit/phpunit": "^11.4",
     "sebastian/complexity": "^4.0",
     "sebastian/lines-of-code": "^3.0",
-    "squizlabs/php_codesniffer": "^3.10",
+    "squizlabs/php_codesniffer": "^3.11",
     "tatter/patches": "^2.1"
   },
   "autoload-dev": {
