@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37207b69516e95bb89a11a4d34295e91",
+    "content-hash": "062c7d6808903db37cdd0a30afb19314",
     "packages": [
         {
             "name": "clue/ndjson-react",
@@ -1570,16 +1570,16 @@
         },
         {
             "name": "simplepie/simplepie",
-            "version": "1.8.0",
+            "version": "1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simplepie/simplepie.git",
-                "reference": "65b095d87bc00898d8fa7737bdbcda93a3fbcc55"
+                "reference": "a567b8ab9b6145a23e6a9ec2b6b74f56d52f7ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simplepie/simplepie/zipball/65b095d87bc00898d8fa7737bdbcda93a3fbcc55",
-                "reference": "65b095d87bc00898d8fa7737bdbcda93a3fbcc55",
+                "url": "https://api.github.com/repos/simplepie/simplepie/zipball/a567b8ab9b6145a23e6a9ec2b6b74f56d52f7ad1",
+                "reference": "a567b8ab9b6145a23e6a9ec2b6b74f56d52f7ad1",
                 "shasum": ""
             },
             "require": {
@@ -1640,22 +1640,22 @@
             ],
             "support": {
                 "issues": "https://github.com/simplepie/simplepie/issues",
-                "source": "https://github.com/simplepie/simplepie/tree/1.8.0"
+                "source": "https://github.com/simplepie/simplepie/tree/1.8.1"
             },
-            "time": "2023-01-20T08:37:35+00:00"
+            "time": "2024-11-22T16:33:20+00:00"
         },
         {
             "name": "symfony/config",
-            "version": "v7.1.6",
+            "version": "v7.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "5c6152766251ff45a44b76affadd5287e253fb27"
+                "reference": "dc373a5cbd345354696f5dfd39c5c7a8ea23f4c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/5c6152766251ff45a44b76affadd5287e253fb27",
-                "reference": "5c6152766251ff45a44b76affadd5287e253fb27",
+                "url": "https://api.github.com/repos/symfony/config/zipball/dc373a5cbd345354696f5dfd39c5c7a8ea23f4c8",
+                "reference": "dc373a5cbd345354696f5dfd39c5c7a8ea23f4c8",
                 "shasum": ""
             },
             "require": {
@@ -1701,7 +1701,7 @@
             "description": "Helps you find, load, combine, autofill and validate configuration values of any kind",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/config/tree/v7.1.6"
+                "source": "https://github.com/symfony/config/tree/v7.1.7"
             },
             "funding": [
                 {
@@ -1717,7 +1717,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-25T15:11:02+00:00"
+            "time": "2024-11-04T11:34:07+00:00"
         },
         {
             "name": "symfony/console",
@@ -1814,16 +1814,16 @@
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "v7.1.6",
+            "version": "v7.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dependency-injection.git",
-                "reference": "1f12f9d580ef8dd09e3b756aa111cc2d5f311bfd"
+                "reference": "e4d13f0f394f4d02a041ff76acd31c5a20a5f70b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/1f12f9d580ef8dd09e3b756aa111cc2d5f311bfd",
-                "reference": "1f12f9d580ef8dd09e3b756aa111cc2d5f311bfd",
+                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/e4d13f0f394f4d02a041ff76acd31c5a20a5f70b",
+                "reference": "e4d13f0f394f4d02a041ff76acd31c5a20a5f70b",
                 "shasum": ""
             },
             "require": {
@@ -1874,7 +1874,7 @@
             "description": "Allows you to standardize and centralize the way objects are constructed in your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/dependency-injection/tree/v7.1.6"
+                "source": "https://github.com/symfony/dependency-injection/tree/v7.1.8"
             },
             "funding": [
                 {
@@ -1890,7 +1890,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-25T15:11:02+00:00"
+            "time": "2024-11-09T09:16:45+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -3230,16 +3230,16 @@
     "packages-dev": [
         {
             "name": "codeigniter/coding-standard",
-            "version": "v1.8.1",
+            "version": "v1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CodeIgniter/coding-standard.git",
-                "reference": "2c16682b4a3754bc6694fef1056f686f32298ee3"
+                "reference": "49b4a4e07271b91c4f4add3cb58c8163a43140d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/2c16682b4a3754bc6694fef1056f686f32298ee3",
-                "reference": "2c16682b4a3754bc6694fef1056f686f32298ee3",
+                "url": "https://api.github.com/repos/CodeIgniter/coding-standard/zipball/49b4a4e07271b91c4f4add3cb58c8163a43140d1",
+                "reference": "49b4a4e07271b91c4f4add3cb58c8163a43140d1",
                 "shasum": ""
             },
             "require": {
@@ -3250,7 +3250,7 @@
             },
             "require-dev": {
                 "nexusphp/tachycardia": "^2.3",
-                "phpstan/phpstan": "^1.11",
+                "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^10.5 || ^11.2"
             },
             "type": "library",
@@ -3280,20 +3280,20 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/CodeIgniter/coding-standard"
             },
-            "time": "2024-08-05T11:17:44+00:00"
+            "time": "2024-11-20T13:22:37+00:00"
         },
         {
             "name": "deployer/deployer",
-            "version": "v7.5.4",
+            "version": "v7.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deployphp/deployer.git",
-                "reference": "df7d86e47f9760ca98dc7ff10962dd07134ac489"
+                "reference": "1b37d639e0ffad980f6cc3873859b16de29ecad7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deployphp/deployer/zipball/df7d86e47f9760ca98dc7ff10962dd07134ac489",
-                "reference": "df7d86e47f9760ca98dc7ff10962dd07134ac489",
+                "url": "https://api.github.com/repos/deployphp/deployer/zipball/1b37d639e0ffad980f6cc3873859b16de29ecad7",
+                "reference": "1b37d639e0ffad980f6cc3873859b16de29ecad7",
                 "shasum": ""
             },
             "require": {
@@ -3334,7 +3334,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-23T15:09:50+00:00"
+            "time": "2024-11-08T13:18:44+00:00"
         },
         {
             "name": "mikey179/vfsstream",
@@ -4930,16 +4930,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.10.3",
+            "version": "3.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "62d32998e820bddc40f99f8251958aed187a5c9c"
+                "reference": "19473c30efe4f7b3cd42522d0b2e6e7f243c6f87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/62d32998e820bddc40f99f8251958aed187a5c9c",
-                "reference": "62d32998e820bddc40f99f8251958aed187a5c9c",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/19473c30efe4f7b3cd42522d0b2e6e7f243c6f87",
+                "reference": "19473c30efe4f7b3cd42522d0b2e6e7f243c6f87",
                 "shasum": ""
             },
             "require": {
@@ -5006,7 +5006,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-09-18T10:38:58+00:00"
+            "time": "2024-11-16T12:02:36+00:00"
         },
         {
             "name": "tatter/patches",
