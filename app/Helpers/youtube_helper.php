@@ -23,7 +23,9 @@ if (! function_exists('youtube_get_duration')) {
 
         if ($resultPage !== false && is_string($resultPage)) {
             if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
-                return $matches[1];
+                if ($matches[1] > 0) {
+                    return $matches[1];
+                }
             }
         }
 
@@ -185,6 +187,10 @@ if (! function_exists('youtube_parse_meta')) {
         $video['video_aspect_ratio'] = round($video['video_width'] / $video['video_height'], 3);
 
         $video['video_duration'] = youtube_get_duration($video['video_id']);
+
+        if (!$video['video_duration']) {
+            $video['video_duration'] = 0;
+        }
 
         return $video;
     }
