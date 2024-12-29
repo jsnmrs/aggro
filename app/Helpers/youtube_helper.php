@@ -188,7 +188,7 @@ if (! function_exists('youtube_parse_meta')) {
 
         $video['video_duration'] = youtube_get_duration($video['video_id']);
 
-        if (!$video['video_duration']) {
+        if (! $video['video_duration']) {
             $video['video_duration'] = 0;
         }
 
