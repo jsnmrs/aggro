@@ -7,7 +7,7 @@
   "require": {
     "php": "^8.1",
     "codeigniter4/framework": "^4.5",
-    "friendsofphp/php-cs-fixer": "^3.65",
+    "friendsofphp/php-cs-fixer": "^3.66",
     "nexusphp/cs-config": "^3.24",
     "nikic/php-parser": "^5.4",
     "pdepend/pdepend": "^2.16",
