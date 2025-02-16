@@ -102,7 +102,8 @@ class YoutubeModels extends Model
                 if ($videoDuration !== false && is_numeric($videoDuration)) {
                     $sql = 'UPDATE aggro_videos SET video_duration = ' . $videoDuration . " WHERE video_id = '" . $result->video_id . "'";
                     $this->db->query($sql);
-                } else {
+                }
+                if ($videoDuration === false) {
                     log_message('error', 'Failed to get duration for video ' . $result->video_id);
                 }
                 $sql   = 'UPDATE aggro_videos SET video_duration = ' . $videoDuration . " WHERE video_id = '" . $result->video_id . "'";
