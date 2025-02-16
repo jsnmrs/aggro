@@ -127,8 +127,12 @@ if (! function_exists('youtube_id_from_url')) {
         $pattern = '/^.*(youtu.be\\/|v\\/|u\\/\\w\\/|embed\\/|watch\\?v=|\\&v=)([^#\\&\\?]*).*/';
         preg_match($pattern, $url, $match);
 
-        if ($match[2] && strlen($match[2]) === 11) {
-            return $match[2];
+        if (isset($match[2]) && strlen($match[2]) === 11) {
+            // Add validation to ensure clean ID
+            $id = trim($match[2]);
+            if (preg_match('/^[\w-]{11}$/', $id)) {
+                return $id;
+            }
         }
 
         return false;
