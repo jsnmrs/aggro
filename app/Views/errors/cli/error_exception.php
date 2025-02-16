@@ -3,7 +3,7 @@
 use CodeIgniter\CLI\CLI;
 
 // The main Exception
-CLI::write('[' . get_class($exception) . ']', 'light_gray', 'red');
+CLI::write('[' . $exception::class . ']', 'light_gray', 'red');
 CLI::write($message);
 CLI::write('at ' . CLI::color(clean_path($exception->getFile()) . ':' . $exception->getLine(), 'green'));
 CLI::newLine();
@@ -14,7 +14,7 @@ while ($prevException = $last->getPrevious()) {
     $last = $prevException;
 
     CLI::write('  Caused by:');
-    CLI::write('  [' . get_class($prevException) . ']', 'red');
+    CLI::write('  [' . $prevException::class . ']', 'red');
     CLI::write('  ' . $prevException->getMessage());
     CLI::write('  at ' . CLI::color(clean_path($prevException->getFile()) . ':' . $prevException->getLine(), 'green'));
     CLI::newLine();
@@ -53,7 +53,7 @@ if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) {
         $args = implode(', ', array_map(static function ($value) {
             switch (true) {
                 case is_object($value):
-                    return 'Object(' . get_class($value) . ')';
+                    return 'Object(' . $value::class . ')';
 
                 case is_array($value):
                     return count($value) ? '[...]' : '[]';
