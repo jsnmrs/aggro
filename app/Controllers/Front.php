@@ -141,7 +141,7 @@ class Front extends BaseController
         ];
         $aggroModel = new AggroModels();
 
-        if ($slug === null || $slug === 'recent') {
+        if ($slug === '' || $slug === 'recent') {
             $data['page'] = 1;
 
             if ($this->request->getUri()->getTotalSegments() === 3
