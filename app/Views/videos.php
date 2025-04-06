@@ -1,4 +1,4 @@
-<?=/**
+<?= /**
  * @file
  * Videos page template.
  */ $this->include('includes/header'); ?>

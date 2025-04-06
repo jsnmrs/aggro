@@ -1,4 +1,4 @@
-<?=/**
+<?= /**
  * @file
  * Directory (sites) page template.
  */ $this->include('includes/header'); ?>

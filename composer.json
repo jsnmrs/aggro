@@ -7,7 +7,7 @@
   "require": {
     "php": "^8.1",
     "codeigniter4/framework": "^4.6",
-    "friendsofphp/php-cs-fixer": "^3.69",
+    "friendsofphp/php-cs-fixer": "^3.75",
     "nexusphp/cs-config": "^3.25",
     "nikic/php-parser": "^5.4",
     "pdepend/pdepend": "^2.16",
@@ -25,7 +25,7 @@
     "phpunit/phpunit": "^11.5",
     "sebastian/complexity": "^4.0",
     "sebastian/lines-of-code": "^3.0",
-    "squizlabs/php_codesniffer": "^3.11",
+    "squizlabs/php_codesniffer": "^3.12",
     "tatter/patches": "^2.1"
   },
   "autoload-dev": {
