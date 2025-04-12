@@ -58,7 +58,7 @@ jobs:
         run: npm ci
 
       - name: Run stylelint
-        run: npm run stylelint -- --no-fix
+        run: npm run stylelint
 
       - name: Run prettier check
         run: npx prettier --check "public/css/*.css"
