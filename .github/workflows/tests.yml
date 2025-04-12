@@ -53,19 +53,6 @@ jobs:
         run: |
           # Only run the HealthTest.php unit test which doesn't depend on database classes
           vendor/bin/phpunit tests/unit/HealthTest.php --no-coverage || true
-          # Create required directory for coverage reports
-          mkdir -p build/logs
-
-      - name: Generate coverage report
-        run: |
-          mkdir -p build/logs
-          vendor/bin/phpunit --coverage-clover build/logs/clover.xml tests/unit/HealthTest.php || true
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          file: ./build/logs/clover.xml
-          fail_ci_if_error: false
 
   frontend-tests:
     name: Frontend Tests
