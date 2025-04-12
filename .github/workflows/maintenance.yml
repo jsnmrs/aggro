@@ -70,7 +70,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.update-composer.outputs.composer_changes == 'true' || steps.update-npm.outputs.npm_changes == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: ${{ steps.create-branch.outputs.branch }}
           title: "Maintenance: Dependency updates"
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Stale Issue & PR Closer
-        uses: actions/stale@v8
+        uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-issue-message: 'This issue has been marked as stale due to inactivity. It will be closed in 7 days if no further activity occurs.'
