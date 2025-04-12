@@ -66,6 +66,7 @@ jobs:
         with:
           base: main
           branch: ${{ steps.create-branch.outputs.branch }}
+          reset-branch: false
           title: "Maintenance: Dependency updates"
           body: |
             This PR updates dependencies to their latest compatible versions.
