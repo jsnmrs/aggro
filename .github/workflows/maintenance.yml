@@ -56,6 +56,11 @@ jobs:
             git commit -m "Update npm dependencies"
           fi
 
+          # Push branch to remote if there are changes
+          if [[ "$COMPOSER_CHANGES" == "true" || "$NPM_CHANGES" == "true" ]]; then
+            git push -u origin ${{ steps.create-branch.outputs.branch }}
+          fi
+
           # Set outputs for next step
           echo "composer_changes=$COMPOSER_CHANGES" >> $GITHUB_OUTPUT
           echo "npm_changes=$NPM_CHANGES" >> $GITHUB_OUTPUT
