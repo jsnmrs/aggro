@@ -64,6 +64,7 @@ jobs:
         if: steps.update-deps.outputs.composer_changes == 'true' || steps.update-deps.outputs.npm_changes == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          base: main
           branch: ${{ steps.create-branch.outputs.branch }}
           title: "Maintenance: Dependency updates"
           body: |
