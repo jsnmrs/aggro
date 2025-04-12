@@ -1,64 +1,93 @@
-name: Code Quality
+name: Tests
 
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  php-lint:
-    name: PHP Linting
+  php-tests:
+    name: PHP ${{ matrix.php-versions }} Tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.2']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP environment
+        uses: ./.github/actions/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, intl, json, mysql, xml
+          coverage: xdebug
+          tools: composer, phpunit
+
+      - name: Setup environment for tests
+        run: |
+          cp .env-sample .env
+          echo "app.baseURL = 'http://localhost:8080/'" >> .env
+          echo "database.tests.hostname = 127.0.0.1" >> .env
+          echo "database.tests.database = test_db" >> .env
+          echo "database.tests.username = root" >> .env
+          echo "database.tests.password = root" >> .env
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database
+
+      - name: Generate coverage report
+        run: |
+          mkdir -p build/logs
+          vendor/bin/phpunit --coverage-clover build/logs/clover.xml tests/unit/HealthTest.php
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./build/logs/clover.xml
+          fail_ci_if_error: false
+
+  frontend-tests:
+    name: Frontend Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, intl, xml, json
-          coverage: none
-          tools: composer
+      - name: Setup Node.js environment
+        uses: ./.github/actions/setup-node
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Run build process
+        run: npm run build
 
-      - name: Cache composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install dependencies
-        run: composer install --no-progress
-
-      - name: Run PHP-CS-Fixer
-        run: composer phpfix -- --dry-run
-
-      - name: Run PHP_CodeSniffer
-        run: composer phpcs
-
-      - name: Run PHPMD
-        run: composer phpmd
-
-  css-lint:
-    name: CSS Linting
+  docksal-tests:
+    name: Docksal Build Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Run Docksal installer
+        run: curl -fsSL https://get.docksal.io | bash
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Initialize Docksal project
+        run: fin init
 
-      - name: Run stylelint
-        run: npm run stylelint
-
-      - name: Run prettier check
-        run: npx prettier --check "public/css/*.css"
+      - name: Run code checks and admin commands
+        run: |
+          fin sniff
+          fin shellcheck
+          fin admin
