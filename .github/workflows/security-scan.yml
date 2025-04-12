@@ -2,29 +2,35 @@ name: Security Scan
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
   schedule:
     - cron: '0 0 * * 0'  # Run weekly on Sundays
   workflow_dispatch:
 
 jobs:
-  php-security:
-    name: PHP Security Check
+  security-check:
+    name: Security Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup PHP environment
-        uses: ./.github/actions/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
 
       - name: PHP Security Checker
         uses: symfonycorp/security-checker-action@v5
 
-      - name: PHP Compatibility Check
+      - name: Run PHPCS Security Audit
         run: |
           composer require --dev phpcompatibility/php-compatibility dealerdirect/phpcodesniffer-composer-installer
+          # Run compatibility check on app directories, excluding error templates
           vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- \
             --ignore=*/Views/errors/* app/ || true
 
@@ -33,23 +39,22 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Analyze dependencies
+      - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
 
   npm-audit:
-    name: NPM Security Audit
+    name: NPM Audit
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
-        uses: ./.github/actions/setup-node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
 
