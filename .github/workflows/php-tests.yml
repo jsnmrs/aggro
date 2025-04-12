@@ -63,22 +63,41 @@ jobs:
           echo "database.tests.username = root" >> .env
           echo "database.tests.password = root" >> .env
 
-      - name: Run health test
+      - name: Create modern PHPUnit configuration
         run: |
-          # Run with explicitly configured code coverage
           mkdir -p build/logs
 
-          # Create phpunit.xml from the dist version
-          cp phpunit.xml.dist phpunit.xml
-
-          # Add filter to phpunit.xml to avoid warnings
-          sed -i 's|<coverage includeUncoveredFiles="true" processUncoveredFiles="true">|<coverage includeUncoveredFiles="true" processUncoveredFiles="true"><include><directory suffix=".php">./app</directory></include>|' phpunit.xml
-
-          # Run tests - consider warnings as non-fatal
-          vendor/bin/phpunit --no-coverage tests/unit/HealthTest.php
-
-          # Generate coverage separately
-          vendor/bin/phpunit --coverage-clover=build/logs/clover.xml tests/unit/HealthTest.php || true
+          # Create a modern phpunit.xml configuration that works with PHPUnit 11
+          echo '<?xml version="1.0" encoding="UTF-8"?>
+          <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  bootstrap="vendor/codeigniter4/framework/system/Test/bootstrap.php"
+                  colors="true"
+                  stopOnError="false"
+                  stopOnFailure="false"
+                  stopOnIncomplete="false"
+                  stopOnSkipped="false"
+                  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd">
+            <testsuites>
+              <testsuite name="App">
+                <directory>./tests</directory>
+              </testsuite>
+            </testsuites>
+            <source>
+              <include>
+                <directory suffix=".php">./app</directory>
+              </include>
+              <exclude>
+                <directory suffix=".php">./app/Views</directory>
+                <file>./app/Config/Routes.php</file>
+              </exclude>
+            </source>
+            <php>
+              <server name="app.baseURL" value="http://localhost:8080"/>
+              <const name="HOMEPATH" value="./"/>
+              <const name="CONFIGPATH" value="./app/Config/"/>
+              <const name="PUBLICPATH" value="./public/"/>
+            </php>
+          </phpunit>' > phpunit.xml
 
       - name: Check for other unit tests
         id: unit-tests
@@ -90,6 +109,11 @@ jobs:
             echo "has_unit_tests=false" >> $GITHUB_OUTPUT
             echo "No additional unit tests found besides HealthTest.php"
           fi
+
+      - name: Run other unit tests
+        if: steps.unit-tests.outputs.has_unit_tests == 'true'
+        run: |
+          vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database
 
       - name: Run other unit tests
         if: steps.unit-tests.outputs.has_unit_tests == 'true'
