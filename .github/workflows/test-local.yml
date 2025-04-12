@@ -1,0 +1,32 @@
+name: Test local build
+
+on:
+  workflow_dispatch: # enable run button on github.com
+  pull_request:
+
+jobs:
+  install-docksal:
+    name: Build docksal project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run docksal installer
+        run: curl -fsSL https://get.docksal.io | bash
+      - name: Display docksal system info
+        run: fin sysinfo
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Init docksal project
+        run: fin init
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "npm"
+          cache-dependency-path: "./package-lock.json"
+      - name: Install dependencies
+        run: npm install
+      - name: Run code checks and admin
+        run: |
+          fin sniff
+          fin shellcheck
+          fin admin
