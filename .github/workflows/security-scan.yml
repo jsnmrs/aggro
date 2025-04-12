@@ -29,7 +29,7 @@ jobs:
 
       - name: Run PHPCS Security Audit
         run: |
-          composer require --dev squizlabs/php_codesniffer phpcompatibility/php-compatibility
+          composer require --dev phpcompatibility/php-compatibility dealerdirect/phpcodesniffer-composer-installer
           vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- app/
 
   dependency-review:
