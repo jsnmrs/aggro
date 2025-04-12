@@ -18,45 +18,46 @@ if (! function_exists('clean_emoji')) {
      */
     function clean_emoji($text)
     {
-        $cleanText = '';
+        // $cleanText = '';
 
-        // Match Emoticons.
-        $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
-        $cleanText      = preg_replace($regexEmoticons, '', $text);
+        // // Match Emoticons.
+        // $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+        // $cleanText      = preg_replace($regexEmoticons, '', $text);
 
-        // Match Miscellaneous Symbols and Pictographs.
-        $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
-        $cleanText    = preg_replace($regexSymbols, '', $cleanText);
+        // // Match Miscellaneous Symbols and Pictographs.
+        // $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+        // $cleanText    = preg_replace($regexSymbols, '', $cleanText);
 
-        // Match Transport And Map Symbols.
-        $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
-        $cleanText      = preg_replace($regexTransport, '', $cleanText);
+        // // Match Transport And Map Symbols.
+        // $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+        // $cleanText      = preg_replace($regexTransport, '', $cleanText);
 
-        // Match Miscellaneous Symbols.
-        $regexMisc = '/[\x{2600}-\x{26FF}]/u';
-        $cleanText = preg_replace($regexMisc, '', $cleanText);
+        // // Match Miscellaneous Symbols.
+        // $regexMisc = '/[\x{2600}-\x{26FF}]/u';
+        // $cleanText = preg_replace($regexMisc, '', $cleanText);
 
-        // Match Dingbats.
-        $regexDingbats = '/[\x{2700}-\x{27BF}]/u';
-        $cleanText     = preg_replace($regexDingbats, '', $cleanText);
+        // // Match Dingbats.
+        // $regexDingbats = '/[\x{2700}-\x{27BF}]/u';
+        // $cleanText     = preg_replace($regexDingbats, '', $cleanText);
 
-        // Match Flags.
-        $regexDingbats = '/[\x{1F1E6}-\x{1F1FF}]/u';
-        $cleanText     = preg_replace($regexDingbats, '', $cleanText);
+        // // Match Flags.
+        // $regexDingbats = '/[\x{1F1E6}-\x{1F1FF}]/u';
+        // $cleanText     = preg_replace($regexDingbats, '', $cleanText);
 
-        // Others.
-        $regexDingbats = '/[\x{1F910}-\x{1F95E}]/u';
-        $cleanText     = preg_replace($regexDingbats, '', $cleanText);
+        // // Others.
+        // $regexDingbats = '/[\x{1F910}-\x{1F95E}]/u';
+        // $cleanText     = preg_replace($regexDingbats, '', $cleanText);
 
-        $regexDingbats = '/[\x{1F980}-\x{1F991}]/u';
-        $cleanText     = preg_replace($regexDingbats, '', $cleanText);
+        // $regexDingbats = '/[\x{1F980}-\x{1F991}]/u';
+        // $cleanText     = preg_replace($regexDingbats, '', $cleanText);
 
-        $regexDingbats = '/[\x{1F9C0}]/u';
-        $cleanText     = preg_replace($regexDingbats, '', $cleanText);
+        // $regexDingbats = '/[\x{1F9C0}]/u';
+        // $cleanText     = preg_replace($regexDingbats, '', $cleanText);
 
-        $regexDingbats = '/[\x{1F9F9}]/u';
+        // $regexDingbats = '/[\x{1F9F9}]/u';
 
-        return preg_replace($regexDingbats, '', $cleanText);
+        // return preg_replace($regexDingbats, '', $cleanText);
+        return $text;
     }
 }
 
@@ -119,7 +120,7 @@ if (! function_exists('clean_thumbnail')) {
      */
     function clean_thumbnail($videoid)
     {
-        $path = ROOTPATH . 'public/thumbs/' . $videoid . '.jpg';
+        $path = ROOTPATH . 'public/thumbs/' . $videoid . 'webp';
         if (file_exists($path)) {
             unlink($path);
         }
@@ -208,7 +209,7 @@ if (! function_exists('fetch_thumbnail')) {
     function fetch_thumbnail($videoid, $thumbnail)
     {
         helper('aggro');
-        $path   = ROOTPATH . 'public/thumbs/' . $videoid . '.jpg';
+        $path   = ROOTPATH . 'public/thumbs/' . $videoid . '.webp';
         $buffer = fetch_url($thumbnail);
 
         if (! empty($buffer)) {
@@ -219,6 +220,7 @@ if (! function_exists('fetch_thumbnail')) {
             Config\Services::image()
                 ->withFile($path)
                 ->resize(600, 338, false, 'width')
+                ->convert(IMAGETYPE_WEBP)
                 ->save($path, 40);
 
             return true;

@@ -12,7 +12,7 @@ foreach ($build as $row) {
     echo "<item>\n";
     $row->video_title = str_replace(',', '', $row->video_title);
 
-    echo '<title>BMXFEED: ' . $row->video_title . "</title>\n";
+    echo '<title>' . $row->video_title . "</title>\n";
     echo '<link>https://bmxfeed.com/video/' . $row->video_id . "</link>\n";
     echo '<description>Uploaded by ' . htmlspecialchars($row->video_source_username ?? '', ENT_QUOTES | ENT_IGNORE, 'UTF-8') . ' on ' . date('F j g:ia', strtotime($row->video_date_uploaded)) . ".</description>\n";
     echo "<content:encoded>\n";

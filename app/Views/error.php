@@ -1,7 +1,4 @@
-<?= /**
- * @file
- * Error page (404) template.
- */ $this->include('includes/header'); ?>
+<?= $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">

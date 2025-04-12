@@ -23,6 +23,12 @@ $errorId = uniqid('error', true);
 
     <!-- Header -->
     <div class="header">
+        <div class="environment">
+            Displayed at <?= esc(date('H:i:sa')) ?> &mdash;
+            PHP: <?= esc(PHP_VERSION) ?>  &mdash;
+            CodeIgniter: <?= esc(CodeIgniter::CI_VERSION) ?> --
+            Environment: <?= ENVIRONMENT ?>
+        </div>
         <div class="container">
             <h1><?= esc($title), esc($exception->getCode() ? ' #' . $exception->getCode() : '') ?></h1>
             <p>
@@ -54,10 +60,10 @@ while ($prevException = $last->getPrevious()) {
 
     <pre>
     Caused by:
-    <?= esc(get_class($prevException)), esc($prevException->getCode() ? ' #' . $prevException->getCode() : '') ?>
+    <?= esc($prevException::class), esc($prevException->getCode() ? ' #' . $prevException->getCode() : '') ?>
 
     <?= nl2br(esc($prevException->getMessage())) ?>
-    <a href="https://www.duckduckgo.com/?q=<?= urlencode(get_class($prevException) . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $prevException->getMessage())) ?>"
+    <a href="https://www.duckduckgo.com/?q=<?= urlencode($prevException::class . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $prevException->getMessage())) ?>"
        rel="noreferrer" target="_blank">search &rarr;</a>
     <?= esc(clean_path($prevException->getFile()) . ':' . $prevException->getLine()) ?>
     </pre>
@@ -400,19 +406,6 @@ $response->setStatusCode(http_response_code());
 
     </div> <!-- /container -->
     <?php endif; ?>
-
-    <div class="footer">
-        <div class="container">
-
-            <p>
-                Displayed at <?= esc(date('H:i:sa')) ?> &mdash;
-                PHP: <?= esc(PHP_VERSION) ?>  &mdash;
-                CodeIgniter: <?= esc(CodeIgniter::CI_VERSION) ?> --
-                Environment: <?= ENVIRONMENT ?>
-            </p>
-
-        </div>
-    </div>
 
 </body>
 </html>

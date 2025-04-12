@@ -4,6 +4,35 @@
  * @file
  * YouTube helper functions.
  */
+if (! function_exists('youtube_get_duration')) {
+    /**
+     * Fetch YouTube video duration.
+     *
+     * @param string $videoID
+     *                        YouTube videoID.
+     *
+     * @return string
+     *                Video duration.
+     */
+    function youtube_get_duration($videoID)
+    {
+        helper('aggro');
+
+        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
+        $resultPage = fetch_url($videoPage, 'text', 0);
+
+        if ($resultPage !== false && is_string($resultPage)) {
+            if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
+                if ($matches[1] > 0) {
+                    return $matches[1];
+                }
+            }
+        }
+
+        return false;
+    }
+}
+
 if (! function_exists('youtube_get_feed')) {
     /**
      * Fetch YouTube channel feed.
@@ -98,8 +127,12 @@ if (! function_exists('youtube_id_from_url')) {
         $pattern = '/^.*(youtu.be\\/|v\\/|u\\/\\w\\/|embed\\/|watch\\?v=|\\&v=)([^#\\&\\?]*).*/';
         preg_match($pattern, $url, $match);
 
-        if ($match[2] && strlen($match[2]) === 11) {
-            return $match[2];
+        if (isset($match[2]) && strlen($match[2]) === 11) {
+            // Add validation to ensure clean ID
+            $id = trim($match[2]);
+            if (preg_match('/^[\w-]{11}$/', $id)) {
+                return $id;
+            }
         }
 
         return false;
@@ -156,6 +189,12 @@ if (! function_exists('youtube_parse_meta')) {
             $video['video_height'] = $result->height;
         }
         $video['video_aspect_ratio'] = round($video['video_width'] / $video['video_height'], 3);
+
+        $video['video_duration'] = youtube_get_duration($video['video_id']);
+
+        if (! $video['video_duration']) {
+            $video['video_duration'] = 0;
+        }
 
         return $video;
     }

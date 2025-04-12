@@ -22,7 +22,7 @@ class AggroModels extends Model
         $utilityModel = new UtilityModels();
         helper('aggro');
 
-        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ', 0, ' . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ', ' . $video['video_height'] . ', ' . $video['video_aspect_ratio'] . ", '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
+        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ', 0, ' . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ', ' . $video['video_height'] . ', ' . $video['video_aspect_ratio'] . ', ' . $video['video_duration'] . " , '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
 
         $this->db->query($sql);
 
@@ -82,7 +82,7 @@ class AggroModels extends Model
         $thumbs = $query->getResult();
 
         foreach ($thumbs as $thumb) {
-            $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.jpg';
+            $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.webp';
 
             if (! file_exists($path)) {
                 $message = $thumb->video_id . ' missing thumbnail';
@@ -129,7 +129,7 @@ class AggroModels extends Model
     public function cleanThumbs()
     {
         $utilityModel = new UtilityModels();
-        $thumbs       = ROOTPATH . 'public/thumbs/*.jpg';
+        $thumbs       = ROOTPATH . 'public/thumbs/*.webp';
 
         $files = glob($thumbs);
         $now   = time();
@@ -245,7 +245,7 @@ class AggroModels extends Model
             $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 7 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
         }
 
-        $sql   = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
+        $sql   = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
         $query = $this->db->query($sql);
 
         return $query->getResult();
@@ -259,10 +259,53 @@ class AggroModels extends Model
      */
     public function getVideosTotal()
     {
-        $sql   = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND aggro_date_updated <> '0000-00-00 00:00:00'";
+        $sql   = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> '0000-00-00 00:00:00'";
         $query = $this->db->query($sql);
 
         return count($query->getResultArray());
+    }
+
+    /**
+     * Get watch page.
+     *
+     * @return array
+     *               Video data from table or FALSE.
+     */
+    public function getWatchPage()
+    {
+        $sql   = "SELECT * FROM watch WHERE completed = '0000-00-00' ORDER BY sortorder LIMIT 1; ";
+        $query = $this->db->query($sql);
+        if ($query->getRowArray() === null) {
+            return false;
+        }
+
+        $build = $query->getRowArray();
+
+        return $this->getVideo($build['video_id']);
+    }
+
+    /**
+     * Update watch page.
+     *
+     * @return bool
+     */
+    public function updateWatchPage()
+    {
+        $now = date('Y-m-d');
+
+        $sql   = "SELECT * FROM watch WHERE completed = '0000-00-00' ORDER BY sortorder LIMIT 1; ";
+        $query = $this->db->query($sql);
+        if ($query->getRowArray() === null) {
+            return false;
+        }
+
+        $build = $query->getRowArray();
+        $sql   = "UPDATE watch
+            SET completed = '" . $now . "'
+            WHERE video_id = '" . $build['video_id'] . "'";
+        $this->db->query($sql);
+
+        return true;
     }
 
     /**

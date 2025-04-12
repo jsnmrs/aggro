@@ -22,6 +22,25 @@ class Aggro extends BaseController
     }
 
     /**
+     * Change watch page.
+     */
+    public function changeWatch()
+    {
+        helper('aggro');
+        if (! gate_check()) {
+            return false;
+        }
+
+        $aggroModel = new AggroModels();
+
+        if ($aggroModel->updateWatchPage()) {
+            echo "\nWatch video updated.\n";
+        }
+
+        return true;
+    }
+
+    /**
      * Aggro info.
      */
     public function getInfo()
@@ -190,6 +209,24 @@ class Aggro extends BaseController
 
         if ($aggroModel->cleanThumbs()) {
             echo "\nThumbnails cleaned up.\n";
+        }
+
+        return true;
+    }
+
+    /**
+     * Update duration value for videos.
+     */
+    public function getYouTubeDuration()
+    {
+        helper(['aggro', 'youtube']);
+        $youtubeModel = new YoutubeModels();
+
+        if (! gate_check()) {
+            return false;
+        }
+        if ($youtubeModel->getDuration()) {
+            echo "\nDurations fetched.\n";
         }
 
         return true;

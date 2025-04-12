@@ -131,18 +131,22 @@ class Front extends BaseController
      */
     public function getVideo($slug = null)
     {
+        // Sanitize slug
+        $slug = trim($slug);
+        $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
+
         $data = [
             'title' => 'Videos',
             'slug'  => 'video',
         ];
         $aggroModel = new AggroModels();
 
-        if ($slug === null || $slug === 'recent') {
+        if ($slug === '' || $slug === 'recent') {
             $data['page'] = 1;
 
-            if ($this->request->uri->getTotalSegments() === 3
-              && is_numeric($this->request->uri->getSegment(3))) {
-                $data['page'] = (int) (esc($this->request->uri->getSegment(3)));
+            if ($this->request->getUri()->getTotalSegments() === 3
+              && is_numeric($this->request->getUri()->getSegment(3))) {
+                $data['page'] = (int) (esc($this->request->getUri()->getSegment(3)));
             }
 
             $data['sort']    = 'recent';
@@ -168,5 +172,21 @@ class Front extends BaseController
         }
 
         return $this->getError404();
+    }
+
+    /**
+     * Watch page.
+     */
+    public function getWatch()
+    {
+        $data = [
+            'title' => 'Watch',
+            'slug'  => 'watch',
+        ];
+
+        $aggroModel = new AggroModels();
+
+        $data['build'] = $aggroModel->getWatchPage();
+        echo view('watch', $data);
     }
 }
