@@ -65,18 +65,27 @@ jobs:
 
       - name: Run health test
         run: |
-          # Run with coverage for the health test
+          # Run with explicitly configured code coverage
           mkdir -p build/logs
+
+          # Add filter to phpunit.xml to avoid warnings
+          sed -i 's|<coverage includeUncoveredFiles="true" processUncoveredFiles="true">|<coverage includeUncoveredFiles="true" processUncoveredFiles="true"><include><directory suffix=".php">./app</directory></include>|' phpunit.xml
+
+          # Run tests - consider warnings as non-fatal
+          vendor/bin/phpunit --no-coverage tests/unit/HealthTest.php
+
+          # Generate coverage separately
           vendor/bin/phpunit --coverage-clover=build/logs/clover.xml tests/unit/HealthTest.php || true
 
       - name: Check for other unit tests
         id: unit-tests
         run: |
           # Check if any other unit tests exist
-          if [ -d "tests/unit" ] && [ "$(find tests/unit -name '*Test.php' | grep -v HealthTest.php | wc -l)" -gt 0 ]; then
+          if [ -d "tests/unit" ] && [ "$(find tests/unit -name '*Test.php' | grep -v 'HealthTest.php' | wc -l)" -gt 0 ]; then
             echo "has_unit_tests=true" >> $GITHUB_OUTPUT
           else
             echo "has_unit_tests=false" >> $GITHUB_OUTPUT
+            echo "No additional unit tests found besides HealthTest.php"
           fi
 
       - name: Run other unit tests
