@@ -46,8 +46,11 @@ jobs:
           echo "database.tests.username = root" >> .env
           echo "database.tests.password = root" >> .env
 
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Run unit tests
-        run: vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database
+        run: vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database tests/unit
 
       - name: Generate coverage report
         run: |
