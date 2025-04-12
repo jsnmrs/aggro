@@ -17,7 +17,7 @@
 			<file>./app/Config/Routes.php</file>
 		</exclude>
 	</source>
-	<coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+	<coverage>
 		<report>
 			<clover outputFile="build/logs/clover.xml"/>
 			<html outputDirectory="build/logs/html"/>
@@ -31,8 +31,6 @@
 		</testsuite>
 	</testsuites>
 	<logging>
-		<testdox outputFile="build/logs/testdox.html" />
-		<testdox outputFile="build/logs/testdox.txt" />
 		<junit outputFile="build/logs/logfile.xml"/>
 	</logging>
 	<php>
