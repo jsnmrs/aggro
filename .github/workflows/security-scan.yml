@@ -2,35 +2,29 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
   schedule:
     - cron: '0 0 * * 0'  # Run weekly on Sundays
   workflow_dispatch:
 
 jobs:
-  security-check:
-    name: Security Scan
+  php-security:
+    name: PHP Security Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer
-
-      - name: Install dependencies
-        run: composer install --no-progress --no-interaction
+      - name: Setup PHP environment
+        uses: ./.github/actions/setup-php
 
       - name: PHP Security Checker
         uses: symfonycorp/security-checker-action@v5
 
-      - name: Run PHPCS Security Audit
+      - name: PHP Compatibility Check
         run: |
           composer require --dev phpcompatibility/php-compatibility dealerdirect/phpcodesniffer-composer-installer
-          # Run compatibility check on app directories, excluding error templates
           vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- \
             --ignore=*/Views/errors/* app/ || true
 
@@ -39,22 +33,23 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Dependency Review
+      - name: Analyze dependencies
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
 
   npm-audit:
-    name: NPM Audit
+    name: NPM Security Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js environment
+        uses: ./.github/actions/setup-node
         with:
           node-version: 'lts/*'
 
