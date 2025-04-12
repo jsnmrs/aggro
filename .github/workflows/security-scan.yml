@@ -1,0 +1,60 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sundays
+  workflow_dispatch:
+
+jobs:
+  security-check:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: PHP Security Checker
+        uses: symfonycorp/security-checker-action@v5
+
+      - name: Run PHPCS Security Audit
+        run: |
+          composer require --dev squizlabs/php_codesniffer phpcompatibility/php-compatibility
+          vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- app/
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: high
+
+  npm-audit:
+    name: NPM Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Run npm audit
+        run: npm audit --production

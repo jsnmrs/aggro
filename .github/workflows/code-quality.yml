@@ -1,0 +1,64 @@
+name: Code Quality
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  php-lint:
+    name: PHP Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, xml, json
+          coverage: none
+          tools: composer
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-progress
+
+      - name: Run PHP-CS-Fixer
+        run: composer phpfix -- --dry-run
+
+      - name: Run PHP_CodeSniffer
+        run: composer phpcs
+
+      - name: Run PHPMD
+        run: composer phpmd
+
+  css-lint:
+    name: CSS Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run stylelint
+        run: npm run stylelint -- --no-fix
+
+      - name: Run prettier check
+        run: npx prettier --check "public/css/*.css"
