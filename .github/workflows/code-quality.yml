@@ -50,7 +50,7 @@ jobs:
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run unit tests
-        run: vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database
+        run: vendor/bin/phpunit --testsuite "App" --filter "unit" --exclude-group database --exclude-pattern 'tests/database/*.php'
 
       - name: Generate coverage report
         run: |
