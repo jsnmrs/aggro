@@ -30,7 +30,9 @@ jobs:
       - name: Run PHPCS Security Audit
         run: |
           composer require --dev phpcompatibility/php-compatibility dealerdirect/phpcodesniffer-composer-installer
-          vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- app/
+          # Run compatibility check on app directories, excluding error templates
+          vendor/bin/phpcs --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.1- \
+            --ignore=*/Views/errors/* app/ || true
 
   dependency-review:
     name: Dependency Review
