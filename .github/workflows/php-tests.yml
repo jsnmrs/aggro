@@ -68,6 +68,9 @@ jobs:
           # Run with explicitly configured code coverage
           mkdir -p build/logs
 
+          # Create phpunit.xml from the dist version
+          cp phpunit.xml.dist phpunit.xml
+
           # Add filter to phpunit.xml to avoid warnings
           sed -i 's|<coverage includeUncoveredFiles="true" processUncoveredFiles="true">|<coverage includeUncoveredFiles="true" processUncoveredFiles="true"><include><directory suffix=".php">./app</directory></include>|' phpunit.xml
 
