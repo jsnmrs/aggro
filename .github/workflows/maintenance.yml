@@ -1,0 +1,106 @@
+name: Scheduled Maintenance
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Run every Monday at midnight
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  dependency-updates:
+    name: Dependency Updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Setup git identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Create branch
+        id: create-branch
+        run: |
+          BRANCH="maintenance/dep-updates-$(date +'%Y-%m-%d')"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          git checkout -b $BRANCH
+
+      - name: Update Composer dependencies
+        id: update-composer
+        run: |
+          # Update non-dev dependencies
+          composer update --no-interaction
+
+          # Check if there are changes
+          if [[ -n $(git status --porcelain composer.lock) ]]; then
+            echo "composer_changes=true" >> $GITHUB_OUTPUT
+            git add composer.lock
+            git commit -m "Update Composer dependencies"
+          else
+            echo "composer_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update npm dependencies
+        id: update-npm
+        run: |
+          npm update
+
+          # Check if there are changes
+          if [[ -n $(git status --porcelain package-lock.json) ]]; then
+            echo "npm_changes=true" >> $GITHUB_OUTPUT
+            git add package-lock.json
+            git commit -m "Update npm dependencies"
+          else
+            echo "npm_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.update-composer.outputs.composer_changes == 'true' || steps.update-npm.outputs.npm_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: ${{ steps.create-branch.outputs.branch }}
+          title: "Maintenance: Dependency updates"
+          body: |
+            This PR updates dependencies to their latest compatible versions.
+
+            - Composer dependencies: ${{ steps.update-composer.outputs.composer_changes == 'true' && 'Updated' || 'No changes' }}
+            - NPM dependencies: ${{ steps.update-npm.outputs.npm_changes == 'true' && 'Updated' || 'No changes' }}
+
+            This PR was automatically created by the maintenance workflow.
+          labels: |
+            maintenance
+            dependencies
+
+  housekeeping:
+    name: Repository Housekeeping
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stale Issue & PR Closer
+        uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'This issue has been marked as stale due to inactivity. It will be closed in 7 days if no further activity occurs.'
+          stale-pr-message: 'This PR has been marked as stale due to inactivity. It will be closed in 14 days if no further activity occurs.'
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          days-before-stale: 60
+          days-before-close: 14
+          exempt-issue-labels: 'pinned,security,enhancement'
+          exempt-pr-labels: 'pinned,security,work-in-progress'
