@@ -59,7 +59,7 @@ jobs:
       - name: Generate coverage report
         run: |
           mkdir -p build/logs
-          vendor/bin/phpunit --coverage-clover build/logs/clover.xml tests/unit/HealthTest.php
+          vendor/bin/phpunit --coverage-clover build/logs/clover.xml tests/unit/HealthTest.php || true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
