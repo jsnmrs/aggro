@@ -3,15 +3,12 @@
 		bootstrap="vendor/codeigniter4/framework/system/Test/bootstrap.php"
 		backupGlobals="false"
 		colors="true"
-		convertErrorsToExceptions="true"
-		convertNoticesToExceptions="true"
-		convertWarningsToExceptions="true"
 		stopOnError="false"
 		stopOnFailure="false"
 		stopOnIncomplete="false"
 		stopOnSkipped="false"
-		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-	<coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd">
+	<source>
 		<include>
 			<directory suffix=".php">./app</directory>
 		</include>
@@ -19,6 +16,8 @@
 			<directory suffix=".php">./app/Views</directory>
 			<file>./app/Config/Routes.php</file>
 		</exclude>
+	</source>
+	<coverage includeUncoveredFiles="true" processUncoveredFiles="true">
 		<report>
 			<clover outputFile="build/logs/clover.xml"/>
 			<html outputDirectory="build/logs/html"/>
@@ -32,8 +31,8 @@
 		</testsuite>
 	</testsuites>
 	<logging>
-		<testdoxHtml outputFile="build/logs/testdox.html"/>
-		<testdoxText outputFile="build/logs/testdox.txt"/>
+		<testdox outputFile="build/logs/testdox.html" />
+		<testdox outputFile="build/logs/testdox.txt" />
 		<junit outputFile="build/logs/logfile.xml"/>
 	</logging>
 	<php>
@@ -45,13 +44,6 @@
 		<!-- Directory containing the front controller (index.php) -->
 		<const name="PUBLICPATH" value="./public/"/>
 		<!-- Database configuration -->
-		<!-- Uncomment to provide your own database for testing
-		<env name="database.tests.hostname" value="localhost"/>
-		<env name="database.tests.database" value="tests"/>
-		<env name="database.tests.username" value="tests_user"/>
-		<env name="database.tests.password" value=""/>
-		<env name="database.tests.DBDriver" value="MySQLi"/>
-		<env name="database.tests.DBPrefix" value="tests_"/>
-		-->
+		<!-- Uncomment to provide your own database for testing -->
 	</php>
 </phpunit>
