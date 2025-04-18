@@ -112,19 +112,6 @@ class Front extends BaseController
     }
 
     /**
-     * Submit page.
-     */
-    public function getSubmit()
-    {
-        $data = [
-            'title' => 'Submit',
-            'slug'  => 'submit',
-        ];
-
-        echo view('submit', $data);
-    }
-
-    /**
      * Video pages.
      *
      * @param mixed|null $slug

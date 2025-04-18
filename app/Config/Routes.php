@@ -15,7 +15,6 @@ $routes->add('rss', 'Feed::getVideofeed');
 $routes->add('sites', 'Front::getSites');
 $routes->add('sites/(:segment)', 'Front::getSites/$1');
 $routes->add('stream', 'Front::getStream');
-$routes->add('submit', 'Front::getSubmit');
 $routes->add('video', 'Front::getVideo');
 $routes->add('video/(:any)', 'Front::getVideo/$1');
 $routes->add('watch', 'Front::getWatch');
