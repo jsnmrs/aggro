@@ -84,4 +84,15 @@ class Autoload extends AutoloadConfig
      * @var array<int, string>
      */
     public $files = [];
+
+    /**
+     * -------------------------------------------------------------------
+     * Helpers
+     * -------------------------------------------------------------------
+     * This maps the list of helpers to load at the beginning of
+     * the request.
+     *
+     * @var array<int, string>
+     */
+    public $helpers = [];
 }

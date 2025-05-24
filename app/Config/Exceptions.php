@@ -6,6 +6,8 @@ use App\Libraries\SentryService;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Debug\ExceptionHandler;
 use CodeIgniter\Debug\ExceptionHandlerInterface;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LogLevel;
 use Throwable;
 
@@ -108,31 +110,31 @@ class Exceptions extends BaseConfig
 
             public function __construct($config, int $statusCode, Throwable $exception)
             {
-                $this->config = $config;
-                $this->statusCode = $statusCode;
-                $this->exception = $exception;
+                $this->config         = $config;
+                $this->statusCode     = $statusCode;
+                $this->exception      = $exception;
                 $this->defaultHandler = new ExceptionHandler($config);
             }
 
             public function handle(
                 Throwable $exception,
-                \CodeIgniter\HTTP\RequestInterface $request,
-                \CodeIgniter\HTTP\ResponseInterface $response,
+                RequestInterface $request,
+                ResponseInterface $response,
                 int $statusCode,
-                int $exitCode
+                int $exitCode,
             ): void {
                 // Send to Sentry in production if not an ignored code
-                if (ENVIRONMENT === 'production' && !in_array($statusCode, $this->config->ignoreCodes)) {
+                if (ENVIRONMENT === 'production' && ! in_array($statusCode, $this->config->ignoreCodes, true)) {
                     try {
                         $sentry = new SentryService();
                         $sentry->captureException($exception, [
                             'http' => [
                                 'status_code' => $statusCode,
-                                'method' => $request->getMethod(),
-                                'url' => current_url(),
+                                'method'      => $request->getMethod(),
+                                'url'         => current_url(),
                             ],
                         ]);
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         // Silently fail if Sentry is not working
                         // We don't want Sentry errors to break the app
                         log_message('error', 'Sentry failed to capture exception: ' . $e->getMessage());

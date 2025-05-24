@@ -2,10 +2,18 @@
 
 namespace App\Libraries;
 
+use CodeIgniter\CodeIgniter;
+use CodeIgniter\HTTP\IncomingRequest;
 use Config\Sentry as SentryConfig;
 use Sentry;
+use Sentry\Breadcrumb;
+use Sentry\Event;
+use Sentry\SentrySdk;
+use Sentry\Severity;
 use Sentry\State\Scope;
+use Sentry\Tracing\Transaction;
 use Sentry\Tracing\TransactionContext;
+use Throwable;
 
 class SentryService
 {
@@ -22,22 +30,22 @@ class SentryService
     {
         // Only allow Sentry in production environment
         $allowedEnvironments = ['production'];
-        
-        if (empty($this->config->dsn) || $this->initialized || !in_array(ENVIRONMENT, $allowedEnvironments)) {
+
+        if (empty($this->config->dsn) || $this->initialized || ! in_array(ENVIRONMENT, $allowedEnvironments, true)) {
             return;
         }
 
         Sentry\init([
-            'dsn' => $this->config->dsn,
-            'environment' => $this->config->environment,
-            'release' => $this->config->release,
-            'sample_rate' => $this->config->sampleRate,
+            'dsn'                => $this->config->dsn,
+            'environment'        => $this->config->environment,
+            'release'            => $this->config->release,
+            'sample_rate'        => $this->config->sampleRate,
             'traces_sample_rate' => $this->config->tracesSampleRate,
-            'send_default_pii' => $this->config->sendDefaultPii,
-            'max_breadcrumbs' => $this->config->maxBreadcrumbs,
-            'attach_stacktrace' => $this->config->attachStacktrace,
-            'integrations' => $this->config->integrations,
-            'before_send' => function (\Sentry\Event $event): ?\Sentry\Event {
+            'send_default_pii'   => $this->config->sendDefaultPii,
+            'max_breadcrumbs'    => $this->config->maxBreadcrumbs,
+            'attach_stacktrace'  => $this->config->attachStacktrace,
+            'integrations'       => $this->config->integrations,
+            'before_send'        => function (Event $event): ?Event {
                 // Filter out sensitive data if needed
                 return $this->filterSensitiveData($event);
             },
@@ -49,20 +57,20 @@ class SentryService
 
     protected function configureScope(): void
     {
-        Sentry\configureScope(function (Scope $scope): void {
+        Sentry\configureScope(static function (Scope $scope): void {
             // Add application context
             $scope->setContext('app', [
-                'name' => 'BMXFeed',
+                'name'        => 'BMXFeed',
                 'environment' => ENVIRONMENT,
-                'base_url' => base_url(),
-                'ci_version' => \CodeIgniter\CodeIgniter::CI_VERSION,
+                'base_url'    => base_url(),
+                'ci_version'  => CodeIgniter::CI_VERSION,
                 'php_version' => PHP_VERSION,
             ]);
 
             // Add user context if available
             if (session()->has('user_id')) {
                 $scope->setUser([
-                    'id' => session('user_id'),
+                    'id'       => session('user_id'),
                     'username' => session('username') ?? null,
                 ]);
             }
@@ -72,29 +80,29 @@ class SentryService
             if ($request) {
                 $requestContext = [
                     'method' => $request->getMethod(),
-                    'url' => current_url(),
-                    'ip' => $request->getIPAddress(),
+                    'url'    => current_url(),
+                    'ip'     => $request->getIPAddress(),
                 ];
-                
+
                 // Only add user agent for HTTP requests (not CLI requests)
-                if ($request instanceof \CodeIgniter\HTTP\IncomingRequest) {
+                if ($request instanceof IncomingRequest) {
                     $requestContext['user_agent'] = $request->getUserAgent()->getAgentString();
                 }
-                
+
                 $scope->setContext('request', $requestContext);
             }
         });
     }
 
-    public function captureException(\Throwable $exception, array $context = []): ?string
+    public function captureException(Throwable $exception, array $context = []): ?string
     {
-        if (!$this->initialized || empty($this->config->dsn)) {
+        if (! $this->initialized || empty($this->config->dsn)) {
             return null;
         }
 
         // Add context if provided
-        if (!empty($context)) {
-            Sentry\withScope(function (Scope $scope) use ($exception, $context): void {
+        if (! empty($context)) {
+            Sentry\withScope(static function (Scope $scope) use ($exception, $context): void {
                 foreach ($context as $key => $value) {
                     // Ensure value is an array as required by Sentry
                     $contextValue = is_array($value) ? $value : ['value' => $value];
@@ -102,7 +110,8 @@ class SentryService
                 }
                 Sentry\captureException($exception);
             });
-            return \Sentry\SentrySdk::getCurrentHub()->getLastEventId();
+
+            return SentrySdk::getCurrentHub()->getLastEventId();
         }
 
         return Sentry\captureException($exception);
@@ -110,23 +119,23 @@ class SentryService
 
     public function captureMessage(string $message, string $level = 'info', array $context = []): ?string
     {
-        if (!$this->initialized || empty($this->config->dsn)) {
+        if (! $this->initialized || empty($this->config->dsn)) {
             return null;
         }
 
         // Convert string level to Severity object
         $severityLevel = match ($level) {
-            'debug' => \Sentry\Severity::debug(),
-            'info' => \Sentry\Severity::info(),
-            'warning' => \Sentry\Severity::warning(),
-            'error' => \Sentry\Severity::error(),
-            'fatal' => \Sentry\Severity::fatal(),
-            default => \Sentry\Severity::info(),
+            'debug'   => Severity::debug(),
+            'info'    => Severity::info(),
+            'warning' => Severity::warning(),
+            'error'   => Severity::error(),
+            'fatal'   => Severity::fatal(),
+            default   => Severity::info(),
         };
 
         // Add context if provided
-        if (!empty($context)) {
-            Sentry\withScope(function (Scope $scope) use ($message, $severityLevel, $context): void {
+        if (! empty($context)) {
+            Sentry\withScope(static function (Scope $scope) use ($message, $severityLevel, $context): void {
                 foreach ($context as $key => $value) {
                     // Ensure value is an array as required by Sentry
                     $contextValue = is_array($value) ? $value : ['value' => $value];
@@ -134,7 +143,8 @@ class SentryService
                 }
                 Sentry\captureMessage($message, $severityLevel);
             });
-            return \Sentry\SentrySdk::getCurrentHub()->getLastEventId();
+
+            return SentrySdk::getCurrentHub()->getLastEventId();
         }
 
         return Sentry\captureMessage($message, $severityLevel);
@@ -142,22 +152,22 @@ class SentryService
 
     public function addBreadcrumb(string $message, string $category = 'custom', array $data = []): void
     {
-        if (!$this->initialized || empty($this->config->dsn)) {
+        if (! $this->initialized || empty($this->config->dsn)) {
             return;
         }
 
-        Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
-            \Sentry\Breadcrumb::LEVEL_INFO,
-            \Sentry\Breadcrumb::TYPE_DEFAULT,
+        Sentry\addBreadcrumb(new Breadcrumb(
+            Breadcrumb::LEVEL_INFO,
+            Breadcrumb::TYPE_DEFAULT,
             $category,
             $message,
-            $data
+            $data,
         ));
     }
 
-    public function startTransaction(string $name, string $op = 'http.server'): ?\Sentry\Tracing\Transaction
+    public function startTransaction(string $name, string $op = 'http.server'): ?Transaction
     {
-        if (!$this->initialized || empty($this->config->dsn)) {
+        if (! $this->initialized || empty($this->config->dsn)) {
             return null;
         }
 
@@ -168,14 +178,14 @@ class SentryService
         return Sentry\startTransaction($context);
     }
 
-    protected function filterSensitiveData(\Sentry\Event $event): ?\Sentry\Event
+    protected function filterSensitiveData(Event $event): ?Event
     {
         // Filter out disallowed character exceptions for random/invalid routes
         $exceptions = $event->getExceptions();
-        if (!empty($exceptions)) {
+        if (! empty($exceptions)) {
             foreach ($exceptions as $exception) {
-                if ($exception->getType() === 'CodeIgniter\HTTP\Exceptions\BadRequestException' &&
-                    str_contains($exception->getValue(), 'The URI you submitted has disallowed characters')) {
+                if ($exception->getType() === 'CodeIgniter\HTTP\Exceptions\BadRequestException'
+                    && str_contains($exception->getValue(), 'The URI you submitted has disallowed characters')) {
                     // Don't send these noisy errors to Sentry
                     return null;
                 }
@@ -193,13 +203,14 @@ class SentryService
             // Remove sensitive data from request data
             if (isset($request['data']) && is_array($request['data'])) {
                 $sensitiveKeys = ['password', 'passwd', 'pwd', 'secret', 'token', 'api_key', 'apikey'];
+
                 foreach ($sensitiveKeys as $key) {
                     if (isset($request['data'][$key])) {
                         $request['data'][$key] = '[FILTERED]';
                     }
                 }
             }
-            
+
             // Update the request data
             $event->setRequest($request);
         }

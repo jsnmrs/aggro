@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Libraries\SentryService;
 use CodeIgniter\Config\BaseService;
 
 /**
@@ -34,7 +35,8 @@ class Services extends BaseService
      * Sentry service
      *
      * @param bool $getShared
-     * @return \App\Libraries\SentryService
+     *
+     * @return SentryService
      */
     public static function sentry($getShared = true)
     {
@@ -42,6 +44,6 @@ class Services extends BaseService
             return static::getSharedInstance('sentry');
         }
 
-        return new \App\Libraries\SentryService();
+        return new SentryService();
     }
 }

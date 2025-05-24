@@ -6,10 +6,12 @@ use App\Libraries\SentryService;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use Sentry\SentrySdk;
+use Sentry\Tracing\Transaction;
 
 class SentryPerformance implements FilterInterface
 {
-    protected ?\Sentry\Tracing\Transaction $transaction = null;
+    protected ?Transaction $transaction = null;
     protected SentryService $sentry;
 
     public function __construct()
@@ -19,6 +21,8 @@ class SentryPerformance implements FilterInterface
 
     /**
      * Start performance monitoring transaction before the request
+     *
+     * @param mixed|null $arguments
      */
     public function before(RequestInterface $request, $arguments = null)
     {
@@ -28,10 +32,10 @@ class SentryPerformance implements FilterInterface
         }
 
         // Get the route
-        $router = service('router');
+        $router     = service('router');
         $controller = $router->controllerName();
-        $method = $router->methodName();
-        
+        $method     = $router->methodName();
+
         // Create transaction name
         $transactionName = $request->getMethod() . ' ';
         if ($controller && $method) {
@@ -42,30 +46,32 @@ class SentryPerformance implements FilterInterface
 
         // Start the transaction
         $this->transaction = $this->sentry->startTransaction($transactionName, 'http.server');
-        
+
         if ($this->transaction) {
             // Set additional transaction data
             $this->transaction->setData([
-                'url' => current_url(),
-                'method' => $request->getMethod(),
-                'ip' => $request->getIPAddress(),
+                'url'        => current_url(),
+                'method'     => $request->getMethod(),
+                'ip'         => $request->getIPAddress(),
                 'user_agent' => $request->getUserAgent()->getAgentString(),
             ]);
 
             // Set the transaction as the current span
-            \Sentry\SentrySdk::getCurrentHub()->setSpan($this->transaction);
+            SentrySdk::getCurrentHub()->setSpan($this->transaction);
         }
     }
 
     /**
      * Finish the performance monitoring transaction after the request
+     *
+     * @param mixed|null $arguments
      */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
         if ($this->transaction) {
             // Set HTTP status
             $this->transaction->setHttpStatus($response->getStatusCode());
-            
+
             // Add response size if available
             if ($response->getBody()) {
                 $this->transaction->setData([
@@ -75,7 +81,7 @@ class SentryPerformance implements FilterInterface
 
             // Finish the transaction
             $this->transaction->finish();
-            
+
             // Flush to ensure the transaction is sent
             $this->sentry->flush(2);
         }

@@ -4,8 +4,9 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 // phpcs:disable Drupal.Classes.UnusedUseStatement.UnusedUse
-use CodeIgniter\HTTP\IncomingRequest;
+use CodeIgniter\HTTP\CLIRequest;
 // phpcs:enable Drupal.Classes.UnusedUseStatement.UnusedUse
+use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -25,7 +26,7 @@ abstract class BaseController extends Controller
     /**
      * Instance of the main Request object.
      *
-     * @var \CodeIgniter\HTTP\CLIRequest|IncomingRequest
+     * @var CLIRequest|IncomingRequest
      */
     protected $request;
 
