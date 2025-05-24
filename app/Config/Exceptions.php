@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Libraries\SentryService;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Debug\ExceptionHandler;
 use CodeIgniter\Debug\ExceptionHandlerInterface;
@@ -99,6 +100,48 @@ class Exceptions extends BaseConfig
      */
     public function handler(int $statusCode, Throwable $exception): ExceptionHandlerInterface
     {
-        return new ExceptionHandler($this);
+        return new class ($this, $statusCode, $exception) implements ExceptionHandlerInterface {
+            private $config;
+            private int $statusCode;
+            private Throwable $exception;
+            private ExceptionHandler $defaultHandler;
+
+            public function __construct($config, int $statusCode, Throwable $exception)
+            {
+                $this->config = $config;
+                $this->statusCode = $statusCode;
+                $this->exception = $exception;
+                $this->defaultHandler = new ExceptionHandler($config);
+            }
+
+            public function handle(
+                Throwable $exception,
+                \CodeIgniter\HTTP\RequestInterface $request,
+                \CodeIgniter\HTTP\ResponseInterface $response,
+                int $statusCode,
+                int $exitCode
+            ): void {
+                // Send to Sentry in production if not an ignored code
+                if (ENVIRONMENT === 'production' && !in_array($statusCode, $this->config->ignoreCodes)) {
+                    try {
+                        $sentry = new SentryService();
+                        $sentry->captureException($exception, [
+                            'http' => [
+                                'status_code' => $statusCode,
+                                'method' => $request->getMethod(),
+                                'url' => current_url(),
+                            ],
+                        ]);
+                    } catch (\Throwable $e) {
+                        // Silently fail if Sentry is not working
+                        // We don't want Sentry errors to break the app
+                        log_message('error', 'Sentry failed to capture exception: ' . $e->getMessage());
+                    }
+                }
+
+                // Continue with default handling
+                $this->defaultHandler->handle($exception, $request, $response, $statusCode, $exitCode);
+            }
+        };
     }
 }

@@ -123,6 +123,21 @@ class Logger extends BaseConfig
         ],
 
         /*
+         * --------------------------------------------------------------------
+         * Sentry Handler
+         * --------------------------------------------------------------------
+         */
+        'App\Libraries\SentryLogHandler' => [
+            // The log levels that this handler will handle.
+            'handles' => [
+                'critical',
+                'alert',
+                'emergency',
+                'error',
+            ],
+        ],
+
+        /*
          * The ChromeLoggerHandler requires the use of the Chrome web browser
          * and the ChromeLogger extension. Uncomment this block to use it.
          */

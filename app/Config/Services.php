@@ -29,4 +29,19 @@ class Services extends BaseService
      *     return new \CodeIgniter\Example();
      * }
      */
+
+    /**
+     * Sentry service
+     *
+     * @param bool $getShared
+     * @return \App\Libraries\SentryService
+     */
+    public static function sentry($getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('sentry');
+        }
+
+        return new \App\Libraries\SentryService();
+    }
 }
