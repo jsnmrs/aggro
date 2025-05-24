@@ -91,6 +91,8 @@ jobs:
             echo "EOF" >> $GITHUB_OUTPUT
           fi
       - name: Create and push tag
+        env:
+          INPUT_TAG_MESSAGE: ${{ github.event.inputs.tag_message }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -98,18 +100,13 @@ jobs:
           # Create tag message
           TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
           
-          if [ -n "${{ github.event.inputs.tag_message }}" ]; then
-            TAG_MESSAGE="${TAG_MESSAGE}
-
-${{ github.event.inputs.tag_message }}"
+          if [ -n "${INPUT_TAG_MESSAGE}" ]; then
+            TAG_MESSAGE=$(printf "%s\n\n%s" "$TAG_MESSAGE" "$INPUT_TAG_MESSAGE")
           fi
           
           # Add recent changes if available
           if [ -n "${{ steps.changes.outputs.changes }}" ]; then
-            TAG_MESSAGE="${TAG_MESSAGE}
-
-Changes included:
-${{ steps.changes.outputs.changes }}"
+            TAG_MESSAGE=$(printf "%s\n\nChanges included:\n%s" "$TAG_MESSAGE" "${{ steps.changes.outputs.changes }}")
           fi
           
           echo "$TAG_MESSAGE" > .tag_message

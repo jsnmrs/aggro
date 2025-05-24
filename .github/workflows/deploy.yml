@@ -102,12 +102,12 @@ jobs:
             PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login // "Unknown"')
             
             # Create the tag message
-            TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}
-
-PR #$PR_NUMBER: $PR_TITLE
-Author: @$PR_AUTHOR
-
-$PR_BODY"
+            TAG_MESSAGE=$(printf "Release %s\n\nPR #%s: %s\nAuthor: @%s\n\n%s" \
+              "${{ steps.version.outputs.new_tag }}" \
+              "$PR_NUMBER" \
+              "$PR_TITLE" \
+              "$PR_AUTHOR" \
+              "$PR_BODY")
             
             # Save to file to preserve formatting
             echo "$TAG_MESSAGE" > .tag_message
