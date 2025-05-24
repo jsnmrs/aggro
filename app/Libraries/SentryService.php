@@ -70,12 +70,18 @@ class SentryService
             // Add request context
             $request = service('request');
             if ($request) {
-                $scope->setContext('request', [
+                $requestContext = [
                     'method' => $request->getMethod(),
                     'url' => current_url(),
                     'ip' => $request->getIPAddress(),
-                    'user_agent' => $request->getUserAgent()->getAgentString(),
-                ]);
+                ];
+                
+                // Only add user agent for HTTP requests (not CLI requests)
+                if ($request instanceof \CodeIgniter\HTTP\IncomingRequest) {
+                    $requestContext['user_agent'] = $request->getUserAgent()->getAgentString();
+                }
+                
+                $scope->setContext('request', $requestContext);
             }
         });
     }
