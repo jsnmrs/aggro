@@ -85,7 +85,8 @@ class SentryService
                 ];
 
                 // Only add user agent for HTTP requests (not CLI requests)
-                if ($request instanceof IncomingRequest) {
+                // Check if getUserAgent method exists to avoid errors with CLIRequest
+                if ($request instanceof IncomingRequest && method_exists($request, 'getUserAgent')) {
                     $requestContext['user_agent'] = $request->getUserAgent()->getAgentString();
                 }
 

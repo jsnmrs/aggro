@@ -254,7 +254,7 @@ while ($prevException = $last->getPrevious()) {
                         </tr>
                         <tr>
                             <td>User Agent</td>
-                            <td><?= esc($request->getUserAgent()->getAgentString()) ?></td>
+                            <td><?= method_exists($request, 'getUserAgent') ? esc($request->getUserAgent()->getAgentString()) : 'N/A (CLI)' ?></td>
                         </tr>
 
                     </tbody>
