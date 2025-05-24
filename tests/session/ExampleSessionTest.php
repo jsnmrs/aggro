@@ -1,9 +1,11 @@
 <?php
 
+use Tests\Support\SessionTestCase;
+
 /**
  * @internal
  */
-final class ExampleSessionTest extends Tests\Support\SessionTestCase
+final class ExampleSessionTest extends SessionTestCase
 {
     protected function setUp(): void
     {

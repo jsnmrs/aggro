@@ -1,11 +1,12 @@
 <?php
 
+use Tests\Support\DatabaseTestCase;
 use Tests\Support\Models\ExampleModel;
 
 /**
  * @internal
  */
-final class ExampleDatabaseTest extends Tests\Support\DatabaseTestCase
+final class ExampleDatabaseTest extends DatabaseTestCase
 {
     protected function setUp(): void
     {

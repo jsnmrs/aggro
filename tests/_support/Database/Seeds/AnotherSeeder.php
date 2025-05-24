@@ -2,7 +2,9 @@
 
 namespace Tests\Support\Database\Seeds;
 
-class AnotherSeeder extends \CodeIgniter\Database\Seeder
+use CodeIgniter\Database\Seeder;
+
+class AnotherSeeder extends Seeder
 {
     public function run()
     {

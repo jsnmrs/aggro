@@ -59,19 +59,19 @@ class Sentry extends BaseConfig
         parent::__construct();
 
         // Load from environment variables
-        $this->dsn = env('SENTRY_DSN', $this->dsn);
+        $this->dsn         = env('SENTRY_DSN', $this->dsn);
         $this->environment = env('SENTRY_ENVIRONMENT', ENVIRONMENT);
-        
+
         // Use git describe for release version, fallback to env or timestamp
         $release = env('SENTRY_RELEASE', '');
         if (empty($release)) {
             $gitVersion = trim(shell_exec('git describe --tags --always 2>/dev/null'));
-            $release = !empty($gitVersion) ? $gitVersion : date('Y-m-d-His');
+            $release    = ! empty($gitVersion) ? $gitVersion : date('Y-m-d-His');
         }
         $this->release = $release;
-        
-        $this->sampleRate = (float) env('SENTRY_SAMPLE_RATE', $this->sampleRate);
+
+        $this->sampleRate       = (float) env('SENTRY_SAMPLE_RATE', $this->sampleRate);
         $this->tracesSampleRate = (float) env('SENTRY_TRACES_SAMPLE_RATE', $this->tracesSampleRate);
-        $this->sendDefaultPii = (bool) env('SENTRY_SEND_DEFAULT_PII', $this->sendDefaultPii);
+        $this->sendDefaultPii   = (bool) env('SENTRY_SEND_DEFAULT_PII', $this->sendDefaultPii);
     }
 }
