@@ -47,6 +47,17 @@ jobs:
           php-version: '8.2'
           coverage: none
           tools: composer
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Composer install
         run: composer install
       - name: Generate version tag
@@ -54,24 +65,24 @@ jobs:
         run: |
           # Get the latest semantic version tag (v*.*.* format)
           LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
-          
+
           # If no semantic version tags exist, use v0.0.0
           if [ -z "$LATEST_TAG" ]; then
             LATEST_TAG="v0.0.0"
           fi
-          
+
           echo "Latest tag: $LATEST_TAG"
-          
+
           # Extract version numbers
           VERSION=${LATEST_TAG#v}
           MAJOR=$(echo $VERSION | cut -d. -f1)
           MINOR=$(echo $VERSION | cut -d. -f2)
           PATCH=$(echo $VERSION | cut -d. -f3)
-          
+
           # Increment patch version
           PATCH=$((PATCH + 1))
           NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
-          
+
           echo "New tag: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
           echo "new_version=${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
@@ -86,21 +97,22 @@ jobs:
       - name: Extract PR information
         id: pr_info
         if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the PR number from the latest commit message
           PR_NUMBER=$(git log -1 --pretty=format:"%s" | grep -oE '#[0-9]+' | tr -d '#' | head -1)
-          
+
           if [ -n "$PR_NUMBER" ]; then
             echo "Found PR #$PR_NUMBER"
-            
-            # Get PR title and body using GitHub API
-            PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
-            
+
+            # Get PR information using GitHub CLI
+            PR_DATA=$(gh pr view "$PR_NUMBER" --json title,body,author --jq '.')
+
             PR_TITLE=$(echo "$PR_DATA" | jq -r '.title // "No title"')
             PR_BODY=$(echo "$PR_DATA" | jq -r '.body // "No description"' | head -50) # Limit to first 50 lines
-            PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login // "Unknown"')
-            
+            PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login // "Unknown"')
+
             # Create the tag message
             TAG_MESSAGE=$(printf "Release %s\n\nPR #%s: %s\nAuthor: @%s\n\n%s" \
               "${{ steps.version.outputs.new_tag }}" \
@@ -108,7 +120,7 @@ jobs:
               "$PR_TITLE" \
               "$PR_AUTHOR" \
               "$PR_BODY")
-            
+
             # Save to file to preserve formatting
             echo "$TAG_MESSAGE" > .tag_message
           else
