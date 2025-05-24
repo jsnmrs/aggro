@@ -68,20 +68,54 @@ jobs:
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
           echo "new_version=${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
           
+      - name: Extract recent changes
+        id: changes
+        run: |
+          # Get commits since last tag
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1 || echo "")
+          
+          if [ -n "$LATEST_TAG" ]; then
+            echo "Getting changes since $LATEST_TAG"
+            
+            # Get list of PRs merged since last tag
+            CHANGES=""
+            while IFS= read -r commit; do
+              PR_NUM=$(echo "$commit" | grep -oE '#[0-9]+' | tr -d '#' | head -1)
+              if [ -n "$PR_NUM" ]; then
+                CHANGES="${CHANGES}- ${commit}\n"
+              fi
+            done <<< "$(git log --pretty=format:"%s" ${LATEST_TAG}..HEAD)"
+            
+            echo "changes<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$CHANGES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Create and push tag
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
           # Create tag message
+          TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
+          
           if [ -n "${{ github.event.inputs.tag_message }}" ]; then
-            MESSAGE="${{ github.event.inputs.tag_message }}"
-          else
-            MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
+            TAG_MESSAGE="${TAG_MESSAGE}
+
+${{ github.event.inputs.tag_message }}"
           fi
           
-          git tag -a ${{ steps.version.outputs.new_tag }} -m "$MESSAGE"
+          # Add recent changes if available
+          if [ -n "${{ steps.changes.outputs.changes }}" ]; then
+            TAG_MESSAGE="${TAG_MESSAGE}
+
+Changes included:
+${{ steps.changes.outputs.changes }}"
+          fi
+          
+          echo "$TAG_MESSAGE" > .tag_message
+          git tag -a ${{ steps.version.outputs.new_tag }} -F .tag_message
           git push origin ${{ steps.version.outputs.new_tag }}
+          rm -f .tag_message
           
       - name: Create GitHub Release
         uses: actions/create-release@v1
@@ -94,5 +128,8 @@ jobs:
             Release ${{ steps.version.outputs.new_tag }}
             
             ${{ github.event.inputs.tag_message }}
+            
+            ## Changes included:
+            ${{ steps.changes.outputs.changes }}
           draft: false
           prerelease: false
