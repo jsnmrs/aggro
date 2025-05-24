@@ -53,4 +53,12 @@ $paths = new Config\Paths();
 // LOAD THE FRAMEWORK BOOTSTRAP FILE
 require $paths->systemDirectory . '/Boot.php';
 
-exit(CodeIgniter\Boot::bootWeb($paths));
+// Initialize Sentry early to catch all errors
+$app = CodeIgniter\Boot::bootWeb($paths);
+
+// Initialize Sentry service if available
+if (class_exists('\App\Libraries\SentryService')) {
+    service('sentry');
+}
+
+exit($app);
