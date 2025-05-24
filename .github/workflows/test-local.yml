@@ -10,7 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run docksal installer
-        run: curl -fsSL https://get.docksal.io | bash
+        run: |
+          # Download installer script
+          curl -fsSL https://get.docksal.io -o install-docksal.sh
+
+          # Verify the script exists and has content
+          if [ ! -s install-docksal.sh ]; then
+            echo "Failed to download Docksal installer"
+            exit 1
+          fi
+
+          # Run the installer
+          bash install-docksal.sh
       - name: Display docksal system info
         run: fin sysinfo
       - name: Checkout branch

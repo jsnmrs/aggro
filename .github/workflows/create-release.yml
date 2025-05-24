@@ -18,6 +18,11 @@ on:
         default: ''
         type: string
 
+# Prevent concurrent releases
+concurrency:
+  group: release-creation
+  cancel-in-progress: false
+
 jobs:
   create-tag:
     name: Create Version Tag
@@ -91,6 +96,8 @@ jobs:
             echo "EOF" >> $GITHUB_OUTPUT
           fi
       - name: Create and push tag
+        env:
+          INPUT_TAG_MESSAGE: ${{ github.event.inputs.tag_message }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -98,18 +105,13 @@ jobs:
           # Create tag message
           TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
           
-          if [ -n "${{ github.event.inputs.tag_message }}" ]; then
-            TAG_MESSAGE="${TAG_MESSAGE}
-
-${{ github.event.inputs.tag_message }}"
+          if [ -n "${INPUT_TAG_MESSAGE}" ]; then
+            TAG_MESSAGE=$(printf "%s\n\n%s" "$TAG_MESSAGE" "$INPUT_TAG_MESSAGE")
           fi
           
           # Add recent changes if available
           if [ -n "${{ steps.changes.outputs.changes }}" ]; then
-            TAG_MESSAGE="${TAG_MESSAGE}
-
-Changes included:
-${{ steps.changes.outputs.changes }}"
+            TAG_MESSAGE=$(printf "%s\n\nChanges included:\n%s" "$TAG_MESSAGE" "${{ steps.changes.outputs.changes }}")
           fi
           
           echo "$TAG_MESSAGE" > .tag_message
@@ -118,18 +120,23 @@ ${{ steps.changes.outputs.changes }}"
           rm -f .tag_message
           
       - name: Create GitHub Release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.version.outputs.new_tag }}
-          release_name: Release ${{ steps.version.outputs.new_tag }}
-          body: |
-            Release ${{ steps.version.outputs.new_tag }}
-            
-            ${{ github.event.inputs.tag_message }}
-            
-            ## Changes included:
-            ${{ steps.changes.outputs.changes }}
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG_MESSAGE: ${{ github.event.inputs.tag_message }}
+          CHANGES: ${{ steps.changes.outputs.changes }}
+        run: |
+          # Create release body
+          RELEASE_BODY="Release ${{ steps.version.outputs.new_tag }}"
+          
+          if [ -n "${INPUT_TAG_MESSAGE}" ]; then
+            RELEASE_BODY=$(printf "%s\n\n%s" "$RELEASE_BODY" "$INPUT_TAG_MESSAGE")
+          fi
+          
+          if [ -n "${CHANGES}" ]; then
+            RELEASE_BODY=$(printf "%s\n\n## Changes included:\n%s" "$RELEASE_BODY" "$CHANGES")
+          fi
+          
+          # Create the release
+          echo "$RELEASE_BODY" | gh release create ${{ steps.version.outputs.new_tag }} \
+            --title "Release ${{ steps.version.outputs.new_tag }}" \
+            --notes-file -
