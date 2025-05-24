@@ -28,8 +28,8 @@ class SentryService
 
     protected function initialize(): void
     {
-        // Only allow Sentry in production environment
-        $allowedEnvironments = ['production'];
+        // Allow Sentry in production and development environments
+        $allowedEnvironments = ['production', 'development'];
 
         if (empty($this->config->dsn) || $this->initialized || ! in_array(ENVIRONMENT, $allowedEnvironments, true)) {
             return;

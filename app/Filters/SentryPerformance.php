@@ -28,8 +28,8 @@ class SentryPerformance implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Only run in production environment
-        if (ENVIRONMENT !== 'production') {
+        // Only run in production and development environments
+        if (! in_array(ENVIRONMENT, ['production', 'development'], true)) {
             return;
         }
 
