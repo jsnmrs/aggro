@@ -170,6 +170,18 @@ class SentryService
 
     protected function filterSensitiveData(\Sentry\Event $event): ?\Sentry\Event
     {
+        // Filter out disallowed character exceptions for random/invalid routes
+        $exceptions = $event->getExceptions();
+        if (!empty($exceptions)) {
+            foreach ($exceptions as $exception) {
+                if ($exception->getType() === 'CodeIgniter\HTTP\Exceptions\BadRequestException' &&
+                    str_contains($exception->getValue(), 'The URI you submitted has disallowed characters')) {
+                    // Don't send these noisy errors to Sentry
+                    return null;
+                }
+            }
+        }
+
         // Filter out sensitive data from the event
         $request = $event->getRequest();
         if ($request && is_array($request)) {
