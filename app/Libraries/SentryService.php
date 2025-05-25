@@ -187,7 +187,6 @@ class SentryService
             foreach ($exceptions as $exception) {
                 if ($exception->getType() === 'CodeIgniter\HTTP\Exceptions\BadRequestException'
                     && str_contains($exception->getValue(), 'The URI you submitted has disallowed characters')) {
-                    // Don't send these noisy errors to Sentry
                     return null;
                 }
             }

@@ -61,6 +61,11 @@ class SentryLogHandler implements HandlerInterface
                 $message = $this->cleanErrorMessage($message);
             }
 
+            // Filter out noisy "disallowed characters" errors
+            if (is_string($message) && str_contains($message, 'The URI you submitted has disallowed characters')) {
+                return true;
+            }
+
             // Send to Sentry
             $this->sentry->captureMessage($message, $sentryLevel, $context);
 
