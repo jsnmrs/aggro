@@ -160,20 +160,4 @@ class Front extends BaseController
 
         return $this->getError404();
     }
-
-    /**
-     * Watch page.
-     */
-    public function getWatch()
-    {
-        $data = [
-            'title' => 'Watch',
-            'slug'  => 'watch',
-        ];
-
-        $aggroModel = new AggroModels();
-
-        $data['build'] = $aggroModel->getWatchPage();
-        echo view('watch', $data);
-    }
 }

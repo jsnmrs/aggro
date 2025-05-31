@@ -17,7 +17,6 @@ $routes->add('sites/(:segment)', 'Front::getSites/$1');
 $routes->add('stream', 'Front::getStream');
 $routes->add('video', 'Front::getVideo');
 $routes->add('video/(:any)', 'Front::getVideo/$1');
-$routes->add('watch', 'Front::getWatch');
 $routes->add('aggro', 'Aggro::getIndex');
 $routes->add('aggro/info', 'Aggro::getInfo');
 $routes->add('aggro/log', 'Aggro::getLog');

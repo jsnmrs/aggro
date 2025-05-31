@@ -4,8 +4,6 @@ namespace App\Filters;
 
 use App\Libraries\SentryService;
 use CodeIgniter\Filters\FilterInterface;
-use CodeIgniter\HTTP\CLIRequest;
-use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Sentry\SentrySdk;
@@ -52,14 +50,17 @@ class SentryPerformance implements FilterInterface
         if ($this->transaction) {
             // Set additional transaction data
             $transactionData = [
-                'url'        => current_url(),
-                'method'     => $request->getMethod(),
-                'ip'         => $request->getIPAddress(),
+                'url'    => current_url(),
+                'method' => $request->getMethod(),
+                'ip'     => $request->getIPAddress(),
             ];
 
             // Only add user agent for HTTP requests (not CLI requests)
-            if (method_exists($request, 'getUserAgent')) {
-                $transactionData['user_agent'] = $request->getUserAgent()->getAgentString();
+            if (! is_cli() && method_exists($request, 'getUserAgent')) {
+                $userAgent = $request->getUserAgent();
+                if ($userAgent !== null) {
+                    $transactionData['user_agent'] = $userAgent->getAgentString();
+                }
             }
 
             $this->transaction->setData($transactionData);
