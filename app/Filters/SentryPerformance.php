@@ -4,8 +4,6 @@ namespace App\Filters;
 
 use App\Libraries\SentryService;
 use CodeIgniter\Filters\FilterInterface;
-use CodeIgniter\HTTP\CLIRequest;
-use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Sentry\SentrySdk;
