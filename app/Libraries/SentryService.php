@@ -68,7 +68,8 @@ class SentryService
             ]);
 
             // Add user context if available
-            if (session()->has('user_id')) {
+            // Check if session is already started to avoid ini_set warnings
+            if (session_status() === PHP_SESSION_ACTIVE && session()->has('user_id')) {
                 $scope->setUser([
                     'id'       => session('user_id'),
                     'username' => session('username') ?? null,
