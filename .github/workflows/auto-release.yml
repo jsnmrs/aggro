@@ -91,7 +91,7 @@ jobs:
           echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
           echo "Determined version type from commits: $VERSION_TYPE"
           
-      - name: Trigger release workflow
+      - name: Trigger deploy-on-merge workflow
         if: steps.pr_info.outputs.skip_release != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -102,18 +102,11 @@ jobs:
             VERSION_TYPE="${{ steps.commit_version.outputs.version_type }}"
           fi
           
-          echo "Triggering release with version type: $VERSION_TYPE"
+          echo "Triggering deployment with version type: $VERSION_TYPE"
           
-          # Get PR title for tag message if available
-          TAG_MESSAGE=""
-          if [ -n "${{ steps.pr_info.outputs.pr_number }}" ]; then
-            PR_TITLE=$(gh pr view ${{ steps.pr_info.outputs.pr_number }} --json title -q '.title')
-            TAG_MESSAGE="$PR_TITLE"
-          fi
-          
-          # Trigger the create-release workflow
-          gh workflow run create-release.yml \
+          # Trigger the deploy-on-merge workflow
+          gh workflow run deploy-on-merge.yml \
             -f version_type="$VERSION_TYPE" \
-            -f tag_message="$TAG_MESSAGE"
+            -f pr_number="${{ steps.pr_info.outputs.pr_number }}"
             
-          echo "✅ Release workflow triggered for $VERSION_TYPE version bump"
+          echo "✅ Deploy workflow triggered for $VERSION_TYPE version bump"
