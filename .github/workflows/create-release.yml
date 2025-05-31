@@ -179,3 +179,10 @@ jobs:
           echo "$RELEASE_BODY" | gh release create ${{ steps.version.outputs.new_tag }} \
             --title "Release ${{ steps.version.outputs.new_tag }}" \
             --notes-file -
+            
+      - name: Trigger deployment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering deployment for release ${{ steps.version.outputs.new_tag }}"
+          gh workflow run deploy.yml -f tag=${{ steps.version.outputs.new_tag }}
