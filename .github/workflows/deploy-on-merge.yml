@@ -1,0 +1,108 @@
+name: Deploy on PR Merge
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version increment type'
+        required: true
+        type: string
+      pr_number:
+        description: 'PR number for reference'
+        required: false
+        type: string
+
+jobs:
+  tag-and-deploy:
+    name: Create Tag and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+
+      - name: Generate version tag
+        id: version
+        run: |
+          # Get the latest semantic version tag (v*.*.* format)
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1 || echo "v0.0.0")
+          
+          # If no semantic version tags exist, use v0.0.0
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+          
+          echo "Latest tag: $LATEST_TAG"
+          
+          # Extract version numbers
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          
+          # Increment based on input
+          case "${{ github.event.inputs.version_type }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          
+          echo "New tag: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "new_version=${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Create tag message
+          TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
+          
+          if [ -n "${{ github.event.inputs.pr_number }}" ]; then
+            TAG_MESSAGE="$TAG_MESSAGE - PR #${{ github.event.inputs.pr_number }}"
+          fi
+          
+          git tag -a ${{ steps.version.outputs.new_tag }} -m "$TAG_MESSAGE"
+          git push origin ${{ steps.version.outputs.new_tag }}
+
+      - name: Trigger deployment workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy.yml',
+              ref: 'main',
+              inputs: {
+                deploy_version: '${{ steps.version.outputs.new_version }}'
+              }
+            });
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_BODY="Release ${{ steps.version.outputs.new_tag }}"
+          
+          if [ -n "${{ github.event.inputs.pr_number }}" ]; then
+            RELEASE_BODY="$RELEASE_BODY - PR #${{ github.event.inputs.pr_number }}"
+          fi
+          
+          gh release create ${{ steps.version.outputs.new_tag }} \
+            --title "Release ${{ steps.version.outputs.new_tag }}" \
+            --notes "$RELEASE_BODY"

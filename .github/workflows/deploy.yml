@@ -2,9 +2,11 @@ name: Deploy
 
 on:
   workflow_dispatch: # enable run button on github.com
-  push:
-    branches:
-      - "main"
+    inputs:
+      deploy_version:
+        description: 'Version to use for Sentry release tracking (optional)'
+        required: false
+        type: string
 
 # prevent concurrency between different deploys
 concurrency: production_environment
@@ -63,16 +65,22 @@ jobs:
       - name: Get version for Sentry
         id: version
         run: |
-          # Get the latest semantic version tag (v*.*.* format)
-          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
-          
-          # If no semantic version tags exist, use the commit SHA
-          if [ -z "$LATEST_TAG" ]; then
-            VERSION="${GITHUB_SHA:0:7}"
-            echo "No version tags found, using commit SHA: $VERSION"
+          # Use input version if provided
+          if [ -n "${{ github.event.inputs.deploy_version }}" ]; then
+            VERSION="${{ github.event.inputs.deploy_version }}"
+            echo "Using provided version: $VERSION"
           else
-            VERSION=${LATEST_TAG#v}
-            echo "Using latest tag version: $VERSION"
+            # Get the latest semantic version tag (v*.*.* format)
+            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
+            
+            # If no semantic version tags exist, use the commit SHA
+            if [ -z "$LATEST_TAG" ]; then
+              VERSION="${GITHUB_SHA:0:7}"
+              echo "No version tags found, using commit SHA: $VERSION"
+            else
+              VERSION=${LATEST_TAG#v}
+              echo "Using latest tag version: $VERSION"
+            fi
           fi
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
