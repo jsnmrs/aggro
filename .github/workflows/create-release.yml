@@ -180,9 +180,5 @@ jobs:
             --title "Release ${{ steps.version.outputs.new_tag }}" \
             --notes-file -
             
-      - name: Trigger deployment
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Triggering deployment for release ${{ steps.version.outputs.new_tag }}"
-          gh workflow run deploy.yml -f tag=${{ steps.version.outputs.new_tag }}
+      # Note: Deployment happens automatically when changes are merged to main
+      # This workflow only creates the version tag and release
