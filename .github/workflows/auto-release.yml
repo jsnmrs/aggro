@@ -1,0 +1,119 @@
+name: Auto Release on PR Merge
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-and-release:
+    # Only run if this is a merge commit
+    if: contains(github.event.head_commit.message, 'Merge pull request')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Get PR number and check labels
+        id: pr_info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract PR number from merge commit message
+          PR_NUMBER=$(echo "${{ github.event.head_commit.message }}" | grep -oE '#[0-9]+' | tr -d '#' | head -1)
+          
+          if [ -n "$PR_NUMBER" ]; then
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            
+            # Get PR labels
+            LABELS=$(gh pr view $PR_NUMBER --json labels -q '.labels[].name' | tr '\n' ' ')
+            echo "Found labels: $LABELS"
+            
+            # Check for version-related labels first
+            if echo "$LABELS" | grep -q "breaking-change\|major"; then
+              echo "version_type=major" >> $GITHUB_OUTPUT
+              echo "Label-based version: major"
+            elif echo "$LABELS" | grep -q "feature\|enhancement\|minor"; then
+              echo "version_type=minor" >> $GITHUB_OUTPUT
+              echo "Label-based version: minor"
+            elif echo "$LABELS" | grep -q "bug\|fix\|patch"; then
+              echo "version_type=patch" >> $GITHUB_OUTPUT
+              echo "Label-based version: patch"
+            else
+              echo "No version labels found, will check commits"
+              echo "version_type=" >> $GITHUB_OUTPUT
+            fi
+            
+            # Check if PR has no-release label
+            if echo "$LABELS" | grep -q "no-release\|skip-release"; then
+              echo "skip_release=true" >> $GITHUB_OUTPUT
+              echo "Found no-release label, skipping"
+            else
+              echo "skip_release=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+      - name: Determine version bump from commits
+        if: steps.pr_info.outputs.skip_release != 'true' && steps.pr_info.outputs.version_type == ''
+        id: commit_version
+        run: |
+          # Get the last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Checking commits since $LAST_TAG"
+          
+          # Initialize version type
+          VERSION_TYPE="patch"
+          
+          # Check all commit messages since last tag
+          while IFS= read -r commit_msg; do
+            echo "Checking commit: $commit_msg"
+            
+            # Check for breaking changes (major version)
+            if echo "$commit_msg" | grep -qE '^(feat|fix|chore|docs|style|refactor|perf|test|build|ci)(\(.+\))?!:' || \
+               echo "$commit_msg" | grep -qE 'BREAKING[ -]CHANGE:'; then
+              VERSION_TYPE="major"
+              echo "Found breaking change indicator"
+              break
+            fi
+            
+            # Check for features (minor version)
+            if echo "$commit_msg" | grep -qE '^feat(\(.+\))?:'; then
+              if [ "$VERSION_TYPE" != "major" ]; then
+                VERSION_TYPE="minor"
+                echo "Found feature commit"
+              fi
+            fi
+          done < <(git log $LAST_TAG..HEAD --format=%s)
+          
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          echo "Determined version type from commits: $VERSION_TYPE"
+          
+      - name: Trigger release workflow
+        if: steps.pr_info.outputs.skip_release != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Use label-based version if available, otherwise use commit-based
+          VERSION_TYPE="${{ steps.pr_info.outputs.version_type }}"
+          if [ -z "$VERSION_TYPE" ]; then
+            VERSION_TYPE="${{ steps.commit_version.outputs.version_type }}"
+          fi
+          
+          echo "Triggering release with version type: $VERSION_TYPE"
+          
+          # Get PR title for tag message if available
+          TAG_MESSAGE=""
+          if [ -n "${{ steps.pr_info.outputs.pr_number }}" ]; then
+            PR_TITLE=$(gh pr view ${{ steps.pr_info.outputs.pr_number }} --json title -q '.title')
+            TAG_MESSAGE="$PR_TITLE"
+          fi
+          
+          # Trigger the create-release workflow
+          gh workflow run create-release.yml \
+            -f version_type="$VERSION_TYPE" \
+            -f tag_message="$TAG_MESSAGE"
+            
+          echo "✅ Release workflow triggered for $VERSION_TYPE version bump"
