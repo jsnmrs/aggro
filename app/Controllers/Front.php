@@ -160,5 +160,4 @@ class Front extends BaseController
 
         return $this->getError404();
     }
-
 }
