@@ -2,12 +2,9 @@ name: Deploy
 
 on:
   workflow_dispatch: # enable run button on github.com
-    inputs:
-      tag:
-        description: 'Tag to deploy (optional - uses latest if not specified)'
-        required: false
-        default: ''
-        type: string
+  push:
+    branches:
+      - "main"
 
 # prevent concurrency between different deploys
 concurrency: production_environment
@@ -66,25 +63,19 @@ jobs:
       - name: Get version for Sentry
         id: version
         run: |
-          # Use provided tag or get the latest
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            TAG="${{ github.event.inputs.tag }}"
-            echo "Using provided tag: $TAG"
+          # Get the latest semantic version tag (v*.*.* format)
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
+          
+          # If no semantic version tags exist, use the commit SHA
+          if [ -z "$LATEST_TAG" ]; then
+            VERSION="${GITHUB_SHA:0:7}"
+            echo "No version tags found, using commit SHA: $VERSION"
           else
-            # Get the latest semantic version tag (v*.*.* format)
-            TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
-            
-            # If no semantic version tags exist, use v0.0.0
-            if [ -z "$TAG" ]; then
-              TAG="v0.0.0"
-            fi
-            echo "Using latest tag: $TAG"
+            VERSION=${LATEST_TAG#v}
+            echo "Using latest tag version: $VERSION"
           fi
-
-          # Extract version for Sentry release
-          VERSION=${TAG#v}
+          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Deploy
         uses: deployphp/action@v1
         with:
