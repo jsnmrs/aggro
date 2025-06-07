@@ -20,42 +20,84 @@ class NewsModels extends Model
         $utilityModel = new UtilityModels();
         helper(['aggro', 'text']);
 
-        $sql      = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
-        $query    = $this->db->query($sql);
-        $featured = $query->getResult();
-        $counter  = 0;
+        try {
+            $sql      = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
+            $query    = $this->db->query($sql);
+            
+            if ($query === false) {
+                log_message('error', 'Failed to query featured feeds');
+                return false;
+            }
+            
+            $featured = $query->getResult();
+            $counter  = 0;
+            $errorCount = 0;
 
-        foreach ($featured as $row) {
-            $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
-            $sql   = "UPDATE news_feeds SET site_date_last_fetch=? WHERE site_id=?";
-            $this->db->query($sql, [date('Y-m-d H:i:s'), $row->site_id]);
-            $storyCount = 0;
+            foreach ($featured as $row) {
+                try {
+                    $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
+                    
+                    if ($fetch === false || $fetch->error()) {
+                        log_message('warning', 'Failed to fetch feed for site_id ' . $row->site_id . ': ' . $row->site_feed);
+                        $errorCount++;
+                        continue;
+                    }
+                    
+                    $this->db->transStart();
+                    
+                    $sql   = "UPDATE news_feeds SET site_date_last_fetch=? WHERE site_id=?";
+                    $this->db->query($sql, [date('Y-m-d H:i:s'), $row->site_id]);
+                    $storyCount = 0;
 
-            foreach ($fetch->get_items(0, 10) as $item) {
-                if ($storyCount === 0) {
-                    $lastPost = $item->get_date('Y-m-d H:i:s');
-                    $sql      = "UPDATE news_feeds SET site_date_last_post=? WHERE site_id=?";
-                    $this->db->query($sql, [$lastPost, $row->site_id]);
+                    foreach ($fetch->get_items(0, 10) as $item) {
+                        try {
+                            if ($storyCount === 0) {
+                                $lastPost = $item->get_date('Y-m-d H:i:s');
+                                $sql      = "UPDATE news_feeds SET site_date_last_post=? WHERE site_id=?";
+                                $this->db->query($sql, [$lastPost, $row->site_id]);
+                            }
+
+                            $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES (?, ?, ?, ?, ?)";
+                            $this->db->query($sql, [
+                                $row->site_id,
+                                quotes_to_entities($item->get_title()),
+                                quotes_to_entities($item->get_permalink()),
+                                sha1($item->get_permalink()),
+                                quotes_to_entities($item->get_date('Y-m-d H:i:s'))
+                            ]);
+                            $storyCount++;
+                        } catch (\Exception $e) {
+                            log_message('error', 'Failed to process item for site_id ' . $row->site_id . ': ' . $e->getMessage());
+                        }
+                    }
+                    
+                    $this->db->transComplete();
+                    
+                    if ($this->db->transStatus() === false) {
+                        log_message('error', 'Transaction failed for site_id ' . $row->site_id);
+                        $errorCount++;
+                    } else {
+                        $counter++;
+                    }
+                    
+                } catch (\Exception $e) {
+                    log_message('error', 'Exception processing site_id ' . $row->site_id . ': ' . $e->getMessage());
+                    $errorCount++;
                 }
-
-                $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES (?, ?, ?, ?, ?)";
-                $this->db->query($sql, [
-                    $row->site_id,
-                    quotes_to_entities($item->get_title()),
-                    quotes_to_entities($item->get_permalink()),
-                    sha1($item->get_permalink()),
-                    quotes_to_entities($item->get_date('Y-m-d H:i:s'))
-                ]);
-                $storyCount++;
             }
 
-            $counter++;
+            $message = $counter . ' featured and stream sites updated';
+            if ($errorCount > 0) {
+                $message .= ', ' . $errorCount . ' errors';
+            }
+            $utilityModel->sendLog($message);
+
+            return true;
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in featuredBuilder: ' . $e->getMessage());
+            return false;
         }
-
-        $message = $counter . ' featured and stream sites updated.';
-        $utilityModel->sendLog($message);
-
-        return true;
     }
 
     /**
