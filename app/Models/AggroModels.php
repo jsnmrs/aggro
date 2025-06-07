@@ -22,9 +22,26 @@ class AggroModels extends Model
         $utilityModel = new UtilityModels();
         helper('aggro');
 
-        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES ('" . $video['video_id'] . "', '" . $video['aggro_date_added'] . "', '" . $video['aggro_date_updated'] . "', '" . $video['video_date_uploaded'] . "', " . $video['flag_archive'] . ', 0, ' . $video['video_plays'] . ", '" . $video['video_title'] . "', '" . $video['video_thumbnail_url'] . "', " . $video['video_width'] . ', ' . $video['video_height'] . ', ' . $video['video_aspect_ratio'] . ', ' . $video['video_duration'] . " , '" . $video['video_source_id'] . "', '" . $video['video_source_username'] . "', '" . $video['video_source_url'] . "', '" . $video['video_type'] . "')";
+        $sql = "INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $this->db->query($sql);
+        $this->db->query($sql, [
+            $video['video_id'],
+            $video['aggro_date_added'],
+            $video['aggro_date_updated'],
+            $video['video_date_uploaded'],
+            $video['flag_archive'],
+            $video['video_plays'],
+            $video['video_title'],
+            $video['video_thumbnail_url'],
+            $video['video_width'],
+            $video['video_height'],
+            $video['video_aspect_ratio'],
+            $video['video_duration'],
+            $video['video_source_id'],
+            $video['video_source_username'],
+            $video['video_source_url'],
+            $video['video_type']
+        ]);
 
         if ($video['flag_archive'] === 0 && fetch_thumbnail($video['video_id'], $video['video_thumbnail_url'])) {
             $message = 'Added ' . $video['video_type'] . ' ' . $video['video_id'] . ' and fetched thumbnail.';
@@ -54,13 +71,13 @@ class AggroModels extends Model
         $utilityModel = new UtilityModels();
         $now          = date('Y-m-d H:i:s');
 
-        $sql    = "SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
-        $query  = $this->db->query($sql);
+        $sql    = "SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
+        $query  = $this->db->query($sql, [$now]);
         $update = count($query->getResultArray());
 
         if ($update > 0) {
-            $sql   = "UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB('" . $now . "',INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
-            $query = $this->db->query($sql);
+            $sql   = "UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0";
+            $query = $this->db->query($sql, [$now]);
         }
 
         $message = $update . ' videos archived.';
@@ -109,8 +126,8 @@ class AggroModels extends Model
     public function checkVideo($videoid)
     {
         $utilityModel = new UtilityModels();
-        $sql          = "SELECT video_id FROM aggro_videos WHERE video_id='" . $videoid . "'";
-        $query        = $this->db->query($sql);
+        $sql          = "SELECT video_id FROM aggro_videos WHERE video_id=?";
+        $query        = $this->db->query($sql, [$videoid]);
         $update       = count($query->getResultArray());
 
         if ($update > 0) {
@@ -168,8 +185,8 @@ class AggroModels extends Model
     {
         $utilityModel = new UtilityModels();
         $now          = date('Y-m-d H:i:s');
-        $sql          = "SELECT * FROM aggro_sources WHERE source_type='" . $type . "' AND source_date_updated <= DATE_SUB('" . $now . "',INTERVAL " . $stale . ' MINUTE) ORDER BY source_date_updated ASC LIMIT ' . $limit;
-        $query        = $this->db->query($sql);
+        $sql          = "SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?";
+        $query        = $this->db->query($sql, [$type, $now, $stale, $limit]);
         $update       = count($query->getResultArray());
 
         if ($update > 0) {
@@ -275,8 +292,8 @@ class AggroModels extends Model
     {
         $now = date('Y-m-d H:i:s');
         $sql = "UPDATE aggro_sources
-            SET source_date_updated = '" . $now . "'
-            WHERE source_slug = '" . $sourceSlug . "'";
-        $this->db->query($sql);
+            SET source_date_updated = ?
+            WHERE source_slug = ?";
+        $this->db->query($sql, [$now, $sourceSlug]);
     }
 }

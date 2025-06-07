@@ -27,19 +27,25 @@ class NewsModels extends Model
 
         foreach ($featured as $row) {
             $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
-            $sql   = "UPDATE news_feeds SET site_date_last_fetch='" . date('Y-m-d H:i:s') . "' WHERE site_id='" . $row->site_id . "'";
-            $this->db->query($sql);
+            $sql   = "UPDATE news_feeds SET site_date_last_fetch=? WHERE site_id=?";
+            $this->db->query($sql, [date('Y-m-d H:i:s'), $row->site_id]);
             $storyCount = 0;
 
             foreach ($fetch->get_items(0, 10) as $item) {
                 if ($storyCount === 0) {
                     $lastPost = $item->get_date('Y-m-d H:i:s');
-                    $sql      = "UPDATE news_feeds SET site_date_last_post='" . $lastPost . "' WHERE site_id='" . $row->site_id . "'";
-                    $this->db->query($sql);
+                    $sql      = "UPDATE news_feeds SET site_date_last_post=? WHERE site_id=?";
+                    $this->db->query($sql, [$lastPost, $row->site_id]);
                 }
 
-                $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES ('" . $row->site_id . "', '" . quotes_to_entities($item->get_title()) . "', '" . quotes_to_entities($item->get_permalink()) . "', '" . sha1($item->get_permalink()) . "', '" . quotes_to_entities($item->get_date('Y-m-d H:i:s')) . "')";
-                $this->db->query($sql);
+                $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES (?, ?, ?, ?, ?)";
+                $this->db->query($sql, [
+                    $row->site_id,
+                    quotes_to_entities($item->get_title()),
+                    quotes_to_entities($item->get_permalink()),
+                    sha1($item->get_permalink()),
+                    quotes_to_entities($item->get_date('Y-m-d H:i:s'))
+                ]);
                 $storyCount++;
             }
 
@@ -70,9 +76,9 @@ class NewsModels extends Model
         foreach ($featured as $row) {
             $innersql = 'SELECT *
                     FROM news_featured
-                    WHERE site_id=' . $row->site_id . "
-                    AND story_date < DATE_SUB('" . $now . "',INTERVAL 45 DAY)";
-            $innerquery   = $this->db->query($innersql);
+                    WHERE site_id=?
+                    AND story_date < DATE_SUB(?,INTERVAL 45 DAY)';
+            $innerquery   = $this->db->query($innersql, [$row->site_id, $now]);
             $sitefeatured = $innerquery->getResult();
 
             foreach ($sitefeatured as $innerrow) {
@@ -215,9 +221,9 @@ class NewsModels extends Model
         if (isset($lastPost)) {
             $lastFetch = date('Y-m-d H:i:s');
 
-            $sql = "UPDATE news_feeds SET site_date_last_fetch = '{$lastFetch}', site_date_last_post = '{$lastPost}' WHERE site_slug = '{$slug}'";
+            $sql = "UPDATE news_feeds SET site_date_last_fetch = ?, site_date_last_post = ? WHERE site_slug = ?";
 
-            $this->db->query($sql);
+            $this->db->query($sql, [$lastFetch, $lastPost, $slug]);
         }
     }
 }

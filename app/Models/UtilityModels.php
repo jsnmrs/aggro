@@ -58,8 +58,8 @@ class UtilityModels extends Model
     public function sendLog($message)
     {
         $sql = "INSERT INTO aggro_log (log_date, log_message)
-            VALUES ('" . date('Y-m-d H:i:s') . "', '" . $message . "')";
-        $this->db->query($sql);
+            VALUES (?, ?)";
+        $this->db->query($sql, [date('Y-m-d H:i:s'), $message]);
 
         return true;
     }
