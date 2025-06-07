@@ -11,7 +11,7 @@
 
       <ul class="columns links">
         <?php foreach ($build as $siteResult) :?>
-        <li><a href="/sites/<?= $siteResult->site_slug; ?>"><?= $siteResult->site_name; ?></a></li>
+        <li><a href="/sites/<?= esc($siteResult->site_slug); ?>"><?= esc($siteResult->site_name); ?></a></li>
         <?php endforeach; ?>
       </ul>
     </div>

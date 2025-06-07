@@ -20,7 +20,7 @@ echo $this->include('includes/header'); ?>
       <?php foreach ($build as $row) :?>
         <li class="stream">
           <span class="stream__title">
-            <a href="<?= $row->story_permalink; ?>" rel="noopener noreferrer" data-outgoing="<?= $row->story_hash; ?>"><?= htmlspecialchars_decode($row->story_title ?? '');
+            <a href="<?= esc($row->story_permalink); ?>" rel="noopener noreferrer" data-outgoing="<?= esc($row->story_hash); ?>"><?= esc(htmlspecialchars_decode($row->story_title ?? ''));
           if (htmlspecialchars_decode($row->story_title ?? '') === '') {
               echo '[missing title]';
           } ?></a>
@@ -28,7 +28,7 @@ echo $this->include('includes/header'); ?>
           <span class="ago--muted"><?php
           $time = Time::createFromFormat('Y-m-d H:i:s', $row->story_date, 'America/New_York');
           echo $time->humanize();
-          ?> on <?= htmlspecialchars_decode($row->site_name ?? ''); ?></span>
+          ?> on <?= esc(htmlspecialchars_decode($row->site_name ?? '')); ?></span>
         </li>
       <?php endforeach; ?>
       </ol>
