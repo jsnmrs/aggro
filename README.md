@@ -14,6 +14,7 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Feed generation — provides RSS/OPML feeds of aggregated content
 - Responsive design — mobile-first, responsive web interface
 - Error monitoring — integrated Sentry for real-time error tracking and performance monitoring
+- Enhanced security — parameterized database queries, secure configuration management, input validation
 
 ## Tech stack
 
@@ -21,7 +22,7 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
 - Database — MySQL/MariaDB
 - Error monitoring — Sentry for application monitoring and error tracking
-- Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD for code standards
+- Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
 - Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
 
 ## Local development setup
@@ -81,6 +82,15 @@ Copy `.env-sample` to `.env` for your local environment. Key configurations:
 - `SENTRY_TRACES_SAMPLE_RATE` — performance monitoring sample rate
 - `SENTRY_SEND_DEFAULT_PII` — whether to send personally identifiable information
 
+### Storage configuration
+
+The `app/Config/Storage.php` file centralizes all file paths and storage-related settings:
+
+- Thumbnail storage — path, dimensions, and quality settings
+- Archive periods — content archival and cleanup timeframes
+- Cache durations — default cache times for various operations
+- Network timeouts — connection and request timeout settings
+
 ### Cron jobs
 
 The `.crontab` file defines scheduled tasks for:
@@ -99,13 +109,17 @@ The project includes several types of tests:
 # Run all tests
 fin test
 
+# Run all linting and static analysis
+fin lint
+
 # Run specific checks
 fin sniff      # PHP CodeSniffer
 fin shellcheck # Shell script linting
 
 # Code quality checks
-fin lint       # Run all linting (phpfix, phpcs, phpmd)
+fin lint       # Run all linting (phpfix, phpcs, phpmd, phpstan)
 fin phpfix     # Auto-fix PHP code style issues
+fin phpstan    # Run PHPStan static analysis
 ```
 
 ## Deployment
