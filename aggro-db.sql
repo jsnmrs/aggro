@@ -88,7 +88,7 @@ CREATE TABLE `news_featured` (
   `story_permalink` varchar(255) NOT NULL,
   `story_hash` varchar(255) NOT NULL,
   `story_date` datetime NOT NULL,
-  `site_id` int(11) NOT NULL,
+  `site_id` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`story_id`),
   UNIQUE KEY `permalink` (`story_permalink`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -167,12 +167,28 @@ UNLOCK TABLES;
 
 
 --
+-- Add performance indexes based on query patterns
+--
+
+CREATE INDEX `idx_video_archive_date` ON `aggro_videos`(`flag_archive`, `flag_bad`, `video_date_uploaded`);
+CREATE INDEX `idx_video_plays_archive` ON `aggro_videos`(`flag_archive`, `video_plays`);
+CREATE INDEX `idx_source_type_date` ON `aggro_sources`(`source_type`, `source_date_updated`);
+CREATE INDEX `idx_story_date` ON `news_featured`(`story_date`);
+CREATE INDEX `idx_story_site_date` ON `news_featured`(`site_id`, `story_date`);
+CREATE INDEX `idx_feeds_featured` ON `news_feeds`(`flag_featured`, `site_name`);
+
+--
 -- Add foreign key constraints for data integrity
 --
 
 ALTER TABLE `news_featured` 
 ADD CONSTRAINT `fk_story_site` 
 FOREIGN KEY (`site_id`) REFERENCES `news_feeds`(`site_id`) 
+ON DELETE CASCADE;
+
+ALTER TABLE `watch` 
+ADD CONSTRAINT `fk_watch_video` 
+FOREIGN KEY (`video_id`) REFERENCES `aggro_videos`(`video_id`) 
 ON DELETE CASCADE;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
