@@ -100,8 +100,8 @@ class YoutubeModels extends Model
             foreach ($results as $result) {
                 $videoDuration = youtube_get_duration($result->video_id);
                 if ($videoDuration !== false && is_numeric($videoDuration)) {
-                    $sql = 'UPDATE aggro_videos SET video_duration = ' . $videoDuration . " WHERE video_id = '" . $result->video_id . "'";
-                    $this->db->query($sql);
+                    $sql = 'UPDATE aggro_videos SET video_duration = ? WHERE video_id = ?';
+                    $this->db->query($sql, [$videoDuration, $result->video_id]);
                 }
                 if ($videoDuration === false) {
                     log_message('error', 'Failed to get duration for video ' . $result->video_id);
