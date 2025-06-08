@@ -67,7 +67,7 @@ class UtilityModels extends Model
     /**
      * Get log entries from aggro_log.
      *
-     * @return string
+     * @return array
      *                Recent log entries.
      */
     public function getLog()

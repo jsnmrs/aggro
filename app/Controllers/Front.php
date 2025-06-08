@@ -86,7 +86,7 @@ class Front extends BaseController
         $data['build'] = $newsModel->getSite($slug);
 
         if (! empty($data['build'])) {
-            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], 0, 3600);
+            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], '0', '3600');
             $newsModel->updateFeed($slug, $data['feedfetch']);
 
             return view('site', $data);
@@ -118,6 +118,7 @@ class Front extends BaseController
      */
     public function getVideo($slug = null)
     {
+        helper('html');
         // Sanitize slug
         $slug = trim($slug ?? '');
         $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
@@ -141,13 +142,13 @@ class Front extends BaseController
             $data['perpage'] = 30;
             $data['offset']  = ($data['page'] - 1) * $data['perpage'];
             $data['total']   = $aggroModel->getVideosTotal();
-            $data['endpage'] = ceil($data['total'] / $data['perpage']);
+            $data['endpage'] = ceil((int)$data['total'] / $data['perpage']);
 
             if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
                 return $this->getError404();
             }
 
-            $data['build'] = $aggroModel->getVideos($data['range'], $data['perpage'], $data['offset']);
+            $data['build'] = $aggroModel->getVideos($data['range'], (string)$data['perpage'], (string)$data['offset']);
 
             return view('videos', $data);
         }
