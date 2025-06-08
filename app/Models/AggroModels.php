@@ -303,7 +303,12 @@ class AggroModels extends Model
             }
 
             $fileAge = filemtime($file);
-            if ($fileAge === false || (time() - $fileAge) < $maxAge) {
+            if ($fileAge === false) {
+                log_message('warning', 'Failed to get modification time for thumbnail: ' . $file);
+                continue;
+            }
+            
+            if ((time() - $fileAge) < $maxAge) {
                 continue;
             }
 
