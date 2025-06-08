@@ -2,7 +2,9 @@
 
 namespace Tests\Support\MigrationTestMigrations\Database\Migrations;
 
-class Migration_another_migration extends \CodeIgniter\Database\Migration
+use CodeIgniter\Database\Migration;
+
+class Migration_another_migration extends Migration
 {
     public function up()
     {

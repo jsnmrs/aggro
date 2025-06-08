@@ -23,7 +23,7 @@ CREATE TABLE `aggro_log` (
   `log_date` datetime NOT NULL,
   `log_message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`log_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -40,7 +40,7 @@ CREATE TABLE `aggro_sources` (
   `source_type` varchar(255) NOT NULL DEFAULT '',
   `source_date_updated` datetime NOT NULL,
   PRIMARY KEY (`source_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -73,7 +73,7 @@ CREATE TABLE `aggro_videos` (
   `notes` text,
   PRIMARY KEY (`aggro_id`),
   UNIQUE KEY `videoid` (`video_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -88,10 +88,10 @@ CREATE TABLE `news_featured` (
   `story_permalink` varchar(255) NOT NULL,
   `story_hash` varchar(255) NOT NULL,
   `story_date` datetime NOT NULL,
-  `site_id` int(11) NOT NULL,
+  `site_id` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`story_id`),
   UNIQUE KEY `permalink` (`story_permalink`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `news_featured` WRITE;
 /*!40000 ALTER TABLE `news_featured` DISABLE KEYS */;
@@ -126,7 +126,7 @@ CREATE TABLE `news_feeds` (
   `flag_stream` tinyint(1) NOT NULL DEFAULT '0',
   `flag_spoof` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`site_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='bmxfeed feeds table';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='bmxfeed feeds table';
 
 LOCK TABLES `news_feeds` WRITE;
 /*!40000 ALTER TABLE `news_feeds` DISABLE KEYS */;
@@ -152,7 +152,7 @@ CREATE TABLE `watch` (
   `sortorder` int NOT NULL DEFAULT '0',
   `completed` date NOT NULL,
   PRIMARY KEY (`watch_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -165,6 +165,31 @@ INSERT INTO `watch` VALUES (1,'82538293','Diggest: Joe Rich.',1,'0000-00-00');
 /*!40000 ALTER TABLE `watch` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+--
+-- Add performance indexes based on query patterns
+--
+
+CREATE INDEX `idx_video_archive_date` ON `aggro_videos`(`flag_archive`, `flag_bad`, `video_date_uploaded`);
+CREATE INDEX `idx_video_plays_archive` ON `aggro_videos`(`flag_archive`, `video_plays`);
+CREATE INDEX `idx_source_type_date` ON `aggro_sources`(`source_type`, `source_date_updated`);
+CREATE INDEX `idx_story_date` ON `news_featured`(`story_date`);
+CREATE INDEX `idx_story_site_date` ON `news_featured`(`site_id`, `story_date`);
+CREATE INDEX `idx_feeds_featured` ON `news_feeds`(`flag_featured`, `site_name`);
+
+--
+-- Add foreign key constraints for data integrity
+--
+
+ALTER TABLE `news_featured` 
+ADD CONSTRAINT `fk_story_site` 
+FOREIGN KEY (`site_id`) REFERENCES `news_feeds`(`site_id`) 
+ON DELETE CASCADE;
+
+ALTER TABLE `watch` 
+ADD CONSTRAINT `fk_watch_video` 
+FOREIGN KEY (`video_id`) REFERENCES `aggro_videos`(`video_id`) 
+ON DELETE CASCADE;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

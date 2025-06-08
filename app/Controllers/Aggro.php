@@ -7,6 +7,7 @@ use App\Models\NewsModels;
 use App\Models\UtilityModels;
 use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
+use CodeIgniter\CodeIgniter;
 
 /**
  * All aggro contollers.
@@ -45,7 +46,12 @@ class Aggro extends BaseController
      */
     public function getInfo()
     {
-        echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">CI ' . \CodeIgniter\CodeIgniter::CI_VERSION . '<br>PHP ' . PHP_VERSION . '</h1>';
+        // Prevent caching to ensure fresh deployment info
+        $this->response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $this->response->setHeader('Pragma', 'no-cache');
+        $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
+
+        echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">CI ' . CodeIgniter::CI_VERSION . '<br>PHP ' . PHP_VERSION . '</h1>';
     }
 
     /**

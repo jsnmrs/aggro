@@ -5,6 +5,7 @@ namespace Tests\Support;
 use CodeIgniter\Session\Handlers\ArrayHandler;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\Mock\MockSession;
+use Config\Services;
 
 /**
  * @internal
@@ -30,8 +31,8 @@ final class SessionTestCase extends CIUnitTestCase
      */
     protected function mockSession()
     {
-        $config        = config('App');
+        $config        = config('Session');
         $this->session = new MockSession(new ArrayHandler($config, '0.0.0.0'), $config);
-        \Config\Services::injectMock('session', $this->session);
+        Services::injectMock('session', $this->session);
     }
 }

@@ -70,10 +70,30 @@ add('rsync', [
 
 // Move .env file (from disk or action)
 task('deploy:secrets', static function () {
+    $envContent = '';
+
     if (getenv('DOT_ENV')) {
-        file_put_contents(__DIR__ . '/.env-production', getenv('DOT_ENV'));
+        $envContent = getenv('DOT_ENV');
+    } elseif (file_exists('.env-production')) {
+        $envContent = file_get_contents('.env-production');
     }
-    if (file_exists('.env-production')) {
+
+    // If SENTRY_RELEASE is provided via environment, add/update it
+    if ($envContent && getenv('SENTRY_RELEASE')) {
+        // Remove any existing SENTRY_RELEASE line
+        $envContent = preg_replace('/^SENTRY_RELEASE\s*=.*$/m', '', $envContent);
+        $envContent = preg_replace('/^#\s*SENTRY_RELEASE.*$/m', '', $envContent);
+
+        // Add the new SENTRY_RELEASE after SENTRY_ENVIRONMENT
+        $envContent = preg_replace(
+            '/(SENTRY_ENVIRONMENT\s*=.*$)/m',
+            "$1\nSENTRY_RELEASE = '" . getenv('SENTRY_RELEASE') . "'",
+            $envContent,
+        );
+    }
+
+    if ($envContent) {
+        file_put_contents(__DIR__ . '/.env-production', $envContent);
         upload('.env-production', get('release_or_current_path') . '/.env');
     }
 });

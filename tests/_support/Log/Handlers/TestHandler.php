@@ -2,13 +2,15 @@
 
 namespace Tests\Support\Log\Handlers;
 
+use CodeIgniter\Log\Handlers\FileHandler;
+
 /**
  * Class TestHandler
  *
  * A simple LogHandler that stores the logs in memory.
  * Only used for testing purposes.
  */
-class TestHandler extends \CodeIgniter\Log\Handlers\FileHandler
+class TestHandler extends FileHandler
 {
     /**
      * Local storage for logs.

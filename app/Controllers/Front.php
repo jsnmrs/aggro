@@ -112,19 +112,6 @@ class Front extends BaseController
     }
 
     /**
-     * Submit page.
-     */
-    public function getSubmit()
-    {
-        $data = [
-            'title' => 'Submit',
-            'slug'  => 'submit',
-        ];
-
-        echo view('submit', $data);
-    }
-
-    /**
      * Video pages.
      *
      * @param mixed|null $slug
@@ -132,7 +119,7 @@ class Front extends BaseController
     public function getVideo($slug = null)
     {
         // Sanitize slug
-        $slug = trim($slug);
+        $slug = trim($slug ?? '');
         $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
 
         $data = [
@@ -160,7 +147,7 @@ class Front extends BaseController
                 return $this->getError404();
             }
 
-            $data['build'] = $aggroModel->getVideos($data['sort'], $data['range'], $data['perpage'], $data['offset']);
+            $data['build'] = $aggroModel->getVideos($data['range'], $data['perpage'], $data['offset']);
 
             return view('videos', $data);
         }
@@ -172,21 +159,5 @@ class Front extends BaseController
         }
 
         return $this->getError404();
-    }
-
-    /**
-     * Watch page.
-     */
-    public function getWatch()
-    {
-        $data = [
-            'title' => 'Watch',
-            'slug'  => 'watch',
-        ];
-
-        $aggroModel = new AggroModels();
-
-        $data['build'] = $aggroModel->getWatchPage();
-        echo view('watch', $data);
     }
 }

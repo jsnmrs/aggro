@@ -2,9 +2,11 @@ name: Deploy
 
 on:
   workflow_dispatch: # enable run button on github.com
-  push:
-    branches:
-      - "main"
+    inputs:
+      deploy_version:
+        description: 'Version to use for Sentry release tracking (optional)'
+        required: false
+        type: string
 
 # prevent concurrency between different deploys
 concurrency: production_environment
@@ -34,6 +36,8 @@ jobs:
     needs: front
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
       - name: Download build assets
         uses: actions/download-artifact@v4
         with:
@@ -45,8 +49,41 @@ jobs:
           php-version: '8.2'
           coverage: none
           tools: composer
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Composer install
         run: composer install
+      - name: Get version for Sentry
+        id: version
+        run: |
+          # Use input version if provided
+          if [ -n "${{ github.event.inputs.deploy_version }}" ]; then
+            VERSION="${{ github.event.inputs.deploy_version }}"
+            echo "Using provided version: $VERSION"
+          else
+            # Get the latest semantic version tag (v*.*.* format)
+            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
+            
+            # If no semantic version tags exist, use the commit SHA
+            if [ -z "$LATEST_TAG" ]; then
+              VERSION="${GITHUB_SHA:0:7}"
+              echo "No version tags found, using commit SHA: $VERSION"
+            else
+              VERSION=${LATEST_TAG#v}
+              echo "Using latest tag version: $VERSION"
+            fi
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Deploy
         uses: deployphp/action@v1
         with:
@@ -54,3 +91,4 @@ jobs:
           dep: deploy stage=prod -vvv
         env:
           DOT_ENV: ${{ secrets.DOT_ENV }}
+          SENTRY_RELEASE: ${{ steps.version.outputs.version }}

@@ -1,5 +1,7 @@
 <?php
 
+use Config\Services;
+
 /**
  * @file
  * Aggro helper functions.
@@ -217,7 +219,7 @@ if (! function_exists('fetch_thumbnail')) {
             fwrite($file, $buffer, strlen($buffer));
             fclose($file);
 
-            Config\Services::image()
+            Services::image()
                 ->withFile($path)
                 ->resize(600, 338, false, 'width')
                 ->convert(IMAGETYPE_WEBP)

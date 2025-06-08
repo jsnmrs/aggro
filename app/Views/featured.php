@@ -62,10 +62,10 @@ function displayStory($row, $storyNum)
 {
     if (isset($row[$storyNum])) {
         $story = $row[$storyNum];
-        $title = htmlspecialchars_decode($story['story_title'] ?? '');
+        $title = $story['story_title'] ?? '';
         $title = $title === '' ? '[missing title]' : $title;
 
-        return "<li><a href=\"{$story['story_permalink']}\" rel=\"noopener noreferrer\" data-outgoing=\"{$story['story_hash']}\">{$title}</a></li>";
+        return '<li><a href="' . esc($story['story_permalink']) . '" rel="noopener noreferrer" data-outgoing="' . esc($story['story_hash']) . '">' . esc($title) . '</a></li>';
     }
     if ($storyNum === 'story1') {
         return '<li>No recent posts</li>';

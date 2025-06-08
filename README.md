@@ -6,25 +6,25 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 
 ## Features
 
-- **News Aggregation**: Automatically collects and displays BMX news from various sources
-- **Video Integration**: Aggregates BMX videos from YouTube and Vimeo
-- **RSS Feed Directory**: Maintains a curated directory of BMX-related RSS feeds
-- **Content Curation**: Automatically archives old content and manages content quality
-- **API Support**: Integrates with YouTube and Vimeo APIs for video metadata
-- **Feed Generation**: Provides RSS/OPML feeds of aggregated content
-- **Responsive Design**: Mobile-first, responsive web interface
+- News aggregation — automatically collects and displays BMX news from various sources
+- Video integration — aggregates BMX videos from YouTube and Vimeo
+- RSS feed directory — maintains a curated directory of BMX-related RSS feeds
+- Content curation — automatically archives old content and manages content quality
+- API support — integrates with YouTube and Vimeo APIs for video metadata
+- Feed generation — provides RSS/OPML feeds of aggregated content
+- Responsive design — mobile-first, responsive web interface
+- Error monitoring — integrated Sentry for real-time error tracking and performance monitoring
 
-## Tech Stack
+## Tech stack
 
-- **Backend**: PHP 8.2+ with CodeIgniter 4 framework
-- **Frontend**: Vanilla CSS with PostCSS processing and no JavaScript!
-- **Database**: MySQL/MariaDB
-- **Dependencies**: 
-  - SimplePie for feed parsing
-  - Composer for PHP package management
-  - npm for frontend build tooling
+- Back-end — PHP 8.2+ with CodeIgniter 4 framework
+- Front-end — vanilla CSS with PostCSS processing and no JavaScript!
+- Database — MySQL/MariaDB
+- Error monitoring — Sentry for application monitoring and error tracking
+- Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD for code standards
+- Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
 
-## Local Development Setup
+## Local development setup
 
 Aggro uses [Docksal](https://docksal.io) for local development. This ensures a consistent development environment across machines.
 
@@ -50,37 +50,46 @@ Aggro uses [Docksal](https://docksal.io) for local development. This ensures a c
    - Open http://aggro.docksal.site in your browser
    - The init process creates a local database from aggro-db.sql
 
-### Development Commands
+### Development commands
 
 Aggro includes several custom Docksal commands to help with development:
 
-- `fin admin` - Run application maintenance tasks
-- `fin deploy [env]` - Deploy to specified environment
-- `fin frontend` - Run frontend build process
-- `fin maintain` - Run upgrades and tests
-- `fin test` - Run test suite
-- `fin upgrade` - Update Composer packages
+- `fin admin` — Run application maintenance tasks
+- `fin deploy [env]` — Deploy to specified environment
+- `fin frontend` — Run front-end build process
+- `fin maintain` — Run upgrades and tests
+- `fin test` — Run test suite
+- `fin upgrade` — Update Composer packages
 
 ## Configuration
 
-### Environment Variables
+### Environment variables
 
 Copy `.env-sample` to `.env` for your local environment. Key configurations:
 
-- `CI_ENVIRONMENT` - Set to 'development' for local work
-- `app.baseURL` - Your local URL (default: http://aggro.docksal.site)
-- Database credentials (configured through Docksal)
-- API keys for video services
+- `CI_ENVIRONMENT` — set to “development” for local work
+- `app.baseURL` — your local URL (default: http://aggro.docksal.site)
+- Database credentials — configured through Docksal
+- API keys — for video services
 
-### Cron Jobs
+### Sentry configuration
+
+- `SENTRY_DSN` — your Sentry Data Source Name for error tracking
+- `SENTRY_ENVIRONMENT` — environment name (development/production)
+- `SENTRY_RELEASE` — application release version
+- `SENTRY_SAMPLE_RATE` — error sampling rate (0.0 to 1.0)
+- `SENTRY_TRACES_SAMPLE_RATE` — performance monitoring sample rate
+- `SENTRY_SEND_DEFAULT_PII` — whether to send personally identifiable information
+
+### Cron jobs
 
 The `.crontab` file defines scheduled tasks for:
 
-- News feed updates (every 6 minutes)
-- YouTube video checks (every 5 minutes)
-- Vimeo video checks (every 7 minutes)
-- Archive management (daily)
-- Feed cache clearing (monthly)
+- News feed updates — every 6 minutes
+- YouTube video checks — every 5 minutes
+- Vimeo video checks — every 7 minutes
+- Archive management — daily
+- Feed cache clearing — monthly
 
 ## Testing
 
@@ -93,6 +102,10 @@ fin test
 # Run specific checks
 fin sniff      # PHP CodeSniffer
 fin shellcheck # Shell script linting
+
+# Code quality checks
+fin lint       # Run all linting (phpfix, phpcs, phpmd)
+fin phpfix     # Auto-fix PHP code style issues
 ```
 
 ## Deployment
@@ -100,11 +113,11 @@ fin shellcheck # Shell script linting
 Deployment is handled through GitHub Actions and Deployer:
 
 1. Automated deployment on merge to main branch
-2. Frontend assets are built and included in deployment
+2. Front-end assets are built and included in deployment
 3. Environment files are securely transferred
 4. Crontab is updated on deployment
 
-### Manual Deployment
+### Manual deployment
 
 ```bash
 # Deploy to development
@@ -113,6 +126,17 @@ fin deploy dev
 # Deploy to production
 fin deploy prod
 ```
+
+## Error monitoring
+
+Aggro uses Sentry for application monitoring:
+
+- Real-time error tracking and alerting
+- Performance monitoring for slow requests
+- Automatic error grouping and deduplication
+- Integration with deployment tracking
+
+Configure Sentry by setting the appropriate environment variables in your `.env` file.
 
 ## License
 
@@ -136,4 +160,3 @@ Aggro is open-source software licensed under the MIT license. See the [LICENSE](
 ## Support
 
 - Issues: [GitHub Issues](https://github.com/jsnmrs/aggro/issues)
-- Email: jason@bmxfeed.com

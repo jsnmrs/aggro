@@ -1,0 +1,184 @@
+name: Create Release Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version increment type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      tag_message:
+        description: 'Tag message (optional)'
+        required: false
+        default: ''
+        type: string
+
+# Prevent concurrent releases
+concurrency:
+  group: release-creation
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    name: Create Version Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+          
+      - name: Check recent PR labels for version suggestion
+        id: pr_labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the most recent merged PR
+          RECENT_PR=$(git log --merges -1 --pretty=%B | grep -oE '#[0-9]+' | tr -d '#' | head -1)
+          
+          if [ -n "$RECENT_PR" ]; then
+            echo "Checking labels on PR #$RECENT_PR"
+            
+            # Get PR labels
+            LABELS=$(gh pr view $RECENT_PR --json labels -q '.labels[].name' 2>/dev/null | tr '\n' ' ' || echo "")
+            
+            if [ -n "$LABELS" ]; then
+              echo "Found labels: $LABELS"
+              
+              # Suggest version type based on labels
+              if echo "$LABELS" | grep -q "breaking-change\|major"; then
+                echo "suggested_type=major" >> $GITHUB_OUTPUT
+                echo "💡 Suggestion: This PR has breaking change labels, consider using 'major'"
+              elif echo "$LABELS" | grep -q "feature\|enhancement\|minor"; then
+                echo "suggested_type=minor" >> $GITHUB_OUTPUT
+                echo "💡 Suggestion: This PR has feature labels, consider using 'minor'"
+              elif echo "$LABELS" | grep -q "bug\|fix\|patch"; then
+                echo "suggested_type=patch" >> $GITHUB_OUTPUT
+                echo "💡 Suggestion: This PR has bug fix labels, consider using 'patch'"
+              fi
+            fi
+          fi
+          
+      - name: Generate version tag
+        id: version
+        run: |
+          # Get the latest semantic version tag (v*.*.* format)
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1 || echo "v0.0.0")
+          
+          # If no semantic version tags exist, use v0.0.0
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+          
+          echo "Latest tag: $LATEST_TAG"
+          
+          # Extract version numbers
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          
+          # Increment based on input
+          case "${{ github.event.inputs.version_type }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          
+          echo "New tag: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "new_version=${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
+          
+          # Check if selected version matches suggestion
+          if [ -n "${{ steps.pr_labels.outputs.suggested_type }}" ] && [ "${{ steps.pr_labels.outputs.suggested_type }}" != "${{ github.event.inputs.version_type }}" ]; then
+            echo "::warning::Selected version type (${{ github.event.inputs.version_type }}) differs from suggested type based on PR labels (${{ steps.pr_labels.outputs.suggested_type }})"
+          fi
+          
+      - name: Extract recent changes
+        id: changes
+        run: |
+          # Get commits since last tag
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1 || echo "")
+          
+          if [ -n "$LATEST_TAG" ]; then
+            echo "Getting changes since $LATEST_TAG"
+            
+            # Get list of PRs merged since last tag
+            CHANGES=""
+            while IFS= read -r commit; do
+              PR_NUM=$(echo "$commit" | grep -oE '#[0-9]+' | tr -d '#' | head -1)
+              if [ -n "$PR_NUM" ]; then
+                CHANGES="${CHANGES}- ${commit}\n"
+              fi
+            done <<< "$(git log --pretty=format:"%s" ${LATEST_TAG}..HEAD)"
+            
+            echo "changes<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$CHANGES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+      - name: Create and push tag
+        env:
+          INPUT_TAG_MESSAGE: ${{ github.event.inputs.tag_message }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Create tag message
+          TAG_MESSAGE="Release ${{ steps.version.outputs.new_tag }}"
+          
+          if [ -n "${INPUT_TAG_MESSAGE}" ]; then
+            TAG_MESSAGE=$(printf "%s\n\n%s" "$TAG_MESSAGE" "$INPUT_TAG_MESSAGE")
+          fi
+          
+          # Add recent changes if available
+          if [ -n "${{ steps.changes.outputs.changes }}" ]; then
+            TAG_MESSAGE=$(printf "%s\n\nChanges included:\n%s" "$TAG_MESSAGE" "${{ steps.changes.outputs.changes }}")
+          fi
+          
+          echo "$TAG_MESSAGE" > .tag_message
+          git tag -a ${{ steps.version.outputs.new_tag }} -F .tag_message
+          git push origin ${{ steps.version.outputs.new_tag }}
+          rm -f .tag_message
+          
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG_MESSAGE: ${{ github.event.inputs.tag_message }}
+          CHANGES: ${{ steps.changes.outputs.changes }}
+        run: |
+          # Create release body
+          RELEASE_BODY="Release ${{ steps.version.outputs.new_tag }}"
+          
+          if [ -n "${INPUT_TAG_MESSAGE}" ]; then
+            RELEASE_BODY=$(printf "%s\n\n%s" "$RELEASE_BODY" "$INPUT_TAG_MESSAGE")
+          fi
+          
+          if [ -n "${CHANGES}" ]; then
+            RELEASE_BODY=$(printf "%s\n\n## Changes included:\n%s" "$RELEASE_BODY" "$CHANGES")
+          fi
+          
+          # Create the release
+          echo "$RELEASE_BODY" | gh release create ${{ steps.version.outputs.new_tag }} \
+            --title "Release ${{ steps.version.outputs.new_tag }}" \
+            --notes-file -
+            
+      # Note: Deployment happens automatically when changes are merged to main
+      # This workflow only creates the version tag and release
