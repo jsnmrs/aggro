@@ -32,9 +32,8 @@ class Aggro extends BaseController
             return false;
         }
 
-        $aggroModel = new AggroModels();
-
         // TODO: Implement updateWatchPage method in AggroModels
+        // $aggroModel = new AggroModels();
         // if ($aggroModel->updateWatchPage()) {
         //     echo "\nWatch video updated.\n";
         // }

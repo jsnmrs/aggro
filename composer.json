@@ -58,7 +58,8 @@
     "lint": [
       "composer phpfix",
       "composer phpcs",
-      "composer phpmd"
+      "composer phpmd",
+      "composer phpstan"
     ],
     "phpstan": "phpstan analyse --configuration=phpstan.neon"
   },

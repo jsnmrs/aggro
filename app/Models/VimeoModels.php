@@ -47,8 +47,8 @@ class VimeoModels extends Model
      * @param object $feed
      *                     Fetched YouTube feed.
      *
-     * @return int|false
-     *             Number of videos added or false on error.
+     * @return false|int
+     *                   Number of videos added or false on error.
      */
     public function parseChannel($feed)
     {

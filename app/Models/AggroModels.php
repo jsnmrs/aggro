@@ -331,7 +331,7 @@ class AggroModels extends Model
      *                      Maximum number of channels to grab.
      *
      * @return array|false
-     *               All fields for all video channels matching arguments.
+     *                     All fields for all video channels matching arguments.
      */
     public function getChannels($stale = '30', $type = 'youtube', $limit = '10')
     {
@@ -354,7 +354,7 @@ class AggroModels extends Model
     {
         $now     = date('Y-m-d H:i:s');
         $sql     = 'SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?';
-        $query   = $this->db->query($sql, [$type, $now, (int)$stale, (int)$limit]);
+        $query   = $this->db->query($sql, [$type, $now, (int) $stale, (int) $limit]);
         $results = $query->getResultArray();
 
         return count($results) > 0 ? $query->getResult() : false;
@@ -384,7 +384,7 @@ class AggroModels extends Model
      *                     Video id.
      *
      * @return array|false
-     *               Video data from table or FALSE.
+     *                     Video data from table or FALSE.
      */
     public function getVideo($slug)
     {
@@ -411,7 +411,7 @@ class AggroModels extends Model
      *                        Result starting offset.
      *
      * @return array
-     *                Video data from table.
+     *               Video data from table.
      */
     public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
@@ -420,7 +420,7 @@ class AggroModels extends Model
         $constrict = $this->getRangeConstraint($range, $now);
         $baseWhere = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"';
         $sql       = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
-        $query     = $this->db->query($sql, [(int)$perpage, (int)$offset]);
+        $query     = $this->db->query($sql, [(int) $perpage, (int) $offset]);
 
         return $query->getResult();
     }
@@ -445,7 +445,7 @@ class AggroModels extends Model
      * Get all videos total.
      *
      * @return int
-     *                Total number of active videos.
+     *             Total number of active videos.
      */
     public function getVideosTotal()
     {
