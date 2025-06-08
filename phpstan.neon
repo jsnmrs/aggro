@@ -1,0 +1,35 @@
+parameters:
+    level: 5
+    scanDirectories:
+        - app/Config
+        - app/Controllers
+        - app/Database
+        - app/Filters
+        - app/Helpers
+        - app/Language
+        - app/Libraries
+        - app/Models
+        - app/ThirdParty
+        - app/Views
+    paths:
+        - app/Controllers
+        - app/Models
+        - app/Views
+    ignoreErrors:
+        - '#Function view not found.#'
+        - '#Function helper not found.#'
+        - '#Function esc not found.#'
+        - '#Function log_message not found.#'
+        - '#Function quotes_to_entities not found.#'
+        - '#Function clean_path not found.#'
+        - '#Function lang not found.#'
+        - '#Constant ROOTPATH not found.#'
+        - '#Constant ENVIRONMENT not found.#'
+        - '#Variable \$this might not be defined.#'
+        - '#Variable \$[a-zA-Z_][a-zA-Z0-9_]* might not be defined.#'
+        - '#Strict comparison using === between .* and false will always evaluate to false.#'
+        - '#Strict comparison using !== between .* and false will always evaluate to true.#'
+        - '#Right side of && is always true.#'
+        - '#Calling static::.* outside of class scope.#'
+        - '#Parameter .* of function natsort expects.*#'
+        - '#Parameter .* of function str_pad expects string.*#'

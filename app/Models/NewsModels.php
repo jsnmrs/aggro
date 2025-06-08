@@ -219,8 +219,8 @@ class NewsModels extends Model
     /**
      * Clean featured table.
      *
-     * @return string
-     *                Number of removed stories.
+     * @return false|int
+     *                   Number of removed stories or false on error.
      */
     public function featuredCleaner()
     {
@@ -331,8 +331,8 @@ class NewsModels extends Model
     /**
      * Get all sites.
      *
-     * @return object
-     *                Site data from table.
+     * @return array
+     *               Site data from table.
      */
     public function getSites()
     {
@@ -345,8 +345,8 @@ class NewsModels extends Model
     /**
      * Get recent directory updates.
      *
-     * @return object
-     *                All feed data from table.
+     * @return array
+     *               All feed data from table.
      */
     public function getSitesRecent()
     {

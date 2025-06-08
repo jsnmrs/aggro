@@ -330,10 +330,10 @@ class AggroModels extends Model
      * @param string $limit
      *                      Maximum number of channels to grab.
      *
-     * @return array
-     *               All fields for all video channels matching arguments.
+     * @return array|false
+     *                     All fields for all video channels matching arguments.
      */
-    public function getChannels($stale = 30, $type = 'youtube', $limit = 10)
+    public function getChannels($stale = '30', $type = 'youtube', $limit = '10')
     {
         $channels = $this->fetchStaleChannels($stale, $type, $limit);
         $this->logChannelSearchResult($channels, $type, $limit);
@@ -344,9 +344,9 @@ class AggroModels extends Model
     /**
      * Fetch stale channels from database.
      *
-     * @param int    $stale
+     * @param string $stale
      * @param string $type
-     * @param int    $limit
+     * @param string $limit
      *
      * @return array|false
      */
@@ -354,7 +354,7 @@ class AggroModels extends Model
     {
         $now     = date('Y-m-d H:i:s');
         $sql     = 'SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?';
-        $query   = $this->db->query($sql, [$type, $now, $stale, $limit]);
+        $query   = $this->db->query($sql, [$type, $now, (int) $stale, (int) $limit]);
         $results = $query->getResultArray();
 
         return count($results) > 0 ? $query->getResult() : false;
@@ -365,7 +365,7 @@ class AggroModels extends Model
      *
      * @param array|false $channels
      * @param string      $type
-     * @param int         $limit
+     * @param string      $limit
      */
     private function logChannelSearchResult($channels, $type, $limit)
     {
@@ -383,8 +383,8 @@ class AggroModels extends Model
      * @param string $slug
      *                     Video id.
      *
-     * @return array
-     *               Video data from table or FALSE.
+     * @return array|false
+     *                     Video data from table or FALSE.
      */
     public function getVideo($slug)
     {
@@ -410,17 +410,17 @@ class AggroModels extends Model
      * @param string $offset
      *                        Result starting offset.
      *
-     * @return string
-     *                Video data from table.
+     * @return array
+     *               Video data from table.
      */
-    public function getVideos($range = 'month', $perpage = 10, $offset = 0)
+    public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
         $now       = date('Y-m-d H:i:s');
         $sortField = 'aggro_date_added';
         $constrict = $this->getRangeConstraint($range, $now);
         $baseWhere = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"';
-        $sql       = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
-        $query     = $this->db->query($sql);
+        $sql       = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
+        $query     = $this->db->query($sql, [(int) $perpage, (int) $offset]);
 
         return $query->getResult();
     }
@@ -444,8 +444,8 @@ class AggroModels extends Model
     /**
      * Get all videos total.
      *
-     * @return string
-     *                Total number of active videos.
+     * @return int
+     *             Total number of active videos.
      */
     public function getVideosTotal()
     {

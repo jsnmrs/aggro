@@ -27,16 +27,17 @@ class Aggro extends BaseController
      */
     public function changeWatch()
     {
-        helper('aggro');
+        helper(['aggro', 'url']);
         if (! gate_check()) {
             return false;
         }
 
-        $aggroModel = new AggroModels();
-
-        if ($aggroModel->updateWatchPage()) {
-            echo "\nWatch video updated.\n";
-        }
+        // TODO: Implement updateWatchPage method in AggroModels
+        // $aggroModel = new AggroModels();
+        // if ($aggroModel->updateWatchPage()) {
+        //     echo "\nWatch video updated.\n";
+        // }
+        echo "\nWatch page update functionality not yet implemented.\n";
 
         return true;
     }
@@ -256,9 +257,9 @@ class Aggro extends BaseController
         }
 
         if ($videoID === null) {
-            $data['stale'] = $aggroModel->getChannels(30, 'vimeo', 5);
+            $data['stale'] = $aggroModel->getChannels('30', 'vimeo', '5');
 
-            if ($data['stale'] === false) {
+            if ($data['stale'] === false || empty($data['stale'])) {
                 return false;
             }
 
@@ -272,11 +273,12 @@ class Aggro extends BaseController
             return true;
         }
 
+        helper('html');
         $videoID = esc($videoID);
 
         if (! $aggroModel->checkVideo($videoID)) {
             $request              = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
-            $result               = json_decode(fetch_url($request, 'json', 0));
+            $result               = json_decode(fetch_url($request, 'json', '0'));
             $sourceID             = str_replace('https://vimeo.com/', '', $result[0]->user_url);
             $data['feed']         = vimeo_get_feed($sourceID);
             $data['number_added'] = $vimeoModel->searchChannel($data['feed'], $videoID);
@@ -306,9 +308,9 @@ class Aggro extends BaseController
         }
 
         if ($videoID === null) {
-            $data['stale'] = $aggroModel->getChannels(30, 'youtube', 5);
+            $data['stale'] = $aggroModel->getChannels('30', 'youtube', '5');
 
-            if ($data['stale'] === false) {
+            if ($data['stale'] === false || empty($data['stale'])) {
                 return false;
             }
 
@@ -322,6 +324,7 @@ class Aggro extends BaseController
             return true;
         }
 
+        helper('html');
         $videoID = esc($videoID);
 
         if ($aggroModel->checkVideo($videoID)) {
