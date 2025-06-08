@@ -10,7 +10,7 @@ use App\Models\YoutubeModels;
 use CodeIgniter\CodeIgniter;
 
 /**
- * All aggro contollers.
+ * All aggro controllers.
  */
 class Aggro extends BaseController
 {

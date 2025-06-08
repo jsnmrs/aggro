@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 /**
- * Default home contoller.
+ * Default home controller.
  */
 class Home extends BaseController
 {
