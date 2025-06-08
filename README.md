@@ -25,6 +25,19 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
 - Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
 
+## Architecture
+
+Aggro follows a clean architecture pattern with separation of concerns:
+
+- **Controllers** — Handle HTTP requests and coordinate responses
+- **Models** — Core business logic and data structures  
+- **Repositories** — Data access layer for database operations
+- **Services** — Domain-specific business logic (archiving, thumbnails)
+- **Helpers** — Utility functions for common operations
+- **Libraries** — Third-party integrations and custom components
+
+This architecture improves code maintainability, testability, and follows SOLID principles.
+
 ## Local development setup
 
 Aggro uses [Docksal](https://docksal.io) for local development. This ensures a consistent development environment across machines.
