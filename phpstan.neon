@@ -1,16 +1,16 @@
 parameters:
     level: 5
     scanDirectories:
-        - app\config
-        - app\controllers
-        - app\database
-        - app\filters
-        - app\helpers
-        - app\language
-        - app\libraries
-        - app\models
-        - app\thirdparty
-        - app\views
+        - app/Config
+        - app/Controllers
+        - app/Database
+        - app/Filters
+        - app/Helpers
+        - app/Language
+        - app/Libraries
+        - app/Models
+        - app/ThirdParty
+        - app/Views
     paths:
         - app/Controllers
         - app/Models
