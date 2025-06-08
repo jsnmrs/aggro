@@ -476,9 +476,9 @@ class AggroModels extends Model
         $sortField     = 'aggro_date_added';
         $constrict     = $this->getRangeConstraint($range, $now);
         $storageConfig = config('Storage');
-        $baseWhere     = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ? AND aggro_date_updated <> "0000-00-00 00:00:00"';
+        $baseWhere     = $this->getActiveVideoConditions($storageConfig->minVideoDuration);
         $sql           = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
-        $query         = $this->db->query($sql, [$storageConfig->minVideoDuration, (int) $perpage, (int) $offset]);
+        $query         = $this->db->query($sql, [(int) $perpage, (int) $offset]);
 
         return $query->getResult();
     }
@@ -500,6 +500,18 @@ class AggroModels extends Model
     }
 
     /**
+     * Get the WHERE conditions for active videos.
+     *
+     * @param int $minVideoDuration
+     *
+     * @return string
+     */
+    private function getActiveVideoConditions($minVideoDuration)
+    {
+        return 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ' . (int) $minVideoDuration . ' AND aggro_date_updated <> "0000-00-00 00:00:00"';
+    }
+
+    /**
      * Get all videos total.
      *
      * @return int
@@ -508,10 +520,11 @@ class AggroModels extends Model
     public function getVideosTotal()
     {
         $storageConfig = config('Storage');
-        $sql           = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ? AND aggro_date_updated <> '0000-00-00 00:00:00'";
-        $query         = $this->db->query($sql, [$storageConfig->minVideoDuration]);
+        $baseWhere     = $this->getActiveVideoConditions($storageConfig->minVideoDuration);
+        $sql           = 'SELECT COUNT(*) as total FROM aggro_videos ' . $baseWhere;
+        $query         = $this->db->query($sql);
 
-        return count($query->getResultArray());
+        return (int) $query->getRow()->total;
     }
 
     /**

@@ -6,7 +6,7 @@ use App\Models\AggroModels;
 use App\Models\NewsModels;
 
 /**
- * All front-end contollers.
+ * All front-end controllers.
  */
 class Front extends BaseController
 {
