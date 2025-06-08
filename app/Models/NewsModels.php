@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Exception;
 
 /**
  * All interactions with news_* tables.
@@ -20,36 +21,199 @@ class NewsModels extends Model
         $utilityModel = new UtilityModels();
         helper(['aggro', 'text']);
 
-        $sql      = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
-        $query    = $this->db->query($sql);
-        $featured = $query->getResult();
-        $counter  = 0;
-
-        foreach ($featured as $row) {
-            $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
-            $sql   = "UPDATE news_feeds SET site_date_last_fetch='" . date('Y-m-d H:i:s') . "' WHERE site_id='" . $row->site_id . "'";
-            $this->db->query($sql);
-            $storyCount = 0;
-
-            foreach ($fetch->get_items(0, 10) as $item) {
-                if ($storyCount === 0) {
-                    $lastPost = $item->get_date('Y-m-d H:i:s');
-                    $sql      = "UPDATE news_feeds SET site_date_last_post='" . $lastPost . "' WHERE site_id='" . $row->site_id . "'";
-                    $this->db->query($sql);
-                }
-
-                $sql = "INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES ('" . $row->site_id . "', '" . quotes_to_entities($item->get_title()) . "', '" . quotes_to_entities($item->get_permalink()) . "', '" . sha1($item->get_permalink()) . "', '" . quotes_to_entities($item->get_date('Y-m-d H:i:s')) . "')";
-                $this->db->query($sql);
-                $storyCount++;
+        try {
+            $featured = $this->getFeaturedFeeds();
+            if ($featured === false) {
+                return false;
             }
 
-            $counter++;
+            $stats = $this->processFeaturedFeeds($featured);
+
+            $this->logFeaturedStats($utilityModel, $stats);
+
+            return true;
+        } catch (Exception $e) {
+            log_message('error', 'Exception in featuredBuilder: ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Get featured and stream feeds from database.
+     *
+     * @return array|false
+     */
+    private function getFeaturedFeeds()
+    {
+        $sql   = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
+        $query = $this->db->query($sql);
+
+        if ($query === false) {
+            log_message('error', 'Failed to query featured feeds');
+
+            return false;
         }
 
-        $message = $counter . ' featured and stream sites updated.';
-        $utilityModel->sendLog($message);
+        return $query->getResult();
+    }
+
+    /**
+     * Process all featured feeds.
+     *
+     * @param array $featured
+     *
+     * @return array Stats with counter and errorCount
+     */
+    private function processFeaturedFeeds($featured)
+    {
+        $counter    = 0;
+        $errorCount = 0;
+
+        foreach ($featured as $row) {
+            $result = $this->processSingleFeed($row);
+            if ($result === true) {
+                $counter++;
+            }
+            if ($result !== true) {
+                $errorCount++;
+            }
+        }
+
+        return ['counter' => $counter, 'errorCount' => $errorCount];
+    }
+
+    /**
+     * Process a single feed.
+     *
+     * @param object $row
+     *
+     * @return bool Success or failure
+     */
+    private function processSingleFeed($row)
+    {
+        try {
+            $fetch = fetch_feed($row->site_feed, $row->flag_spoof);
+
+            if ($fetch === false || $fetch->error()) {
+                log_message('warning', 'Failed to fetch feed for site_id ' . $row->site_id . ': ' . $row->site_feed);
+
+                return false;
+            }
+
+            return $this->saveFeedItems($row, $fetch);
+        } catch (Exception $e) {
+            log_message('error', 'Exception processing site_id ' . $row->site_id . ': ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Save feed items to database.
+     *
+     * @param object $row
+     * @param object $fetch
+     *
+     * @return bool Success or failure
+     */
+    private function saveFeedItems($row, $fetch)
+    {
+        $this->db->transStart();
+
+        $this->updateLastFetchTime($row->site_id);
+        $this->processFeedItems($row, $fetch);
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            log_message('error', 'Transaction failed for site_id ' . $row->site_id);
+
+            return false;
+        }
 
         return true;
+    }
+
+    /**
+     * Update last fetch time for feed.
+     *
+     * @param int $siteId
+     */
+    private function updateLastFetchTime($siteId)
+    {
+        $sql = 'UPDATE news_feeds SET site_date_last_fetch=? WHERE site_id=?';
+        $this->db->query($sql, [date('Y-m-d H:i:s'), $siteId]);
+    }
+
+    /**
+     * Process individual items from feed.
+     *
+     * @param object $row
+     * @param object $fetch
+     */
+    private function processFeedItems($row, $fetch)
+    {
+        $storyCount = 0;
+
+        foreach ($fetch->get_items(0, 10) as $item) {
+            try {
+                if ($storyCount === 0) {
+                    $this->updateLastPostTime($row->site_id, $item);
+                }
+
+                $this->insertFeedItem($row->site_id, $item);
+                $storyCount++;
+            } catch (Exception $e) {
+                log_message('error', 'Failed to process item for site_id ' . $row->site_id . ': ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Update last post time for feed.
+     *
+     * @param int    $siteId
+     * @param object $item
+     */
+    private function updateLastPostTime($siteId, $item)
+    {
+        $lastPost = $item->get_date('Y-m-d H:i:s');
+        $sql      = 'UPDATE news_feeds SET site_date_last_post=? WHERE site_id=?';
+        $this->db->query($sql, [$lastPost, $siteId]);
+    }
+
+    /**
+     * Insert feed item into database.
+     *
+     * @param int    $siteId
+     * @param object $item
+     */
+    private function insertFeedItem($siteId, $item)
+    {
+        $sql = 'INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES (?, ?, ?, ?, ?)';
+        $this->db->query($sql, [
+            $siteId,
+            quotes_to_entities($item->get_title()),
+            quotes_to_entities($item->get_permalink()),
+            sha1($item->get_permalink()),
+            quotes_to_entities($item->get_date('Y-m-d H:i:s')),
+        ]);
+    }
+
+    /**
+     * Log featured feed processing statistics.
+     *
+     * @param UtilityModels $utilityModel
+     * @param array         $stats
+     */
+    private function logFeaturedStats($utilityModel, $stats)
+    {
+        $message = $stats['counter'] . ' featured and stream sites updated';
+        if ($stats['errorCount'] > 0) {
+            $message .= ', ' . $stats['errorCount'] . ' errors';
+        }
+        $utilityModel->sendLog($message);
     }
 
     /**
@@ -70,9 +234,9 @@ class NewsModels extends Model
         foreach ($featured as $row) {
             $innersql = 'SELECT *
                     FROM news_featured
-                    WHERE site_id=' . $row->site_id . "
-                    AND story_date < DATE_SUB('" . $now . "',INTERVAL 45 DAY)";
-            $innerquery   = $this->db->query($innersql);
+                    WHERE site_id=?
+                    AND story_date < DATE_SUB(?,INTERVAL 45 DAY)';
+            $innerquery   = $this->db->query($innersql, [$row->site_id, $now]);
             $sitefeatured = $innerquery->getResult();
 
             foreach ($sitefeatured as $innerrow) {
@@ -215,9 +379,9 @@ class NewsModels extends Model
         if (isset($lastPost)) {
             $lastFetch = date('Y-m-d H:i:s');
 
-            $sql = "UPDATE news_feeds SET site_date_last_fetch = '{$lastFetch}', site_date_last_post = '{$lastPost}' WHERE site_slug = '{$slug}'";
+            $sql = 'UPDATE news_feeds SET site_date_last_fetch = ?, site_date_last_post = ? WHERE site_slug = ?';
 
-            $this->db->query($sql);
+            $this->db->query($sql, [$lastFetch, $lastPost, $slug]);
         }
     }
 }

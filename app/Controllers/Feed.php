@@ -38,7 +38,7 @@ class Feed extends BaseController
     {
         $aggroModel = new AggroModels();
 
-        $data['build'] = $aggroModel->getVideos('recent', 'month', 25, 0);
+        $data['build'] = $aggroModel->getVideos('month', 25, 0);
         $this->response->setContentType('application/rss+xml');
 
         return view('xml/rss', $data);

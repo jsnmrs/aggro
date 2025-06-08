@@ -147,7 +147,7 @@ class Front extends BaseController
                 return $this->getError404();
             }
 
-            $data['build'] = $aggroModel->getVideos($data['sort'], $data['range'], $data['perpage'], $data['offset']);
+            $data['build'] = $aggroModel->getVideos($data['range'], $data['perpage'], $data['offset']);
 
             return view('videos', $data);
         }
