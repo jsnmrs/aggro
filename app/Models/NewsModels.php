@@ -263,7 +263,7 @@ class NewsModels extends Model
     public function featuredPage()
     {
         // Single optimized query to fetch feeds and their top 3 stories using window function
-        $sql = 'SELECT 
+        $sql = 'SELECT
                     nf.site_name,
                     nf.site_slug,
                     nf.site_date_last_post,
@@ -283,6 +283,7 @@ class NewsModels extends Model
 
         // Build the structured array from the joined result
         $built = [];
+
         foreach ($result as $row) {
             $siteSlug = $row['site_slug'];
 
@@ -297,7 +298,7 @@ class NewsModels extends Model
 
             // Add stories (limit to top 3 per site using story_rank from window function)
             if ($row['story_title'] && $row['story_rank'] <= 3) {
-                $storyNum                            = 'story' . $row['story_rank'];
+                $storyNum                    = 'story' . $row['story_rank'];
                 $built[$siteSlug][$storyNum] = [
                     'story_title'     => $row['story_title'],
                     'story_permalink' => $row['story_permalink'],
@@ -358,8 +359,8 @@ class NewsModels extends Model
     /**
      * Build stream page.
      *
-     * @param int $page   Page number (default: 1)
-     * @param int $limit  Stories per page (default: 50)
+     * @param int $page  Page number (default: 1)
+     * @param int $limit Stories per page (default: 50)
      *
      * @return array
      *               Stream page.
@@ -368,7 +369,7 @@ class NewsModels extends Model
     {
         // Calculate offset for pagination
         $offset = ($page - 1) * $limit;
-        
+
         // Ensure reasonable limits
         $limit  = min($limit, 100); // Max 100 items per page
         $offset = max($offset, 0);  // No negative offset
@@ -395,7 +396,7 @@ class NewsModels extends Model
             FROM news_featured
             INNER JOIN news_feeds
             ON news_featured.site_id = news_feeds.site_id';
-        $query = $this->db->query($sql);
+        $query  = $this->db->query($sql);
         $result = $query->getRow();
 
         return (int) $result->total;

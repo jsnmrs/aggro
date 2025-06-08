@@ -160,28 +160,6 @@ class AggroModels extends Model
     }
 
     /**
-     * Get count of videos that can be archived.
-     *
-     * @param string $now
-     *
-     * @return int
-     *
-     * @throws Exception
-     */
-    private function getArchivableVideoCount($now)
-    {
-        $sql   = 'SELECT COUNT(*) as count FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
-        $query = $this->db->query($sql, [$now]);
-
-        if ($query === false) {
-            throw new Exception('Failed to query videos for archiving');
-        }
-
-        $result = $query->getRow();
-        return (int) $result->count;
-    }
-
-    /**
      * Update archive flags for eligible videos and return count.
      *
      * @param string $now
