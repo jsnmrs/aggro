@@ -418,6 +418,8 @@ class AggroModels extends Model
     /**
      * Get all videos.
      *
+     * @param string $sort
+     *                        Sort method (currently not used, kept for compatibility).
      * @param string $range
      *                        - Year.
      *                        - Month.
@@ -430,7 +432,7 @@ class AggroModels extends Model
      * @return string
      *                Video data from table.
      */
-    public function getVideos($range = 'month', $perpage = 10, $offset = 0)
+    public function getVideos($sort = 'recent', $range = 'month', $perpage = 10, $offset = 0)
     {
         $now        = date('Y-m-d H:i:s');
         $sortField  = 'aggro_date_added';
