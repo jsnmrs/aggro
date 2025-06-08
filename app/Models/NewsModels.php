@@ -231,8 +231,9 @@ class NewsModels extends Model
             $this->db->transStart();
 
             // Single optimized query to delete all old stories at once
-            $sql = 'DELETE FROM news_featured WHERE story_date < DATE_SUB(?, INTERVAL 45 DAY)';
-            $this->db->query($sql, [$now]);
+            $storageConfig = config('Storage');
+            $sql           = 'DELETE FROM news_featured WHERE story_date < DATE_SUB(?, INTERVAL ? DAY)';
+            $this->db->query($sql, [$now, $storageConfig->cleanupDays]);
             $counter = $this->db->affectedRows();
 
             $this->db->transCommit();
