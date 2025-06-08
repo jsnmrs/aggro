@@ -114,12 +114,14 @@ if (! function_exists('fetch_error_logs')) {
                 $fileSize = filesize($file);
                 if ($fileSize === false) {
                     log_message('error', 'Failed to get file size for: ' . $file);
+
                     continue;
                 }
 
                 $myfile = fopen($file, 'rb');
                 if ($myfile === false) {
                     log_message('error', 'Failed to open log file for reading: ' . $file);
+
                     continue;
                 }
 
@@ -127,6 +129,7 @@ if (! function_exists('fetch_error_logs')) {
                 if ($content === false) {
                     log_message('error', 'Failed to read log file: ' . $file);
                     fclose($myfile);
+
                     continue;
                 }
 
@@ -208,6 +211,7 @@ if (! function_exists('fetch_thumbnail')) {
             $file = fopen($path, 'wb');
             if ($file === false) {
                 log_message('error', 'Failed to open thumbnail file for writing: ' . $path);
+
                 return false;
             }
 
@@ -215,11 +219,13 @@ if (! function_exists('fetch_thumbnail')) {
             if ($bytesWritten === false || $bytesWritten !== strlen($buffer)) {
                 log_message('error', 'Failed to write complete thumbnail data to file: ' . $path);
                 fclose($file);
+
                 return false;
             }
 
             if (fclose($file) === false) {
                 log_message('error', 'Failed to close thumbnail file: ' . $path);
+
                 return false;
             }
 
@@ -231,8 +237,9 @@ if (! function_exists('fetch_thumbnail')) {
                     ->save($path, $storageConfig->thumbnailQuality);
 
                 return true;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 log_message('error', 'Failed to process thumbnail image: ' . $e->getMessage());
+
                 return false;
             }
         }
@@ -340,20 +347,23 @@ if (! function_exists('safe_file_write')) {
         $file = fopen($path, $mode);
         if ($file === false) {
             log_message('error', 'Failed to open file for writing: ' . $path);
+
             return false;
         }
 
-        $dataLength = strlen($data);
+        $dataLength   = strlen($data);
         $bytesWritten = fwrite($file, $data, $dataLength);
-        
+
         if ($bytesWritten === false || $bytesWritten !== $dataLength) {
             log_message('error', 'Failed to write complete data to file: ' . $path . ' (wrote ' . $bytesWritten . ' of ' . $dataLength . ' bytes)');
             fclose($file);
+
             return false;
         }
 
         if (fclose($file) === false) {
             log_message('error', 'Failed to close file after writing: ' . $path);
+
             return false;
         }
 
@@ -368,18 +378,20 @@ if (! function_exists('safe_file_read')) {
      * @param string $path The file path to read from
      * @param string $mode The file open mode (default: 'rb')
      *
-     * @return string|false File contents on success, false on failure
+     * @return false|string File contents on success, false on failure
      */
     function safe_file_read($path, $mode = 'rb')
     {
         if (! is_file($path)) {
             log_message('error', 'File does not exist: ' . $path);
+
             return false;
         }
 
         $fileSize = filesize($path);
         if ($fileSize === false) {
             log_message('error', 'Failed to get file size: ' . $path);
+
             return false;
         }
 
@@ -391,6 +403,7 @@ if (! function_exists('safe_file_read')) {
         $file = fopen($path, $mode);
         if ($file === false) {
             log_message('error', 'Failed to open file for reading: ' . $path);
+
             return false;
         }
 
@@ -398,6 +411,7 @@ if (! function_exists('safe_file_read')) {
         if ($content === false) {
             log_message('error', 'Failed to read file: ' . $path);
             fclose($file);
+
             return false;
         }
 

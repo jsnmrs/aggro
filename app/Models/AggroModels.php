@@ -303,9 +303,10 @@ class AggroModels extends Model
 
             if ($this->deleteFile($file)) {
                 $deletedCount++;
+
                 continue;
             }
-            
+
             $errorCount++;
         }
 
@@ -331,6 +332,7 @@ class AggroModels extends Model
         $fileAge = filemtime($file);
         if ($fileAge === false) {
             log_message('warning', 'Failed to get modification time for thumbnail: ' . $file);
+
             return false;
         }
 
@@ -351,6 +353,7 @@ class AggroModels extends Model
         }
 
         log_message('error', 'Failed to delete thumbnail: ' . $file);
+
         return false;
     }
 
@@ -364,11 +367,11 @@ class AggroModels extends Model
     {
         $utilityModel = new UtilityModels();
         $message      = 'Cleaned thumbnails: ' . $deletedCount . ' deleted';
-        
+
         if ($errorCount > 0) {
             $message .= ', ' . $errorCount . ' errors';
         }
-        
+
         $utilityModel->sendLog($message);
     }
 
