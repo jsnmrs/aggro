@@ -111,9 +111,30 @@ if (! function_exists('fetch_error_logs')) {
 
         foreach ($files as $file) {
             if (is_file($file)) {
-                $myfile    = fopen($file, 'rb');
-                $results[] = fread($myfile, filesize($file));
-                fclose($myfile);
+                $fileSize = filesize($file);
+                if ($fileSize === false) {
+                    log_message('error', 'Failed to get file size for: ' . $file);
+                    continue;
+                }
+
+                $myfile = fopen($file, 'rb');
+                if ($myfile === false) {
+                    log_message('error', 'Failed to open log file for reading: ' . $file);
+                    continue;
+                }
+
+                $content = fread($myfile, $fileSize);
+                if ($content === false) {
+                    log_message('error', 'Failed to read log file: ' . $file);
+                    fclose($myfile);
+                    continue;
+                }
+
+                if (fclose($myfile) === false) {
+                    log_message('error', 'Failed to close log file: ' . $file);
+                }
+
+                $results[] = $content;
             }
         }
 
@@ -185,16 +206,35 @@ if (! function_exists('fetch_thumbnail')) {
 
         if (! empty($buffer)) {
             $file = fopen($path, 'wb');
-            fwrite($file, $buffer, strlen($buffer));
-            fclose($file);
+            if ($file === false) {
+                log_message('error', 'Failed to open thumbnail file for writing: ' . $path);
+                return false;
+            }
 
-            Services::image()
-                ->withFile($path)
-                ->resize($storageConfig->thumbnailWidth, $storageConfig->thumbnailHeight, false, 'width')
-                ->convert(IMAGETYPE_WEBP)
-                ->save($path, $storageConfig->thumbnailQuality);
+            $bytesWritten = fwrite($file, $buffer, strlen($buffer));
+            if ($bytesWritten === false || $bytesWritten !== strlen($buffer)) {
+                log_message('error', 'Failed to write complete thumbnail data to file: ' . $path);
+                fclose($file);
+                return false;
+            }
 
-            return true;
+            if (fclose($file) === false) {
+                log_message('error', 'Failed to close thumbnail file: ' . $path);
+                return false;
+            }
+
+            try {
+                Services::image()
+                    ->withFile($path)
+                    ->resize($storageConfig->thumbnailWidth, $storageConfig->thumbnailHeight, false, 'width')
+                    ->convert(IMAGETYPE_WEBP)
+                    ->save($path, $storageConfig->thumbnailQuality);
+
+                return true;
+            } catch (\Exception $e) {
+                log_message('error', 'Failed to process thumbnail image: ' . $e->getMessage());
+                return false;
+            }
         }
 
         return false;
@@ -282,5 +322,89 @@ if (! function_exists('gate_check')) {
     function gate_check()
     {
         return (bool) (is_cli() || $_ENV['CI_ENVIRONMENT'] === 'development');
+    }
+}
+
+if (! function_exists('safe_file_write')) {
+    /**
+     * Safely write data to a file with error handling.
+     *
+     * @param string $path The file path to write to
+     * @param string $data The data to write
+     * @param string $mode The file open mode (default: 'wb')
+     *
+     * @return bool True on success, false on failure
+     */
+    function safe_file_write($path, $data, $mode = 'wb')
+    {
+        $file = fopen($path, $mode);
+        if ($file === false) {
+            log_message('error', 'Failed to open file for writing: ' . $path);
+            return false;
+        }
+
+        $dataLength = strlen($data);
+        $bytesWritten = fwrite($file, $data, $dataLength);
+        
+        if ($bytesWritten === false || $bytesWritten !== $dataLength) {
+            log_message('error', 'Failed to write complete data to file: ' . $path . ' (wrote ' . $bytesWritten . ' of ' . $dataLength . ' bytes)');
+            fclose($file);
+            return false;
+        }
+
+        if (fclose($file) === false) {
+            log_message('error', 'Failed to close file after writing: ' . $path);
+            return false;
+        }
+
+        return true;
+    }
+}
+
+if (! function_exists('safe_file_read')) {
+    /**
+     * Safely read data from a file with error handling.
+     *
+     * @param string $path The file path to read from
+     * @param string $mode The file open mode (default: 'rb')
+     *
+     * @return string|false File contents on success, false on failure
+     */
+    function safe_file_read($path, $mode = 'rb')
+    {
+        if (! is_file($path)) {
+            log_message('error', 'File does not exist: ' . $path);
+            return false;
+        }
+
+        $fileSize = filesize($path);
+        if ($fileSize === false) {
+            log_message('error', 'Failed to get file size: ' . $path);
+            return false;
+        }
+
+        // Handle empty files
+        if ($fileSize === 0) {
+            return '';
+        }
+
+        $file = fopen($path, $mode);
+        if ($file === false) {
+            log_message('error', 'Failed to open file for reading: ' . $path);
+            return false;
+        }
+
+        $content = fread($file, $fileSize);
+        if ($content === false) {
+            log_message('error', 'Failed to read file: ' . $path);
+            fclose($file);
+            return false;
+        }
+
+        if (fclose($file) === false) {
+            log_message('error', 'Failed to close file after reading: ' . $path);
+        }
+
+        return $content;
     }
 }

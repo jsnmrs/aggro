@@ -283,7 +283,6 @@ class AggroModels extends Model
      */
     public function cleanThumbs()
     {
-        $utilityModel  = new UtilityModels();
         $storageConfig = config('Storage');
         $files         = glob($storageConfig->getThumbnailGlob());
 
@@ -298,32 +297,79 @@ class AggroModels extends Model
         $maxAge       = $storageConfig->getCleanupAgeSeconds();
 
         foreach ($files as $file) {
-            if (! is_file($file)) {
+            if (! $this->isFileEligibleForDeletion($file, $maxAge)) {
                 continue;
             }
 
-            $fileAge = filemtime($file);
-            if ($fileAge === false || (time() - $fileAge) < $maxAge) {
-                continue;
-            }
-
-            if (unlink($file)) {
+            if ($this->deleteFile($file)) {
                 $deletedCount++;
-
                 continue;
             }
-
+            
             $errorCount++;
-            log_message('error', 'Failed to delete thumbnail: ' . $file);
         }
 
-        $message = 'Cleaned thumbnails: ' . $deletedCount . ' deleted';
+        $this->logCleanupResults($deletedCount, $errorCount);
+
+        return true;
+    }
+
+    /**
+     * Check if a file is eligible for deletion based on age.
+     *
+     * @param string $file   The file path to check
+     * @param int    $maxAge Maximum age in seconds
+     *
+     * @return bool True if file should be deleted, false otherwise
+     */
+    private function isFileEligibleForDeletion($file, $maxAge)
+    {
+        if (! is_file($file)) {
+            return false;
+        }
+
+        $fileAge = filemtime($file);
+        if ($fileAge === false) {
+            log_message('warning', 'Failed to get modification time for thumbnail: ' . $file);
+            return false;
+        }
+
+        return (time() - $fileAge) >= $maxAge;
+    }
+
+    /**
+     * Delete a file and log any errors.
+     *
+     * @param string $file The file path to delete
+     *
+     * @return bool True if deletion succeeded, false otherwise
+     */
+    private function deleteFile($file)
+    {
+        if (unlink($file)) {
+            return true;
+        }
+
+        log_message('error', 'Failed to delete thumbnail: ' . $file);
+        return false;
+    }
+
+    /**
+     * Log the cleanup results.
+     *
+     * @param int $deletedCount Number of files deleted
+     * @param int $errorCount   Number of deletion errors
+     */
+    private function logCleanupResults($deletedCount, $errorCount)
+    {
+        $utilityModel = new UtilityModels();
+        $message      = 'Cleaned thumbnails: ' . $deletedCount . ' deleted';
+        
         if ($errorCount > 0) {
             $message .= ', ' . $errorCount . ' errors';
         }
+        
         $utilityModel->sendLog($message);
-
-        return true;
     }
 
     /**
