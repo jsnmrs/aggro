@@ -119,7 +119,7 @@ class Front extends BaseController
     public function getVideo($slug = null)
     {
         // Sanitize slug
-        $slug = trim($slug);
+        $slug = trim($slug ?? '');
         $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
 
         $data = [
