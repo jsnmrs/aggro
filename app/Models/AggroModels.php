@@ -303,9 +303,10 @@ class AggroModels extends Model
 
             if ($this->deleteFile($file)) {
                 $deletedCount++;
-            } else {
-                $errorCount++;
+                continue;
             }
+            
+            $errorCount++;
         }
 
         $this->logCleanupResults($deletedCount, $errorCount);
