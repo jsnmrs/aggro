@@ -9,11 +9,15 @@ parameters:
         - app/Language
         - app/Libraries
         - app/Models
+        - app/Repositories
+        - app/Services
         - app/ThirdParty
         - app/Views
     paths:
         - app/Controllers
         - app/Models
+        - app/Repositories
+        - app/Services
         - app/Views
     ignoreErrors:
         - '#Function view not found.#'
