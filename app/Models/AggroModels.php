@@ -182,6 +182,9 @@ class AggroModels extends Model
 
     /**
      * Check thumbnails.
+     *
+     * @return bool
+     *              Thumbnail check complete.
      */
     public function checkThumbs()
     {
@@ -271,6 +274,9 @@ class AggroModels extends Model
 
     /**
      * Clean thumbnail directory.
+     *
+     * @return bool
+     *              Cleanup complete.
      */
     public function cleanThumbs()
     {
@@ -338,7 +344,7 @@ class AggroModels extends Model
         $channels = $this->fetchStaleChannels($stale, $type, $limit);
         $this->logChannelSearchResult($channels, $type, $limit);
 
-        return $channels === false ? false : $channels;
+        return $channels;
     }
 
     /**
@@ -459,6 +465,8 @@ class AggroModels extends Model
      *
      * @param string $sourceSlug
      *                           Source slug.
+     *
+     * @return void
      */
     public function updateChannel($sourceSlug)
     {

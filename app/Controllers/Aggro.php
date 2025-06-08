@@ -24,6 +24,8 @@ class Aggro extends BaseController
 
     /**
      * Aggro info.
+     *
+     * @return void
      */
     public function getInfo()
     {

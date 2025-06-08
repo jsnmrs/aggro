@@ -408,6 +408,8 @@ class NewsModels extends Model
      *                     Site slug (as ID).
      * @param object $feed
      *                     Fetched feed object.
+     *
+     * @return void
      */
     public function updateFeed($slug, $feed)
     {
