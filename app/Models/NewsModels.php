@@ -226,31 +226,32 @@ class NewsModels extends Model
     {
         $utilityModel = new UtilityModels();
         $now          = date('Y-m-d H:i:s');
-        $counter      = 0;
-        $sql          = 'SELECT DISTINCT site_id FROM news_featured';
-        $query        = $this->db->query($sql);
-        $featured     = $query->getResult();
 
-        foreach ($featured as $row) {
-            $innersql = 'SELECT *
-                    FROM news_featured
-                    WHERE site_id=?
-                    AND story_date < DATE_SUB(?,INTERVAL 45 DAY)';
-            $innerquery   = $this->db->query($innersql, [$row->site_id, $now]);
-            $sitefeatured = $innerquery->getResult();
+        try {
+            $this->db->transStart();
 
-            foreach ($sitefeatured as $innerrow) {
-                $cleansql = "DELETE FROM news_featured WHERE story_id='" . $innerrow->story_id . "'";
-                $this->db->query($cleansql);
-                $counter++;
-            }
+            // Single optimized query to delete all old stories at once
+            $sql = 'DELETE FROM news_featured WHERE story_date < DATE_SUB(?, INTERVAL 45 DAY)';
+            $this->db->query($sql, [$now]);
+            $counter = $this->db->affectedRows();
+
+            $this->db->transCommit();
+
+            // Optimize table after bulk delete
+            $cleanup = 'OPTIMIZE TABLE news_featured';
+            $this->db->query($cleanup);
+
+            $message = $counter . ' old stories deleted.';
+            $utilityModel->sendLog($message);
+
+            return $counter;
+        } catch (Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Exception in featuredCleaner: ' . $e->getMessage());
+            $utilityModel->sendLog('Failed to clean old stories: ' . $e->getMessage());
+
+            return false;
         }
-        $cleanup = 'OPTIMIZE TABLE news_featured';
-        $this->db->query($cleanup);
-        $message = $counter . ' old stories deleted.';
-        $utilityModel->sendLog($message);
-
-        return $counter;
     }
 
     /**
@@ -261,35 +262,47 @@ class NewsModels extends Model
      */
     public function featuredPage()
     {
-        // Fetch all featured news feeds in one query
-        $sql       = 'SELECT * FROM news_feeds WHERE flag_featured = 1 ORDER BY site_name';
-        $query     = $this->db->query($sql);
-        $newsFeeds = $query->getResult('array');
+        // Single optimized query to fetch feeds and their top 3 stories using window function
+        $sql = 'SELECT
+                    nf.site_name,
+                    nf.site_slug,
+                    nf.site_date_last_post,
+                    nf.site_id,
+                    feat.story_title,
+                    feat.story_permalink,
+                    feat.story_hash,
+                    feat.story_date,
+                    ROW_NUMBER() OVER (PARTITION BY nf.site_id ORDER BY feat.story_date DESC) as story_rank
+                FROM news_feeds nf
+                LEFT JOIN news_featured feat ON nf.site_id = feat.site_id
+                WHERE nf.flag_featured = 1
+                ORDER BY nf.site_name, feat.story_date DESC';
 
-        // Initialize an array to hold the built structure
+        $query  = $this->db->query($sql);
+        $result = $query->getResult('array');
+
+        // Build the structured array from the joined result
         $built = [];
 
-        // Loop through each news feed
-        foreach ($newsFeeds as $row) {
-            // Initialize the site's data
-            $built[$row['site_slug']] = [
-                'site_name'           => $row['site_name'],
-                'site_slug'           => $row['site_slug'],
-                'site_date_last_post' => $row['site_date_last_post'],
-            ];
+        foreach ($result as $row) {
+            $siteSlug = $row['site_slug'];
 
-            // Fetch the top 3 featured stories for this site in one query
-            $innerSql   = 'SELECT * FROM news_featured WHERE site_id = ? ORDER BY story_date DESC LIMIT 3';
-            $innerQuery = $this->db->query($innerSql, [$row['site_id']]);
-            $stories    = $innerQuery->getResult('array');
+            // Initialize site data if not already set
+            if (! isset($built[$siteSlug])) {
+                $built[$siteSlug] = [
+                    'site_name'           => $row['site_name'],
+                    'site_slug'           => $row['site_slug'],
+                    'site_date_last_post' => $row['site_date_last_post'],
+                ];
+            }
 
-            // Add the stories to the built structure
-            foreach ($stories as $index => $story) {
-                $storyNum                            = 'story' . ($index + 1);
-                $built[$row['site_slug']][$storyNum] = [
-                    'story_title'     => $story['story_title'],
-                    'story_permalink' => $story['story_permalink'],
-                    'story_hash'      => $story['story_hash'],
+            // Add stories (limit to top 3 per site using story_rank from window function)
+            if ($row['story_title'] && $row['story_rank'] <= 3) {
+                $storyNum                    = 'story' . $row['story_rank'];
+                $built[$siteSlug][$storyNum] = [
+                    'story_title'     => $row['story_title'],
+                    'story_permalink' => $row['story_permalink'],
+                    'story_hash'      => $row['story_hash'],
                 ];
             }
         }
@@ -346,20 +359,47 @@ class NewsModels extends Model
     /**
      * Build stream page.
      *
+     * @param int $page  Page number (default: 1)
+     * @param int $limit Stories per page (default: 50)
+     *
      * @return array
      *               Stream page.
      */
-    public function streamPage()
+    public function streamPage($page = 1, $limit = 50)
     {
+        // Calculate offset for pagination
+        $offset = ($page - 1) * $limit;
+
+        // Ensure reasonable limits
+        $limit  = min($limit, 100); // Max 100 items per page
+        $offset = max($offset, 0);  // No negative offset
+
         $sql = 'SELECT news_feeds.site_name, news_feeds.site_slug, news_featured.story_title, news_featured.story_permalink, news_featured.story_date, news_featured.story_hash
             FROM news_featured
             INNER JOIN news_feeds
             ON news_featured.site_id = news_feeds.site_id
             ORDER BY news_featured.story_date DESC
-            LIMIT 300';
-        $query = $this->db->query($sql);
+            LIMIT ? OFFSET ?';
+        $query = $this->db->query($sql, [$limit, $offset]);
 
         return $query->getResult();
+    }
+
+    /**
+     * Get total count of featured stories for pagination.
+     *
+     * @return int Total number of featured stories
+     */
+    public function getStreamPageTotal()
+    {
+        $sql = 'SELECT COUNT(*) as total
+            FROM news_featured
+            INNER JOIN news_feeds
+            ON news_featured.site_id = news_feeds.site_id';
+        $query  = $this->db->query($sql);
+        $result = $query->getRow();
+
+        return (int) $result->total;
     }
 
     /**

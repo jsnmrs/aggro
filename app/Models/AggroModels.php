@@ -145,10 +145,8 @@ class AggroModels extends Model
     {
         $this->db->transStart();
 
-        $updateCount = $this->getArchivableVideoCount($now);
-        if ($updateCount > 0) {
-            $this->updateArchiveFlags($now);
-        }
+        // Optimized: Single UPDATE operation that returns affected rows count
+        $updateCount = $this->updateArchiveFlags($now);
 
         $this->db->transComplete();
 
@@ -162,30 +160,11 @@ class AggroModels extends Model
     }
 
     /**
-     * Get count of videos that can be archived.
+     * Update archive flags for eligible videos and return count.
      *
      * @param string $now
      *
-     * @return int
-     *
-     * @throws Exception
-     */
-    private function getArchivableVideoCount($now)
-    {
-        $sql   = 'SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
-        $query = $this->db->query($sql, [$now]);
-
-        if ($query === false) {
-            throw new Exception('Failed to query videos for archiving');
-        }
-
-        return count($query->getResultArray());
-    }
-
-    /**
-     * Update archive flags for eligible videos.
-     *
-     * @param string $now
+     * @return int Number of videos archived
      *
      * @throws Exception
      */
@@ -197,6 +176,8 @@ class AggroModels extends Model
         if ($result === false) {
             throw new Exception('Failed to update archive flag');
         }
+
+        return $this->db->affectedRows();
     }
 
     /**
