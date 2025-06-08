@@ -256,7 +256,13 @@ class Aggro extends BaseController
         }
 
         helper('html');
-        $videoID = esc($videoID);
+
+        // Validate Vimeo video ID format
+        if (! $this->validateVimeoVideoId($videoID)) {
+            log_message('warning', 'Invalid Vimeo video ID format: ' . $videoID);
+
+            return false;
+        }
 
         if (! $aggroModel->checkVideo($videoID)) {
             $request              = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
@@ -307,7 +313,13 @@ class Aggro extends BaseController
         }
 
         helper('html');
-        $videoID = esc($videoID);
+
+        // Validate YouTube video ID format
+        if (! $this->validateYouTubeVideoId($videoID)) {
+            log_message('warning', 'Invalid YouTube video ID format: ' . $videoID);
+
+            return false;
+        }
 
         if ($aggroModel->checkVideo($videoID)) {
             return false;

@@ -119,7 +119,8 @@ class Front extends BaseController
     public function getVideo($slug = null)
     {
         helper('html');
-        // Sanitize slug
+
+        // Sanitize and validate slug
         $slug = trim($slug ?? '');
         $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
 
@@ -132,9 +133,13 @@ class Front extends BaseController
         if ($slug === '' || $slug === 'recent') {
             $data['page'] = 1;
 
-            if ($this->request->getUri()->getTotalSegments() === 3
-              && is_numeric($this->request->getUri()->getSegment(3))) {
-                $data['page'] = (int) (esc($this->request->getUri()->getSegment(3)));
+            // Validate page number parameter
+            if ($this->request->getUri()->getTotalSegments() === 3) {
+                $pageParam = $this->request->getUri()->getSegment(3);
+                if (! $this->validatePageNumber($pageParam)) {
+                    return $this->getError404();
+                }
+                $data['page'] = (int) $pageParam;
             }
 
             $data['sort']    = 'recent';
@@ -153,7 +158,12 @@ class Front extends BaseController
             return view('videos', $data);
         }
 
-        $data['build'] = $aggroModel->getVideo(esc($slug));
+        // Validate individual video slug
+        if (! $this->validateVideoSlug($slug)) {
+            return $this->getError404();
+        }
+
+        $data['build'] = $aggroModel->getVideo($slug);
 
         if (! empty($data['build'])) {
             return view('video', $data);
