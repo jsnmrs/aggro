@@ -321,9 +321,8 @@ class NewsModels extends Model
      */
     public function getSite($slug)
     {
-        $slug  = esc($slug);
-        $sql   = "SELECT * FROM news_feeds WHERE site_slug = '{$slug}' LIMIT 1";
-        $query = $this->db->query($sql);
+        $sql   = 'SELECT * FROM news_feeds WHERE site_slug = ? LIMIT 1';
+        $query = $this->db->query($sql, [$slug]);
 
         return $query->getRowArray();
     }

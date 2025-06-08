@@ -388,9 +388,8 @@ class AggroModels extends Model
      */
     public function getVideo($slug)
     {
-        $slug  = esc($slug);
-        $sql   = "SELECT * FROM aggro_videos WHERE video_id='{$slug}' LIMIT 1";
-        $query = $this->db->query($sql);
+        $sql   = 'SELECT * FROM aggro_videos WHERE video_id=? LIMIT 1';
+        $query = $this->db->query($sql, [$slug]);
         if ($query->getRowArray() === null) {
             return false;
         }
