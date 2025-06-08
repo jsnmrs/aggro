@@ -24,53 +24,11 @@ class AggroModels extends Model
         helper('aggro');
 
         try {
-            $this->db->transStart();
-
-            $sql = 'INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-            $this->db->query($sql, [
-                $video['video_id'],
-                $video['aggro_date_added'],
-                $video['aggro_date_updated'],
-                $video['video_date_uploaded'],
-                $video['flag_archive'],
-                $video['video_plays'],
-                $video['video_title'],
-                $video['video_thumbnail_url'],
-                $video['video_width'],
-                $video['video_height'],
-                $video['video_aspect_ratio'],
-                $video['video_duration'],
-                $video['video_source_id'],
-                $video['video_source_username'],
-                $video['video_source_url'],
-                $video['video_type'],
-            ]);
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                log_message('error', 'Failed to add video: ' . json_encode($video));
-
+            if (!$this->insertVideoRecord($video)) {
                 return false;
             }
 
-            $message = '';
-            if ($video['flag_archive'] === 0) {
-                try {
-                    $thumbnailFetched = fetch_thumbnail($video['video_id'], $video['video_thumbnail_url']);
-                    $message          = 'Added ' . $video['video_type'] . ' ' . $video['video_id'];
-                    $message .= $thumbnailFetched ? ' and fetched thumbnail.' : ' but failed to fetch thumbnail.';
-                } catch (Exception $e) {
-                    log_message('error', 'Failed to fetch thumbnail for ' . $video['video_id'] . ': ' . $e->getMessage());
-                    $message = 'Added ' . $video['video_type'] . ' ' . $video['video_id'] . ' but failed to fetch thumbnail.';
-                }
-            }
-
-            if ($video['flag_archive'] === 1) {
-                $message = 'Added and archived ' . $video['video_type'] . ' ' . $video['video_id'] . '.';
-            }
-
+            $message = $this->generateVideoMessage($video);
             $utilityModel->sendLog($message);
 
             return true;
@@ -78,6 +36,73 @@ class AggroModels extends Model
             log_message('error', 'Exception in addVideo: ' . $e->getMessage());
 
             return false;
+        }
+    }
+
+    /**
+     * Insert video record into database.
+     *
+     * @param array $video
+     *
+     * @return bool
+     */
+    private function insertVideoRecord(array $video)
+    {
+        $this->db->transStart();
+
+        $sql = 'INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+        $this->db->query($sql, [
+            $video['video_id'],
+            $video['aggro_date_added'],
+            $video['aggro_date_updated'],
+            $video['video_date_uploaded'],
+            $video['flag_archive'],
+            $video['video_plays'],
+            $video['video_title'],
+            $video['video_thumbnail_url'],
+            $video['video_width'],
+            $video['video_height'],
+            $video['video_aspect_ratio'],
+            $video['video_duration'],
+            $video['video_source_id'],
+            $video['video_source_username'],
+            $video['video_source_url'],
+            $video['video_type'],
+        ]);
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            log_message('error', 'Failed to add video: ' . json_encode($video));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Generate message for video addition.
+     *
+     * @param array $video
+     *
+     * @return string
+     */
+    private function generateVideoMessage(array $video)
+    {
+        $baseMessage = 'Added ' . $video['video_type'] . ' ' . $video['video_id'];
+        
+        if ($video['flag_archive'] === 1) {
+            return $baseMessage . ' and archived.';
+        }
+        
+        try {
+            $thumbnailFetched = fetch_thumbnail($video['video_id'], $video['video_thumbnail_url']);
+            return $baseMessage . ($thumbnailFetched ? ' and fetched thumbnail.' : ' but failed to fetch thumbnail.');
+        } catch (Exception $e) {
+            log_message('error', 'Failed to fetch thumbnail for ' . $video['video_id'] . ': ' . $e->getMessage());
+            return $baseMessage . ' but failed to fetch thumbnail.';
         }
     }
 
@@ -97,35 +122,8 @@ class AggroModels extends Model
         $now          = date('Y-m-d H:i:s');
 
         try {
-            $this->db->transStart();
-
-            $sql   = 'SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
-            $query = $this->db->query($sql, [$now]);
-
-            if ($query === false) {
-                throw new Exception('Failed to query videos for archiving');
-            }
-
-            $update = count($query->getResultArray());
-
-            if ($update > 0) {
-                $sql    = 'UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
-                $result = $this->db->query($sql, [$now]);
-
-                if ($result === false) {
-                    throw new Exception('Failed to update archive flag');
-                }
-            }
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                log_message('error', 'Transaction failed in archiveVideos');
-
-                return false;
-            }
-
-            $message = $update . ' videos archived.';
+            $updateCount = $this->performArchiveOperation($now);
+            $message     = $updateCount . ' videos archived.';
             $utilityModel->sendLog($message);
 
             return true;
@@ -133,6 +131,72 @@ class AggroModels extends Model
             log_message('error', 'Exception in archiveVideos: ' . $e->getMessage());
 
             return false;
+        }
+    }
+
+    /**
+     * Perform the archive operation in a transaction.
+     *
+     * @param string $now
+     *
+     * @return int Number of videos archived
+     *
+     * @throws Exception
+     */
+    private function performArchiveOperation($now)
+    {
+        $this->db->transStart();
+
+        $updateCount = $this->getArchivableVideoCount($now);
+        if ($updateCount > 0) {
+            $this->updateArchiveFlags($now);
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            log_message('error', 'Transaction failed in archiveVideos');
+            throw new Exception('Archive transaction failed');
+        }
+
+        return $updateCount;
+    }
+
+    /**
+     * Get count of videos that can be archived.
+     *
+     * @param string $now
+     *
+     * @return int
+     *
+     * @throws Exception
+     */
+    private function getArchivableVideoCount($now)
+    {
+        $sql   = 'SELECT * FROM aggro_videos WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
+        $query = $this->db->query($sql, [$now]);
+
+        if ($query === false) {
+            throw new Exception('Failed to query videos for archiving');
+        }
+
+        return count($query->getResultArray());
+    }
+
+    /**
+     * Update archive flags for eligible videos.
+     *
+     * @param string $now
+     *
+     * @throws Exception
+     */
+    private function updateArchiveFlags($now)
+    {
+        $sql    = 'UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
+        $result = $this->db->query($sql, [$now]);
+
+        if ($result === false) {
+            throw new Exception('Failed to update archive flag');
         }
     }
 
@@ -151,14 +215,15 @@ class AggroModels extends Model
         foreach ($thumbs as $thumb) {
             $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.webp';
 
-            if (! file_exists($path)) {
-                $message = $thumb->video_id . ' missing thumbnail';
-
-                if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
-                    $message .= ' &mdash; fetched.';
-                    $utilityModel->sendLog($message);
-                }
+            if (file_exists($path)) {
+                continue;
             }
+
+            $message = $thumb->video_id . ' missing thumbnail';
+            if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
+                $message .= ' &mdash; fetched.';
+            }
+            $utilityModel->sendLog($message);
         }
 
         return true;
@@ -175,28 +240,13 @@ class AggroModels extends Model
      */
     public function checkVideo($videoid)
     {
-        $utilityModel = new UtilityModels();
-
         try {
-            $sql   = 'SELECT video_id FROM aggro_videos WHERE video_id=?';
-            $query = $this->db->query($sql, [$videoid]);
-
-            if ($query === false) {
-                log_message('error', 'Failed to check video existence for: ' . $videoid);
-
-                return false;
+            $exists = $this->videoExists($videoid);
+            if (!$exists) {
+                $this->logNewVideo($videoid);
             }
 
-            $update = count($query->getResultArray());
-
-            if ($update > 0) {
-                return true;
-            }
-
-            $message = $videoid . ' is new to me.';
-            $utilityModel->sendLog($message);
-
-            return false;
+            return $exists;
         } catch (Exception $e) {
             log_message('error', 'Exception in checkVideo: ' . $e->getMessage());
 
@@ -205,150 +255,83 @@ class AggroModels extends Model
     }
 
     /**
+     * Check if video exists in database.
+     *
+     * @param string $videoid
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    private function videoExists($videoid)
+    {
+        $sql   = 'SELECT video_id FROM aggro_videos WHERE video_id=?';
+        $query = $this->db->query($sql, [$videoid]);
+
+        if ($query === false) {
+            log_message('error', 'Failed to check video existence for: ' . $videoid);
+            throw new Exception('Database query failed');
+        }
+
+        return count($query->getResultArray()) > 0;
+    }
+
+    /**
+     * Log that a video is new.
+     *
+     * @param string $videoid
+     */
+    private function logNewVideo($videoid)
+    {
+        $utilityModel = new UtilityModels();
+        $message      = $videoid . ' is new to me.';
+        $utilityModel->sendLog($message);
+    }
+
+    /**
      * Clean thumbnail directory.
      */
     public function cleanThumbs()
     {
         $utilityModel = new UtilityModels();
-
-        try {
-            $files = $this->getThumbnailFiles();
-            if ($files === false) {
-                return false;
-            }
-
-            $stats = $this->processThumbFiles($files);
-            $this->logThumbStats($utilityModel, $stats);
-
-            return true;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in cleanThumbs: ' . $e->getMessage());
-
-            return false;
-        }
-    }
-
-    /**
-     * Get list of thumbnail files.
-     *
-     * @return array|false
-     */
-    private function getThumbnailFiles()
-    {
-        $thumbs = ROOTPATH . 'public/thumbs/*.webp';
-        $files  = glob($thumbs);
+        $thumbs       = ROOTPATH . 'public/thumbs/*.webp';
+        $files        = glob($thumbs);
 
         if ($files === false) {
             log_message('error', 'Failed to glob thumbnail files');
-
             return false;
         }
 
-        return $files;
-    }
-
-    /**
-     * Process thumbnail files for deletion.
-     *
-     * @param array $files
-     *
-     * @return array Stats with deletedCount and errorCount
-     */
-    private function processThumbFiles($files)
-    {
         $deletedCount = 0;
         $errorCount   = 0;
+        $maxAge       = 60 * 60 * 24 * 45; // 45 days
 
         foreach ($files as $file) {
-            $result = $this->processSingleThumb($file);
-            if ($result === 'deleted') {
+            if (!is_file($file)) {
+                continue;
+            }
+
+            $fileAge = filemtime($file);
+            if ($fileAge === false || (time() - $fileAge) < $maxAge) {
+                continue;
+            }
+
+            if (unlink($file)) {
                 $deletedCount++;
-            } elseif ($result === 'error') {
-                $errorCount++;
+                continue;
             }
+            
+            $errorCount++;
+            log_message('error', 'Failed to delete thumbnail: ' . $file);
         }
 
-        return ['deletedCount' => $deletedCount, 'errorCount' => $errorCount];
-    }
-
-    /**
-     * Process a single thumbnail file.
-     *
-     * @param string $file
-     *
-     * @return string 'deleted', 'kept', or 'error'
-     */
-    private function processSingleThumb($file)
-    {
-        if (! is_file($file)) {
-            return 'kept';
-        }
-
-        try {
-            if ($this->shouldDeleteThumb($file)) {
-                return $this->deleteThumb($file);
-            }
-
-            return 'kept';
-        } catch (Exception $e) {
-            log_message('error', 'Error processing file ' . $file . ': ' . $e->getMessage());
-
-            return 'error';
-        }
-    }
-
-    /**
-     * Check if thumbnail should be deleted based on age.
-     *
-     * @param string $file
-     *
-     * @return bool
-     */
-    private function shouldDeleteThumb($file)
-    {
-        $fileAge = filemtime($file);
-        if ($fileAge === false) {
-            log_message('warning', 'Could not get modification time for: ' . $file);
-
-            return false;
-        }
-
-        $maxAge = 60 * 60 * 24 * 45; // 45 days
-
-        return (time() - $fileAge) >= $maxAge;
-    }
-
-    /**
-     * Delete a thumbnail file.
-     *
-     * @param string $file
-     *
-     * @return string 'deleted' or 'error'
-     */
-    private function deleteThumb($file)
-    {
-        if (unlink($file)) {
-            return 'deleted';
-        }
-
-        log_message('error', 'Failed to delete thumbnail: ' . $file);
-
-        return 'error';
-    }
-
-    /**
-     * Log thumbnail cleaning statistics.
-     *
-     * @param UtilityModels $utilityModel
-     * @param array         $stats
-     */
-    private function logThumbStats($utilityModel, $stats)
-    {
-        $message = 'Cleaned thumbnails: ' . $stats['deletedCount'] . ' deleted';
-        if ($stats['errorCount'] > 0) {
-            $message .= ', ' . $stats['errorCount'] . ' errors';
+        $message = 'Cleaned thumbnails: ' . $deletedCount . ' deleted';
+        if ($errorCount > 0) {
+            $message .= ', ' . $errorCount . ' errors';
         }
         $utilityModel->sendLog($message);
+
+        return true;
     }
 
     /**
@@ -369,25 +352,46 @@ class AggroModels extends Model
      */
     public function getChannels($stale = 30, $type = 'youtube', $limit = 10)
     {
+        $channels = $this->fetchStaleChannels($stale, $type, $limit);
+        $this->logChannelSearchResult($channels, $type, $limit);
+
+        return $channels === false ? false : $channels;
+    }
+
+    /**
+     * Fetch stale channels from database.
+     *
+     * @param int    $stale
+     * @param string $type
+     * @param int    $limit
+     *
+     * @return array|false
+     */
+    private function fetchStaleChannels($stale, $type, $limit)
+    {
+        $now   = date('Y-m-d H:i:s');
+        $sql   = 'SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?';
+        $query = $this->db->query($sql, [$type, $now, $stale, $limit]);
+        $results = $query->getResultArray();
+
+        return count($results) > 0 ? $query->getResult() : false;
+    }
+
+    /**
+     * Log channel search results.
+     *
+     * @param array|false $channels
+     * @param string      $type
+     * @param int         $limit
+     */
+    private function logChannelSearchResult($channels, $type, $limit)
+    {
         $utilityModel = new UtilityModels();
-        $now          = date('Y-m-d H:i:s');
-        $sql          = 'SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?';
-        $query        = $this->db->query($sql, [$type, $now, $stale, $limit]);
-        $update       = count($query->getResultArray());
+        $count        = $channels === false ? 0 : count($channels);
+        $updateStatus = $count > 0 ? ' Updating...' : '';
+        $message      = "Looking for {$limit} {$type} channels. Found {$count} stale {$type} channels.{$updateStatus}";
 
-        if ($update > 0) {
-            $message = 'Looking for ' . $limit . ' ' . $type . ' channels. Found ' . $update . ' stale ' . $type . ' channels. Updating...';
-            $utilityModel->sendLog($message);
-
-            return $query->getResult();
-        }
-
-        if ($update === 0) {
-            $message = 'Looking for ' . $limit . ' ' . $type . ' channels. Found 0 stale ' . $type . ' channels.';
-            $utilityModel->sendLog($message);
-
-            return false;
-        }
+        $utilityModel->sendLog($message);
     }
 
     /**
@@ -414,8 +418,6 @@ class AggroModels extends Model
     /**
      * Get all videos.
      *
-     * @param string $sort
-     *                        - Recent.
      * @param string $range
      *                        - Year.
      *                        - Month.
@@ -428,30 +430,32 @@ class AggroModels extends Model
      * @return string
      *                Video data from table.
      */
-    public function getVideos($sort = 'recent', $range = 'month', $perpage = 10, $offset = 0)
+    public function getVideos($range = 'month', $perpage = 10, $offset = 0)
     {
-        $now = date('Y-m-d H:i:s');
-
-        if ($sort === 'recent') {
-            $sortField = 'aggro_date_added';
-        }
-
-        if ($range === 'year') {
-            $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 365 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
-        }
-
-        if ($range === 'month') {
-            $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 31 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
-        }
-
-        if ($range === 'week') {
-            $constrict = 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL 7 DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
-        }
-
-        $sql   = 'SELECT * FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"' . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
-        $query = $this->db->query($sql);
+        $now        = date('Y-m-d H:i:s');
+        $sortField  = 'aggro_date_added';
+        $constrict  = $this->getRangeConstraint($range, $now);
+        $baseWhere  = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"';
+        $sql        = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ' . $perpage . ' OFFSET ' . $offset;
+        $query      = $this->db->query($sql);
 
         return $query->getResult();
+    }
+
+    /**
+     * Get range constraint for SQL query.
+     *
+     * @param string $range
+     * @param string $now
+     *
+     * @return string
+     */
+    private function getRangeConstraint($range, $now)
+    {
+        $intervals = ['year' => 365, 'week' => 7, 'month' => 31];
+        $days = $intervals[$range] ?? 31;
+        
+        return 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL ' . $days . ' DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
     }
 
     /**
