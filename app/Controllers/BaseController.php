@@ -39,7 +39,7 @@ abstract class BaseController extends Controller
      *
      * @var list<string>
      */
-    protected $helpers = [];
+    protected $helpers = ['view'];
 
     /**
      * Constructor.
@@ -56,5 +56,69 @@ abstract class BaseController extends Controller
         date_default_timezone_set('America/New_York');
     }
 
-    // E.g.: $this->session = \Config\Services::session();
+    /**
+     * Validate video slug format.
+     *
+     * @param string|null $slug
+     */
+    protected function validateVideoSlug($slug): bool
+    {
+        if (! is_string($slug) || $slug === '') {
+            return false;
+        }
+
+        // Check length limits
+        if (strlen($slug) > 50) {
+            return false;
+        }
+
+        // Allow word characters, underscore, and hyphen only
+        return (bool) preg_match('/^[\w\-]+$/', $slug);
+    }
+
+    /**
+     * Validate YouTube video ID format.
+     *
+     * @param string|null $videoId
+     */
+    protected function validateYouTubeVideoId($videoId): bool
+    {
+        if (! is_string($videoId) || $videoId === '') {
+            return false;
+        }
+
+        // YouTube video IDs are 11 characters, alphanumeric with underscore and hyphen
+        return (bool) preg_match('/^[a-zA-Z0-9_-]{11}$/', $videoId);
+    }
+
+    /**
+     * Validate Vimeo video ID format.
+     *
+     * @param string|null $videoId
+     */
+    protected function validateVimeoVideoId($videoId): bool
+    {
+        if (! is_string($videoId) || $videoId === '') {
+            return false;
+        }
+
+        // Vimeo video IDs are numeric, typically 6-10 digits
+        return (bool) preg_match('/^[0-9]{6,10}$/', $videoId);
+    }
+
+    /**
+     * Validate page number parameter.
+     *
+     * @param mixed $page
+     */
+    protected function validatePageNumber($page): bool
+    {
+        if (! is_numeric($page)) {
+            return false;
+        }
+
+        $pageNum = (int) $page;
+
+        return $pageNum >= 1 && $pageNum <= 10000; // Reasonable upper limit
+    }
 }

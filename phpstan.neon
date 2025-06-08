@@ -23,6 +23,7 @@ parameters:
         - '#Function quotes_to_entities not found.#'
         - '#Function clean_path not found.#'
         - '#Function lang not found.#'
+        - '#Function config not found.#'
         - '#Constant ROOTPATH not found.#'
         - '#Constant ENVIRONMENT not found.#'
         - '#Variable \$this might not be defined.#'

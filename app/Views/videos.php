@@ -27,7 +27,7 @@
 
 <?php if ($page !== $endpage && $endpage !== 0) { ?>
   <div class="wrap">
-    <a href="/video/<?= $sort; ?>/<?= $page + 1; ?>" class="cta">Jump to page <?= $page + 1; ?></a>
+    <a href="/video/<?= esc($sort); ?>/<?= $page + 1; ?>" class="cta">Jump to page <?= $page + 1; ?></a>
   </div>
 <?php } ?>
 </main>

@@ -23,27 +23,9 @@ class Aggro extends BaseController
     }
 
     /**
-     * Change watch page.
-     */
-    public function changeWatch()
-    {
-        helper(['aggro', 'url']);
-        if (! gate_check()) {
-            return false;
-        }
-
-        // TODO: Implement updateWatchPage method in AggroModels
-        // $aggroModel = new AggroModels();
-        // if ($aggroModel->updateWatchPage()) {
-        //     echo "\nWatch video updated.\n";
-        // }
-        echo "\nWatch page update functionality not yet implemented.\n";
-
-        return true;
-    }
-
-    /**
      * Aggro info.
+     *
+     * @return void
      */
     public function getInfo()
     {
@@ -274,7 +256,13 @@ class Aggro extends BaseController
         }
 
         helper('html');
-        $videoID = esc($videoID);
+
+        // Validate Vimeo video ID format
+        if (! $this->validateVimeoVideoId($videoID)) {
+            log_message('warning', 'Invalid Vimeo video ID format: ' . $videoID);
+
+            return false;
+        }
 
         if (! $aggroModel->checkVideo($videoID)) {
             $request              = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
@@ -325,7 +313,13 @@ class Aggro extends BaseController
         }
 
         helper('html');
-        $videoID = esc($videoID);
+
+        // Validate YouTube video ID format
+        if (! $this->validateYouTubeVideoId($videoID)) {
+            log_message('warning', 'Invalid YouTube video ID format: ' . $videoID);
+
+            return false;
+        }
 
         if ($aggroModel->checkVideo($videoID)) {
             return false;

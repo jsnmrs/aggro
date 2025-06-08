@@ -170,8 +170,9 @@ class AggroModels extends Model
      */
     private function updateArchiveFlags($now)
     {
-        $sql    = 'UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL 31 DAY) AND flag_archive=0 AND flag_bad=0';
-        $result = $this->db->query($sql, [$now]);
+        $storageConfig = config('Storage');
+        $sql           = 'UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL ? DAY) AND flag_archive=0 AND flag_bad=0';
+        $result        = $this->db->query($sql, [$now, $storageConfig->archiveDays]);
 
         if ($result === false) {
             throw new Exception('Failed to update archive flag');
@@ -182,6 +183,9 @@ class AggroModels extends Model
 
     /**
      * Check thumbnails.
+     *
+     * @return bool
+     *              Thumbnail check complete.
      */
     public function checkThumbs()
     {
@@ -192,8 +196,10 @@ class AggroModels extends Model
         $query  = $this->db->query($sql);
         $thumbs = $query->getResult();
 
+        $storageConfig = config('Storage');
+
         foreach ($thumbs as $thumb) {
-            $path = ROOTPATH . 'public/thumbs/' . $thumb->video_id . '.webp';
+            $path = $storageConfig->getThumbnailPath($thumb->video_id);
 
             if (file_exists($path)) {
                 continue;
@@ -271,12 +277,15 @@ class AggroModels extends Model
 
     /**
      * Clean thumbnail directory.
+     *
+     * @return bool
+     *              Cleanup complete.
      */
     public function cleanThumbs()
     {
-        $utilityModel = new UtilityModels();
-        $thumbs       = ROOTPATH . 'public/thumbs/*.webp';
-        $files        = glob($thumbs);
+        $utilityModel  = new UtilityModels();
+        $storageConfig = config('Storage');
+        $files         = glob($storageConfig->getThumbnailGlob());
 
         if ($files === false) {
             log_message('error', 'Failed to glob thumbnail files');
@@ -286,7 +295,7 @@ class AggroModels extends Model
 
         $deletedCount = 0;
         $errorCount   = 0;
-        $maxAge       = 60 * 60 * 24 * 45; // 45 days
+        $maxAge       = $storageConfig->getCleanupAgeSeconds();
 
         foreach ($files as $file) {
             if (! is_file($file)) {
@@ -338,7 +347,7 @@ class AggroModels extends Model
         $channels = $this->fetchStaleChannels($stale, $type, $limit);
         $this->logChannelSearchResult($channels, $type, $limit);
 
-        return $channels === false ? false : $channels;
+        return $channels;
     }
 
     /**
@@ -388,9 +397,8 @@ class AggroModels extends Model
      */
     public function getVideo($slug)
     {
-        $slug  = esc($slug);
-        $sql   = "SELECT * FROM aggro_videos WHERE video_id='{$slug}' LIMIT 1";
-        $query = $this->db->query($sql);
+        $sql   = 'SELECT * FROM aggro_videos WHERE video_id=? LIMIT 1';
+        $query = $this->db->query($sql, [$slug]);
         if ($query->getRowArray() === null) {
             return false;
         }
@@ -415,12 +423,13 @@ class AggroModels extends Model
      */
     public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
-        $now       = date('Y-m-d H:i:s');
-        $sortField = 'aggro_date_added';
-        $constrict = $this->getRangeConstraint($range, $now);
-        $baseWhere = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> "0000-00-00 00:00:00"';
-        $sql       = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
-        $query     = $this->db->query($sql, [(int) $perpage, (int) $offset]);
+        $now           = date('Y-m-d H:i:s');
+        $sortField     = 'aggro_date_added';
+        $constrict     = $this->getRangeConstraint($range, $now);
+        $storageConfig = config('Storage');
+        $baseWhere     = 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ? AND aggro_date_updated <> "0000-00-00 00:00:00"';
+        $sql           = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
+        $query         = $this->db->query($sql, [$storageConfig->minVideoDuration, (int) $perpage, (int) $offset]);
 
         return $query->getResult();
     }
@@ -449,8 +458,9 @@ class AggroModels extends Model
      */
     public function getVideosTotal()
     {
-        $sql   = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= 61 AND aggro_date_updated <> '0000-00-00 00:00:00'";
-        $query = $this->db->query($sql);
+        $storageConfig = config('Storage');
+        $sql           = "SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ? AND aggro_date_updated <> '0000-00-00 00:00:00'";
+        $query         = $this->db->query($sql, [$storageConfig->minVideoDuration]);
 
         return count($query->getResultArray());
     }
@@ -460,6 +470,8 @@ class AggroModels extends Model
      *
      * @param string $sourceSlug
      *                           Source slug.
+     *
+     * @return void
      */
     public function updateChannel($sourceSlug)
     {

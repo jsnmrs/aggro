@@ -1,13 +1,7 @@
-<?php
-
-/**
+<?= /**
  * @file
  * Homepage template.
- */
-
-use CodeIgniter\I18n\Time;
-
-echo $this->include('includes/header'); ?>
+ */ $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
  <div class="wrap">
@@ -18,7 +12,7 @@ echo $this->include('includes/header'); ?>
  <?php foreach ($build as $row) :?>
     <article class="box box--feature">
       <h2>
-        <a href="/sites/<?= $row['site_slug']; ?>"><?= $row['site_name']; ?></a>
+        <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?></a>
         <span class="ago--muted"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></span>
       </h2>
       <ol class="links">
@@ -34,42 +28,3 @@ echo $this->include('includes/header'); ?>
 </main>
 
 <?= $this->include('includes/footer');
-
-/**
- * Humanize the time for a given date.
- *
- * @param string $date
- * @param string $timezone
- *
- * @return string
- */
-function humanizeTime($date, $timezone)
-{
-    $time = Time::createFromFormat('Y-m-d H:i:s', $date, $timezone);
-
-    return $time->humanize();
-}
-
-/**
- * Display a story link if it exists, otherwise display a message.
- *
- * @param array  $row
- * @param string $storyNum
- *
- * @return string
- */
-function displayStory($row, $storyNum)
-{
-    if (isset($row[$storyNum])) {
-        $story = $row[$storyNum];
-        $title = $story['story_title'] ?? '';
-        $title = $title === '' ? '[missing title]' : $title;
-
-        return '<li><a href="' . esc($story['story_permalink']) . '" rel="noopener noreferrer" data-outgoing="' . esc($story['story_hash']) . '">' . esc($title) . '</a></li>';
-    }
-    if ($storyNum === 'story1') {
-        return '<li>No recent posts</li>';
-    }
-
-    return '';
-}

@@ -33,7 +33,7 @@ if ($build['video_type'] === 'vimeo') {
 if ($build['video_type'] === 'youtube') {
     echo ' video--youtube';
 }
-?>" style="--aspect-ratio: <?= $ratio; ?>;">
+?>" style="--aspect-ratio: <?= esc($ratio); ?>;">
         <?php if ($build['video_type'] === 'vimeo') :?>
           <iframe src="https://player.vimeo.com/video/<?= esc($build['video_id']); ?>?dnt=true&amp;portrait=0&amp;byline=0&amp;title=0&amp;autoplay=0&amp;color=ffffff" title="<?= esc($build['video_title']); ?> (embedded video)" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
         <?php endif; ?>

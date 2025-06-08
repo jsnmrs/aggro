@@ -119,41 +119,103 @@ class Front extends BaseController
     public function getVideo($slug = null)
     {
         helper('html');
-        // Sanitize slug
+        $slug = $this->sanitizeSlug($slug);
+
+        if ($this->isVideoListRequest($slug)) {
+            return $this->handleVideosPagination();
+        }
+
+        return $this->handleIndividualVideo($slug);
+    }
+
+    /**
+     * Sanitize video slug input.
+     *
+     * @param string|null $slug
+     */
+    private function sanitizeSlug($slug): string
+    {
         $slug = trim($slug ?? '');
-        $slug = preg_replace('/[^\w\-]/', '', $slug); // Allow word chars, underscore, and hyphen
+
+        return preg_replace('/[^\w\-]/', '', $slug);
+    }
+
+    /**
+     * Check if request is for video list (not individual video).
+     *
+     * @param string $slug
+     */
+    private function isVideoListRequest($slug): bool
+    {
+        return $slug === '' || $slug === 'recent';
+    }
+
+    /**
+     * Handle paginated video list display.
+     *
+     * @return mixed
+     */
+    private function handleVideosPagination()
+    {
+        $data = [
+            'title' => 'Videos',
+            'slug'  => 'video',
+            'page'  => 1,
+        ];
+
+        // Validate and set page number
+        if ($this->request->getUri()->getTotalSegments() === 3) {
+            $pageParam = $this->request->getUri()->getSegment(3);
+            if (! $this->validatePageNumber($pageParam)) {
+                return $this->getError404();
+            }
+            $data['page'] = (int) $pageParam;
+        }
+
+        // Set pagination parameters
+        $data['sort']    = 'recent';
+        $data['range']   = 'year';
+        $data['perpage'] = 30;
+        $data['offset']  = ($data['page'] - 1) * $data['perpage'];
+
+        // Get total and calculate pagination
+        $aggroModel      = new AggroModels();
+        $data['total']   = $aggroModel->getVideosTotal();
+        $data['endpage'] = ceil((int) $data['total'] / $data['perpage']);
+
+        // Validate page exists
+        if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
+            return $this->getError404();
+        }
+
+        // Get videos and render
+        $data['build'] = $aggroModel->getVideos($data['range'], (string) $data['perpage'], (string) $data['offset']);
+
+        return view('videos', $data);
+    }
+
+    /**
+     * Handle individual video display.
+     *
+     * @param string $slug
+     *
+     * @return mixed
+     */
+    private function handleIndividualVideo($slug)
+    {
+        // Validate video slug format
+        if (! $this->validateVideoSlug($slug)) {
+            return $this->getError404();
+        }
 
         $data = [
             'title' => 'Videos',
             'slug'  => 'video',
         ];
-        $aggroModel = new AggroModels();
 
-        if ($slug === '' || $slug === 'recent') {
-            $data['page'] = 1;
-
-            if ($this->request->getUri()->getTotalSegments() === 3
-              && is_numeric($this->request->getUri()->getSegment(3))) {
-                $data['page'] = (int) (esc($this->request->getUri()->getSegment(3)));
-            }
-
-            $data['sort']    = 'recent';
-            $data['range']   = 'year';
-            $data['perpage'] = 30;
-            $data['offset']  = ($data['page'] - 1) * $data['perpage'];
-            $data['total']   = $aggroModel->getVideosTotal();
-            $data['endpage'] = ceil((int) $data['total'] / $data['perpage']);
-
-            if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
-                return $this->getError404();
-            }
-
-            $data['build'] = $aggroModel->getVideos($data['range'], (string) $data['perpage'], (string) $data['offset']);
-
-            return view('videos', $data);
-        }
-
-        $data['build'] = $aggroModel->getVideo(esc($slug));
+        // Get video data
+        $aggroModel    = new AggroModels();
+        $data['build'] = $aggroModel->getVideo($slug);
 
         if (! empty($data['build'])) {
             return view('video', $data);
