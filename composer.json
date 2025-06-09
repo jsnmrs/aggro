@@ -44,6 +44,9 @@
   },
   "scripts": {
     "test": "phpunit",
+    "test:unit": "phpunit tests/unit",
+    "test:feature": "phpunit tests/feature",
+    "test:coverage": "phpunit --coverage-html build/logs/html",
     "phpcs": "phpcs --standard=phpcs.xml -v --colors",
     "phpcbf": "phpcbf --standard=phpcs.xml -v --colors --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
     "phpmd": [
