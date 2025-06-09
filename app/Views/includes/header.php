@@ -9,7 +9,7 @@
 <html lang="en">
 <head>
   <title><?php
-  if ($_ENV['CI_ENVIRONMENT'] === 'development') {
+  if (env('CI_ENVIRONMENT', 'production') === 'development') {
       echo '[DEV] ';
   }
 if (isset($build['site_name'])) {

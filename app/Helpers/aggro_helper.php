@@ -161,10 +161,10 @@ if (! function_exists('fetch_feed')) {
      */
     function fetch_feed($feed, $spoof, $cache = null)
     {
-        $userAgent = $_ENV['UA_BMXFEED'];
+        $userAgent = env('UA_BMXFEED', 'Aggro/1.0');
 
         if ($spoof === 1) {
-            $userAgent = $_ENV['UA_SPOOF'];
+            $userAgent = env('UA_SPOOF', 'Mozilla/5.0 (compatible; Aggro/1.0)');
         }
 
         $storageConfig = config('Storage');
@@ -268,9 +268,9 @@ if (! function_exists('fetch_url')) {
     function fetch_url($url, $format = 'text', $spoof = 0)
     {
         $storageConfig = config('Storage');
-        $agent         = $_ENV['UA_BMXFEED'];
+        $agent         = env('UA_BMXFEED', 'Aggro/1.0');
         if ($spoof === 1) {
-            $agent = $_ENV['UA_SPOOF'];
+            $agent = env('UA_SPOOF', 'Mozilla/5.0 (compatible; Aggro/1.0)');
         }
         $fetch = curl_init();
         curl_setopt($fetch, CURLOPT_URL, $url);
@@ -328,7 +328,7 @@ if (! function_exists('gate_check')) {
      */
     function gate_check()
     {
-        return (bool) (is_cli() || $_ENV['CI_ENVIRONMENT'] === 'development');
+        return (bool) (is_cli() || env('CI_ENVIRONMENT', 'production') === 'development');
     }
 }
 
