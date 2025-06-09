@@ -16,7 +16,7 @@ echo $this->include('includes/header'); ?>
 <main id="content" tabindex="-1">
   <div class="wrap">
     <div class="full">
-      <h1><?= esc(htmlspecialchars_decode($build['video_title'] ?? '')); ?></h1>
+      <h1><?= esc($build['video_title'] ?? ''); ?></h1>
       <p>Spotted <span><?php
       $time = Time::createFromFormat('Y-m-d H:i:s', $build['aggro_date_added'], 'America/New_York');
 echo $time->humanize();
