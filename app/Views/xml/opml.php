@@ -10,7 +10,7 @@ echo "<body>\n";
 echo "<outline text=\"BMXfeed\">\n";
 
 foreach ($build as $row) {
-    echo '<outline title="' . htmlspecialchars_decode($row->site_name ?? '') . '" text="' . htmlspecialchars_decode($row->site_name ?? '') . '" type="rss" xmlUrl="' . htmlspecialchars($row->site_feed ?? '') . '" htmlUrl="' . htmlspecialchars($row->site_url ?? '') . "\" />\n";
+    echo '<outline title="' . htmlspecialchars($row->site_name ?? '') . '" text="' . htmlspecialchars($row->site_name ?? '') . '" type="rss" xmlUrl="' . htmlspecialchars($row->site_feed ?? '') . '" htmlUrl="' . htmlspecialchars($row->site_url ?? '') . "\" />\n";
 }
 echo "</outline>\n";
 echo "</body>\n";
