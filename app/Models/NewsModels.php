@@ -48,8 +48,8 @@ class NewsModels extends Model
     {
         $query = $this->db->table('news_feeds')
             ->groupStart()
-                ->where('flag_featured', 1)
-                ->orWhere('flag_stream', 1)
+            ->where('flag_featured', 1)
+            ->orWhere('flag_stream', 1)
             ->groupEnd()
             ->orderBy('site_name', 'ASC')
             ->get();
@@ -197,13 +197,13 @@ class NewsModels extends Model
     private function insertFeedItem($siteId, $item)
     {
         $data = [
-            'site_id' => $siteId,
-            'story_title' => quotes_to_entities($item->get_title()),
+            'site_id'         => $siteId,
+            'story_title'     => quotes_to_entities($item->get_title()),
             'story_permalink' => quotes_to_entities($item->get_permalink()),
-            'story_hash' => sha1($item->get_permalink()),
-            'story_date' => quotes_to_entities($item->get_date('Y-m-d H:i:s')),
+            'story_hash'      => sha1($item->get_permalink()),
+            'story_date'      => quotes_to_entities($item->get_date('Y-m-d H:i:s')),
         ];
-        
+
         // Use replace to simulate INSERT IGNORE behavior
         $this->db->table('news_featured')->replace($data);
     }
@@ -232,14 +232,13 @@ class NewsModels extends Model
     public function featuredCleaner()
     {
         $utilityModel = new UtilityModels();
-        $now          = date('Y-m-d H:i:s');
 
         try {
             $this->db->transStart();
 
             // Single optimized query to delete all old stories at once
             $storageConfig = config('Storage');
-            $cutoffDate = date('Y-m-d H:i:s', strtotime("-{$storageConfig->cleanupDays} days"));
+            $cutoffDate    = date('Y-m-d H:i:s', strtotime("-{$storageConfig->cleanupDays} days"));
             $this->db->table('news_featured')
                 ->where('story_date <', $cutoffDate)
                 ->delete();
