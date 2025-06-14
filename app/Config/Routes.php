@@ -32,3 +32,6 @@ $routes->add('aggro/log-error-clean', 'Aggro::getLogErrorClean');
 $routes->add('aggro/news-cache', 'Aggro::getNewsCache');
 $routes->add('aggro/news-clean', 'Aggro::getNewsClean');
 $routes->add('aggro/sweep', 'Aggro::getSweep');
+
+// Set 404 override
+$routes->set404Override('App\Controllers\Front::getError404');

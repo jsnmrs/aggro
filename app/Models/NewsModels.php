@@ -232,15 +232,13 @@ class NewsModels extends Model
 
             // Single optimized query to delete all old stories at once
             $storageConfig = config('Storage');
-            $sql           = 'DELETE FROM news_featured WHERE story_date < DATE_SUB(?, INTERVAL ? DAY)';
-            $this->db->query($sql, [$now, $storageConfig->cleanupDays]);
+            $cutoffDate = date('Y-m-d H:i:s', strtotime("-{$storageConfig->cleanupDays} days"));
+            $this->db->table('news_featured')
+                ->where('story_date <', $cutoffDate)
+                ->delete();
             $counter = $this->db->affectedRows();
 
             $this->db->transCommit();
-
-            // Optimize table after bulk delete
-            $cleanup = 'OPTIMIZE TABLE news_featured';
-            $this->db->query($cleanup);
 
             $message = $counter . ' old stories deleted.';
             $utilityModel->sendLog($message);

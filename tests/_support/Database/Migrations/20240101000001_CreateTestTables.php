@@ -234,6 +234,43 @@ class CreateTestTables extends Migration
         ]);
         $this->forge->addKey('site_id', true);
         $this->forge->createTable('news_feeds');
+
+        // Create news_featured table
+        $this->forge->addField([
+            'story_id' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'auto_increment' => true,
+            ],
+            'story_title' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => false,
+            ],
+            'story_permalink' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => false,
+            ],
+            'story_hash' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => false,
+            ],
+            'story_date' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'site_id' => [
+                'type' => 'SMALLINT',
+                'constraint' => 5,
+                'unsigned' => true,
+                'null' => false,
+            ],
+        ]);
+        $this->forge->addKey('story_id', true);
+        $this->forge->addUniqueKey('story_permalink');
+        $this->forge->createTable('news_featured');
     }
 
     public function down()
@@ -241,5 +278,6 @@ class CreateTestTables extends Migration
         $this->forge->dropTable('aggro_videos');
         $this->forge->dropTable('aggro_sources');
         $this->forge->dropTable('news_feeds');
+        $this->forge->dropTable('news_featured');
     }
 }

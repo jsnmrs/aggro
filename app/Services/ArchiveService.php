@@ -82,8 +82,13 @@ class ArchiveService
     private function updateArchiveFlags($now)
     {
         $storageConfig = config('Storage');
-        $sql           = 'UPDATE aggro_videos SET flag_archive = 1 WHERE video_date_uploaded <= DATE_SUB(?,INTERVAL ? DAY) AND flag_archive=0 AND flag_bad=0';
-        $result        = $this->db->query($sql, [$now, $storageConfig->archiveDays]);
+        $cutoffDate = date('Y-m-d H:i:s', strtotime("-{$storageConfig->archiveDays} days"));
+        
+        $result = $this->db->table('aggro_videos')
+            ->where('video_date_uploaded <=', $cutoffDate)
+            ->where('flag_archive', 0)
+            ->where('flag_bad', 0)
+            ->update(['flag_archive' => 1]);
 
         if ($result === false) {
             throw new Exception('Failed to update archive flag');

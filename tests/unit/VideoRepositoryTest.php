@@ -87,7 +87,8 @@ final class VideoRepositoryTest extends RepositoryTestCase
             'video_id' => 'active_video',
             'flag_archive' => 0,
             'flag_bad' => 0,
-            'video_duration' => 300
+            'video_duration' => 300,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours'))
         ]);
         $archivedVideo = $this->createTestVideo([
             'video_id' => 'archived_video',
