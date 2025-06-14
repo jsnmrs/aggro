@@ -14,28 +14,22 @@ final class FrontControllerTest extends RepositoryTestCase
     {
         parent::setUp();
         
-        // Check if tables exist and add test data for news_feeds table
-        try {
-            if ($this->db->tableExists('news_feeds')) {
-                $this->db->table('news_feeds')->insert([
-                    'site_id' => 1,
-                    'site_name' => 'Test Site',
-                    'site_slug' => 'test-site',
-                    'site_url' => 'https://test.com',
-                    'site_feed' => 'https://test.com/feed',
-                    'site_category' => 'news',
-                    'site_date_added' => date('Y-m-d H:i:s'),
-                    'site_date_updated' => date('Y-m-d H:i:s'),
-                    'site_date_last_fetch' => date('Y-m-d H:i:s'),
-                    'site_date_last_post' => date('Y-m-d H:i:s'),
-                    'flag_featured' => 1,
-                    'flag_stream' => 0,
-                    'flag_spoof' => 0,
-                ]);
-            }
-        } catch (Exception $e) {
-            // Ignore database errors in setup
-        }
+        // Seed test data for news_feeds table
+        $this->db->table('news_feeds')->insert([
+            'site_id' => 1,
+            'site_name' => 'Test Site',
+            'site_slug' => 'test-site',
+            'site_url' => 'https://test.com',
+            'site_feed' => 'https://test.com/feed',
+            'site_category' => 'news',
+            'site_date_added' => date('Y-m-d H:i:s'),
+            'site_date_updated' => date('Y-m-d H:i:s'),
+            'site_date_last_fetch' => date('Y-m-d H:i:s'),
+            'site_date_last_post' => date('Y-m-d H:i:s'),
+            'flag_featured' => 1,
+            'flag_stream' => 0,
+            'flag_spoof' => 0,
+        ]);
     }
 
     public function testAboutPageLoads()
@@ -57,17 +51,4 @@ final class FrontControllerTest extends RepositoryTestCase
         $response->assertStatus(404);
     }
 
-    public function testHomePageRedirectsToFeatured()
-    {
-        // Skip this test due to feature test database connection issues
-        // Feature tests run full application stack which uses production DB connection
-        // while test setup only affects unit test database connection
-        $this->markTestSkipped('Feature test database setup needs architectural changes');
-        
-        // Act
-        $response = $this->get('/');
-
-        // Assert
-        $response->assertStatus(200);
-    }
 }

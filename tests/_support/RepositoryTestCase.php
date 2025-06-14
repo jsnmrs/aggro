@@ -21,6 +21,13 @@ abstract class RepositoryTestCase extends CIUnitTestCase
     protected $refresh = true;
 
     /**
+     * Should run migration before tests?
+     *
+     * @var bool
+     */
+    protected $migrate = true;
+
+    /**
      * The seed file(s) used for all tests within this test case.
      * Should be fully-namespaced class names, like [Namespace\]ClassName::class
      *
