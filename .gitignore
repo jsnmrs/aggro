@@ -138,3 +138,4 @@ nb-configuration.xml
 
 node_modules
 *.cache
+.claude/
