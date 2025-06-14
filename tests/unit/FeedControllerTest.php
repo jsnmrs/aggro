@@ -4,17 +4,15 @@ namespace Tests\Unit;
 
 use App\Controllers\BaseController;
 use App\Controllers\Feed;
-use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\ControllerTestTrait;
-use CodeIgniter\Test\DatabaseTestTrait;
+use Tests\Support\DatabaseTestCase;
 
 /**
  * @internal
  */
-final class FeedControllerTest extends CIUnitTestCase
+final class FeedControllerTest extends DatabaseTestCase
 {
     use ControllerTestTrait;
-    use DatabaseTestTrait;
 
     protected Feed $feedController;
 
@@ -51,7 +49,7 @@ final class FeedControllerTest extends CIUnitTestCase
 
     public function testGetVideofeedMethodExists(): void
     {
-        $this->assertTrue(method_exists($this->controller, 'getVideofeed'));
+        $this->assertTrue(method_exists($this->feedController, 'getVideofeed'));
     }
 
     public function testGetVideofeedSetsCorrectContentType(): void
@@ -66,7 +64,7 @@ final class FeedControllerTest extends CIUnitTestCase
 
     public function testGetNewsfeedMethodExists(): void
     {
-        $this->assertTrue(method_exists($this->controller, 'getNewsfeed'));
+        $this->assertTrue(method_exists($this->feedController, 'getNewsfeed'));
     }
 
     public function testGetNewsfeedSetsCorrectContentType(): void

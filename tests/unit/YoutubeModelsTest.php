@@ -32,8 +32,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testSearchChannelWithNullFeed(): void
     {
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([]);
+        $mockFeed = new class {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
 
         $result = $this->model->searchChannel($mockFeed, 'test123');
         $this->assertFalse($result);
@@ -46,8 +50,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testParseChannelWithEmptyFeed(): void
     {
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([]);
+        $mockFeed = new class {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
 
         $result = $this->model->parseChannel($mockFeed);
         $this->assertSame(0, $result);
@@ -66,13 +74,21 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testSearchChannelHandlesVideoNotFound(): void
     {
-        $mockItem = $this->createMock(stdClass::class);
-        $mockItem->method('get_item_tags')->willReturn([
-            ['data' => 'different_video_id'],
-        ]);
+        $mockItem = new class {
+            public function get_item_tags($namespace, $tag): array
+            {
+                return [['data' => 'different_video_id']];
+            }
+        };
 
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([$mockItem]);
+        $mockFeed = new class ($mockItem) {
+            private $item;
+            public function __construct($item) { $this->item = $item; }
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [$this->item];
+            }
+        };
 
         $result = $this->model->searchChannel($mockFeed, 'target_video_id');
         $this->assertFalse($result);
@@ -80,8 +96,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testParseChannelCalculatesCorrectAddCount(): void
     {
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([]);
+        $mockFeed = new class {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
 
         $result = $this->model->parseChannel($mockFeed);
         $this->assertIsInt($result);
@@ -96,8 +116,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testSearchChannelReturnsBoolean(): void
     {
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([]);
+        $mockFeed = new class {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
 
         $result = $this->model->searchChannel($mockFeed, 'test123');
         $this->assertIsBool($result);
@@ -105,8 +129,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testParseChannelReturnsInteger(): void
     {
-        $mockFeed = $this->createMock(stdClass::class);
-        $mockFeed->method('get_items')->willReturn([]);
+        $mockFeed = new class {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
 
         $result = $this->model->parseChannel($mockFeed);
         $this->assertIsInt($result);

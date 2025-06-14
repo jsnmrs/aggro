@@ -128,7 +128,17 @@ final class VimeoModelsTest extends DatabaseTestCase
     public function testSearchChannelHandlesValidObjectStructure(): void
     {
         $feed = [
-            (object) ['id' => 'test123', 'title' => 'Test Video'],
+            (object) [
+                'id' => 'test123', 
+                'title' => 'Test Video',
+                'upload_date' => '2024-01-01T00:00:00Z',
+                'thumbnail_large' => 'https://example.com/thumb.jpg',
+                'url' => 'https://vimeo.com/test123',
+                'duration' => 120,
+                'description' => 'Test description',
+                'user_name' => 'testuser',
+                'user_url' => 'https://vimeo.com/testuser'
+            ],
         ];
 
         $result = $this->model->searchChannel($feed, 'test123');
