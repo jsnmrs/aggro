@@ -7,6 +7,7 @@ use CodeIgniter\Test\DatabaseTestTrait;
 
 /**
  * @internal
+ * @no-final
  */
 class DatabaseTestCase extends CIUnitTestCase
 {

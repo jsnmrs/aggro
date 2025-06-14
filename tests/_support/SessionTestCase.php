@@ -9,6 +9,7 @@ use Config\Services;
 
 /**
  * @internal
+ * @no-final
  */
 class SessionTestCase extends CIUnitTestCase
 {
