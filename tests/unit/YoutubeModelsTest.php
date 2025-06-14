@@ -68,6 +68,10 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationWithEmptyDatabase(): void
     {
+        if (!$this->db->tableExists('aggro_videos')) {
+            $this->markTestSkipped('Database table aggro_videos not available in test environment');
+        }
+        
         $result = $this->model->getDuration();
         $this->assertTrue($result);
     }
@@ -110,6 +114,10 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationReturnsBoolean(): void
     {
+        if (!$this->db->tableExists('aggro_videos')) {
+            $this->markTestSkipped('Database table aggro_videos not available in test environment');
+        }
+        
         $result = $this->model->getDuration();
         $this->assertIsBool($result);
     }

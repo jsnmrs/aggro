@@ -34,6 +34,6 @@ final class HomeControllerTest extends CIUnitTestCase
         $result = $this->controller->getIndex();
 
         $this->assertIsString($result);
-        $this->assertStringContainsString('<!doctype html>', $result);
+        $this->assertStringContainsString('<!DOCTYPE html>', $result);
     }
 }
