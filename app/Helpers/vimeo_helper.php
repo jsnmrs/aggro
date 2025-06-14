@@ -27,6 +27,11 @@ if (! function_exists('vimeo_get_feed')) {
             return $result;
         }
 
+        // Log error if we got a string response (likely an error message)
+        if (is_string($result)) {
+            log_message('error', 'Vimeo API returned error: ' . $result);
+        }
+
         return false;
     }
 }
