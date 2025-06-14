@@ -43,7 +43,7 @@
     }
   },
   "scripts": {
-    "test": "phpunit",
+    "test": "phpunit --no-coverage",
     "test:unit": "phpunit tests/unit",
     "test:feature": "phpunit tests/feature",
     "test:coverage": "phpunit --coverage-html build/logs/html",
