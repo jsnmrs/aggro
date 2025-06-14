@@ -90,8 +90,13 @@ class YoutubeModels extends Model
         $utilityModel = new UtilityModels();
         helper('youtube');
 
-        $sql    = "SELECT * FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0 AND video_duration=0 AND video_type='youtube' LIMIT 10";
-        $query  = $this->db->query($sql);
+        $sql   = "SELECT * FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0 AND video_duration=0 AND video_type='youtube' LIMIT 10";
+        $query = $this->db->query($sql);
+
+        if ($query === false) {
+            return false;
+        }
+
         $update = count($query->getResultArray());
 
         if ($update > 0) {

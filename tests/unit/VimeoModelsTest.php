@@ -129,15 +129,17 @@ final class VimeoModelsTest extends DatabaseTestCase
     {
         $feed = [
             (object) [
-                'id' => 'test123', 
-                'title' => 'Test Video',
-                'upload_date' => '2024-01-01T00:00:00Z',
+                'id'              => 'test123',
+                'title'           => 'Test Video',
+                'upload_date'     => '2024-01-01T00:00:00Z',
                 'thumbnail_large' => 'https://example.com/thumb.jpg',
-                'url' => 'https://vimeo.com/test123',
-                'duration' => 120,
-                'description' => 'Test description',
-                'user_name' => 'testuser',
-                'user_url' => 'https://vimeo.com/testuser'
+                'url'             => 'https://vimeo.com/test123',
+                'duration'        => 120,
+                'width'           => 1920,
+                'height'          => 1080,
+                'description'     => 'Test description',
+                'user_name'       => 'testuser',
+                'user_url'        => 'https://vimeo.com/testuser',
             ],
         ];
 

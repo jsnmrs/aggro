@@ -39,10 +39,10 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetOpmlSetsCorrectContentType(): void
     {
-        if (!$this->db->tableExists('news_feeds')) {
+        if (! $this->db->tableExists('news_feeds')) {
             $this->markTestSkipped('Database table news_feeds not available in test environment');
         }
-        
+
         $result = $this->controller(Feed::class)
             ->execute('getOpml');
 
@@ -73,10 +73,10 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetNewsfeedSetsCorrectContentType(): void
     {
-        if (!$this->db->tableExists('news_feeds')) {
+        if (! $this->db->tableExists('news_feeds')) {
             $this->markTestSkipped('Database table news_feeds not available in test environment');
         }
-        
+
         $result = $this->controller(Feed::class)
             ->execute('getNewsfeed');
 
@@ -87,10 +87,10 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetIndexCallsGetNewsfeed(): void
     {
-        if (!$this->db->tableExists('news_feeds')) {
+        if (! $this->db->tableExists('news_feeds')) {
             $this->markTestSkipped('Database table news_feeds not available in test environment');
         }
-        
+
         $result = $this->controller(Feed::class)
             ->execute('getIndex');
 

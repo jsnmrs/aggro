@@ -122,7 +122,7 @@ final class AggroModelsTest extends DatabaseTestCase
     public function testGetChannelsCallsRepository(): void
     {
         $result = $this->model->getChannels('30', 'youtube', '10');
-        $this->assertIsArray($result) || $this->assertFalse($result);
+        $this->assertTrue(is_array($result) || $result === false);
     }
 
     public function testGetVideoMethodExists(): void
