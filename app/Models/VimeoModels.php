@@ -12,8 +12,8 @@ class VimeoModels extends Model
     /**
      * Search Vimeo feed for specific video.
      *
-     * @param object $feed
-     *                        Fetched YouTube feed.
+     * @param mixed  $feed
+     *                        Fetched Vimeo feed.
      * @param string $videoId
      *                        Video ID to look for.
      *
@@ -25,11 +25,20 @@ class VimeoModels extends Model
         $aggroModel = new AggroModels();
         helper('vimeo');
 
-        if ($feed === false) {
+        if ($feed === false || (! is_array($feed) && ! is_object($feed))) {
+            if ($feed !== false) {
+                log_message('error', 'VimeoModels::searchChannel received invalid feed data: ' . gettype($feed));
+            }
+
             return false;
         }
 
         foreach ($feed as $item) {
+            // Ensure item is an object before processing
+            if (! is_object($item) || ! isset($item->id)) {
+                continue;
+            }
+
             if ($videoId === $item->id && ! $aggroModel->checkVideo($item->id)) {
                 $video = vimeo_parse_meta($item);
                 $aggroModel->addVideo($video);
@@ -44,8 +53,8 @@ class VimeoModels extends Model
     /**
      * Parse Vimeo feed for videos.
      *
-     * @param object $feed
-     *                     Fetched YouTube feed.
+     * @param mixed $feed
+     *                    Fetched Vimeo feed.
      *
      * @return false|int
      *                   Number of videos added or false on error.
@@ -57,11 +66,22 @@ class VimeoModels extends Model
         helper('vimeo');
         $addCount = 0;
 
-        if ($feed === false) {
+        if ($feed === false || (! is_array($feed) && ! is_object($feed))) {
+            if ($feed !== false) {
+                log_message('error', 'VimeoModels::parseChannel received invalid feed data: ' . gettype($feed));
+            }
+
             return false;
         }
 
         foreach ($feed as $item) {
+            // Ensure item is an object before processing
+            if (! is_object($item) || ! isset($item->id)) {
+                log_message('warning', 'VimeoModels::parseChannel skipping invalid item');
+
+                continue;
+            }
+
             if (! $aggroModel->checkVideo($item->id)) {
                 $video = vimeo_parse_meta($item);
                 $aggroModel->addVideo($video);
