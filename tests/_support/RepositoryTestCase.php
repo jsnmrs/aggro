@@ -2,6 +2,7 @@
 
 namespace Tests\Support;
 
+use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
 use Config\Database;
@@ -52,7 +53,7 @@ abstract class RepositoryTestCase extends CIUnitTestCase
     /**
      * Database connection for tests.
      *
-     * @var \CodeIgniter\Database\BaseConnection
+     * @var BaseConnection
      */
     protected $db;
 
@@ -71,29 +72,27 @@ abstract class RepositoryTestCase extends CIUnitTestCase
      * Helper method to create a test video record.
      *
      * @param array $overrides Optional data to override defaults
-     *
-     * @return array
      */
     protected function createTestVideo(array $overrides = []): array
     {
         $defaults = [
-            'video_id' => 'test_' . uniqid(),
-            'aggro_date_added' => date('Y-m-d H:i:s'),
-            'aggro_date_updated' => date('Y-m-d H:i:s'),
-            'video_date_uploaded' => date('Y-m-d H:i:s'),
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_plays' => 100,
-            'video_title' => 'Test Video Title',
-            'video_thumbnail_url' => 'https://example.com/thumb.jpg',
-            'video_width' => 1920,
-            'video_height' => 1080,
-            'video_aspect_ratio' => '16:9',
-            'video_duration' => 300,
-            'video_source_id' => 'test_source',
+            'video_id'              => 'test_' . uniqid(),
+            'aggro_date_added'      => date('Y-m-d H:i:s'),
+            'aggro_date_updated'    => date('Y-m-d H:i:s'),
+            'video_date_uploaded'   => date('Y-m-d H:i:s'),
+            'flag_archive'          => 0,
+            'flag_bad'              => 0,
+            'video_plays'           => 100,
+            'video_title'           => 'Test Video Title',
+            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
+            'video_width'           => 1920,
+            'video_height'          => 1080,
+            'video_aspect_ratio'    => '16:9',
+            'video_duration'        => 300,
+            'video_source_id'       => 'test_source',
             'video_source_username' => 'testuser',
-            'video_source_url' => 'https://example.com/video',
-            'video_type' => 'youtube',
+            'video_source_url'      => 'https://example.com/video',
+            'video_type'            => 'youtube',
         ];
 
         return array_merge($defaults, $overrides);
@@ -103,17 +102,15 @@ abstract class RepositoryTestCase extends CIUnitTestCase
      * Helper method to create a test channel record.
      *
      * @param array $overrides Optional data to override defaults
-     *
-     * @return array
      */
     protected function createTestChannel(array $overrides = []): array
     {
         $defaults = [
-            'source_slug' => 'test_' . uniqid(),
-            'source_type' => 'youtube',
-            'source_name' => 'Test Channel',
-            'source_url' => 'https://example.com/channel',
-            'source_date_added' => date('Y-m-d H:i:s'),
+            'source_slug'         => 'test_' . uniqid(),
+            'source_type'         => 'youtube',
+            'source_name'         => 'Test Channel',
+            'source_url'          => 'https://example.com/channel',
+            'source_date_added'   => date('Y-m-d H:i:s'),
             'source_date_updated' => date('Y-m-d H:i:s', strtotime('-1 hour')),
         ];
 

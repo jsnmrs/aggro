@@ -52,14 +52,14 @@ class ChannelRepository
     private function fetchStaleChannels($stale, $type, $limit)
     {
         $staleDateTime = date('Y-m-d H:i:s', strtotime("-{$stale} minutes"));
-        
+
         $query = $this->db->table('aggro_sources')
             ->where('source_type', $type)
             ->where('source_date_updated <=', $staleDateTime)
             ->orderBy('source_date_updated', 'ASC')
             ->limit((int) $limit)
             ->get();
-            
+
         $results = $query->getResultArray();
 
         return count($results) > 0 ? $query->getResult() : false;

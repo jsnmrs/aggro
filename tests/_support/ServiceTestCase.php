@@ -2,6 +2,7 @@
 
 namespace Tests\Support;
 
+use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
 use Config\Database;
@@ -45,7 +46,7 @@ abstract class ServiceTestCase extends CIUnitTestCase
     /**
      * Database connection for tests.
      *
-     * @var \CodeIgniter\Database\BaseConnection
+     * @var BaseConnection
      */
     protected $db;
 
@@ -64,8 +65,6 @@ abstract class ServiceTestCase extends CIUnitTestCase
      * Helper method to insert test video data.
      *
      * @param array $data Video data
-     *
-     * @return bool
      */
     protected function insertTestVideo(array $data): bool
     {
@@ -76,8 +75,6 @@ abstract class ServiceTestCase extends CIUnitTestCase
      * Helper method to insert test channel data.
      *
      * @param array $data Channel data
-     *
-     * @return bool
      */
     protected function insertTestChannel(array $data): bool
     {
@@ -89,13 +86,11 @@ abstract class ServiceTestCase extends CIUnitTestCase
      *
      * @param string $table Table name
      * @param array  $where Optional where conditions
-     *
-     * @return int
      */
     protected function countRecords(string $table, array $where = []): int
     {
         $builder = $this->db->table($table);
-        if (!empty($where)) {
+        if (! empty($where)) {
             $builder->where($where);
         }
 

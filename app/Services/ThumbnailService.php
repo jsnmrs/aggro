@@ -34,7 +34,7 @@ class ThumbnailService
             ->where('flag_archive', 0)
             ->where('flag_bad', 0)
             ->get();
-            
+
         $thumbs = $query->getResult();
 
         $storageConfig = config('Storage');

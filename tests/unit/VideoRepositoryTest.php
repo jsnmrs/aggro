@@ -48,12 +48,12 @@ final class VideoRepositoryTest extends RepositoryTestCase
 
         // Assert
         $this->assertTrue($result);
-        
+
         // Verify video was inserted
         $query = $this->db->table('aggro_videos')
             ->where('video_id', $videoData['video_id'])
             ->get();
-        $this->assertEquals(1, $query->getNumRows());
+        $this->assertSame(1, $query->getNumRows());
     }
 
     public function testGetVideoReturnsCorrectVideo()
@@ -67,8 +67,8 @@ final class VideoRepositoryTest extends RepositoryTestCase
 
         // Assert
         $this->assertIsArray($result);
-        $this->assertEquals('test_video_123', $result['video_id']);
-        $this->assertEquals($videoData['video_title'], $result['video_title']);
+        $this->assertSame('test_video_123', $result['video_id']);
+        $this->assertSame($videoData['video_title'], $result['video_title']);
     }
 
     public function testGetVideoReturnsFalseForNonExistentVideo()
@@ -84,23 +84,23 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Arrange
         $activeVideo = $this->createTestVideo([
-            'video_id' => 'active_video',
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_duration' => 300,
-            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours'))
+            'video_id'         => 'active_video',
+            'flag_archive'     => 0,
+            'flag_bad'         => 0,
+            'video_duration'   => 300,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id' => 'archived_video',
-            'flag_archive' => 1,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'video_id'       => 'archived_video',
+            'flag_archive'   => 1,
+            'flag_bad'       => 0,
+            'video_duration' => 300,
         ]);
         $badVideo = $this->createTestVideo([
-            'video_id' => 'bad_video',
-            'flag_archive' => 0,
-            'flag_bad' => 1,
-            'video_duration' => 300
+            'video_id'       => 'bad_video',
+            'flag_archive'   => 0,
+            'flag_bad'       => 1,
+            'video_duration' => 300,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo, $archivedVideo, $badVideo]);
@@ -111,29 +111,29 @@ final class VideoRepositoryTest extends RepositoryTestCase
         // Assert
         $this->assertIsArray($results);
         $this->assertCount(1, $results);
-        $this->assertEquals('active_video', $results[0]->video_id);
+        $this->assertSame('active_video', $results[0]->video_id);
     }
 
     public function testGetVideosTotalReturnsCorrectCount()
     {
         // Arrange
         $activeVideo1 = $this->createTestVideo([
-            'video_id' => 'active_1',
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'video_id'       => 'active_1',
+            'flag_archive'   => 0,
+            'flag_bad'       => 0,
+            'video_duration' => 300,
         ]);
         $activeVideo2 = $this->createTestVideo([
-            'video_id' => 'active_2',
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'video_id'       => 'active_2',
+            'flag_archive'   => 0,
+            'flag_bad'       => 0,
+            'video_duration' => 300,
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id' => 'archived',
-            'flag_archive' => 1,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'video_id'       => 'archived',
+            'flag_archive'   => 1,
+            'flag_bad'       => 0,
+            'video_duration' => 300,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo1, $activeVideo2, $archivedVideo]);
@@ -142,39 +142,39 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $total = $this->repository->getVideosTotal();
 
         // Assert
-        $this->assertEquals(2, $total);
+        $this->assertSame(2, $total);
     }
 
     public function testGetVideosWithDifferentRanges()
     {
         // Arrange
         $recentVideo = $this->createTestVideo([
-            'video_id' => 'recent',
+            'video_id'         => 'recent',
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 day')),
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'flag_archive'     => 0,
+            'flag_bad'         => 0,
+            'video_duration'   => 300,
         ]);
         $oldVideo = $this->createTestVideo([
-            'video_id' => 'old',
+            'video_id'         => 'old',
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 year')),
-            'flag_archive' => 0,
-            'flag_bad' => 0,
-            'video_duration' => 300
+            'flag_archive'     => 0,
+            'flag_bad'         => 0,
+            'video_duration'   => 300,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$recentVideo, $oldVideo]);
 
         // Act - Test week range (should only get recent video)
         $weekResults = $this->repository->getVideos('week', '10', '0');
-        
+
         // Act - Test year range (should get both videos)
         $yearResults = $this->repository->getVideos('year', '10', '0');
 
         // Assert
         $this->assertCount(1, $weekResults);
-        $this->assertEquals('recent', $weekResults[0]->video_id);
-        
+        $this->assertSame('recent', $weekResults[0]->video_id);
+
         $this->assertCount(2, $yearResults);
     }
 }

@@ -10,7 +10,7 @@ use Config\Services;
 /**
  * @internal
  */
-class SessionTestCase extends CIUnitTestCase
+final class SessionTestCase extends CIUnitTestCase
 {
     /**
      * @var SessionHandler

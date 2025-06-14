@@ -58,23 +58,23 @@ class VideoRepository
         $this->db->transStart();
 
         $data = [
-            'video_id' => $video['video_id'],
-            'aggro_date_added' => $video['aggro_date_added'],
-            'aggro_date_updated' => $video['aggro_date_updated'],
-            'video_date_uploaded' => $video['video_date_uploaded'],
-            'flag_archive' => $video['flag_archive'],
-            'flag_bad' => 0,
-            'video_plays' => $video['video_plays'],
-            'video_title' => $video['video_title'],
-            'video_thumbnail_url' => $video['video_thumbnail_url'],
-            'video_width' => $video['video_width'],
-            'video_height' => $video['video_height'],
-            'video_aspect_ratio' => $video['video_aspect_ratio'],
-            'video_duration' => $video['video_duration'],
-            'video_source_id' => $video['video_source_id'],
+            'video_id'              => $video['video_id'],
+            'aggro_date_added'      => $video['aggro_date_added'],
+            'aggro_date_updated'    => $video['aggro_date_updated'],
+            'video_date_uploaded'   => $video['video_date_uploaded'],
+            'flag_archive'          => $video['flag_archive'],
+            'flag_bad'              => 0,
+            'video_plays'           => $video['video_plays'],
+            'video_title'           => $video['video_title'],
+            'video_thumbnail_url'   => $video['video_thumbnail_url'],
+            'video_width'           => $video['video_width'],
+            'video_height'          => $video['video_height'],
+            'video_aspect_ratio'    => $video['video_aspect_ratio'],
+            'video_duration'        => $video['video_duration'],
+            'video_source_id'       => $video['video_source_id'],
             'video_source_username' => $video['video_source_username'],
-            'video_source_url' => $video['video_source_url'],
-            'video_type' => $video['video_type'],
+            'video_source_url'      => $video['video_source_url'],
+            'video_type'            => $video['video_type'],
         ];
 
         $this->db->table('aggro_videos')->insert($data);
@@ -192,9 +192,9 @@ class VideoRepository
      */
     public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
-        $storageConfig = config('Storage');
+        $storageConfig    = config('Storage');
         $rangeConstraints = $this->getRangeConstraints($range);
-        
+
         $query = $this->db->table('aggro_videos')
             ->where('flag_bad', 0)
             ->where('flag_archive', 0)
@@ -219,14 +219,13 @@ class VideoRepository
     private function getRangeConstraints($range)
     {
         $intervals = ['year' => 365, 'week' => 7, 'month' => 31];
-        $days = $intervals[$range] ?? 31;
-        
-        $end = date('Y-m-d H:i:s', strtotime('-30 seconds'));
+        $days      = $intervals[$range] ?? 31;
+
+        $end   = date('Y-m-d H:i:s', strtotime('-30 seconds'));
         $start = date('Y-m-d H:i:s', strtotime("-{$days} days"));
-        
+
         return ['start' => $start, 'end' => $end];
     }
-
 
     /**
      * Get all videos total.
@@ -237,7 +236,7 @@ class VideoRepository
     public function getVideosTotal()
     {
         $storageConfig = config('Storage');
-        
+
         $query = $this->db->table('aggro_videos')
             ->selectCount('*', 'total')
             ->where('flag_bad', 0)
@@ -264,7 +263,7 @@ class VideoRepository
             ->where('video_id', $slug)
             ->limit(1)
             ->get();
-            
+
         $result = $query->getRowArray();
         if ($result === null) {
             return false;

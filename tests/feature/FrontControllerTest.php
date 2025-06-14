@@ -13,22 +13,22 @@ final class FrontControllerTest extends RepositoryTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Seed test data for news_feeds table
         $this->db->table('news_feeds')->insert([
-            'site_id' => 1,
-            'site_name' => 'Test Site',
-            'site_slug' => 'test-site',
-            'site_url' => 'https://test.com',
-            'site_feed' => 'https://test.com/feed',
-            'site_category' => 'news',
-            'site_date_added' => date('Y-m-d H:i:s'),
-            'site_date_updated' => date('Y-m-d H:i:s'),
+            'site_id'              => 1,
+            'site_name'            => 'Test Site',
+            'site_slug'            => 'test-site',
+            'site_url'             => 'https://test.com',
+            'site_feed'            => 'https://test.com/feed',
+            'site_category'        => 'news',
+            'site_date_added'      => date('Y-m-d H:i:s'),
+            'site_date_updated'    => date('Y-m-d H:i:s'),
             'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post' => date('Y-m-d H:i:s'),
-            'flag_featured' => 1,
-            'flag_stream' => 0,
-            'flag_spoof' => 0,
+            'site_date_last_post'  => date('Y-m-d H:i:s'),
+            'flag_featured'        => 1,
+            'flag_stream'          => 0,
+            'flag_spoof'           => 0,
         ]);
     }
 
@@ -50,5 +50,4 @@ final class FrontControllerTest extends RepositoryTestCase
         // Assert
         $response->assertStatus(404);
     }
-
 }

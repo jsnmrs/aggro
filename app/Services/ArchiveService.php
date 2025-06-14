@@ -82,8 +82,8 @@ class ArchiveService
     private function updateArchiveFlags($now)
     {
         $storageConfig = config('Storage');
-        $cutoffDate = date('Y-m-d H:i:s', strtotime("-{$storageConfig->archiveDays} days"));
-        
+        $cutoffDate    = date('Y-m-d H:i:s', strtotime("-{$storageConfig->archiveDays} days"));
+
         $result = $this->db->table('aggro_videos')
             ->where('video_date_uploaded <=', $cutoffDate)
             ->where('flag_archive', 0)
