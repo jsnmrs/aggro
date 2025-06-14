@@ -131,11 +131,25 @@ class CreateTestTables extends Migration
                 'null' => false,
                 'default' => '',
             ],
+            'source_channel_id' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
+            ],
             'source_type' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
                 'null' => false,
                 'default' => '',
+            ],
+            'source_url' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
+            ],
+            'source_date_added' => [
+                'type' => 'DATETIME',
+                'null' => true,
             ],
             'source_date_updated' => [
                 'type' => 'DATETIME',
@@ -159,11 +173,44 @@ class CreateTestTables extends Migration
                 'null' => false,
                 'default' => '',
             ],
+            'site_slug' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                'null' => false,
+                'default' => '',
+            ],
+            'site_url' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                'null' => false,
+                'default' => '',
+            ],
             'site_feed' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
                 'null' => false,
                 'default' => '',
+            ],
+            'site_category' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => false,
+            ],
+            'site_date_added' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'site_date_updated' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'site_date_last_fetch' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'site_date_last_post' => [
+                'type' => 'DATETIME',
+                'null' => false,
             ],
             'flag_featured' => [
                 'type' => 'TINYINT',
@@ -183,14 +230,6 @@ class CreateTestTables extends Migration
                 'constraint' => 1,
                 'null' => false,
                 'default' => 0,
-            ],
-            'site_date_added' => [
-                'type' => 'DATETIME',
-                'null' => true,
-            ],
-            'site_date_last_fetch' => [
-                'type' => 'DATETIME',
-                'null' => false,
             ],
         ]);
         $this->forge->addKey('site_id', true);

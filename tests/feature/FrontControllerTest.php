@@ -1,12 +1,12 @@
 <?php
 
-use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\FeatureTestTrait;
+use Tests\Support\RepositoryTestCase;
 
 /**
  * @internal
  */
-final class FrontControllerTest extends CIUnitTestCase
+final class FrontControllerTest extends RepositoryTestCase
 {
     use FeatureTestTrait;
 
