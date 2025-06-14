@@ -57,26 +57,27 @@ class VideoRepository
     {
         $this->db->transStart();
 
-        $sql = 'INSERT INTO aggro_videos (video_id, aggro_date_added, aggro_date_updated, video_date_uploaded, flag_archive, flag_bad, video_plays, video_title, video_thumbnail_url, video_width, video_height, video_aspect_ratio, video_duration, video_source_id, video_source_username, video_source_url, video_type) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $data = [
+            'video_id'              => $video['video_id'],
+            'aggro_date_added'      => $video['aggro_date_added'],
+            'aggro_date_updated'    => $video['aggro_date_updated'],
+            'video_date_uploaded'   => $video['video_date_uploaded'],
+            'flag_archive'          => $video['flag_archive'],
+            'flag_bad'              => 0,
+            'video_plays'           => $video['video_plays'],
+            'video_title'           => $video['video_title'],
+            'video_thumbnail_url'   => $video['video_thumbnail_url'],
+            'video_width'           => $video['video_width'],
+            'video_height'          => $video['video_height'],
+            'video_aspect_ratio'    => $video['video_aspect_ratio'],
+            'video_duration'        => $video['video_duration'],
+            'video_source_id'       => $video['video_source_id'],
+            'video_source_username' => $video['video_source_username'],
+            'video_source_url'      => $video['video_source_url'],
+            'video_type'            => $video['video_type'],
+        ];
 
-        $this->db->query($sql, [
-            $video['video_id'],
-            $video['aggro_date_added'],
-            $video['aggro_date_updated'],
-            $video['video_date_uploaded'],
-            $video['flag_archive'],
-            $video['video_plays'],
-            $video['video_title'],
-            $video['video_thumbnail_url'],
-            $video['video_width'],
-            $video['video_height'],
-            $video['video_aspect_ratio'],
-            $video['video_duration'],
-            $video['video_source_id'],
-            $video['video_source_username'],
-            $video['video_source_url'],
-            $video['video_type'],
-        ]);
+        $this->db->table('aggro_videos')->insert($data);
 
         $this->db->transComplete();
 
@@ -149,8 +150,10 @@ class VideoRepository
      */
     private function videoExists($videoid)
     {
-        $sql   = 'SELECT video_id FROM aggro_videos WHERE video_id=?';
-        $query = $this->db->query($sql, [$videoid]);
+        $query = $this->db->table('aggro_videos')
+            ->select('video_id')
+            ->where('video_id', $videoid)
+            ->get();
 
         if ($query === false) {
             log_message('error', 'Failed to check video existence for: ' . $videoid);
@@ -189,43 +192,39 @@ class VideoRepository
      */
     public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
-        $now           = date('Y-m-d H:i:s');
-        $sortField     = 'aggro_date_added';
-        $constrict     = $this->getRangeConstraint($range, $now);
-        $storageConfig = config('Storage');
-        $baseWhere     = $this->getActiveVideoConditions($storageConfig->minVideoDuration);
-        $sql           = 'SELECT * FROM aggro_videos ' . $baseWhere . $constrict . 'ORDER BY ' . $sortField . ' DESC LIMIT ? OFFSET ?';
-        $query         = $this->db->query($sql, [(int) $perpage, (int) $offset]);
+        $storageConfig    = config('Storage');
+        $rangeConstraints = $this->getRangeConstraints($range);
+
+        $query = $this->db->table('aggro_videos')
+            ->where('flag_bad', 0)
+            ->where('flag_archive', 0)
+            ->where('video_duration >=', (int) $storageConfig->minVideoDuration)
+            ->where('aggro_date_updated !=', '0000-00-00 00:00:00')
+            ->where('aggro_date_added >=', $rangeConstraints['start'])
+            ->where('aggro_date_added <=', $rangeConstraints['end'])
+            ->orderBy('aggro_date_added', 'DESC')
+            ->limit((int) $perpage, (int) $offset)
+            ->get();
 
         return $query->getResult();
     }
 
     /**
-     * Get range constraint for SQL query.
+     * Get range constraints for video query.
      *
      * @param string $range
-     * @param string $now
      *
-     * @return string
+     * @return array
      */
-    private function getRangeConstraint($range, $now)
+    private function getRangeConstraints($range)
     {
         $intervals = ['year' => 365, 'week' => 7, 'month' => 31];
         $days      = $intervals[$range] ?? 31;
 
-        return 'AND aggro_date_added BETWEEN DATE_SUB("' . $now . '", INTERVAL ' . $days . ' DAY) AND DATE_SUB("' . $now . '", INTERVAL 30 SECOND)';
-    }
+        $end   = date('Y-m-d H:i:s', strtotime('-30 seconds'));
+        $start = date('Y-m-d H:i:s', strtotime("-{$days} days"));
 
-    /**
-     * Get the WHERE conditions for active videos.
-     *
-     * @param int $minVideoDuration
-     *
-     * @return string
-     */
-    private function getActiveVideoConditions($minVideoDuration)
-    {
-        return 'WHERE flag_bad = 0 AND flag_archive = 0 AND video_duration >= ' . (int) $minVideoDuration . ' AND aggro_date_updated <> "0000-00-00 00:00:00"';
+        return ['start' => $start, 'end' => $end];
     }
 
     /**
@@ -237,9 +236,14 @@ class VideoRepository
     public function getVideosTotal()
     {
         $storageConfig = config('Storage');
-        $baseWhere     = $this->getActiveVideoConditions($storageConfig->minVideoDuration);
-        $sql           = 'SELECT COUNT(*) as total FROM aggro_videos ' . $baseWhere;
-        $query         = $this->db->query($sql);
+
+        $query = $this->db->table('aggro_videos')
+            ->selectCount('*', 'total')
+            ->where('flag_bad', 0)
+            ->where('flag_archive', 0)
+            ->where('video_duration >=', (int) $storageConfig->minVideoDuration)
+            ->where('aggro_date_updated !=', '0000-00-00 00:00:00')
+            ->get();
 
         return (int) $query->getRow()->total;
     }
@@ -255,12 +259,16 @@ class VideoRepository
      */
     public function getVideo($slug)
     {
-        $sql   = 'SELECT * FROM aggro_videos WHERE video_id=? LIMIT 1';
-        $query = $this->db->query($sql, [$slug]);
-        if ($query->getRowArray() === null) {
+        $query = $this->db->table('aggro_videos')
+            ->where('video_id', $slug)
+            ->limit(1)
+            ->get();
+
+        $result = $query->getRowArray();
+        if ($result === null) {
             return false;
         }
 
-        return $query->getRowArray();
+        return $result;
     }
 }

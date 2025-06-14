@@ -31,7 +31,7 @@ final class HealthTest extends CIUnitTestCase
 
         // Then check the actual config file
         $reader = new ConfigReader();
-        $config = ! empty($reader->baseUrl);
+        $config = ! empty($reader->baseURL);
 
         $this->assertTrue($env || $config);
     }

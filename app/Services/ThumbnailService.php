@@ -29,8 +29,12 @@ class ThumbnailService
     {
         helper('aggro');
 
-        $sql    = 'SELECT video_id, video_thumbnail_url FROM aggro_videos WHERE flag_archive=0 AND flag_bad=0';
-        $query  = $this->db->query($sql);
+        $query = $this->db->table('aggro_videos')
+            ->select('video_id, video_thumbnail_url')
+            ->where('flag_archive', 0)
+            ->where('flag_bad', 0)
+            ->get();
+
         $thumbs = $query->getResult();
 
         $storageConfig = config('Storage');

@@ -51,9 +51,15 @@ class ChannelRepository
      */
     private function fetchStaleChannels($stale, $type, $limit)
     {
-        $now     = date('Y-m-d H:i:s');
-        $sql     = 'SELECT * FROM aggro_sources WHERE source_type=? AND source_date_updated <= DATE_SUB(?,INTERVAL ? MINUTE) ORDER BY source_date_updated ASC LIMIT ?';
-        $query   = $this->db->query($sql, [$type, $now, (int) $stale, (int) $limit]);
+        $staleDateTime = date('Y-m-d H:i:s', strtotime("-{$stale} minutes"));
+
+        $query = $this->db->table('aggro_sources')
+            ->where('source_type', $type)
+            ->where('source_date_updated <=', $staleDateTime)
+            ->orderBy('source_date_updated', 'ASC')
+            ->limit((int) $limit)
+            ->get();
+
         $results = $query->getResultArray();
 
         return count($results) > 0 ? $query->getResult() : false;
@@ -86,9 +92,8 @@ class ChannelRepository
     public function updateChannel($sourceSlug)
     {
         $now = date('Y-m-d H:i:s');
-        $sql = 'UPDATE aggro_sources
-            SET source_date_updated = ?
-            WHERE source_slug = ?';
-        $this->db->query($sql, [$now, $sourceSlug]);
+        $this->db->table('aggro_sources')
+            ->where('source_slug', $sourceSlug)
+            ->update(['source_date_updated' => $now]);
     }
 }

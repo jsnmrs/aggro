@@ -23,7 +23,7 @@ class NewsModels extends Model
 
         try {
             $featured = $this->getFeaturedFeeds();
-            if ($featured === false) {
+            if ($featured === false || empty($featured)) {
                 return false;
             }
 
@@ -46,8 +46,13 @@ class NewsModels extends Model
      */
     private function getFeaturedFeeds()
     {
-        $sql   = 'SELECT * FROM news_feeds WHERE flag_featured = 1 OR flag_stream = 1 ORDER BY site_name';
-        $query = $this->db->query($sql);
+        $query = $this->db->table('news_feeds')
+            ->groupStart()
+            ->where('flag_featured', 1)
+            ->orWhere('flag_stream', 1)
+            ->groupEnd()
+            ->orderBy('site_name', 'ASC')
+            ->get();
 
         if ($query === false) {
             log_message('error', 'Failed to query featured feeds');
@@ -191,14 +196,16 @@ class NewsModels extends Model
      */
     private function insertFeedItem($siteId, $item)
     {
-        $sql = 'INSERT IGNORE INTO news_featured (site_id, story_title, story_permalink, story_hash, story_date) VALUES (?, ?, ?, ?, ?)';
-        $this->db->query($sql, [
-            $siteId,
-            quotes_to_entities($item->get_title()),
-            quotes_to_entities($item->get_permalink()),
-            sha1($item->get_permalink()),
-            quotes_to_entities($item->get_date('Y-m-d H:i:s')),
-        ]);
+        $data = [
+            'site_id'         => $siteId,
+            'story_title'     => quotes_to_entities($item->get_title()),
+            'story_permalink' => quotes_to_entities($item->get_permalink()),
+            'story_hash'      => sha1($item->get_permalink()),
+            'story_date'      => quotes_to_entities($item->get_date('Y-m-d H:i:s')),
+        ];
+
+        // Use replace to simulate INSERT IGNORE behavior
+        $this->db->table('news_featured')->replace($data);
     }
 
     /**
@@ -225,22 +232,19 @@ class NewsModels extends Model
     public function featuredCleaner()
     {
         $utilityModel = new UtilityModels();
-        $now          = date('Y-m-d H:i:s');
 
         try {
             $this->db->transStart();
 
             // Single optimized query to delete all old stories at once
             $storageConfig = config('Storage');
-            $sql           = 'DELETE FROM news_featured WHERE story_date < DATE_SUB(?, INTERVAL ? DAY)';
-            $this->db->query($sql, [$now, $storageConfig->cleanupDays]);
+            $cutoffDate    = date('Y-m-d H:i:s', strtotime("-{$storageConfig->cleanupDays} days"));
+            $this->db->table('news_featured')
+                ->where('story_date <', $cutoffDate)
+                ->delete();
             $counter = $this->db->affectedRows();
 
             $this->db->transCommit();
-
-            // Optimize table after bulk delete
-            $cleanup = 'OPTIMIZE TABLE news_featured';
-            $this->db->query($cleanup);
 
             $message = $counter . ' old stories deleted.';
             $utilityModel->sendLog($message);
