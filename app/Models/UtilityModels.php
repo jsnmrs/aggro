@@ -75,6 +75,10 @@ class UtilityModels extends Model
         $sql   = 'SELECT * FROM aggro_log ORDER BY log_date LIMIT 100';
         $query = $this->db->query($sql);
 
+        if ($query === false) {
+            return [];
+        }
+
         return $query->getResult();
     }
 

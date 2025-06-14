@@ -9,8 +9,9 @@ use Config\Services;
 
 /**
  * @internal
+ * @no-final
  */
-final class SessionTestCase extends CIUnitTestCase
+class SessionTestCase extends CIUnitTestCase
 {
     /**
      * @var SessionHandler

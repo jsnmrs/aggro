@@ -271,6 +271,25 @@ class CreateTestTables extends Migration
         $this->forge->addKey('story_id', true);
         $this->forge->addUniqueKey('story_permalink');
         $this->forge->createTable('news_featured');
+
+        // Create aggro_log table
+        $this->forge->addField([
+            'log_id' => [
+                'type'           => 'INT',
+                'constraint'     => 11,
+                'auto_increment' => true,
+            ],
+            'log_date' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'log_message' => [
+                'type' => 'TEXT',
+                'null' => false,
+            ],
+        ]);
+        $this->forge->addKey('log_id', true);
+        $this->forge->createTable('aggro_log');
     }
 
     public function down()
@@ -279,5 +298,6 @@ class CreateTestTables extends Migration
         $this->forge->dropTable('aggro_sources');
         $this->forge->dropTable('news_feeds');
         $this->forge->dropTable('news_featured');
+        $this->forge->dropTable('aggro_log');
     }
 }

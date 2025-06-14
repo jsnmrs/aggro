@@ -343,6 +343,10 @@ class NewsModels extends Model
         $sql   = 'SELECT * FROM news_feeds ORDER BY site_name';
         $query = $this->db->query($sql);
 
+        if ($query === false) {
+            return [];
+        }
+
         return $query->getResult();
     }
 
@@ -356,6 +360,10 @@ class NewsModels extends Model
     {
         $sql   = 'SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10';
         $query = $this->db->query($sql);
+
+        if ($query === false) {
+            return [];
+        }
 
         return $query->getResult();
     }

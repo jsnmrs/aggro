@@ -8,4 +8,5 @@ cd "$PROJECT_ROOT" || exit
 fin init
 fin sniff
 fin shellcheck
+fin composer test
 fin admin
