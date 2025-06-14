@@ -20,7 +20,9 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 
 - Back-end — PHP 8.2+ with CodeIgniter 4 framework
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
-- Database — MySQL/MariaDB
+- Database — MySQL/MariaDB (SQLite for testing)
+- Testing — PHPUnit 11.5 for comprehensive unit testing with coverage reporting
+- Debugging — Xdebug enabled for local development
 - Error monitoring — Sentry for application monitoring and error tracking
 - Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
 - Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
@@ -63,6 +65,19 @@ Aggro uses [Docksal](https://docksal.io) for local development. This ensures a c
 3. View the site:
    - Open http://aggro.docksal.site in your browser
    - The init process creates a local database from aggro-db.sql
+
+### Debugging with Xdebug
+
+Xdebug is enabled by default in the Docksal environment for debugging and profiling:
+
+- **Server name:** `aggro.docksal.site`
+- **Port:** `9003`
+- **IDE key:** `VSCODE`
+- **Coverage:** Enabled for test coverage reports
+
+Configure VS Code to listen for Xdebug connections on port 9003. The debugger will automatically connect when triggered.
+
+**Performance note:** Xdebug may slow down the application. If you experience performance issues during development, you can disable it by commenting out the xdebug configuration in `.docksal/etc/php/php.ini`.
 
 ### Development commands
 
@@ -116,12 +131,48 @@ The `.crontab` file defines scheduled tasks for:
 
 ## Testing
 
-The project includes several types of tests:
+The project includes comprehensive testing infrastructure with PHPUnit for unit testing and multiple code quality tools.
+
+### Unit Testing with PHPUnit
+
+The test suite includes comprehensive coverage of:
+
+- **Controllers** — HTTP request handling and response coordination
+- **Models** — Core business logic and data structures
+- **Helpers** — Utility functions and common operations
+- **Services** — Domain-specific business logic (archiving, thumbnails)
+- **Repositories** — Data access layer operations
+
+Tests use an in-memory SQLite database for fast, isolated testing without affecting your development database.
+
+### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (includes PHPUnit + linting)
 fin test
 
+# Run only PHPUnit unit tests
+composer test:unit
+
+# Run tests with coverage report
+composer test:coverage
+
+# Run all Composer test scripts
+composer test
+```
+
+### Test Coverage Reports
+
+When running tests with coverage, detailed HTML reports are generated in:
+
+- **Coverage reports:** `build/logs/html/index.html`
+- **Raw coverage data:** `build/logs/coverage.xml`
+
+Open the HTML report in your browser to view detailed coverage metrics by file and function.
+
+### Code Quality Checks
+
+```bash
 # Run all linting and static analysis
 fin lint
 
@@ -129,20 +180,33 @@ fin lint
 fin sniff      # PHP CodeSniffer
 fin shellcheck # Shell script linting
 
-# Code quality checks
-fin lint       # Run all linting (phpfix, phpcs, phpmd, phpstan)
+# Individual quality tools
 fin phpfix     # Auto-fix PHP code style issues
 fin phpstan    # Run PHPStan static analysis
 ```
 
+### Continuous Integration
+
+GitHub Actions automatically runs the full test suite on all pull requests, including:
+
+- PHPUnit unit tests
+- Code style checks (PHP CS Fixer, CodeSniffer)
+- Static analysis (PHPStan, PHPMD)
+- Shell script linting
+
+All tests must pass before code can be merged.
+
 ## Deployment
 
-Deployment is handled through GitHub Actions and Deployer:
+Deployment is handled through GitHub Actions and Deployer with automated testing:
 
-1. Automated deployment on merge to main branch
-2. Front-end assets are built and included in deployment
-3. Environment files are securely transferred
-4. Crontab is updated on deployment
+1. **Pull Request Testing** — All PRs automatically run the complete test suite including PHPUnit tests, code quality checks, and static analysis
+2. **Automated deployment** — Deployment to production occurs on merge to main branch (only after all tests pass)
+3. **Front-end assets** — Assets are built and included in deployment
+4. **Environment files** — Securely transferred during deployment
+5. **Crontab updates** — Scheduled tasks are updated on deployment
+
+The CI/CD pipeline ensures code quality by requiring all tests to pass before any code reaches production.
 
 ### Manual deployment
 
