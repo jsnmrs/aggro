@@ -10,7 +10,12 @@ echo "<body>\n";
 echo "<outline text=\"BMXfeed\">\n";
 
 foreach ($build as $row) {
-    echo '<outline title="' . htmlspecialchars($row->site_name ?? '') . '" text="' . htmlspecialchars($row->site_name ?? '') . '" type="rss" xmlUrl="' . htmlspecialchars($row->site_feed ?? '') . '" htmlUrl="' . htmlspecialchars($row->site_url ?? '') . "\" />\n";
+    // Remove control characters from all fields
+    $site_name = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', ' ', $row->site_name ?? '');
+    $site_feed = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', ' ', $row->site_feed ?? '');
+    $site_url  = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', ' ', $row->site_url ?? '');
+
+    echo '<outline title="' . htmlspecialchars($site_name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '" text="' . htmlspecialchars($site_name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '" type="rss" xmlUrl="' . htmlspecialchars($site_feed, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '" htmlUrl="' . htmlspecialchars($site_url, ENT_XML1 | ENT_QUOTES, 'UTF-8') . "\" />\n";
 }
 echo "</outline>\n";
 echo "</body>\n";

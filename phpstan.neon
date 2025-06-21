@@ -24,7 +24,6 @@ parameters:
         - '#Function helper not found.#'
         - '#Function esc not found.#'
         - '#Function log_message not found.#'
-        - '#Function quotes_to_entities not found.#'
         - '#Function clean_path not found.#'
         - '#Function lang not found.#'
         - '#Function config not found.#'

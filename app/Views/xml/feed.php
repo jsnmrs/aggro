@@ -11,10 +11,12 @@ echo "<atom:link href=\"https://bmxfeed.com/feed\" rel=\"self\" type=\"applicati
 
 foreach ($build as $row) {
     echo "<item>\n";
-    echo '<title>' . stripslashes($row->site_name ?? '') . " on BMXfeed</title>\n";
+    // Remove control characters and properly encode for XML
+    $site_name = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', ' ', $row->site_name ?? '');
+    echo '<title>' . htmlspecialchars($site_name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . " on BMXfeed</title>\n";
     echo '<link>https://bmxfeed.com/sites/' . $row->site_slug . "</link>\n";
     echo '<description>';
-    echo '<![CDATA[<p>Updated <em>' . stripslashes($row->site_name ?? '') . '</em> on BMXfeed.';
+    echo '<![CDATA[<p>Updated <em>' . htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') . '</em> on BMXfeed.';
     echo ' Check out <a href="https://bmxfeed.com/sites/' . $row->site_slug . '">https://bmxfeed.com/sites/' . $row->site_slug . '</a> for more info.</p>]]>';
     echo "</description>\n";
     echo '<guid isPermaLink="true">https://bmxfeed.com/sites/' . $row->site_slug . "</guid>\n";
