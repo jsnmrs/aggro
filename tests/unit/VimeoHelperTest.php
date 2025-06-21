@@ -203,10 +203,10 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertStringNotContainsString('&lt;', $result['video_title']);
         $this->assertStringNotContainsString('&gt;', $result['video_title']);
         $this->assertStringNotContainsString('&quot;', $result['video_source_username']);
-        
+
         // Verify raw values are preserved
-        $this->assertEquals('Video with "quotes" & <html>', $result['video_title']);
-        $this->assertEquals('User with "quotes"', $result['video_source_username']);
+        $this->assertSame('Video with "quotes" & <html>', $result['video_title']);
+        $this->assertSame('User with "quotes"', $result['video_source_username']);
     }
 
     public function testAllFunctionsExist(): void

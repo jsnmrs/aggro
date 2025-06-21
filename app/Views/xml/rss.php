@@ -11,6 +11,8 @@ echo "<description>Recently spotted videos on bmxfeed.com</description>\n";
 foreach ($build as $row) {
     echo "<item>\n";
     $row->video_title = str_replace(',', '', $row->video_title ?? '');
+    // Remove control characters (keeping tabs and newlines for now, removing other control chars)
+    $row->video_title = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', ' ', $row->video_title);
 
     echo '<title>' . htmlspecialchars($row->video_title ?? '', ENT_XML1 | ENT_QUOTES, 'UTF-8') . "</title>\n";
     echo '<link>https://bmxfeed.com/video/' . $row->video_id . "</link>\n";
