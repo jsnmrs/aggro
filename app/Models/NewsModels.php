@@ -198,10 +198,10 @@ class NewsModels extends Model
     {
         $data = [
             'site_id'         => $siteId,
-            'story_title'     => quotes_to_entities($item->get_title()),
-            'story_permalink' => quotes_to_entities($item->get_permalink()),
+            'story_title'     => $item->get_title(),
+            'story_permalink' => $item->get_permalink(),
             'story_hash'      => sha1($item->get_permalink()),
-            'story_date'      => quotes_to_entities($item->get_date('Y-m-d H:i:s')),
+            'story_date'      => $item->get_date('Y-m-d H:i:s'),
         ];
 
         // Use replace to simulate INSERT IGNORE behavior

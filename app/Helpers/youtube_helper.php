@@ -165,7 +165,7 @@ if (! function_exists('youtube_parse_meta')) {
         if ($video['video_date_uploaded'] <= $archive) {
             $video['flag_archive'] = 1;
         }
-        $video['video_title']           = htmlentities($item->get_title(), ENT_QUOTES, 'utf-8', false);
+        $video['video_title']           = $item->get_title();
         $group                          = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
         $community                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'];
         $statistics                     = $community[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'];
@@ -178,7 +178,7 @@ if (! function_exists('youtube_parse_meta')) {
         $authorURL                      = $author[0]['child']['http://www.w3.org/2005/Atom']['uri'];
         $video['video_source_url']      = $authorURL[0]['data'];
         $authorName                     = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
-        $video['video_source_username'] = htmlentities($authorName[0]['data'], ENT_QUOTES, 'utf-8', false);
+        $video['video_source_username'] = $authorName[0]['data'];
 
         $oEmbed                = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $video['video_id'];
         $result                = fetch_url($oEmbed, 'json', 0);

@@ -198,11 +198,15 @@ final class VimeoHelperTest extends CIUnitTestCase
 
         $result = vimeo_parse_meta($mockItem);
 
-        // Check that HTML entities are properly encoded
-        $this->assertStringContainsString('&quot;', $result['video_title']);
-        $this->assertStringContainsString('&lt;', $result['video_title']);
-        $this->assertStringContainsString('&gt;', $result['video_title']);
-        $this->assertStringContainsString('&quot;', $result['video_source_username']);
+        // Check that HTML entities are NOT encoded (encoding happens in views)
+        $this->assertStringNotContainsString('&quot;', $result['video_title']);
+        $this->assertStringNotContainsString('&lt;', $result['video_title']);
+        $this->assertStringNotContainsString('&gt;', $result['video_title']);
+        $this->assertStringNotContainsString('&quot;', $result['video_source_username']);
+        
+        // Verify raw values are preserved
+        $this->assertEquals('Video with "quotes" & <html>', $result['video_title']);
+        $this->assertEquals('User with "quotes"', $result['video_source_username']);
     }
 
     public function testAllFunctionsExist(): void
