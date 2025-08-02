@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-use Exception;
-use RuntimeException;
 use CodeIgniter\Database\Exceptions\DatabaseException;
+use CodeIgniter\Model;
+use RuntimeException;
 
 /**
  * All interactions with news_* tables.

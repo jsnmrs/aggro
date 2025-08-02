@@ -3,10 +3,10 @@
 namespace App\Repositories;
 
 use App\Models\UtilityModels;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use Config\Database;
 use Exception;
 use RuntimeException;
-use CodeIgniter\Database\Exceptions\DatabaseException;
 
 /**
  * Repository for video-related database operations.

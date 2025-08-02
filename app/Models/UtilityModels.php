@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-use Exception;
 use CodeIgniter\Database\Exceptions\DatabaseException;
+use CodeIgniter\Model;
 
 /**
  * @file
