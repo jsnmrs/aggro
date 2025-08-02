@@ -23,9 +23,13 @@ class UtilityModels extends Model
         try {
             $this->db->transStart();
 
-            $now   = date('Y-m-d H:i:s');
-            $sql   = 'SELECT * FROM aggro_log WHERE log_date < DATE_SUB(?, INTERVAL 1 DAY)';
-            $query = $this->db->query($sql, [$now]);
+            $now        = date('Y-m-d H:i:s');
+            $cutoffDate = date('Y-m-d H:i:s', strtotime('-1 day', strtotime($now)));
+
+            // Count entries to be deleted
+            $query = $this->db->table('aggro_log')
+                ->where('log_date <', $cutoffDate)
+                ->get();
 
             if ($query === false) {
                 throw new Exception('Failed to query old log entries');
@@ -33,8 +37,10 @@ class UtilityModels extends Model
 
             $update = count($query->getResultArray());
 
-            $sql    = 'DELETE FROM aggro_log WHERE log_date < DATE_SUB(?, INTERVAL 1 DAY)';
-            $result = $this->db->query($sql, [$now]);
+            // Delete old entries
+            $result = $this->db->table('aggro_log')
+                ->where('log_date <', $cutoffDate)
+                ->delete();
 
             if ($result === false) {
                 throw new Exception('Failed to delete old log entries');
@@ -72,8 +78,10 @@ class UtilityModels extends Model
      */
     public function getLog()
     {
-        $sql   = 'SELECT * FROM aggro_log ORDER BY log_date LIMIT 100';
-        $query = $this->db->query($sql);
+        $query = $this->db->table('aggro_log')
+            ->orderBy('log_date', 'DESC')
+            ->limit(100)
+            ->get();
 
         if ($query === false) {
             return [];
@@ -94,9 +102,11 @@ class UtilityModels extends Model
     public function sendLog($message)
     {
         try {
-            $sql = 'INSERT INTO aggro_log (log_date, log_message)
-                VALUES (?, ?)';
-            $result = $this->db->query($sql, [date('Y-m-d H:i:s'), $message]);
+            $data = [
+                'log_date'    => date('Y-m-d H:i:s'),
+                'log_message' => $message,
+            ];
+            $result = $this->db->table('aggro_log')->insert($data);
 
             return ! ($result === false);
             // Don't use log_message here to avoid infinite loop
