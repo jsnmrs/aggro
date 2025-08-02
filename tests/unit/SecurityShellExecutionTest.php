@@ -179,7 +179,7 @@ final class SecurityShellExecutionTest extends DatabaseTestCase
         $sentryContent  = file_get_contents($sentryFilePath);
 
         // Verify proper error handling exists
-        $this->assertStringContainsString('catch (RuntimeException | InvalidArgumentException $e)', $sentryContent);
+        $this->assertStringContainsString('catch (InvalidArgumentException|RuntimeException $e)', $sentryContent);
         $this->assertStringContainsString('log_message(', $sentryContent);
 
         // Verify no sensitive data is exposed in error messages
