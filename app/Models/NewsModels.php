@@ -147,8 +147,9 @@ class NewsModels extends Model
      */
     private function updateLastFetchTime($siteId)
     {
-        $sql = 'UPDATE news_feeds SET site_date_last_fetch=? WHERE site_id=?';
-        $this->db->query($sql, [date('Y-m-d H:i:s'), $siteId]);
+        $this->db->table('news_feeds')
+            ->where('site_id', $siteId)
+            ->update(['site_date_last_fetch' => date('Y-m-d H:i:s')]);
     }
 
     /**
@@ -184,8 +185,9 @@ class NewsModels extends Model
     private function updateLastPostTime($siteId, $item)
     {
         $lastPost = $item->get_date('Y-m-d H:i:s');
-        $sql      = 'UPDATE news_feeds SET site_date_last_post=? WHERE site_id=?';
-        $this->db->query($sql, [$lastPost, $siteId]);
+        $this->db->table('news_feeds')
+            ->where('site_id', $siteId)
+            ->update(['site_date_last_post' => $lastPost]);
     }
 
     /**
@@ -326,8 +328,10 @@ class NewsModels extends Model
      */
     public function getSite($slug)
     {
-        $sql   = 'SELECT * FROM news_feeds WHERE site_slug = ? LIMIT 1';
-        $query = $this->db->query($sql, [$slug]);
+        $query = $this->db->table('news_feeds')
+            ->where('site_slug', $slug)
+            ->limit(1)
+            ->get();
 
         return $query->getRowArray();
     }
@@ -340,8 +344,9 @@ class NewsModels extends Model
      */
     public function getSites()
     {
-        $sql   = 'SELECT * FROM news_feeds ORDER BY site_name';
-        $query = $this->db->query($sql);
+        $query = $this->db->table('news_feeds')
+            ->orderBy('site_name', 'ASC')
+            ->get();
 
         if ($query === false) {
             return [];
@@ -358,8 +363,10 @@ class NewsModels extends Model
      */
     public function getSitesRecent()
     {
-        $sql   = 'SELECT * FROM news_feeds ORDER BY site_date_added DESC LIMIT 10';
-        $query = $this->db->query($sql);
+        $query = $this->db->table('news_feeds')
+            ->orderBy('site_date_added', 'DESC')
+            ->limit(10)
+            ->get();
 
         if ($query === false) {
             return [];
@@ -379,20 +386,32 @@ class NewsModels extends Model
      */
     public function streamPage($page = 1, $limit = 50)
     {
+        // Ensure numeric values
+        $page  = (int) $page;
+        $limit = (int) $limit;
+
+        // Ensure reasonable values
+        $page  = max($page, 1);  // Minimum page 1
+        $limit = max($limit, 1); // Minimum 1 item
+        $limit = min($limit, 100); // Max 100 items per page
+
         // Calculate offset for pagination
         $offset = ($page - 1) * $limit;
-
-        // Ensure reasonable limits
-        $limit  = min($limit, 100); // Max 100 items per page
         $offset = max($offset, 0);  // No negative offset
 
-        $sql = 'SELECT news_feeds.site_name, news_feeds.site_slug, news_featured.story_title, news_featured.story_permalink, news_featured.story_date, news_featured.story_hash
-            FROM news_featured
-            INNER JOIN news_feeds
-            ON news_featured.site_id = news_feeds.site_id
-            ORDER BY news_featured.story_date DESC
-            LIMIT ? OFFSET ?';
-        $query = $this->db->query($sql, [$limit, $offset]);
+        $query = $this->db->table('news_featured')
+            ->select([
+                'news_feeds.site_name',
+                'news_feeds.site_slug',
+                'news_featured.story_title',
+                'news_featured.story_permalink',
+                'news_featured.story_date',
+                'news_featured.story_hash',
+            ])
+            ->join('news_feeds', 'news_featured.site_id = news_feeds.site_id', 'inner')
+            ->orderBy('news_featured.story_date', 'DESC')
+            ->limit((int) $limit, (int) $offset)
+            ->get();
 
         return $query->getResult();
     }
@@ -404,11 +423,10 @@ class NewsModels extends Model
      */
     public function getStreamPageTotal()
     {
-        $sql = 'SELECT COUNT(*) as total
-            FROM news_featured
-            INNER JOIN news_feeds
-            ON news_featured.site_id = news_feeds.site_id';
-        $query  = $this->db->query($sql);
+        $query = $this->db->table('news_featured')
+            ->selectCount('news_featured.site_id', 'total')
+            ->join('news_feeds', 'news_featured.site_id = news_feeds.site_id', 'inner')
+            ->get();
         $result = $query->getRow();
 
         return (int) $result->total;
@@ -433,9 +451,12 @@ class NewsModels extends Model
         if (isset($lastPost)) {
             $lastFetch = date('Y-m-d H:i:s');
 
-            $sql = 'UPDATE news_feeds SET site_date_last_fetch = ?, site_date_last_post = ? WHERE site_slug = ?';
-
-            $this->db->query($sql, [$lastFetch, $lastPost, $slug]);
+            $this->db->table('news_feeds')
+                ->where('site_slug', $slug)
+                ->update([
+                    'site_date_last_fetch' => $lastFetch,
+                    'site_date_last_post'  => $lastPost,
+                ]);
         }
     }
 }
