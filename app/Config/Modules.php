@@ -33,6 +33,21 @@ class Modules extends BaseModules
 
     /**
      * --------------------------------------------------------------------------
+     * Composer Packages
+     * --------------------------------------------------------------------------
+     *
+     * This array allows you to specify which packages are allowed to be
+     * discovered via the Composer autoloader, and which are excluded.
+     *
+     * The 'only' array, if provided, defines the only packages that will be
+     * discovered. The 'exclude' array will ignore the specified packages.
+     *
+     * @var array{only?: list<string>, exclude?: list<string>}
+     */
+    public $composerPackages = [];
+
+    /**
+     * --------------------------------------------------------------------------
      * Auto-Discovery Rules
      * --------------------------------------------------------------------------
      *
