@@ -50,10 +50,10 @@
     "phpcs": "phpcs --standard=phpcs.xml -v --colors",
     "phpcbf": "phpcbf --standard=phpcs.xml -v --colors --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
     "phpmd": [
-      "vendor/bin/phpmd app/Controllers ansi phpmd.xml",
-      "vendor/bin/phpmd app/Helpers ansi phpmd.xml",
-      "vendor/bin/phpmd app/Models ansi phpmd.xml",
-      "vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Controllers ansi phpmd.xml",
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Helpers ansi phpmd.xml",
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Models ansi phpmd.xml",
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
     ],
     "phpfix": [
       "vendor/bin/php-cs-fixer fix --verbose"
