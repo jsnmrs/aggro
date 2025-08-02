@@ -237,7 +237,7 @@ if (! function_exists('fetch_thumbnail')) {
                     ->save($path, $storageConfig->thumbnailQuality);
 
                 return true;
-            } catch (Exception $e) {
+            } catch (RuntimeException $e) {
                 log_message('error', 'Failed to process thumbnail image: ' . $e->getMessage());
 
                 return false;

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 use Exception;
+use RuntimeException;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 /**
  * All interactions with news_* tables.
@@ -32,8 +34,12 @@ class NewsModels extends Model
             $this->logFeaturedStats($utilityModel, $stats);
 
             return true;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in featuredBuilder: ' . $e->getMessage());
+        } catch (DatabaseException $e) {
+            log_message('error', 'Database error in featuredBuilder: ' . $e->getMessage());
+
+            return false;
+        } catch (RuntimeException $e) {
+            log_message('error', 'Runtime error in featuredBuilder: ' . $e->getMessage());
 
             return false;
         }
@@ -107,8 +113,8 @@ class NewsModels extends Model
             }
 
             return $this->saveFeedItems($row, $fetch);
-        } catch (Exception $e) {
-            log_message('error', 'Exception processing site_id ' . $row->site_id . ': ' . $e->getMessage());
+        } catch (RuntimeException $e) {
+            log_message('error', 'Runtime error processing site_id ' . $row->site_id . ': ' . $e->getMessage());
 
             return false;
         }
@@ -170,8 +176,8 @@ class NewsModels extends Model
 
                 $this->insertFeedItem($row->site_id, $item);
                 $storyCount++;
-            } catch (Exception $e) {
-                log_message('error', 'Failed to process item for site_id ' . $row->site_id . ': ' . $e->getMessage());
+            } catch (DatabaseException $e) {
+                log_message('error', 'Database error processing item for site_id ' . $row->site_id . ': ' . $e->getMessage());
             }
         }
     }
@@ -252,9 +258,9 @@ class NewsModels extends Model
             $utilityModel->sendLog($message);
 
             return $counter;
-        } catch (Exception $e) {
+        } catch (DatabaseException $e) {
             $this->db->transRollback();
-            log_message('error', 'Exception in featuredCleaner: ' . $e->getMessage());
+            log_message('error', 'Database error in featuredCleaner: ' . $e->getMessage());
             $utilityModel->sendLog('Failed to clean old stories: ' . $e->getMessage());
 
             return false;

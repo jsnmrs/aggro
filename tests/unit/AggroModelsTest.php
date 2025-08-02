@@ -58,12 +58,22 @@ final class AggroModelsTest extends DatabaseTestCase
     public function testAddVideoCallsRepository(): void
     {
         $video = [
-            'source_video_id' => 'test123',
-            'source_slug'     => 'test-channel',
-            'video_title'     => 'Test Video',
-            'video_date'      => date('Y-m-d H:i:s'),
-            'thumbnail'       => 'https://example.com/thumb.jpg',
-            'type'            => 'youtube',
+            'video_id'              => 'test123',
+            'aggro_date_added'      => date('Y-m-d H:i:s'),
+            'aggro_date_updated'    => date('Y-m-d H:i:s'),
+            'video_date_uploaded'   => date('Y-m-d H:i:s'),
+            'flag_archive'          => 0,
+            'video_plays'           => 0,
+            'video_title'           => 'Test Video',
+            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
+            'video_width'           => 1920,
+            'video_height'          => 1080,
+            'video_aspect_ratio'    => 16/9,
+            'video_duration'        => 180,
+            'video_source_id'       => 'channel123',
+            'video_source_username' => 'test-channel',
+            'video_source_url'      => 'https://example.com/channel',
+            'video_type'            => 'youtube',
         ];
 
         $result = $this->model->addVideo($video);

@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\UtilityModels;
 use Config\Database;
 use Exception;
+use RuntimeException;
+use InvalidArgumentException;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 /**
  * Service for handling video archiving operations.
@@ -36,8 +39,12 @@ class ArchiveService
             $this->utilityModel->sendLog($message);
 
             return true;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in archiveVideos: ' . $e->getMessage());
+        } catch (DatabaseException $e) {
+            log_message('error', 'Database error in archiveVideos: ' . $e->getMessage());
+
+            return false;
+        } catch (RuntimeException $e) {
+            log_message('error', 'Runtime error in archiveVideos: ' . $e->getMessage());
 
             return false;
         }
@@ -64,7 +71,7 @@ class ArchiveService
         if ($this->db->transStatus() === false) {
             log_message('error', 'Transaction failed in archiveVideos');
 
-            throw new Exception('Archive transaction failed');
+            throw new DatabaseException('Archive transaction failed');
         }
 
         return $updateCount;
@@ -91,7 +98,7 @@ class ArchiveService
             ->update(['flag_archive' => 1]);
 
         if ($result === false) {
-            throw new Exception('Failed to update archive flag');
+            throw new DatabaseException('Failed to update archive flag');
         }
 
         return $this->db->affectedRows();

@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Models\UtilityModels;
 use Config\Database;
 use Exception;
+use RuntimeException;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 /**
  * Repository for video-related database operations.
@@ -41,8 +43,12 @@ class VideoRepository
             $this->utilityModel->sendLog($message);
 
             return true;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in addVideo: ' . $e->getMessage());
+        } catch (DatabaseException $e) {
+            log_message('error', 'Database error in addVideo: ' . $e->getMessage());
+
+            return false;
+        } catch (RuntimeException $e) {
+            log_message('error', 'Runtime error in addVideo: ' . $e->getMessage());
 
             return false;
         }
@@ -107,7 +113,7 @@ class VideoRepository
             $thumbnailFetched = fetch_thumbnail($video['video_id'], $video['video_thumbnail_url']);
 
             return $baseMessage . ($thumbnailFetched ? ' and fetched thumbnail.' : ' but failed to fetch thumbnail.');
-        } catch (Exception $e) {
+        } catch (RuntimeException $e) {
             log_message('error', 'Failed to fetch thumbnail for ' . $video['video_id'] . ': ' . $e->getMessage());
 
             return $baseMessage . ' but failed to fetch thumbnail.';
@@ -132,8 +138,12 @@ class VideoRepository
             }
 
             return $exists;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in checkVideo: ' . $e->getMessage());
+        } catch (DatabaseException $e) {
+            log_message('error', 'Database error in checkVideo: ' . $e->getMessage());
+
+            return false;
+        } catch (RuntimeException $e) {
+            log_message('error', 'Runtime error in checkVideo: ' . $e->getMessage());
 
             return false;
         }
@@ -158,7 +168,7 @@ class VideoRepository
         if ($query === false) {
             log_message('error', 'Failed to check video existence for: ' . $videoid);
 
-            throw new Exception('Database query failed');
+            throw new DatabaseException('Database query failed');
         }
 
         return count($query->getResultArray()) > 0;
