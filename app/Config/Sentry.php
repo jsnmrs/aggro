@@ -3,6 +3,8 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
+use InvalidArgumentException;
+use RuntimeException;
 
 class Sentry extends BaseConfig
 {
@@ -141,7 +143,7 @@ class Sentry extends BaseConfig
             if ($exitCode === 0 && ! empty($output)) {
                 return trim($output);
             }
-        } catch (Exception $e) {
+        } catch (InvalidArgumentException|RuntimeException $e) {
             // Log error but don't fail - this is non-critical functionality
             log_message('warning', 'Failed to get git version via proc_open: ' . $e->getMessage());
         }
@@ -186,7 +188,7 @@ class Sentry extends BaseConfig
                 // HEAD contains commit hash directly
                 return substr($head, 0, 7);
             }
-        } catch (Exception $e) {
+        } catch (InvalidArgumentException|RuntimeException $e) {
             // Log error but don't fail - this is non-critical functionality
             log_message('warning', 'Failed to get git version from files: ' . $e->getMessage());
         }

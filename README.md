@@ -18,7 +18,7 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 
 ## Tech stack
 
-- Back-end — PHP 8.2+ with CodeIgniter 4 framework
+- Back-end — PHP 8.4+ with CodeIgniter 4 framework
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
 - Database — MySQL/MariaDB (SQLite for testing)
 - Testing — PHPUnit 11.5 for comprehensive unit testing with coverage reporting

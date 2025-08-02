@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Model;
-use Exception;
 
 /**
  * @file
@@ -32,7 +32,7 @@ class UtilityModels extends Model
                 ->get();
 
             if ($query === false) {
-                throw new Exception('Failed to query old log entries');
+                throw new DatabaseException('Failed to query old log entries');
             }
 
             $update = count($query->getResultArray());
@@ -43,7 +43,7 @@ class UtilityModels extends Model
                 ->delete();
 
             if ($result === false) {
-                throw new Exception('Failed to delete old log entries');
+                throw new DatabaseException('Failed to delete old log entries');
             }
 
             // Note: OPTIMIZE TABLE may not be necessary for every cleanup
@@ -63,8 +63,8 @@ class UtilityModels extends Model
             $this->sendLog($message);
 
             return true;
-        } catch (Exception $e) {
-            log_message('error', 'Exception in cleanLog: ' . $e->getMessage());
+        } catch (DatabaseException $e) {
+            log_message('error', 'Database error in cleanLog: ' . $e->getMessage());
 
             return false;
         }
@@ -111,7 +111,7 @@ class UtilityModels extends Model
             return ! ($result === false);
             // Don't use log_message here to avoid infinite loop
             // Just return false silently
-        } catch (Exception $e) {
+        } catch (DatabaseException $e) {
             // Don't use log_message here to avoid infinite loop
             // Just return false silently
             return false;
