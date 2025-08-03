@@ -12,11 +12,12 @@ use App\Services\ValidationService;
 class Front extends BaseController
 {
     protected $validationService;
-    
+
     public function __construct()
     {
         $this->validationService = new ValidationService();
     }
+
     /**
      * Home -> featured page.
      */
@@ -91,7 +92,7 @@ class Front extends BaseController
         }
 
         // Use validation service to sanitize slug
-        $slug = $this->validationService->sanitizeSlug($slug);
+        $slug          = $this->validationService->sanitizeSlug($slug);
         $data['build'] = $newsModel->getSite($slug);
 
         if (! empty($data['build'])) {

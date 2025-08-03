@@ -11,14 +11,14 @@ class ValidationService
     {
         // Remove any non-alphanumeric characters except hyphens
         $slug = preg_replace('/[^a-zA-Z0-9\-]/', '', $slug);
-        
+
         // Remove multiple consecutive hyphens
         $slug = preg_replace('/-+/', '-', $slug);
-        
+
         // Trim hyphens from start and end
         return trim($slug, '-');
     }
-    
+
     /**
      * Validate and sanitize video ID
      */
@@ -31,7 +31,7 @@ class ValidationService
                     return $videoId;
                 }
                 break;
-                
+
             case 'vimeo':
                 // Vimeo IDs are numeric
                 if (preg_match('/^\d+$/', $videoId)) {
@@ -39,10 +39,10 @@ class ValidationService
                 }
                 break;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Validate gate parameter
      */
@@ -51,30 +51,32 @@ class ValidationService
         if ($key === null) {
             return false;
         }
-        
+
         // Only allow alphanumeric and specific characters
         return preg_match('/^[a-zA-Z0-9\-_]+$/', $key) === 1;
     }
-    
+
     /**
      * Sanitize integer input
+     *
+     * @param mixed $value
      */
     public function sanitizeInt($value, int $min = 0, ?int $max = null): int
     {
         $value = filter_var($value, FILTER_VALIDATE_INT);
-        
+
         if ($value === false) {
             return $min;
         }
-        
+
         if ($value < $min) {
             return $min;
         }
-        
+
         if ($max !== null && $value > $max) {
             return $max;
         }
-        
+
         return $value;
     }
 }
