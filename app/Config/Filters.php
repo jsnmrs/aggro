@@ -2,10 +2,10 @@
 
 namespace Config;
 
+use App\Filters\CustomCSRF;
 use App\Filters\SecurityFilter;
 use App\Filters\SentryPerformance;
 use CodeIgniter\Config\BaseConfig;
-use App\Filters\CustomCSRF;
 use CodeIgniter\Filters\DebugToolbar;
 use CodeIgniter\Filters\Honeypot;
 use CodeIgniter\Filters\InvalidChars;

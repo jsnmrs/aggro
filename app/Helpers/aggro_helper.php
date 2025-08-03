@@ -449,19 +449,19 @@ if (! function_exists('csrf_action_form')) {
      * @param string $action The action URL
      * @param string $label  The button label
      * @param string $class  Optional CSS class for the button
-     * 
+     *
      * @return string HTML form with CSRF token
      */
     function csrf_action_form($action, $label, $class = '')
     {
-        $csrf = csrf_token();
+        $csrf     = csrf_token();
         $csrfHash = csrf_hash();
-        
+
         $html = '<form method="POST" action="' . esc($action) . '" style="display:inline;">';
         $html .= '<input type="hidden" name="' . esc($csrf) . '" value="' . esc($csrfHash) . '">';
         $html .= '<button type="submit" class="' . esc($class) . '">' . esc($label) . '</button>';
         $html .= '</form>';
-        
+
         return $html;
     }
 }

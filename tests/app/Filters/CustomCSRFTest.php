@@ -9,15 +9,17 @@ use Config\Security;
 
 /**
  * Test CSRF protection is properly configured
+ *
+ * @internal
  */
-class CustomCSRFTest extends CIUnitTestCase
+final class CustomCSRFTest extends CIUnitTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Enable CSRF for testing
-        $config = new Security();
+        $config                 = new Security();
         $config->csrfProtection = 'cookie';
         $config->tokenRandomize = true;
         Services::injectMock('security', $config);
@@ -38,7 +40,7 @@ class CustomCSRFTest extends CIUnitTestCase
     public function testCSRFUsesCustomFilter()
     {
         $filters = config('Filters');
-        $this->assertEquals(CustomCSRF::class, $filters->aliases['csrf']);
+        $this->assertSame(CustomCSRF::class, $filters->aliases['csrf']);
     }
 
     public function testStateChangingRoutesRequirePOST()
@@ -50,12 +52,12 @@ class CustomCSRFTest extends CIUnitTestCase
     public function testCSRFTokenConfiguration()
     {
         $security = config('Security');
-        
+
         // Verify CSRF is properly configured
-        $this->assertEquals('cookie', $security->csrfProtection);
+        $this->assertSame('cookie', $security->csrfProtection);
         $this->assertTrue($security->tokenRandomize);
-        $this->assertEquals('aggro_security_token', $security->tokenName);
-        $this->assertEquals('aggro_security_cookie', $security->cookieName);
+        $this->assertSame('aggro_security_token', $security->tokenName);
+        $this->assertSame('aggro_security_cookie', $security->cookieName);
         $this->assertTrue($security->regenerate);
     }
 }

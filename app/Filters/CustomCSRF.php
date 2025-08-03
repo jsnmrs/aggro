@@ -21,8 +21,7 @@ class CustomCSRF extends CSRF
      * sent back to the client, allowing for error pages,
      * redirects, etc.
      *
-     * @param RequestInterface $request
-     * @param array|null       $arguments
+     * @param array|null $arguments
      *
      * @return RequestInterface|ResponseInterface|string|void
      */
