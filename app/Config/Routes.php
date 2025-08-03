@@ -27,11 +27,11 @@ $routes->add('aggro/vimeo/(:segment)', 'Aggro::getVimeo/$1');
 $routes->add('aggro/youtube', 'Aggro::getYoutube');
 $routes->add('aggro/youtube/(:segment)', 'Aggro::getYoutube/$1');
 $routes->add('aggro/duration', 'Aggro::getYouTubeDuration');
-$routes->add('aggro/log-clean', 'Aggro::getLogClean');
-$routes->add('aggro/log-error-clean', 'Aggro::getLogErrorClean');
-$routes->add('aggro/news-cache', 'Aggro::getNewsCache');
-$routes->add('aggro/news-clean', 'Aggro::getNewsClean');
-$routes->add('aggro/sweep', 'Aggro::getSweep');
+$routes->post('aggro/log-clean', 'Aggro::getLogClean');
+$routes->post('aggro/log-error-clean', 'Aggro::getLogErrorClean');
+$routes->post('aggro/news-cache', 'Aggro::getNewsCache');
+$routes->post('aggro/news-clean', 'Aggro::getNewsClean');
+$routes->post('aggro/sweep', 'Aggro::getSweep');
 
 // Set 404 override
 $routes->set404Override('App\Controllers\Front::getError404');

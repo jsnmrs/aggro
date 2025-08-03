@@ -5,7 +5,7 @@ namespace Config;
 use App\Filters\SecurityFilter;
 use App\Filters\SentryPerformance;
 use CodeIgniter\Config\BaseConfig;
-use CodeIgniter\Filters\CSRF;
+use App\Filters\CustomCSRF;
 use CodeIgniter\Filters\DebugToolbar;
 use CodeIgniter\Filters\Honeypot;
 use CodeIgniter\Filters\InvalidChars;
@@ -22,7 +22,7 @@ class Filters extends BaseConfig
      * @phpstan-var array<string, class-string|list<class-string>>
      */
     public array $aliases = [
-        'csrf'          => CSRF::class,
+        'csrf'          => CustomCSRF::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
@@ -42,7 +42,7 @@ class Filters extends BaseConfig
         'before' => [
             'security',
             // 'honeypot',
-            // 'csrf',
+            'csrf',
             // 'invalidchars',
             'sentry',
         ],
