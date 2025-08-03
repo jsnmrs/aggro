@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\ValidationService;
 use Config\Services;
 
 /**
@@ -324,11 +325,29 @@ if (! function_exists('gate_check')) {
      * Check request context for pass through.
      *
      * @return bool
-     *              CLI or development.
+     *              CLI, development, or valid gate parameter.
      */
     function gate_check()
     {
-        return (bool) (is_cli() || env('CI_ENVIRONMENT', 'production') === 'development');
+        // Allow CLI and development environments
+        if (is_cli() || env('CI_ENVIRONMENT', 'production') === 'development') {
+            return true;
+        }
+
+        // Check for valid gate parameter
+        $validationService = new ValidationService();
+
+        $request = Services::request();
+        $gate    = $request->getGet('g');
+
+        if (! $validationService->validateGateKey($gate)) {
+            return false;
+        }
+
+        // Compare with environment variable using timing-safe comparison
+        $envGate = getenv('GATE');
+
+        return hash_equals($envGate, $gate);
     }
 }
 

@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Filters\SecurityFilter;
 use App\Filters\SentryPerformance;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Filters\CSRF;
@@ -26,6 +27,7 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
+        'security'      => SecurityFilter::class,
         'sentry'        => SentryPerformance::class,
     ];
 
@@ -38,6 +40,7 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+            'security',
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
