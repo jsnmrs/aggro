@@ -14,7 +14,7 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Feed generation — provides RSS/OPML feeds of aggregated content
 - Responsive design — mobile-first, responsive web interface
 - Error monitoring — integrated Sentry for real-time error tracking and performance monitoring
-- Enhanced security — parameterized database queries, secure configuration management, input validation
+- Enhanced security — parameterized database queries, secure configuration management, comprehensive input validation, CSRF protection, security headers
 
 ## Tech stack
 
@@ -31,12 +31,12 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 
 Aggro follows a clean architecture pattern with separation of concerns:
 
-- **Controllers** — Handle HTTP requests and coordinate responses
-- **Models** — Core business logic and data structures  
-- **Repositories** — Data access layer for database operations
-- **Services** — Domain-specific business logic (archiving, thumbnails)
-- **Helpers** — Utility functions for common operations
-- **Libraries** — Third-party integrations and custom components
+- Controllers — Handle HTTP requests and coordinate responses
+- Models — Core business logic and data structures
+- Repositories — Data access layer for database operations
+- Services — Domain-specific business logic (archiving, thumbnails)
+- Helpers — Utility functions for common operations
+- Libraries — Third-party integrations and custom components
 
 This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables comprehensive unit testing with 372 tests achieving 46.22% line coverage across all architectural layers.
 
@@ -70,14 +70,14 @@ Aggro uses [Docksal](https://docksal.io) for local development. This ensures a c
 
 Xdebug is enabled by default in the Docksal environment for debugging and profiling:
 
-- **Server name:** `aggro.docksal.site`
-- **Port:** `9003`
-- **IDE key:** `VSCODE`
-- **Coverage:** Enabled for test coverage reports
+- Server name — `aggro.docksal.site`
+- Port — `9003`
+- IDE key — `VSCODE`
+- Coverage — Enabled for test coverage reports
 
 Configure VS Code to listen for Xdebug connections on port 9003. The debugger will automatically connect when triggered.
 
-**Performance note:** Xdebug may slow down the application. If you experience performance issues during development, you can disable it by commenting out the xdebug configuration in `.docksal/etc/php/php.ini`.
+Performance note — Xdebug may slow down the application. If you experience performance issues during development, you can disable it by commenting out the xdebug configuration in `.docksal/etc/php/php.ini`.
 
 ### Development commands
 
@@ -89,6 +89,16 @@ Aggro includes several custom Docksal commands to help with development:
 - `fin maintain` — Run upgrades and tests
 - `fin test` — Run test suite
 - `fin upgrade` — Update Composer packages
+
+### CLI maintenance commands
+
+Maintenance tasks can be run via CLI for cron jobs or automation:
+
+- `php spark aggro/log-clean` — Clean old log entries
+- `php spark aggro/log-error-clean` — Clean old error log entries
+- `php spark aggro/news-cache` — Clear news feed cache
+- `php spark aggro/news-clean` — Archive old news items
+- `php spark aggro/sweep` — Run all maintenance tasks
 
 ## Configuration
 
@@ -131,27 +141,28 @@ The `.crontab` file defines scheduled tasks for:
 
 ## Testing
 
-The project includes comprehensive testing infrastructure with **372 tests achieving 46.22% line coverage** using PHPUnit for unit testing and multiple code quality tools.
+The project includes comprehensive testing infrastructure with 393 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- **Total Tests:** 372 comprehensive unit tests
-- **Coverage:** 46.22% line coverage across all components
-- **Assertions:** 471 test assertions ensuring thorough validation
-- **External Dependencies:** 85 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
-- **Test Files:** 74 test files covering all major components
+- Total Tests — 393 comprehensive unit tests
+- Coverage — 46.22% line coverage across all components
+- Assertions — 471 test assertions ensuring thorough validation
+- External Dependencies — 85 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- Test Files — 74 test files covering all major components
 
 ### Unit Testing with PHPUnit
 
 The test suite includes comprehensive coverage of:
 
-- **Controllers** — HTTP request handling, response coordination, and validation (Feed: 100%, Home: 100%, BaseController: 100%)
-- **Models** — Core business logic and data structures (AggroModels: 100%, NewsModels: 37.59%, UtilityModels: 55.88%)
-- **Helpers** — Utility functions and common operations with comprehensive parameter validation
-- **Services** — Domain-specific business logic (ArchiveService: 96.30%, ThumbnailService: 68.63%)
-- **Repositories** — Data access layer operations (ChannelRepository: 100%, VideoRepository: 82.47%)
-- **Libraries** — Third-party integrations (SentryService: 12.84%, SentryLogHandler: 19.44%)
-- **Filters** — Request/response filtering (SentryPerformance: 12.90%)
+- Controllers — HTTP request handling, response coordination, and validation (Feed: 100%, Home: 100%, BaseController: 100%)
+- Models — Core business logic and data structures (AggroModels: 100%, NewsModels: 37.59%, UtilityModels: 55.88%)
+- Helpers — Utility functions and common operations with comprehensive parameter validation
+- Services — Domain-specific business logic (ArchiveService: 96.30%, ThumbnailService: 68.63%, ValidationService: 100%)
+- Repositories — Data access layer operations (ChannelRepository: 100%, VideoRepository: 82.47%)
+- Libraries — Third-party integrations (SentryService: 12.84%, SentryLogHandler: 19.44%)
+- Filters — Request/response filtering (SecurityFilter: 100%, CustomCSRF: 100%, SentryPerformance: 12.90%)
+- Security — Comprehensive security tests for SQL injection prevention, input validation, CSRF protection
 
 Tests use an in-memory SQLite database for fast, isolated testing without affecting your development database. External services are properly mocked or skipped to ensure reliable test execution.
 
@@ -175,13 +186,13 @@ composer test
 
 When running tests with coverage, detailed HTML reports are generated in:
 
-- **Coverage reports:** `build/logs/html/index.html`
-- **Raw coverage data:** `build/logs/coverage.xml`
-- **Current baseline:** 46.22% line coverage, 42.52% method coverage
+- Coverage reports — `build/logs/html/index.html`
+- Raw coverage data — `build/logs/coverage.xml`
+- Current baseline — 46.22% line coverage, 42.52% method coverage
 
 Open the HTML report in your browser to view detailed coverage metrics by file and function.
 
-**Note:** Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=coverage` when running coverage commands.
+Note — Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=coverage` when running coverage commands.
 
 ### Code Quality Checks
 
@@ -202,15 +213,15 @@ fin phpstan    # Run PHPStan static analysis
 
 The test suite follows TDD principles and best practices:
 
-- **Proper Isolation:** External dependencies (APIs, file system, network) are mocked or skipped
-- **Fast Execution:** In-memory SQLite database for rapid test runs
-- **Comprehensive Coverage:** Tests cover success paths, error conditions, and edge cases
-- **Clean Architecture:** Testable design with dependency injection
-- **External Service Handling:** 85 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
+- Proper Isolation — External dependencies (APIs, file system, network) are mocked or skipped
+- Fast Execution — In-memory SQLite database for rapid test runs
+- Comprehensive Coverage — Tests cover success paths, error conditions, and edge cases
+- Clean Architecture — Testable design with dependency injection
+- External Service Handling — 85 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
 
 ### Continuous Integration
 
-GitHub Actions automatically runs the full test suite (372 tests) on all pull requests, including:
+GitHub Actions automatically runs the full test suite (393 tests) on all pull requests, including:
 
 - PHPUnit unit tests with comprehensive coverage validation
 - Code style checks (PHP CS Fixer, CodeSniffer)
@@ -219,15 +230,26 @@ GitHub Actions automatically runs the full test suite (372 tests) on all pull re
 
 All tests must pass before code can be merged, ensuring code quality and preventing regressions.
 
+### Security Features
+
+The application includes comprehensive security measures:
+
+- CSRF Protection — Custom CSRF filter for all state-changing operations
+- Input Validation — ValidationService provides sanitization for slugs, video IDs, gate keys, and integers
+- SQL Injection Prevention — All database queries use parameterized statements
+- Security Headers — Automatic security headers via SecurityFilter
+- Null Byte Protection — Automatic null byte removal from all input
+- Timing-Safe Comparisons — Used for sensitive string comparisons like gate keys
+
 ## Deployment
 
 Deployment is handled through GitHub Actions and Deployer with automated testing:
 
-1. **Pull Request Testing** — All PRs automatically run the complete test suite (372 tests) including PHPUnit tests, code quality checks, and static analysis
-2. **Automated deployment** — Deployment to production occurs on merge to main branch (only after all tests pass)
-3. **Front-end assets** — Assets are built and included in deployment
-4. **Environment files** — Securely transferred during deployment
-5. **Crontab updates** — Scheduled tasks are updated on deployment
+1. Pull Request Testing — All PRs automatically run the complete test suite (393 tests) including PHPUnit tests, code quality checks, and static analysis
+2. Automated deployment — Deployment to production occurs on merge to main branch (only after all tests pass)
+3. Front-end assets — Assets are built and included in deployment
+4. Environment files — Securely transferred during deployment
+5. Crontab updates — Scheduled tasks are updated on deployment
 
 The CI/CD pipeline ensures code quality by requiring all tests to pass before any code reaches production.
 
@@ -273,4 +295,4 @@ Aggro is open-source software licensed under the MIT license. See the [LICENSE](
 
 ## Support
 
-- Issues: [GitHub Issues](https://github.com/jsnmrs/aggro/issues)
+- Issues — [GitHub Issues](https://github.com/jsnmrs/aggro/issues)
