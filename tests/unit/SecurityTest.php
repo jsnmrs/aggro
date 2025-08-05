@@ -95,7 +95,13 @@ final class SecurityTest extends DatabaseTestCase
         // Multiple hyphens should be reduced to single
         $this->assertSame('valid-slug', $this->validationService->sanitizeSlug('valid---slug'));
 
-        // Leading/trailing hyphens should be removed
-        $this->assertSame('valid', $this->validationService->sanitizeSlug('-valid-'));
+        // Leading/trailing hyphens should be preserved (for YouTube video IDs)
+        $this->assertSame('-valid-', $this->validationService->sanitizeSlug('-valid-'));
+
+        // Test YouTube video ID with leading hyphen
+        $this->assertSame('-Pp0Wg4gF54', $this->validationService->sanitizeSlug('-Pp0Wg4gF54'));
+
+        // Test underscore support
+        $this->assertSame('valid_slug', $this->validationService->sanitizeSlug('valid_slug'));
     }
 }

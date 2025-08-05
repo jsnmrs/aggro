@@ -9,14 +9,12 @@ class ValidationService
      */
     public function sanitizeSlug(string $slug): string
     {
-        // Remove any non-alphanumeric characters except hyphens
-        $slug = preg_replace('/[^a-zA-Z0-9\-]/', '', $slug);
+        // Remove any non-alphanumeric characters except hyphens and underscores
+        $slug = preg_replace('/[^a-zA-Z0-9\-_]/', '', $slug);
 
-        // Remove multiple consecutive hyphens
-        $slug = preg_replace('/-+/', '-', $slug);
-
-        // Trim hyphens from start and end
-        return trim($slug, '-');
+        // Remove multiple consecutive hyphens (but preserve single leading/trailing hyphens)
+        return preg_replace('/--+/', '-', $slug);
+        // Don't trim hyphens as they may be part of video IDs
     }
 
     /**
