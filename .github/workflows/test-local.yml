@@ -25,6 +25,6 @@ jobs:
       - name: Display docksal system info
         run: fin sysinfo
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Init, code checks, test, and admin
         run: fin test
