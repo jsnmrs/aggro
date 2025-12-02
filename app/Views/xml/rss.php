@@ -24,7 +24,7 @@ foreach ($build as $row) {
         echo '<p><iframe src="https://player.vimeo.com/video/' . $row->video_id . '?dnt=true&amp;portrait=0&amp;byline=0&amp;title=0&amp;autoplay=0&amp;color=ffffff" width="' . $row->video_width . '" height="' . $row->video_height . '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></p>';
     }
     if ($row->video_type === 'youtube') {
-        echo '<p><iframe width="' . $row->video_width . '" height="' . $row->video_height . '" src="https://www.youtube.com/embed/' . $row->video_id . '?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></p>';
+        echo '<p><iframe width="' . $row->video_width . '" height="' . $row->video_height . '" src="https://www.youtube.com/embed/' . $row->video_id . '?rel=0&amp;showinfo=0" allow="encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" frameborder="0" allowfullscreen></iframe></p>';
     }
     echo ']]>';
     echo "</content:encoded>\n";
