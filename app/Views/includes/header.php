@@ -54,7 +54,7 @@ if (file_exists($styles)) {
       <p class="logo"><a href="/">BMXfeed</a></p>
       <p class="visually-hidden">The BMX news and video aggregator</p>
     </header>
-    <nav aria-label="Main">
+    <nav aria-label="Primary">
       <ul class="nav">
         <li><a href="/"
           <?php if ($slug === 'featured') {
