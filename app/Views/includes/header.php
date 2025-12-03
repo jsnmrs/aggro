@@ -8,6 +8,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?php
   if (env('CI_ENVIRONMENT', 'production') === 'development') {
       echo '[DEV] ';
@@ -25,24 +27,27 @@ if (isset($title)) {
     echo esc($title) . ' | ';
 }
 ?>BMXfeed</title>
-  <meta charset="utf-8">
+  <style>
+      <?php
+    $styles = ROOTPATH . 'public/dist/styles.css';
+  if (file_exists($styles)) {
+      echo file_get_contents($styles, true);
+  }
+  ?>
+  </style>
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/bmxfeed.webmanifest">
   <link rel="alternate" href="/rss" type="application/rss+xml">
   <link rel="alternate" href="/feed" type="application/rss+xml">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#005600">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <style>
-    <?php
-  $styles = ROOTPATH . 'public/dist/styles.css';
-if (file_exists($styles)) {
-    echo file_get_contents($styles, true);
-}
-?>
-  </style>
+<?php if (isset($canonical)): ?>
+  <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
+<?php endif; ?>
 </head>
 
 <body>
@@ -52,9 +57,9 @@ if (file_exists($styles)) {
   <div class="wrap">
     <header>
       <p class="logo"><a href="/">BMXfeed</a></p>
-      <p class="u-sr">The BMX news and video aggregator</p>
+      <p class="visually-hidden">The BMX news and video aggregator</p>
     </header>
-    <nav aria-label="Main">
+    <nav aria-label="Primary">
       <ul class="nav">
         <li><a href="/"
           <?php if ($slug === 'featured') {
@@ -80,7 +85,7 @@ if (file_exists($styles)) {
           <?php if ($slug === 'about') {
               echo ' aria-current="page"';
           }
-?>>About<span class="u-sr"> BMXfeed</span></a></li>
+?>>About<span class="visually-hidden"> BMXfeed</span></a></li>
       </ul>
     </nav>
   </div>
