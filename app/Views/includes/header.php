@@ -8,6 +8,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?php
   if (env('CI_ENVIRONMENT', 'production') === 'development') {
       echo '[DEV] ';
@@ -25,9 +27,15 @@ if (isset($title)) {
     echo esc($title) . ' | ';
 }
 ?>BMXfeed</title>
-  <meta charset="utf-8">
+  <style>
+      <?php
+    $styles = ROOTPATH . 'public/dist/styles.css';
+  if (file_exists($styles)) {
+      echo file_get_contents($styles, true);
+  }
+  ?>
+  </style>
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -40,14 +48,6 @@ if (isset($title)) {
 <?php if (isset($canonical)): ?>
   <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
 <?php endif; ?>
-  <style>
-    <?php
-  $styles = ROOTPATH . 'public/dist/styles.css';
-if (file_exists($styles)) {
-    echo file_get_contents($styles, true);
-}
-?>
-  </style>
 </head>
 
 <body>
