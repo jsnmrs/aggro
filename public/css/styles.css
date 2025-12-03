@@ -173,7 +173,7 @@ main {
 }
 
 .skip:not(:focus, :active),
-.u-sr:not(:focus, :active) {
+.visually-hidden:not(:focus, :active) {
   position: absolute;
   width: 0.1rem;
   height: 0.1rem;
