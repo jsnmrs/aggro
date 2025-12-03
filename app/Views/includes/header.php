@@ -34,6 +34,8 @@ if (isset($title)) {
   <link rel="manifest" href="/bmxfeed.webmanifest">
   <link rel="alternate" href="/rss" type="application/rss+xml">
   <link rel="alternate" href="/feed" type="application/rss+xml">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#005600">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <?php if (isset($canonical)): ?>
   <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
