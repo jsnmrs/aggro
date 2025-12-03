@@ -42,7 +42,7 @@ echo $time->humanize();
           <?php if ($slug === 'about') {
               echo ' aria-current="page"';
           }
-?>>About<span class="u-sr"> BMXfeed</span></a></li>
+?>>About<span class="visually-hidden"> BMXfeed</span></a></li>
       </ul>
     </nav>
   </div>
