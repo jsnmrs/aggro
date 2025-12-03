@@ -32,8 +32,9 @@ class Front extends BaseController
     public function getAbout()
     {
         $data = [
-            'title' => 'About',
-            'slug'  => 'about',
+            'title'     => 'About',
+            'slug'      => 'about',
+            'canonical' => base_url('about'),
         ];
 
         return view('about', $data);
@@ -60,8 +61,9 @@ class Front extends BaseController
     public function getFeatured()
     {
         $data = [
-            'title' => 'Featured',
-            'slug'  => 'featured',
+            'title'     => 'Featured',
+            'slug'      => 'featured',
+            'canonical' => base_url('/'),
         ];
 
         $newsModel     = new NewsModels();
@@ -86,7 +88,8 @@ class Front extends BaseController
         $newsModel = new NewsModels();
 
         if ($slug === null) {
-            $data['build'] = $newsModel->getSites();
+            $data['build']     = $newsModel->getSites();
+            $data['canonical'] = base_url('sites');
 
             return view('sites', $data);
         }
@@ -97,6 +100,7 @@ class Front extends BaseController
 
         if (! empty($data['build'])) {
             $data['feedfetch'] = fetch_feed($data['build']['site_feed'], '0', '3600');
+            $data['canonical'] = base_url('sites/' . $slug);
             $newsModel->updateFeed($slug, $data['feedfetch']);
 
             return view('site', $data);
@@ -111,8 +115,9 @@ class Front extends BaseController
     public function getStream()
     {
         $data = [
-            'title' => 'Stream',
-            'slug'  => 'stream',
+            'title'     => 'Stream',
+            'slug'      => 'stream',
+            'canonical' => base_url('stream'),
         ];
 
         $newsModel = new NewsModels();
