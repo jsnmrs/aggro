@@ -164,6 +164,18 @@ ol {
   list-style-type: none;
 }
 
+ul,
+ol,
+dl,
+dt,
+dd,
+p,
+figure,
+blockquote {
+  hanging-punctuation: first last;
+  text-wrap: pretty;
+}
+
 img,
 svg,
 video,
