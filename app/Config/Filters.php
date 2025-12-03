@@ -50,6 +50,7 @@ class Filters extends BaseConfig
             'toolbar',
             // 'honeypot',
             // 'secureheaders',
+            'sentry'
         ],
     ];
 
