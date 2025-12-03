@@ -35,6 +35,9 @@ if (isset($title)) {
   <link rel="alternate" href="/rss" type="application/rss+xml">
   <link rel="alternate" href="/feed" type="application/rss+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<?php if (isset($canonical)): ?>
+  <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
+<?php endif; ?>
   <style>
     <?php
   $styles = ROOTPATH . 'public/dist/styles.css';

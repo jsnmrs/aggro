@@ -199,6 +199,11 @@ class Front extends BaseController
         // Get videos and render
         $data['build'] = $aggroModel->getVideos($data['range'], (string) $data['perpage'], (string) $data['offset']);
 
+        // Set canonical URL (page 1 uses /video, subsequent pages include page number)
+        $data['canonical'] = $data['page'] === 1
+            ? base_url('video')
+            : base_url('video/' . $data['sort'] . '/' . $data['page']);
+
         return view('videos', $data);
     }
 
@@ -226,6 +231,8 @@ class Front extends BaseController
         $data['build'] = $aggroModel->getVideo($slug);
 
         if (! empty($data['build'])) {
+            $data['canonical'] = base_url('video/' . $slug);
+
             return view('video', $data);
         }
 
