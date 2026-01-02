@@ -16,7 +16,7 @@
     "symfony/config": "^7.3",
     "symfony/dependency-injection": "^7.3",
     "symfony/var-exporter": "^7.3",
-    "symfony/yaml": "^7.3"
+    "symfony/yaml": "^8.0"
   },
   "require-dev": {
     "codeigniter/coding-standard": "^1.8",

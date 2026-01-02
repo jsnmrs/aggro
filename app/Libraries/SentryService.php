@@ -222,7 +222,7 @@ class SentryService
     public function flush(?int $timeout = null): void
     {
         if ($this->initialized) {
-            $client = \Sentry\SentrySdk::getCurrentHub()->getClient();
+            $client = SentrySdk::getCurrentHub()->getClient();
             if ($client !== null) {
                 $client->flush($timeout);
             }

@@ -26,7 +26,7 @@ jobs:
           npm install
           npm run build
       - name: Upload build files
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: css
           path: public/dist/
@@ -39,7 +39,7 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for tags
       - name: Download build assets
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: css
           path: public/dist/
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}

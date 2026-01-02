@@ -30,10 +30,10 @@ if (isset($title)) {
   <style>
       <?php
     $styles = ROOTPATH . 'public/dist/styles.css';
-  if (file_exists($styles)) {
-      echo file_get_contents($styles, true);
-  }
-  ?>
+if (file_exists($styles)) {
+    echo file_get_contents($styles, true);
+}
+?>
   </style>
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
