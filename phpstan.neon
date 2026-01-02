@@ -20,6 +20,7 @@ parameters:
         - app/Services
         - app/Views
     ignoreErrors:
+        - '#Function base_url not found.#'
         - '#Function view not found.#'
         - '#Function helper not found.#'
         - '#Function esc not found.#'
