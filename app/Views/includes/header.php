@@ -46,7 +46,7 @@ if (file_exists($styles)) {
   <meta name="theme-color" content="#005600">
   <link rel="apple-touch-icon" href="https://bmxfeed.com/apple-touch-icon.png">
 <?php if (isset($canonical)): ?>
-  <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
+  <link rel="canonical" href="<?= esc($canonical) ?>">
 <?php endif; ?>
 </head>
 
