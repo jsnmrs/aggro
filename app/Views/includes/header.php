@@ -39,7 +39,7 @@ if (file_exists($styles)) {
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
   <link rel="icon" href="https://bmxfeed.com/favicon.ico" sizes="any">
   <link rel="icon" href="https://bmxfeed.com/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="https://bmxfeed.com/bmxfeed.webmanifest">
+  <link rel="manifest" href="https://bmxfeed.com/bmxfeed.webmanifest?v=<?= filemtime(FCPATH . 'bmxfeed.webmanifest') ?>">
   <link rel="alternate" href="https://bmxfeed.com/rss" type="application/rss+xml">
   <link rel="alternate" href="https://bmxfeed.com/feed" type="application/rss+xml">
   <meta name="color-scheme" content="light">
