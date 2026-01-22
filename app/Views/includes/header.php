@@ -37,14 +37,14 @@ if (file_exists($styles)) {
   </style>
   <meta name="description" content="BMXfeed is a bmx news, video aggregator and RSS feed directory">
   <meta name="google-site-verification" content="3Ljs6uanCn-A0wVw9DzyeXklSNh3ziSq9krzp92AuFM">
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="/bmxfeed.webmanifest">
-  <link rel="alternate" href="/rss" type="application/rss+xml">
-  <link rel="alternate" href="/feed" type="application/rss+xml">
+  <link rel="icon" href="https://bmxfeed.com/favicon.ico" sizes="any">
+  <link rel="icon" href="https://bmxfeed.com/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="https://bmxfeed.com/bmxfeed.webmanifest">
+  <link rel="alternate" href="https://bmxfeed.com/rss" type="application/rss+xml">
+  <link rel="alternate" href="https://bmxfeed.com/feed" type="application/rss+xml">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#005600">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="https://bmxfeed.com/apple-touch-icon.png">
 <?php if (isset($canonical)): ?>
   <link rel="canonical" href="<?= esc($canonical, 'attr') ?>">
 <?php endif; ?>
