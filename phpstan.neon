@@ -1,5 +1,7 @@
 parameters:
     level: 5
+    bootstrapFiles:
+        - phpstan-bootstrap.php
     scanDirectories:
         - app/Config
         - app/Controllers
@@ -29,7 +31,6 @@ parameters:
         - '#Function lang not found.#'
         - '#Function config not found.#'
         - '#Function env not found.#'
-        - '#Constant ROOTPATH not found.#'
         - '#Constant ENVIRONMENT not found.#'
         - '#Variable \$this might not be defined.#'
         - '#Variable \$[a-zA-Z_][a-zA-Z0-9_]* might not be defined.#'
