@@ -84,8 +84,9 @@ class Aggro extends BaseController
             return false;
         }
 
-        $data['title'] = 'Error log';
-        $data['build'] = fetch_error_logs();
+        $data['title']            = 'Error log';
+        $data['build']            = fetch_error_logs();
+        $data['system_generated'] = true;
 
         return view('textlog', $data);
     }

@@ -58,7 +58,6 @@ ServerSignature Off
 <IfModule mod_headers.c>
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
   RequestHeader unset Proxy
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
@@ -120,5 +119,12 @@ AddDefaultCharset utf-8
 </IfModule>
 
 # Set CSP Header
-Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://www.youtube-nocookie.com https://www.youtube.com https://youtube.com https://m.youtube.com https://s.ytimg.com https://vimeo.com https://player.vimeo.com
+Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://www.youtube-nocookie.com https://www.youtube.com https://youtube.com https://m.youtube.com https://s.ytimg.com https://vimeo.com https://player.vimeo.com; frame-ancestors 'self'"
+
+# Webmanifest: remove unnecessary security headers, add immutable cache
+<FilesMatch "\.webmanifest$">
+  Header unset Content-Security-Policy
+  Header unset X-XSS-Protection
+  Header set Cache-Control "max-age=31536000, immutable"
+</FilesMatch>
 

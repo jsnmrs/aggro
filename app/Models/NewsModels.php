@@ -205,7 +205,7 @@ class NewsModels extends Model
     {
         $data = [
             'site_id'         => $siteId,
-            'story_title'     => $item->get_title(),
+            'story_title'     => html_entity_decode($item->get_title(), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
             'story_permalink' => $item->get_permalink(),
             'story_hash'      => sha1($item->get_permalink()),
             'story_date'      => $item->get_date('Y-m-d H:i:s'),
