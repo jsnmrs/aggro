@@ -48,7 +48,7 @@ class ThumbnailService
 
             $message = $thumb->video_id . ' missing thumbnail';
             if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
-                $message .= ' &mdash; fetched.';
+                $message .= ' — fetched.';
             }
             $this->utilityModel->sendLog($message);
         }
