@@ -238,4 +238,65 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $result = $this->frontController->getVideo('specific-video-slug');
         // Would test individual video display flow
     }
+
+    public function testSitemapMethodExists()
+    {
+        $this->assertTrue(method_exists($this->frontController, 'sitemap'));
+        $this->assertIsCallable([$this->frontController, 'sitemap']);
+    }
+
+    public function testSitemapReturnsXmlResponse()
+    {
+        $result = $this->controller(Front::class)
+            ->execute('sitemap');
+
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('application/xml', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testSitemapReturnsValidXml()
+    {
+        $result = $this->controller(Front::class)
+            ->execute('sitemap');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('<?xml', $body);
+        $this->assertStringContainsString('<urlset', $body);
+    }
+
+    public function testRobotsMethodExists()
+    {
+        $this->assertTrue(method_exists($this->frontController, 'robots'));
+        $this->assertIsCallable([$this->frontController, 'robots']);
+    }
+
+    public function testRobotsReturnsTextPlainResponse()
+    {
+        $result = $this->controller(Front::class)
+            ->execute('robots');
+
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('text/plain', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testRobotsIncludesSitemapDirective()
+    {
+        $result = $this->controller(Front::class)
+            ->execute('robots');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Sitemap:', $body);
+        $this->assertStringContainsString('sitemap.xml', $body);
+    }
+
+    public function testRobotsIncludesUserAgent()
+    {
+        $result = $this->controller(Front::class)
+            ->execute('robots');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('User-agent: *', $body);
+    }
 }
