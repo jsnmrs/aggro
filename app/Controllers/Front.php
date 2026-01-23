@@ -4,7 +4,9 @@ namespace App\Controllers;
 
 use App\Models\AggroModels;
 use App\Models\NewsModels;
+use App\Services\SitemapService;
 use App\Services\ValidationService;
+use CodeIgniter\HTTP\ResponseInterface;
 
 /**
  * All front-end controllers.
@@ -242,5 +244,36 @@ class Front extends BaseController
         }
 
         return $this->getError404();
+    }
+
+    /**
+     * XML Sitemap.
+     *
+     * @return ResponseInterface
+     */
+    public function sitemap()
+    {
+        $sitemapService = new SitemapService();
+        $xml            = $sitemapService->generate();
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->setBody($xml);
+    }
+
+    /**
+     * Robots.txt.
+     *
+     * @return ResponseInterface
+     */
+    public function robots()
+    {
+        $content = "User-agent: *\n";
+        $content .= "Disallow:\n\n";
+        $content .= 'Sitemap: ' . base_url('sitemap.xml') . "\n";
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/plain; charset=UTF-8')
+            ->setBody($content);
     }
 }
