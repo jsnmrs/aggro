@@ -400,9 +400,10 @@ class NewsModels extends Model
         $limit = (int) $limit;
 
         // Ensure reasonable values
-        $page  = max($page, 1);  // Minimum page 1
-        $limit = max($limit, 1); // Minimum 1 item
-        $limit = min($limit, 100); // Max 100 items per page
+        $page  = max($page, 1);      // Minimum page 1
+        $page  = min($page, 100000); // Maximum 100000 pages to prevent overflow
+        $limit = max($limit, 1);     // Minimum 1 item
+        $limit = min($limit, 100);   // Max 100 items per page
 
         // Calculate offset for pagination
         $offset = ($page - 1) * $limit;
