@@ -101,9 +101,11 @@ if (! function_exists('youtube_get_video_source')) {
         }
 
         $channelResult = fetch_url($channelURL, 'text', 1);
-        preg_match($canonicalRegex, $channelResult, $matches);
+        if ($channelResult === false || ! is_string($channelResult)) {
+            return false;
+        }
 
-        if ($matches[1]) {
+        if (preg_match($canonicalRegex, $channelResult, $matches) && isset($matches[1])) {
             return $matches[1];
         }
 
@@ -188,7 +190,9 @@ if (! function_exists('youtube_parse_meta')) {
             $video['video_width']  = $result->width;
             $video['video_height'] = $result->height;
         }
-        $video['video_aspect_ratio'] = round($video['video_width'] / $video['video_height'], 3);
+        $video['video_aspect_ratio'] = ($video['video_height'] > 0)
+            ? round($video['video_width'] / $video['video_height'], 3)
+            : 1.778;
 
         $video['video_duration'] = youtube_get_duration($video['video_id']);
 
