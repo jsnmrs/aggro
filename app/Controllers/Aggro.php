@@ -8,6 +8,7 @@ use App\Models\UtilityModels;
 use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\CodeIgniter;
+use CodeIgniter\HTTP\ResponseInterface;
 
 /**
  * All aggro controllers.
@@ -17,7 +18,7 @@ class Aggro extends BaseController
     /**
      * Aggro front.
      */
-    public function getIndex()
+    public function getIndex(): void
     {
         echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">running cron all day.</h1>';
     }
@@ -40,14 +41,14 @@ class Aggro extends BaseController
     /**
      * Show aggro log.
      */
-    public function getLog()
+    public function getLog(): ResponseInterface|string
     {
         helper('aggro');
         $data         = ['title' => 'Log'];
         $utilityModel = new UtilityModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         $data['build'] = $utilityModel->getLog();
@@ -58,13 +59,13 @@ class Aggro extends BaseController
     /**
      * Clean aggro log.
      */
-    public function getLogClean()
+    public function getLogClean(): ResponseInterface
     {
         helper('aggro');
         $utilityModel = new UtilityModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         $utilityModel->cleanLog();
@@ -75,13 +76,13 @@ class Aggro extends BaseController
     /**
      * Show aggro error log.
      */
-    public function getLogError()
+    public function getLogError(): ResponseInterface|string
     {
         helper('aggro');
         $data = ['title' => 'Error log'];
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         $data['title']            = 'Error log';
@@ -94,12 +95,12 @@ class Aggro extends BaseController
     /**
      * Clean aggro error logs.
      */
-    public function getLogErrorClean()
+    public function getLogErrorClean(): ResponseInterface
     {
         helper('aggro');
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         clean_error_logs();
@@ -114,13 +115,13 @@ class Aggro extends BaseController
      *
      * @param string|null $slug
      */
-    public function getNews(?string $slug = null)
+    public function getNews(?string $slug = null): ResponseInterface|string
     {
         helper('aggro');
         $newsModel = new NewsModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         if ($slug === null) {
@@ -140,17 +141,19 @@ class Aggro extends BaseController
 
             return 'Feed caches cleared.';
         }
+
+        return $this->response->setStatusCode(404);
     }
 
     /**
      * Clear featured/stream cache.
      */
-    public function getNewsCache()
+    public function getNewsCache(): ResponseInterface|string
     {
         helper('aggro');
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         clean_feed_cache();
@@ -161,13 +164,13 @@ class Aggro extends BaseController
     /**
      * Clean featured/stream pages.
      */
-    public function getNewsClean()
+    public function getNewsClean(): ResponseInterface|string
     {
         helper('aggro');
         $newsModel = new NewsModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         $newsModel->featuredCleaner();
@@ -180,13 +183,13 @@ class Aggro extends BaseController
      *
      * Set cron to run every 60 minutes.
      */
-    public function getSweep()
+    public function getSweep(): ResponseInterface|bool
     {
         helper('aggro');
         $aggroModel = new AggroModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         if ($aggroModel->archiveVideos()) {
@@ -207,14 +210,15 @@ class Aggro extends BaseController
     /**
      * Update duration value for videos.
      */
-    public function getYouTubeDuration()
+    public function getYouTubeDuration(): ResponseInterface|bool
     {
         helper(['aggro', 'youtube']);
         $youtubeModel = new YoutubeModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
+
         if ($youtubeModel->getDuration()) {
             echo "\nDurations fetched.\n";
         }
@@ -229,14 +233,14 @@ class Aggro extends BaseController
      *
      * @param string|null $videoID
      */
-    public function getVimeo(?string $videoID = null)
+    public function getVimeo(?string $videoID = null): ResponseInterface|bool
     {
         helper(['aggro', 'vimeo']);
         $aggroModel = new AggroModels();
         $vimeoModel = new VimeoModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         if ($videoID === null) {
@@ -262,7 +266,7 @@ class Aggro extends BaseController
         if (! $this->validateVimeoVideoId($videoID)) {
             log_message('warning', 'Invalid Vimeo video ID format: ' . $videoID);
 
-            return false;
+            return $this->response->setStatusCode(404);
         }
 
         if (! $aggroModel->checkVideo($videoID)) {
@@ -286,14 +290,14 @@ class Aggro extends BaseController
      *
      * @param string|null $videoID
      */
-    public function getYoutube(?string $videoID = null)
+    public function getYoutube(?string $videoID = null): ResponseInterface|bool
     {
         helper(['aggro', 'youtube']);
         $aggroModel   = new AggroModels();
         $youtubeModel = new YoutubeModels();
 
         if (! gate_check()) {
-            return false;
+            return $this->response->setStatusCode(403);
         }
 
         if ($videoID === null) {
@@ -319,7 +323,7 @@ class Aggro extends BaseController
         if (! $this->validateYouTubeVideoId($videoID)) {
             log_message('warning', 'Invalid YouTube video ID format: ' . $videoID);
 
-            return false;
+            return $this->response->setStatusCode(404);
         }
 
         if ($aggroModel->checkVideo($videoID)) {
