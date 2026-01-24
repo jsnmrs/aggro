@@ -112,9 +112,9 @@ class Aggro extends BaseController
      *
      * Set cron to run every 5 minutes.
      *
-     * @param mixed|null $slug
+     * @param string|null $slug
      */
-    public function getNews($slug = null)
+    public function getNews(?string $slug = null)
     {
         helper('aggro');
         $newsModel = new NewsModels();
@@ -227,9 +227,9 @@ class Aggro extends BaseController
      *
      * Set cron to run every 5 minutes.
      *
-     * @param mixed|null $videoID
+     * @param string|null $videoID
      */
-    public function getVimeo($videoID = null)
+    public function getVimeo(?string $videoID = null)
     {
         helper(['aggro', 'vimeo']);
         $aggroModel = new AggroModels();
@@ -284,9 +284,9 @@ class Aggro extends BaseController
      *
      * Set cron to run every 5 minutes.
      *
-     * @param mixed|null $videoID
+     * @param string|null $videoID
      */
-    public function getYoutube($videoID = null)
+    public function getYoutube(?string $videoID = null)
     {
         helper(['aggro', 'youtube']);
         $aggroModel   = new AggroModels();

@@ -77,9 +77,9 @@ class Front extends BaseController
     /**
      * Sites page.
      *
-     * @param mixed|null $slug
+     * @param string|null $slug
      */
-    public function getSites($slug = null)
+    public function getSites(?string $slug = null)
     {
         helper('aggro');
         $data = [
@@ -101,7 +101,7 @@ class Front extends BaseController
         $data['build'] = $newsModel->getSite($slug);
 
         if (! empty($data['build'])) {
-            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], '0', '3600');
+            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], 0, 3600);
             $data['canonical'] = base_url('sites/' . $slug);
             $newsModel->updateFeed($slug, $data['feedfetch']);
 
@@ -131,9 +131,9 @@ class Front extends BaseController
     /**
      * Video pages.
      *
-     * @param mixed|null $slug
+     * @param string|null $slug
      */
-    public function getVideo($slug = null)
+    public function getVideo(?string $slug = null)
     {
         helper('html');
         $slug = $this->sanitizeSlug($slug);
