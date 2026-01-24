@@ -160,17 +160,13 @@ if (! function_exists('fetch_feed')) {
     /**
      * Fetch RSS feed.
      *
-     * @param string $feed
-     *                      RSS feed URL.
-     * @param string $spoof
-     *                      Spoof user agent string (1/0).
-     * @param string $cache
-     *                      Cache duration, in seconds. Default is 30 minutes.
+     * @param string   $feed  RSS feed URL.
+     * @param int|bool $spoof Spoof user agent (1 = spoof, 0 = default).
+     * @param int|null $cache Cache duration in seconds. Default is 30 minutes.
      *
-     * @return object
-     *                RSS feed data.
+     * @return \SimplePie\SimplePie RSS feed data.
      */
-    function fetch_feed($feed, $spoof, $cache = null)
+    function fetch_feed(string $feed, int|bool $spoof, ?int $cache = null)
     {
         $userAgent = env('UA_BMXFEED', 'Aggro/1.0');
 

@@ -9,6 +9,16 @@ use CodeIgniter\Model;
  */
 class VimeoModels extends Model
 {
+    protected $aggroModel;
+    protected $utilityModel;
+
+    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null)
+    {
+        parent::__construct();
+        $this->aggroModel = $aggroModel ?? new AggroModels();
+        $this->utilityModel = $utilityModel ?? new UtilityModels();
+    }
+
     /**
      * Search Vimeo feed for specific video.
      *
@@ -22,7 +32,6 @@ class VimeoModels extends Model
      */
     public function searchChannel($feed, $videoId)
     {
-        $aggroModel = new AggroModels();
         helper('vimeo');
 
         if ($feed === false || (! is_array($feed) && ! is_object($feed))) {
@@ -39,9 +48,9 @@ class VimeoModels extends Model
                 continue;
             }
 
-            if ($videoId === $item->id && ! $aggroModel->checkVideo($item->id)) {
+            if ($videoId === $item->id && ! $this->aggroModel->checkVideo($item->id)) {
                 $video = vimeo_parse_meta($item);
-                $aggroModel->addVideo($video);
+                $this->aggroModel->addVideo($video);
 
                 return true;
             }
@@ -61,8 +70,6 @@ class VimeoModels extends Model
      */
     public function parseChannel($feed)
     {
-        $aggroModel   = new AggroModels();
-        $utilityModel = new UtilityModels();
         helper('vimeo');
         $addCount = 0;
 
@@ -82,16 +89,16 @@ class VimeoModels extends Model
                 continue;
             }
 
-            if (! $aggroModel->checkVideo($item->id)) {
+            if (! $this->aggroModel->checkVideo($item->id)) {
                 $video = vimeo_parse_meta($item);
-                $aggroModel->addVideo($video);
+                $this->aggroModel->addVideo($video);
                 $addCount++;
             }
         }
 
         if ($addCount >= 1) {
             $message = 'Ran Vimeo fetch. Added ' . $addCount . ' new-to-me videos.';
-            $utilityModel->sendLog($message);
+            $this->utilityModel->sendLog($message);
         }
 
         return $addCount;

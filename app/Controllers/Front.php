@@ -23,15 +23,15 @@ class Front extends BaseController
     /**
      * Home -> featured page.
      */
-    public function getIndex()
+    public function getIndex(): void
     {
-        $this->getFeatured();
+        echo $this->getFeatured();
     }
 
     /**
      * About page.
      */
-    public function getAbout()
+    public function getAbout(): string
     {
         $data = [
             'title'     => 'About',
@@ -45,7 +45,7 @@ class Front extends BaseController
     /**
      * Error page.
      */
-    public function getError404()
+    public function getError404(): string
     {
         $this->response->setStatusCode(404);
 
@@ -54,13 +54,13 @@ class Front extends BaseController
             'slug'  => '404',
         ];
 
-        echo view('error', $data);
+        return view('error', $data);
     }
 
     /**
      * Featured page.
      */
-    public function getFeatured()
+    public function getFeatured(): string
     {
         $data = [
             'title'     => 'Featured',
@@ -71,15 +71,15 @@ class Front extends BaseController
         $newsModel     = new NewsModels();
         $data['build'] = $newsModel->featuredPage();
 
-        echo view('featured', $data);
+        return view('featured', $data);
     }
 
     /**
      * Sites page.
      *
-     * @param mixed|null $slug
+     * @param string|null $slug
      */
-    public function getSites($slug = null)
+    public function getSites(?string $slug = null): string
     {
         helper('aggro');
         $data = [
@@ -101,7 +101,7 @@ class Front extends BaseController
         $data['build'] = $newsModel->getSite($slug);
 
         if (! empty($data['build'])) {
-            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], '0', '3600');
+            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], 0, 3600);
             $data['canonical'] = base_url('sites/' . $slug);
             $newsModel->updateFeed($slug, $data['feedfetch']);
 
@@ -114,7 +114,7 @@ class Front extends BaseController
     /**
      * Stream page.
      */
-    public function getStream()
+    public function getStream(): string
     {
         $data = [
             'title'     => 'Stream',
@@ -125,15 +125,16 @@ class Front extends BaseController
         $newsModel = new NewsModels();
 
         $data['build'] = $newsModel->streamPage();
-        echo view('stream', $data);
+
+        return view('stream', $data);
     }
 
     /**
      * Video pages.
      *
-     * @param mixed|null $slug
+     * @param string|null $slug
      */
-    public function getVideo($slug = null)
+    public function getVideo(?string $slug = null): string
     {
         helper('html');
         $slug = $this->sanitizeSlug($slug);
@@ -167,10 +168,8 @@ class Front extends BaseController
 
     /**
      * Handle paginated video list display.
-     *
-     * @return mixed
      */
-    private function handleVideosPagination()
+    private function handleVideosPagination(): string
     {
         $data = [
             'title' => 'Videos',
@@ -218,10 +217,8 @@ class Front extends BaseController
      * Handle individual video display.
      *
      * @param string $slug
-     *
-     * @return mixed
      */
-    private function handleIndividualVideo($slug)
+    private function handleIndividualVideo($slug): string
     {
         // Validate video slug format
         if (! $this->validateVideoSlug($slug)) {
@@ -248,10 +245,8 @@ class Front extends BaseController
 
     /**
      * XML Sitemap.
-     *
-     * @return ResponseInterface
      */
-    public function sitemap()
+    public function sitemap(): ResponseInterface
     {
         $sitemapService = new SitemapService();
         $xml            = $sitemapService->generate();
@@ -263,10 +258,8 @@ class Front extends BaseController
 
     /**
      * Robots.txt.
-     *
-     * @return ResponseInterface
      */
-    public function robots()
+    public function robots(): ResponseInterface
     {
         $content = "User-agent: *\n";
         $content .= "Disallow:\n\n";
