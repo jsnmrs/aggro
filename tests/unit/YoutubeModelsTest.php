@@ -2,8 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Models\AggroModels;
+use App\Models\UtilityModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\Model;
+use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -22,6 +25,35 @@ final class YoutubeModelsTest extends DatabaseTestCase
     public function testModelExtendsCodeIgniterModel(): void
     {
         $this->assertInstanceOf(Model::class, $this->model);
+    }
+
+    public function testConstructorAcceptsDependencyInjection(): void
+    {
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $reflection = new ReflectionClass($model);
+
+        $aggroProp = $reflection->getProperty('aggroModel');
+        $this->assertSame($mockAggro, $aggroProp->getValue($model));
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertSame($mockUtility, $utilityProp->getValue($model));
+    }
+
+    public function testConstructorCreatesDefaultDependencies(): void
+    {
+        $model = new YoutubeModels();
+
+        $reflection = new ReflectionClass($model);
+
+        $aggroProp = $reflection->getProperty('aggroModel');
+        $this->assertInstanceOf(AggroModels::class, $aggroProp->getValue($model));
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
     }
 
     public function testSearchChannelMethodExists(): void
@@ -158,10 +190,38 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testSearchChannelWithExistingVideo(): void
     {
-        // Skip test that requires AggroModels integration
-        $this->markTestSkipped('Method requires AggroModels checkVideo functionality');
+        // Mock AggroModels to return true for checkVideo (video already exists)
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
 
-        // This would test behavior when video already exists in database
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $mockItem = new class () {
+            public function get_item_tags($namespace, $tag): array
+            {
+                return [['data' => 'existing_video_id']];
+            }
+        };
+
+        $mockFeed = new class ($mockItem) {
+            private $item;
+
+            public function __construct($item)
+            {
+                $this->item = $item;
+            }
+
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [$this->item];
+            }
+        };
+
+        // Video exists, so searchChannel should return false (not added)
+        $result = $model->searchChannel($mockFeed, 'existing_video_id');
+        $this->assertFalse($result);
     }
 
     public function testParseChannelWithMultipleNewVideos(): void
@@ -172,12 +232,26 @@ final class YoutubeModelsTest extends DatabaseTestCase
         // This would test processing multiple videos from a feed
     }
 
-    public function testParseChannelLogsMessageForNewVideos(): void
+    public function testParseChannelDoesNotLogForZeroVideos(): void
     {
-        // Skip test that requires UtilityModels integration
-        $this->markTestSkipped('Method requires UtilityModels sendLog functionality');
+        // Mock dependencies - no videos added so sendLog should not be called
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true); // All videos exist
 
-        // This would test that log messages are sent when videos are added
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->never())->method('sendLog');
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $mockFeed = new class () {
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [];
+            }
+        };
+
+        $result = $model->parseChannel($mockFeed);
+        $this->assertSame(0, $result);
     }
 
     public function testGetDurationUpdatesVideoDatabase(): void

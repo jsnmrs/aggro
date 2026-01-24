@@ -2,8 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Models\AggroModels;
+use App\Models\UtilityModels;
 use App\Models\VimeoModels;
 use CodeIgniter\Model;
+use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -22,6 +25,35 @@ final class VimeoModelsTest extends DatabaseTestCase
     public function testModelExtendsCodeIgniterModel(): void
     {
         $this->assertInstanceOf(Model::class, $this->model);
+    }
+
+    public function testConstructorAcceptsDependencyInjection(): void
+    {
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $reflection = new ReflectionClass($model);
+
+        $aggroProp = $reflection->getProperty('aggroModel');
+        $this->assertSame($mockAggro, $aggroProp->getValue($model));
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertSame($mockUtility, $utilityProp->getValue($model));
+    }
+
+    public function testConstructorCreatesDefaultDependencies(): void
+    {
+        $model = new VimeoModels();
+
+        $reflection = new ReflectionClass($model);
+
+        $aggroProp = $reflection->getProperty('aggroModel');
+        $this->assertInstanceOf(AggroModels::class, $aggroProp->getValue($model));
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
     }
 
     public function testSearchChannelMethodExists(): void
@@ -151,5 +183,39 @@ final class VimeoModelsTest extends DatabaseTestCase
     {
         $this->assertFalse($this->model->searchChannel(null, 'test'));
         $this->assertFalse($this->model->parseChannel(null));
+    }
+
+    public function testSearchChannelWithExistingVideo(): void
+    {
+        // Mock AggroModels to return true for checkVideo (video already exists)
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $feed = [
+            (object) ['id' => 'existing_video_id', 'title' => 'Test Video'],
+        ];
+
+        // Video exists, so searchChannel should return false (not added)
+        $result = $model->searchChannel($feed, 'existing_video_id');
+        $this->assertFalse($result);
+    }
+
+    public function testParseChannelDoesNotLogForZeroVideos(): void
+    {
+        // Mock dependencies - no videos added so sendLog should not be called
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true); // All videos exist
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->never())->method('sendLog');
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $result = $model->parseChannel([]);
+        $this->assertSame(0, $result);
     }
 }

@@ -11,6 +11,14 @@ use RuntimeException;
  */
 class NewsModels extends Model
 {
+    protected $utilityModel;
+
+    public function __construct(?UtilityModels $utilityModel = null)
+    {
+        parent::__construct();
+        $this->utilityModel = $utilityModel ?? new UtilityModels();
+    }
+
     /**
      * Build featured, stream entries.
      *
@@ -19,7 +27,6 @@ class NewsModels extends Model
      */
     public function featuredBuilder()
     {
-        $utilityModel = new UtilityModels();
         helper(['aggro', 'text']);
 
         try {
@@ -30,7 +37,7 @@ class NewsModels extends Model
 
             $stats = $this->processFeaturedFeeds($featured);
 
-            $this->logFeaturedStats($utilityModel, $stats);
+            $this->logFeaturedStats($stats);
 
             return true;
         } catch (DatabaseException $e) {
@@ -218,16 +225,15 @@ class NewsModels extends Model
     /**
      * Log featured feed processing statistics.
      *
-     * @param UtilityModels $utilityModel
-     * @param array         $stats
+     * @param array $stats
      */
-    private function logFeaturedStats($utilityModel, $stats)
+    private function logFeaturedStats($stats)
     {
         $message = $stats['counter'] . ' featured and stream sites updated';
         if ($stats['errorCount'] > 0) {
             $message .= ', ' . $stats['errorCount'] . ' errors';
         }
-        $utilityModel->sendLog($message);
+        $this->utilityModel->sendLog($message);
     }
 
     /**
@@ -238,8 +244,6 @@ class NewsModels extends Model
      */
     public function featuredCleaner()
     {
-        $utilityModel = new UtilityModels();
-
         try {
             $this->db->transStart();
 
@@ -254,13 +258,13 @@ class NewsModels extends Model
             $this->db->transCommit();
 
             $message = $counter . ' old stories deleted.';
-            $utilityModel->sendLog($message);
+            $this->utilityModel->sendLog($message);
 
             return $counter;
         } catch (DatabaseException $e) {
             $this->db->transRollback();
             log_message('error', 'Database error in featuredCleaner: ' . $e->getMessage());
-            $utilityModel->sendLog('Failed to clean old stories: ' . $e->getMessage());
+            $this->utilityModel->sendLog('Failed to clean old stories: ' . $e->getMessage());
 
             return false;
         }

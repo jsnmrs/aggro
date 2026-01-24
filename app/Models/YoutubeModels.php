@@ -9,6 +9,16 @@ use CodeIgniter\Model;
  */
 class YoutubeModels extends Model
 {
+    protected $aggroModel;
+    protected $utilityModel;
+
+    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null)
+    {
+        parent::__construct();
+        $this->aggroModel = $aggroModel ?? new AggroModels();
+        $this->utilityModel = $utilityModel ?? new UtilityModels();
+    }
+
     /**
      * Search YouTube feed for a specific video.
      *
@@ -22,16 +32,15 @@ class YoutubeModels extends Model
      */
     public function searchChannel($feed, $videoId)
     {
-        $aggroModel = new AggroModels();
         helper('youtube');
 
         foreach ($feed->get_items(0, 0) as $item) {
             $currentVideo   = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'videoId');
             $currentVideoId = $currentVideo[0]['data'];
 
-            if ($currentVideoId === $videoId && ! $aggroModel->checkVideo($currentVideoId)) {
+            if ($currentVideoId === $videoId && ! $this->aggroModel->checkVideo($currentVideoId)) {
                 $video = youtube_parse_meta($item);
-                $aggroModel->addVideo($video);
+                $this->aggroModel->addVideo($video);
 
                 return true;
             }
@@ -51,8 +60,6 @@ class YoutubeModels extends Model
      */
     public function parseChannel($feed)
     {
-        $aggroModel   = new AggroModels();
-        $utilityModel = new UtilityModels();
         helper('youtube');
         $addCount = 0;
 
@@ -60,16 +67,16 @@ class YoutubeModels extends Model
             $currentVideo   = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'videoId');
             $currentVideoId = $currentVideo[0]['data'];
 
-            if (! $aggroModel->checkVideo($currentVideoId)) {
+            if (! $this->aggroModel->checkVideo($currentVideoId)) {
                 $video = youtube_parse_meta($item);
-                $aggroModel->addVideo($video);
+                $this->aggroModel->addVideo($video);
                 $addCount++;
             }
         }
 
         if ($addCount >= 1) {
             $message = 'Ran YouTube fetch. Added ' . $addCount . ' new-to-me videos.';
-            $utilityModel->sendLog($message);
+            $this->utilityModel->sendLog($message);
         }
 
         return $addCount;
@@ -87,7 +94,6 @@ class YoutubeModels extends Model
      */
     public function getDuration()
     {
-        $utilityModel = new UtilityModels();
         helper('youtube');
 
         $query = $this->db->table('aggro_videos')
@@ -120,7 +126,7 @@ class YoutubeModels extends Model
         }
 
         $message = $update . ' video durations fetched.';
-        $utilityModel->sendLog($message);
+        $this->utilityModel->sendLog($message);
 
         return true;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\NewsModels;
+use App\Models\UtilityModels;
 use Tests\Support\ServiceTestCase;
 
 /**
@@ -14,6 +15,28 @@ final class NewsModelsTest extends ServiceTestCase
     {
         parent::setUp();
         $this->model = new NewsModels();
+    }
+
+    public function testConstructorAcceptsDependencyInjection(): void
+    {
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new NewsModels($mockUtility);
+
+        $reflection = new \ReflectionClass($model);
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertSame($mockUtility, $utilityProp->getValue($model));
+    }
+
+    public function testConstructorCreatesDefaultDependencies(): void
+    {
+        $model = new NewsModels();
+
+        $reflection = new \ReflectionClass($model);
+
+        $utilityProp = $reflection->getProperty('utilityModel');
+        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
     }
 
     public function testFeaturedBuilderReturnsTrueWithNoFeeds()
