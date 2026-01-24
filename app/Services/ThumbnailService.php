@@ -29,29 +29,36 @@ class ThumbnailService
     {
         helper('aggro');
 
-        $query = $this->db->table('aggro_videos')
-            ->select('video_id, video_thumbnail_url')
-            ->where('flag_archive', 0)
-            ->where('flag_bad', 0)
-            ->get();
-
-        $thumbs = $query->getResult();
-
         $storageConfig = config('Storage');
+        $batchSize     = 100;
+        $offset        = 0;
 
-        foreach ($thumbs as $thumb) {
-            $path = $storageConfig->getThumbnailPath($thumb->video_id);
+        do {
+            $query = $this->db->table('aggro_videos')
+                ->select('video_id, video_thumbnail_url')
+                ->where('flag_archive', 0)
+                ->where('flag_bad', 0)
+                ->limit($batchSize, $offset)
+                ->get();
 
-            if (file_exists($path)) {
-                continue;
+            $thumbs = $query->getResult();
+
+            foreach ($thumbs as $thumb) {
+                $path = $storageConfig->getThumbnailPath($thumb->video_id);
+
+                if (file_exists($path)) {
+                    continue;
+                }
+
+                $message = $thumb->video_id . ' missing thumbnail';
+                if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
+                    $message .= ' — fetched.';
+                }
+                $this->utilityModel->sendLog($message);
             }
 
-            $message = $thumb->video_id . ' missing thumbnail';
-            if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
-                $message .= ' — fetched.';
-            }
-            $this->utilityModel->sendLog($message);
-        }
+            $offset += $batchSize;
+        } while (count($thumbs) === $batchSize);
 
         return true;
     }

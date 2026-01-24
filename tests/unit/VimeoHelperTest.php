@@ -49,8 +49,17 @@ final class VimeoHelperTest extends CIUnitTestCase
 
     public function testVimeoIdFromUrlWithInvalidUrl(): void
     {
-        // Skip this test as the function may throw errors for invalid URLs
-        $this->markTestSkipped('vimeo_id_from_url may throw errors for invalid URLs');
+        $invalidUrls = [
+            'https://example.com/video',
+            'https://youtube.com/watch?v=123456',
+            'not-a-url',
+            '',
+        ];
+
+        foreach ($invalidUrls as $url) {
+            $result = vimeo_id_from_url($url);
+            $this->assertFalse($result, "Should return false for invalid URL: {$url}");
+        }
     }
 
     public function testVimeoIdFromUrlWithUrlParameters(): void
@@ -209,6 +218,28 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertSame('User with "quotes"', $result['video_source_username']);
     }
 
+    public function testVimeoParseMetaHandlesZeroHeight(): void
+    {
+        $mockItem = (object) [
+            'id'              => 123456789,
+            'title'           => 'Video With Zero Height',
+            'upload_date'     => '2024-01-01T00:00:00Z',
+            'thumbnail_large' => 'https://example.com/thumb.jpg',
+            'url'             => 'https://vimeo.com/123456789',
+            'duration'        => 60,
+            'width'           => 1920,
+            'height'          => 0,
+            'description'     => 'Test video',
+            'user_name'       => 'Test User',
+            'user_url'        => 'https://vimeo.com/testuser',
+        ];
+
+        $result = vimeo_parse_meta($mockItem);
+
+        $this->assertArrayHasKey('video_aspect_ratio', $result);
+        $this->assertSame(1.778, $result['video_aspect_ratio'], 'Zero height should default to 16:9 aspect ratio');
+    }
+
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
@@ -226,8 +257,7 @@ final class VimeoHelperTest extends CIUnitTestCase
     {
         // Test that functions return expected types for invalid input
         $this->assertFalse(vimeo_get_feed(''));
-        // Skip vimeo_id_from_url test as it may throw errors
-        $this->assertTrue(true); // Placeholder assertion
+        $this->assertFalse(vimeo_id_from_url('invalid'));
     }
 
     public function testVimeoIdExtractionWithEdgeCases(): void

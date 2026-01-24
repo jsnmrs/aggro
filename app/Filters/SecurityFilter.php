@@ -18,8 +18,14 @@ class SecurityFilter implements FilterInterface
 
         // Validate content type for POST requests
         if ($request->getMethod() === 'post') {
-            $contentType = $request->getHeaderLine('Content-Type');
-            if (! in_array($contentType, ['application/x-www-form-urlencoded', 'multipart/form-data', 'application/json'], true)) {
+            $contentType     = $request->getHeaderLine('Content-Type');
+            $baseContentType = explode(';', $contentType)[0];
+            $allowedTypes    = [
+                'application/x-www-form-urlencoded',
+                'multipart/form-data',
+                'application/json',
+            ];
+            if (! in_array(trim($baseContentType), $allowedTypes, true)) {
                 return Services::response()->setStatusCode(415);
             }
         }

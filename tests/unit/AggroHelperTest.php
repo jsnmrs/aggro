@@ -15,27 +15,6 @@ final class AggroHelperTest extends CIUnitTestCase
         helper('aggro');
     }
 
-    public function testCleanEmojiReturnsOriginalText(): void
-    {
-        $text   = 'Hello world 🌍';
-        $result = clean_emoji($text);
-
-        // Currently disabled functionality - should return original text
-        $this->assertSame($text, $result);
-    }
-
-    public function testCleanEmojiHandlesEmptyString(): void
-    {
-        $result = clean_emoji('');
-        $this->assertSame('', $result);
-    }
-
-    public function testCleanEmojiHandlesNullInput(): void
-    {
-        $result = clean_emoji(null);
-        $this->assertNull($result);
-    }
-
     public function testCleanErrorLogsMethodExists(): void
     {
         $this->assertTrue(function_exists('clean_error_logs'));
@@ -160,6 +139,71 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertIsBool($result);
     }
 
+    public function testGateCheckReturnsEarlyInCli(): void
+    {
+        // gate_check returns true early in CLI mode, so we verify that behavior
+        // The GATE env var check only runs in non-CLI, non-development environments
+        $this->assertTrue(is_cli(), 'Test environment should be CLI');
+        $result = gate_check();
+        $this->assertTrue($result, 'gate_check should return true in CLI mode');
+    }
+
+    /**
+     * Test that hash_equals would throw TypeError with boolean false.
+     *
+     * This tests the core issue (#750): when GATE env var is not set,
+     * getenv() returns false (boolean), and hash_equals() requires strings.
+     * The fix should check for false/empty before calling hash_equals.
+     */
+    public function testHashEqualsWithBooleanFalseThrowsTypeError(): void
+    {
+        // Demonstrate the bug: hash_equals throws TypeError when first arg is false
+        $this->expectException(\TypeError::class);
+        hash_equals(false, 'test-value');
+    }
+
+    /**
+     * Test that the GATE env var validation handles unset gracefully.
+     *
+     * This is a documentation test for issue #750. The actual gate_check
+     * function has an early return for CLI mode, so we test the expected
+     * behavior: getenv('GATE') returns false when not set.
+     */
+    public function testGetenvReturnsFalseWhenNotSet(): void
+    {
+        // Save and unset GATE env var
+        $originalGate = getenv('GATE');
+        putenv('GATE');
+
+        $envGate = getenv('GATE');
+
+        // getenv returns false (not empty string) when var is not set
+        $this->assertFalse($envGate);
+        $this->assertSame(false, $envGate);
+
+        // Restore GATE env var if it was set
+        if ($originalGate !== false) {
+            putenv('GATE=' . $originalGate);
+        }
+    }
+
+    public function testGetenvReturnsEmptyStringWhenSetEmpty(): void
+    {
+        // Save original and set empty GATE
+        $originalGate = getenv('GATE');
+        putenv('GATE=');
+
+        $envGate = getenv('GATE');
+
+        // getenv returns empty string when var is set to empty
+        $this->assertSame('', $envGate);
+
+        // Restore GATE env var if it was set
+        if ($originalGate !== false) {
+            putenv('GATE=' . $originalGate);
+        }
+    }
+
     public function testSafeFileWriteMethodExists(): void
     {
         $this->assertTrue(function_exists('safe_file_write'));
@@ -210,7 +254,6 @@ final class AggroHelperTest extends CIUnitTestCase
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
-            'clean_emoji',
             'clean_error_logs',
             'clean_feed_cache',
             'clean_thumbnail',

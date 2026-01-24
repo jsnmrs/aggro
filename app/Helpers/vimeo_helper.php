@@ -48,18 +48,13 @@ if (! function_exists('vimeo_id_from_url')) {
      */
     function vimeo_id_from_url($url)
     {
-        $match   = [];
         $pattern = '/vimeo\\.com\\/([0-9]{1,10})/';
-        preg_match($pattern, $url, $match);
-
-        if ($match[1]) {
+        if (preg_match($pattern, $url, $match) && isset($match[1])) {
             return $match[1];
         }
 
         $pattern = '/player\\.vimeo\\.com\\/video\\/([0-9]{1,10})/';
-        preg_match($pattern, $url, $match);
-
-        if ($match[1]) {
+        if (preg_match($pattern, $url, $match) && isset($match[1])) {
             return $match[1];
         }
 
@@ -101,7 +96,9 @@ if (! function_exists('vimeo_parse_meta')) {
         $video['video_source_username'] = $item->user_name;
         $video['video_width']           = $item->width;
         $video['video_height']          = $item->height;
-        $video['video_aspect_ratio']    = round($item->width / $item->height, 3);
+        $video['video_aspect_ratio']    = ($item->height > 0)
+            ? round($item->width / $item->height, 3)
+            : 1.778;
         $video['video_duration']        = $item->duration;
 
         return $video;

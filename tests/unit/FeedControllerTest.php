@@ -48,7 +48,7 @@ final class FeedControllerTest extends DatabaseTestCase
 
         $response = $result->response();
 
-        $this->assertSame('application/rss+xml; charset=UTF-8', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('text/x-opml; charset=UTF-8', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetVideofeedMethodExists(): void

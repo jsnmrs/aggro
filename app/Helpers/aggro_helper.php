@@ -37,26 +37,6 @@ if (! function_exists('decode_entities')) {
     }
 }
 
-if (! function_exists('clean_emoji')) {
-    /**
-     * Remove emoji from strings.
-     *
-     * Lifted from http://stackoverflow.com/a/12824140.
-     *
-     * @param string $text
-     *                     String to rinse of emoji.
-     *
-     * @return string
-     *                Clean string, free of emoji.
-     */
-    function clean_emoji($text)
-    {
-        // Currently disabled - emoji cleaning functionality not needed
-        // If emoji cleaning is required in the future, implement using a modern emoji library
-        return $text;
-    }
-}
-
 if (! function_exists('clean_error_log')) {
     /**
      * Clean error logs.
@@ -376,6 +356,12 @@ if (! function_exists('gate_check')) {
 
         // Compare with environment variable using timing-safe comparison
         $envGate = getenv('GATE');
+
+        if ($envGate === false || $envGate === '') {
+            log_message('warning', 'GATE environment variable is not set');
+
+            return false;
+        }
 
         return hash_equals($envGate, $gate);
     }
