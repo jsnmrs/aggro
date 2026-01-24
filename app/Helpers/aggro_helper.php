@@ -377,6 +377,12 @@ if (! function_exists('gate_check')) {
         // Compare with environment variable using timing-safe comparison
         $envGate = getenv('GATE');
 
+        if ($envGate === false || $envGate === '') {
+            log_message('warning', 'GATE environment variable is not set');
+
+            return false;
+        }
+
         return hash_equals($envGate, $gate);
     }
 }
