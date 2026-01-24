@@ -214,6 +214,7 @@ final class AggroHelperTest extends CIUnitTestCase
             'clean_error_logs',
             'clean_feed_cache',
             'clean_thumbnail',
+            'decode_entities',
             'fetch_error_logs',
             'fetch_feed',
             'fetch_thumbnail',
@@ -226,5 +227,78 @@ final class AggroHelperTest extends CIUnitTestCase
         foreach ($expectedFunctions as $function) {
             $this->assertTrue(function_exists($function), "Function {$function} does not exist");
         }
+    }
+
+    public function testDecodeEntitiesMethodExists(): void
+    {
+        $this->assertTrue(function_exists('decode_entities'));
+    }
+
+    public function testDecodeEntitiesWithPlainText(): void
+    {
+        $result = decode_entities('Hello World');
+        $this->assertSame('Hello World', $result);
+    }
+
+    public function testDecodeEntitiesWithSingleEncodedEntities(): void
+    {
+        // Single-encoded numeric entities should be decoded
+        $result = decode_entities('DENNIS ENARSON &#8211; RAMPED');
+        $this->assertSame('DENNIS ENARSON – RAMPED', $result);
+    }
+
+    public function testDecodeEntitiesWithDoubleEncodedEntities(): void
+    {
+        // Double-encoded entities (the main bug)
+        $result = decode_entities('DENNIS ENARSON &amp;#8211; RAMPED');
+        $this->assertSame('DENNIS ENARSON – RAMPED', $result);
+    }
+
+    public function testDecodeEntitiesWithTripleEncodedEntities(): void
+    {
+        // Triple-encoded entities
+        $result = decode_entities('Test &amp;amp;#8211; Value');
+        $this->assertSame('Test – Value', $result);
+    }
+
+    public function testDecodeEntitiesWithCurlyQuotes(): void
+    {
+        // Double-encoded curly quotes (&#8220; = " and &#8221; = ")
+        $result = decode_entities('ODYSSEY &amp;#8220;ON LOCK&amp;#8221; VIDEO');
+        $this->assertSame("ODYSSEY \u{201C}ON LOCK\u{201D} VIDEO", $result);
+    }
+
+    public function testDecodeEntitiesWithAmpersand(): void
+    {
+        // Double-encoded ampersand
+        $result = decode_entities('Matt Nordstrom &amp;#038; Chad Kerley');
+        $this->assertSame('Matt Nordstrom & Chad Kerley', $result);
+    }
+
+    public function testDecodeEntitiesWithMixedContent(): void
+    {
+        // Mix of plain text, regular entities, and double-encoded
+        $result = decode_entities('Test &amp;amp; More &amp;#8211; End');
+        $this->assertSame('Test & More – End', $result);
+    }
+
+    public function testDecodeEntitiesWithEmptyString(): void
+    {
+        $result = decode_entities('');
+        $this->assertSame('', $result);
+    }
+
+    public function testDecodeEntitiesPreservesUnicode(): void
+    {
+        // Should not corrupt existing unicode characters
+        $result = decode_entities('Café – Coffee');
+        $this->assertSame('Café – Coffee', $result);
+    }
+
+    public function testDecodeEntitiesWithNamedEntities(): void
+    {
+        // Named entities should also be decoded
+        $result = decode_entities('Test &amp;amp; &amp;quot;quoted&amp;quot;');
+        $this->assertSame('Test & "quoted"', $result);
     }
 }

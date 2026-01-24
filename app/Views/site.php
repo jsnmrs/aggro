@@ -23,7 +23,7 @@ echo $this->include('includes/header'); ?>
       <?php foreach ($feedfetch->get_items(0, 10) as $item) :?>
         <li>
           <a href="<?= esc($item->get_permalink()); ?>" rel="noopener noreferrer">
-            <?= esc(html_entity_decode($item->get_title(), ENT_QUOTES | ENT_HTML5, 'UTF-8')); ?>
+            <?= esc(decode_entities($item->get_title())); ?>
           </a>
           <span class="ago--muted"><?php
           $tempDate = $item->get_date('Y-m-d H:i:s');

@@ -7,6 +7,36 @@ use Config\Services;
  * @file
  * Aggro helper functions.
  */
+if (! function_exists('decode_entities')) {
+    /**
+     * Recursively decode HTML entities until no more decoding is possible.
+     *
+     * Handles double-encoded and triple-encoded entities common in RSS feeds
+     * where content like `&amp;#8211;` needs to become `–`.
+     *
+     * @param string $text Text that may contain encoded HTML entities
+     *
+     * @return string Text with all HTML entities decoded
+     */
+    function decode_entities($text)
+    {
+        if ($text === '' || $text === null) {
+            return $text ?? '';
+        }
+
+        $previous = '';
+        $current  = $text;
+
+        // Keep decoding until no more changes occur
+        while ($previous !== $current) {
+            $previous = $current;
+            $current  = html_entity_decode($current, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
+        return $current;
+    }
+}
+
 if (! function_exists('clean_emoji')) {
     /**
      * Remove emoji from strings.

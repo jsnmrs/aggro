@@ -10,7 +10,7 @@ set -e
 
 if [ "$1" ] && [ "$2" ];
   then
-    vendor/bin/dep run "'/usr/local/php81/bin/php' '/home/bmxfeed/aggro/current/public/index.php' '$1' '$2'" stage=prod
+    vendor/bin/dep run "'/usr/local/php84/bin/php' '/home/bmxfeed/aggro/current/public/index.php' '$1' '$2'" stage=prod
   else
     echo -e "\\n\\033[1;33mSpecify a controller and method.\\033[0m"
     echo -e "\\033[1;33mDo you need one of these?\\033[0m"
