@@ -15,27 +15,6 @@ final class AggroHelperTest extends CIUnitTestCase
         helper('aggro');
     }
 
-    public function testCleanEmojiReturnsOriginalText(): void
-    {
-        $text   = 'Hello world 🌍';
-        $result = clean_emoji($text);
-
-        // Currently disabled functionality - should return original text
-        $this->assertSame($text, $result);
-    }
-
-    public function testCleanEmojiHandlesEmptyString(): void
-    {
-        $result = clean_emoji('');
-        $this->assertSame('', $result);
-    }
-
-    public function testCleanEmojiHandlesNullInput(): void
-    {
-        $result = clean_emoji(null);
-        $this->assertNull($result);
-    }
-
     public function testCleanErrorLogsMethodExists(): void
     {
         $this->assertTrue(function_exists('clean_error_logs'));
@@ -275,7 +254,6 @@ final class AggroHelperTest extends CIUnitTestCase
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
-            'clean_emoji',
             'clean_error_logs',
             'clean_feed_cache',
             'clean_thumbnail',

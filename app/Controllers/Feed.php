@@ -26,7 +26,7 @@ class Feed extends BaseController
         $newsModel = new NewsModels();
 
         $data['build'] = $newsModel->getSites();
-        $this->response->setContentType('application/rss+xml');
+        $this->response->setContentType('text/x-opml');
 
         return view('xml/opml', $data);
     }
