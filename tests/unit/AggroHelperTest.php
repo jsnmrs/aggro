@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use TypeError;
 
 /**
  * @internal
@@ -158,7 +159,7 @@ final class AggroHelperTest extends CIUnitTestCase
     public function testHashEqualsWithBooleanFalseThrowsTypeError(): void
     {
         // Demonstrate the bug: hash_equals throws TypeError when first arg is false
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
         hash_equals(false, 'test-value');
     }
 
@@ -179,7 +180,7 @@ final class AggroHelperTest extends CIUnitTestCase
 
         // getenv returns false (not empty string) when var is not set
         $this->assertFalse($envGate);
-        $this->assertSame(false, $envGate);
+        $this->assertFalse($envGate);
 
         // Restore GATE env var if it was set
         if ($originalGate !== false) {

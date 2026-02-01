@@ -99,7 +99,7 @@ if (! function_exists('vimeo_parse_meta')) {
         $video['video_aspect_ratio']    = ($item->height > 0)
             ? round($item->width / $item->height, 3)
             : 1.778;
-        $video['video_duration']        = $item->duration;
+        $video['video_duration'] = $item->duration;
 
         return $video;
     }

@@ -23,7 +23,7 @@ final class NewsModelsTest extends ServiceTestCase
 
         $model = new NewsModels($mockUtility);
 
-        $reflection = new \ReflectionClass($model);
+        $reflection = new ReflectionClass($model);
 
         $utilityProp = $reflection->getProperty('utilityModel');
         $this->assertSame($mockUtility, $utilityProp->getValue($model));
@@ -33,7 +33,7 @@ final class NewsModelsTest extends ServiceTestCase
     {
         $model = new NewsModels();
 
-        $reflection = new \ReflectionClass($model);
+        $reflection = new ReflectionClass($model);
 
         $utilityProp = $reflection->getProperty('utilityModel');
         $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));

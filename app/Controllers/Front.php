@@ -76,8 +76,6 @@ class Front extends BaseController
 
     /**
      * Sites page.
-     *
-     * @param string|null $slug
      */
     public function getSites(?string $slug = null): string
     {
@@ -131,8 +129,6 @@ class Front extends BaseController
 
     /**
      * Video pages.
-     *
-     * @param string|null $slug
      */
     public function getVideo(?string $slug = null): string
     {

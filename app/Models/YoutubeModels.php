@@ -15,7 +15,7 @@ class YoutubeModels extends Model
     public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null)
     {
         parent::__construct();
-        $this->aggroModel = $aggroModel ?? new AggroModels();
+        $this->aggroModel   = $aggroModel ?? new AggroModels();
         $this->utilityModel = $utilityModel ?? new UtilityModels();
     }
 

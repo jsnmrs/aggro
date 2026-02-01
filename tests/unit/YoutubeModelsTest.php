@@ -29,7 +29,7 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testConstructorAcceptsDependencyInjection(): void
     {
-        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro   = $this->createMock(AggroModels::class);
         $mockUtility = $this->createMock(UtilityModels::class);
 
         $model = new YoutubeModels($mockAggro, $mockUtility);
