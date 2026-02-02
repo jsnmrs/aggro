@@ -9,4 +9,5 @@ fin init
 fin sniff
 fin shellcheck
 fin composer test
+fin clicheck
 fin admin
