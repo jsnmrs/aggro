@@ -112,8 +112,6 @@ class Aggro extends BaseController
      * Update featured/stream pages.
      *
      * Set cron to run every 5 minutes.
-     *
-     * @param string|null $slug
      */
     public function getNews(?string $slug = null): ResponseInterface|string
     {
@@ -183,7 +181,7 @@ class Aggro extends BaseController
      *
      * Set cron to run every 60 minutes.
      */
-    public function getSweep(): ResponseInterface|bool
+    public function getSweep(): bool|ResponseInterface
     {
         helper('aggro');
         $aggroModel = new AggroModels();
@@ -210,7 +208,7 @@ class Aggro extends BaseController
     /**
      * Update duration value for videos.
      */
-    public function getYouTubeDuration(): ResponseInterface|bool
+    public function getYouTubeDuration(): bool|ResponseInterface
     {
         helper(['aggro', 'youtube']);
         $youtubeModel = new YoutubeModels();
@@ -230,10 +228,8 @@ class Aggro extends BaseController
      * Vimeo video fetcher.
      *
      * Set cron to run every 5 minutes.
-     *
-     * @param string|null $videoID
      */
-    public function getVimeo(?string $videoID = null): ResponseInterface|bool
+    public function getVimeo(?string $videoID = null): bool|ResponseInterface
     {
         helper(['aggro', 'vimeo']);
         $aggroModel = new AggroModels();
@@ -287,10 +283,8 @@ class Aggro extends BaseController
      * YouTube video fetcher.
      *
      * Set cron to run every 5 minutes.
-     *
-     * @param string|null $videoID
      */
-    public function getYoutube(?string $videoID = null): ResponseInterface|bool
+    public function getYoutube(?string $videoID = null): bool|ResponseInterface
     {
         helper(['aggro', 'youtube']);
         $aggroModel   = new AggroModels();
