@@ -83,7 +83,7 @@ Performance note — Xdebug may slow down the application. If you experience per
 
 Aggro includes several custom Docksal commands to help with development:
 
-- `fin admin` — Run application maintenance tasks
+- `fin clicheck` — Run application maintenance tasks
 - `fin deploy [env]` — Deploy to specified environment
 - `fin frontend` — Run front-end build process
 - `fin maintain` — Run upgrades and tests
@@ -197,11 +197,9 @@ Note — Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=cove
 ### Code Quality Checks
 
 ```bash
-# Run all linting and static analysis
-fin lint
-
 # Run specific checks
-fin sniff      # PHP CodeSniffer
+fin composer lint # PHP linting, static analysis
+fin composer test # PHP unit tests
 fin shellcheck # Shell script linting
 
 # Individual quality tools

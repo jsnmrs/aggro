@@ -38,7 +38,3 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 ## aggro youtube
 ## Look for new YouTube videos every 5 minutes
 */5 * * * * $PHP_PATH $INDEX_PATH aggro youtube
-
-## aggro watch
-## Show next video in the watch queue every week (Monday at 00:00)
-0 0 * * 1 $PHP_PATH $INDEX_PATH aggro watch

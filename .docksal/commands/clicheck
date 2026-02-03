@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+## Validate CLI routes are accessible (and run them in the process)
+## Usage: fin clicheck
+
+#: exec_target = cli
+
+# Abort if anything fails
+set -e
+
+echo -e "\n\033[1;33mValidating CLI routes...\033[0m"
+
+# CLI routes from crontab that should be accessible
+ROUTES=(
+    "aggro log"
+    "aggro log-error"
+    "aggro news"
+    "aggro news-clean"
+    "aggro news-cache"
+    "aggro sweep"
+    "aggro duration"
+    "aggro vimeo"
+    "aggro youtube"
+    "aggro log-clean"
+    "aggro log-error-clean"
+)
+
+FAILED=0
+
+for route in "${ROUTES[@]}"; do
+    echo -n "  Testing $route... "
+
+    # Run the CLI route and capture output
+    # shellcheck disable=SC2086 # Intentional word splitting for route args
+    OUTPUT=$(/usr/local/bin/php /var/www/public/index.php $route 2>&1) || true
+
+    # Check for 404 response (CI4 error page contains <h1>404</h1>)
+    if echo "$OUTPUT" | grep -q "<h1>404</h1>"; then
+        echo -e "\033[1;31mFAILED (404)\033[0m"
+        echo -e "\033[0;33mOutput:\033[0m"
+        echo "$OUTPUT"
+        FAILED=1
+    elif echo "$OUTPUT" | grep -q "Unable to locate"; then
+        echo -e "\033[1;31mFAILED (Route not found)\033[0m"
+        echo -e "\033[0;33mOutput:\033[0m"
+        echo "$OUTPUT"
+        FAILED=1
+    else
+        echo -e "\033[1;32mOK\033[0m"
+    fi
+done
+
+if [ $FAILED -eq 1 ]; then
+    echo -e "\n\033[1;31mCLI route validation failed!\033[0m"
+    echo "Ensure all routes have corresponding \$routes->cli() definitions in app/Config/Routes.php"
+    exit 1
+fi
+
+echo -e "\n\033[1;32mAll CLI routes accessible.\033[0m"

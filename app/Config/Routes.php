@@ -33,11 +33,19 @@ $routes->post('aggro/log-error-clean', 'Aggro::getLogErrorClean');
 $routes->post('aggro/news-cache', 'Aggro::getNewsCache');
 $routes->post('aggro/news-clean', 'Aggro::getNewsClean');
 $routes->post('aggro/sweep', 'Aggro::getSweep');
+$routes->cli('aggro/log', 'Aggro::getLog');
+$routes->cli('aggro/log-error', 'Aggro::getLogError');
 $routes->cli('aggro/log-clean', 'Aggro::getLogClean');
 $routes->cli('aggro/log-error-clean', 'Aggro::getLogErrorClean');
 $routes->cli('aggro/news-cache', 'Aggro::getNewsCache');
 $routes->cli('aggro/news-clean', 'Aggro::getNewsClean');
 $routes->cli('aggro/sweep', 'Aggro::getSweep');
+$routes->cli('aggro/news', 'Aggro::getNews');
+$routes->cli('aggro/vimeo', 'Aggro::getVimeo');
+$routes->cli('aggro/vimeo/(:segment)', 'Aggro::getVimeo/$1');
+$routes->cli('aggro/youtube', 'Aggro::getYoutube');
+$routes->cli('aggro/youtube/(:segment)', 'Aggro::getYoutube/$1');
+$routes->cli('aggro/duration', 'Aggro::getYouTubeDuration');
 
 // Set 404 override
 $routes->set404Override('App\Controllers\Front::getError404');

@@ -6,8 +6,4 @@
 
 cd "$PROJECT_ROOT" || exit
 fin upgrade
-fin init
-fin check
-fin sniff
-fin shellcheck
-fin admin
+fin test
