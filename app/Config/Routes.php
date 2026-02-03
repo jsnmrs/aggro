@@ -33,6 +33,8 @@ $routes->post('aggro/log-error-clean', 'Aggro::getLogErrorClean');
 $routes->post('aggro/news-cache', 'Aggro::getNewsCache');
 $routes->post('aggro/news-clean', 'Aggro::getNewsClean');
 $routes->post('aggro/sweep', 'Aggro::getSweep');
+$routes->cli('aggro/log', 'Aggro::getLog');
+$routes->cli('aggro/log-error', 'Aggro::getLogError');
 $routes->cli('aggro/log-clean', 'Aggro::getLogClean');
 $routes->cli('aggro/log-error-clean', 'Aggro::getLogErrorClean');
 $routes->cli('aggro/news-cache', 'Aggro::getNewsCache');
