@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Validate CLI routes are accessible
+## Validate CLI routes are accessible (and run them in the process)
 ## Usage: fin clicheck
 
 #: exec_target = cli
@@ -12,6 +12,8 @@ echo -e "\n\033[1;33mValidating CLI routes...\033[0m"
 
 # CLI routes from crontab that should be accessible
 ROUTES=(
+    "aggro log"
+    "aggro log-error"
     "aggro news"
     "aggro news-clean"
     "aggro news-cache"
