@@ -43,10 +43,10 @@
     }
   },
   "scripts": {
-    "test": "phpunit",
-    "test:unit": "phpunit tests/unit",
-    "test:feature": "phpunit tests/feature",
-    "test:coverage": "XDEBUG_MODE=coverage phpunit --coverage-html build/logs/html --coverage-clover build/logs/clover.xml",
+    "test": "phpunit --testdox",
+    "test:unit": "phpunit tests/unit --testdox",
+    "test:feature": "phpunit tests/feature --testdox",
+    "test:coverage": "XDEBUG_MODE=coverage phpunit --coverage-html build/logs/html --coverage-clover build/logs/clover.xml --testdox",
     "phpcs": "phpcs --standard=phpcs.xml -v --colors",
     "phpcbf": "phpcbf --standard=phpcs.xml -v --colors --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer,$($COMPOSER_BINARY config vendor-dir)/sirbrillig/phpcs-variable-analysis,$($COMPOSER_BINARY config vendor-dir)/slevomat/coding-standard",
     "phpmd": [
