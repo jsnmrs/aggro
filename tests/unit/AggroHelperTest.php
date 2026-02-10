@@ -345,4 +345,41 @@ final class AggroHelperTest extends CIUnitTestCase
         $result = decode_entities('Test &amp;amp; &amp;quot;quoted&amp;quot;');
         $this->assertSame('Test & "quoted"', $result);
     }
+
+    public function testFetchUrlPopulatesHttpStatus(): void
+    {
+        $httpStatus = null;
+        // Use an invalid URL that will get a cURL error (no HTTP code)
+        fetch_url('http://localhost:1', 'text', 0, $httpStatus);
+
+        // httpStatus should be set (0 for connection failure)
+        $this->assertIsInt($httpStatus);
+    }
+
+    public function testFetchUrlHttpStatusSetOn404(): void
+    {
+        $httpStatus = null;
+        // httpbin returns 404 for this endpoint
+        fetch_url('https://httpbin.org/status/404', 'text', 0, $httpStatus);
+
+        $this->assertSame(404, $httpStatus);
+    }
+
+    public function testFetchThumbnailPassesThroughHttpStatus(): void
+    {
+        $httpStatus = null;
+        // Fetching a non-existent thumbnail should populate httpStatus
+        fetch_thumbnail('nonexistent_video', 'https://httpbin.org/status/404', $httpStatus);
+
+        $this->assertIsInt($httpStatus);
+        $this->assertSame(404, $httpStatus);
+    }
+
+    public function testFetchUrlHttpStatusBackwardCompatible(): void
+    {
+        // Calling without the httpStatus param should still work
+        $result = fetch_url('http://localhost:1');
+        // Should not throw any errors — backward-compatible
+        $this->assertFalse($result);
+    }
 }

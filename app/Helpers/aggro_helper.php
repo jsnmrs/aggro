@@ -199,20 +199,22 @@ if (! function_exists('fetch_thumbnail')) {
     /**
      * Fetch thumbnail image from video provider, process image, and save locally.
      *
-     * @param string $videoid
-     *                          The videoid.
-     * @param string $thumbnail
-     *                          The remote URL of the video thumbnail.
+     * @param string   $videoid
+     *                              The videoid.
+     * @param string   $thumbnail
+     *                              The remote URL of the video thumbnail.
+     * @param int|null &$httpStatus
+     *                              Optional. Populated with the HTTP status code from the fetch.
      *
      * @return bool
      *              Video thumbnail fetched and processed.
      */
-    function fetch_thumbnail($videoid, $thumbnail)
+    function fetch_thumbnail($videoid, $thumbnail, &$httpStatus = null)
     {
         helper('aggro');
         $storageConfig = config('Storage');
         $path          = $storageConfig->getThumbnailPath($videoid);
-        $buffer        = fetch_url($thumbnail);
+        $buffer        = fetch_url($thumbnail, 'text', 0, $httpStatus);
 
         if (! empty($buffer)) {
             $file = fopen($path, 'wb');
@@ -259,20 +261,22 @@ if (! function_exists('fetch_url')) {
     /**
      * Fetch contents of URL (via CURL). Decode if XML or JSON.
      *
-     * @param string $url
-     *                       URL to be fetched.
-     * @param string $format
-     *                       Format to be returned:
-     *                       - text: return as text, no decoding.
-     *                       - simplexml: return as decoded XML.
-     *                       - json: return as decoded JSON.
-     * @param string $spoof
-     *                       Spoof user agent string (1/0).
+     * @param string   $url
+     *                              URL to be fetched.
+     * @param string   $format
+     *                              Format to be returned:
+     *                              - text: return as text, no decoding.
+     *                              - simplexml: return as decoded XML.
+     *                              - json: return as decoded JSON.
+     * @param string   $spoof
+     *                              Spoof user agent string (1/0).
+     * @param int|null &$httpStatus
+     *                              Optional. Populated with the HTTP response code.
      *
      * @return string
      *                Contents of requested url with optional decoding.
      */
-    function fetch_url($url, $format = 'text', $spoof = 0)
+    function fetch_url($url, $format = 'text', $spoof = 0, &$httpStatus = null)
     {
         $storageConfig = config('Storage');
         $agent         = env('UA_BMXFEED', 'Aggro/1.0');
@@ -286,9 +290,10 @@ if (! function_exists('fetch_url')) {
         curl_setopt($fetch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($fetch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($fetch, CURLOPT_MAXREDIRS, $storageConfig->urlMaxRedirects);
-        $response  = curl_exec($fetch);
-        $httpCode  = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
-        $errorInfo = curl_error($fetch);
+        $response   = curl_exec($fetch);
+        $httpCode   = curl_getinfo($fetch, CURLINFO_HTTP_CODE);
+        $httpStatus = $httpCode;
+        $errorInfo  = curl_error($fetch);
         curl_close($fetch);
 
         if ($httpCode === 403 || $httpCode === 404 || $httpCode === 500) {

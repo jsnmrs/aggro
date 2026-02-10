@@ -92,6 +92,16 @@ class AggroModels extends Model
     }
 
     /**
+     * Flag videos with chronic thumbnail failures as bad.
+     *
+     * @return int Number of videos flagged
+     */
+    public function flagBrokenThumbnails()
+    {
+        return $this->thumbnailService->flagBrokenThumbnails();
+    }
+
+    /**
      * Get list of video channels that haven't been updated within timeframe.
      *
      * @param string $stale

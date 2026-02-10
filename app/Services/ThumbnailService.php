@@ -50,10 +50,16 @@ class ThumbnailService
                     continue;
                 }
 
-                $message = $thumb->video_id . ' missing thumbnail';
-                if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url)) {
+                $httpStatus = null;
+                $message    = $thumb->video_id . ' missing thumbnail';
+
+                if (fetch_thumbnail($thumb->video_id, $thumb->video_thumbnail_url, $httpStatus)) {
                     $message .= ' — fetched.';
+                    $this->resetThumbnailIssueCount($thumb->video_id);
+                } elseif ($httpStatus === 404) {
+                    $this->incrementThumbnailIssueCount($thumb->video_id);
                 }
+
                 $this->utilityModel->sendLog($message);
             }
 
@@ -61,6 +67,40 @@ class ThumbnailService
         } while (count($thumbs) === $batchSize);
 
         return true;
+    }
+
+    /**
+     * Flag videos with chronic thumbnail failures as bad.
+     *
+     * Videos with thumbnail_issue_count above the threshold
+     * are permanently flagged bad so they stop being fetched,
+     * displayed, and retried.
+     *
+     * @return int Number of videos flagged
+     */
+    public function flagBrokenThumbnails()
+    {
+        $threshold = 10;
+
+        $videos = $this->db->table('aggro_videos')
+            ->select('video_id')
+            ->where('thumbnail_issue_count >', $threshold)
+            ->where('flag_bad', 0)
+            ->get()
+            ->getResult();
+
+        $count = 0;
+
+        foreach ($videos as $video) {
+            $this->db->table('aggro_videos')
+                ->where('video_id', $video->video_id)
+                ->update(['flag_bad' => 1]);
+
+            log_message('error', 'Flagged video ' . $video->video_id . ' as bad — thumbnail 404 count exceeded threshold (' . $threshold . ').');
+            $count++;
+        }
+
+        return $count;
     }
 
     /**
@@ -160,5 +200,30 @@ class ThumbnailService
         }
 
         $this->utilityModel->sendLog($message);
+    }
+
+    /**
+     * Increment the thumbnail issue count for a video.
+     *
+     * @param string $videoId The video ID
+     */
+    private function incrementThumbnailIssueCount($videoId)
+    {
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->set('thumbnail_issue_count', 'thumbnail_issue_count + 1', false)
+            ->update();
+    }
+
+    /**
+     * Reset the thumbnail issue count for a video.
+     *
+     * @param string $videoId The video ID
+     */
+    private function resetThumbnailIssueCount($videoId)
+    {
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update(['thumbnail_issue_count' => 0]);
     }
 }
