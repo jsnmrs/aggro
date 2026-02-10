@@ -106,6 +106,17 @@ class CreateTestTables extends Migration
                 'null'       => false,
                 'default'    => 0,
             ],
+            'flag_favorite' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'null'       => false,
+                'default'    => 0,
+            ],
+            'thumbnail_issue_count' => [
+                'type'    => 'INT',
+                'null'    => false,
+                'default' => 0,
+            ],
         ]);
         $this->forge->addKey('aggro_id', true);
         $this->forge->addUniqueKey('video_id');

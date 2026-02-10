@@ -202,6 +202,11 @@ class Aggro extends BaseController
             echo "\nThumbnails cleaned up.\n";
         }
 
+        $flagged = $aggroModel->flagBrokenThumbnails();
+        if ($flagged > 0) {
+            echo "\n" . $flagged . " broken thumbnail(s) flagged.\n";
+        }
+
         return true;
     }
 
