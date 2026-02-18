@@ -14,15 +14,15 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Feed generation — provides RSS/OPML feeds of aggregated content
 - Responsive design — mobile-first, responsive web interface
 - Error monitoring — integrated Sentry for real-time error tracking and performance monitoring
-- Enhanced security — parameterized database queries, secure configuration management, comprehensive input validation, CSRF protection, security headers
+- Enhanced security — parameterized database queries, secure configuration management, input validation, CSRF protection, security headers
 
 ## Tech stack
 
 - Back-end — PHP 8.4+ with CodeIgniter 4 framework
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
 - Database — MySQL/MariaDB (SQLite for testing)
-- Testing — PHPUnit 11.5 for comprehensive unit testing with coverage reporting
-- Debugging — Xdebug enabled for local development
+- Testing — PHPUnit 11.5 for unit testing with coverage reporting
+- Debugging — Xdebug available for local development (off by default)
 - Error monitoring — Sentry for application monitoring and error tracking
 - Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
 - Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
@@ -38,7 +38,7 @@ Aggro follows a clean architecture pattern with separation of concerns:
 - Helpers — Utility functions for common operations
 - Libraries — Third-party integrations and custom components
 
-This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables comprehensive unit testing with 372 tests achieving 46.22% line coverage across all architectural layers.
+This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables unit testing with 464 tests achieving 46.22% line coverage across all architectural layers.
 
 ## Local development setup
 
@@ -68,7 +68,13 @@ Aggro uses [DDEV](https://ddev.com) for local development. This ensures a consis
 
 ### Debugging with Xdebug
 
-Xdebug is enabled by default in the DDEV environment for debugging and profiling:
+Xdebug is available in the DDEV environment but disabled by default for better performance. Enable it when you need debugging or profiling:
+
+```bash
+ddev xdebug on
+```
+
+When enabled, the configuration is:
 
 - Server name — `aggro.ddev.site`
 - Port — `9003`
@@ -77,28 +83,39 @@ Xdebug is enabled by default in the DDEV environment for debugging and profiling
 
 Configure VS Code to listen for Xdebug connections on port 9003. The debugger will automatically connect when triggered.
 
-Performance note — Xdebug may slow down the application. If you experience performance issues during development, you can disable it with `ddev xdebug off` and re-enable it with `ddev xdebug on`.
+When you're done debugging, disable Xdebug to restore performance:
+
+```bash
+ddev xdebug off
+```
 
 ### Development commands
 
 Aggro includes several custom DDEV commands to help with development:
 
+- `ddev check` — Check local URL responses for errors
 - `ddev clicheck` — Run application maintenance tasks
-- `ddev deploy [env]` — Deploy to specified environment
+- `ddev cron` — Manage crontab (sync or clear)
+- `ddev fire` — Run a controller method from the CLI
 - `ddev frontend` — Run front-end build process
-- `ddev maintain` — Run upgrades and tests
-- `ddev test` — Run test suite
+- `ddev shellcheck` — Run ShellCheck on custom commands
+- `ddev tunnel` — Run a controller method on the remote server
 - `ddev upgrade` — Update Composer packages
 
 ### CLI maintenance commands
 
-Maintenance tasks can be run via CLI for cron jobs or automation:
+Maintenance tasks can be run via CLI using `ddev fire` for local or `ddev tunnel` for remote:
 
-- `php spark aggro/log-clean` — Clean old log entries
-- `php spark aggro/log-error-clean` — Clean old error log entries
-- `php spark aggro/news-cache` — Clear news feed cache
-- `php spark aggro/news-clean` — Archive old news items
-- `php spark aggro/sweep` — Run all maintenance tasks
+- `aggro log` — View application log
+- `aggro log-error` — View error log
+- `aggro log-clean` — Clean old log entries
+- `aggro log-error-clean` — Clean old error log entries
+- `aggro news` — Fetch news feeds
+- `aggro news-cache` — Clear news feed cache
+- `aggro news-clean` — Archive old news items
+- `aggro sweep` — Run all maintenance tasks
+- `aggro vimeo/VIDEO_ID` — Fetch a Vimeo video
+- `aggro youtube/VIDEO_ID` — Fetch a YouTube video
 
 ## Configuration
 
@@ -141,28 +158,28 @@ The `.crontab` file defines scheduled tasks for:
 
 ## Testing
 
-The project includes comprehensive testing infrastructure with 393 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 393 comprehensive unit tests
+- Total Tests — 464 unit tests
 - Coverage — 46.22% line coverage across all components
-- Assertions — 471 test assertions ensuring thorough validation
-- External Dependencies — 85 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
-- Test Files — 74 test files covering all major components
+- Assertions — 741 test assertions ensuring thorough validation
+- External Dependencies — 86 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- Test Files — 28 test files covering all major components
 
 ### Unit Testing with PHPUnit
 
-The test suite includes comprehensive coverage of:
+The test suite covers:
 
 - Controllers — HTTP request handling, response coordination, and validation (Feed: 100%, Home: 100%, BaseController: 100%)
 - Models — Core business logic and data structures (AggroModels: 100%, NewsModels: 37.59%, UtilityModels: 55.88%)
-- Helpers — Utility functions and common operations with comprehensive parameter validation
+- Helpers — Utility functions and common operations with parameter validation
 - Services — Domain-specific business logic (ArchiveService: 96.30%, ThumbnailService: 68.63%, ValidationService: 100%)
 - Repositories — Data access layer operations (ChannelRepository: 100%, VideoRepository: 82.47%)
 - Libraries — Third-party integrations (SentryService: 12.84%, SentryLogHandler: 19.44%)
 - Filters — Request/response filtering (SecurityFilter: 100%, CustomCSRF: 100%, SentryPerformance: 12.90%)
-- Security — Comprehensive security tests for SQL injection prevention, input validation, CSRF protection
+- Security — SQL injection prevention, input validation, CSRF protection
 
 Tests use an in-memory SQLite database for fast, isolated testing without affecting your development database. External services are properly mocked or skipped to ensure reliable test execution.
 
@@ -175,7 +192,7 @@ ddev test
 # Run only PHPUnit unit tests
 composer test:unit
 
-# Run tests with coverage report (requires Xdebug)
+# Run tests with coverage report (requires Xdebug: ddev xdebug on)
 XDEBUG_MODE=coverage composer test:coverage
 
 # Run all Composer test scripts
@@ -192,7 +209,7 @@ When running tests with coverage, detailed HTML reports are generated in:
 
 Open the HTML report in your browser to view detailed coverage metrics by file and function.
 
-Note — Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=coverage` when running coverage commands.
+Note — Coverage reporting requires Xdebug to be enabled (`ddev xdebug on`). Use `XDEBUG_MODE=coverage` when running coverage commands.
 
 ### Code Quality Checks
 
@@ -213,15 +230,15 @@ The test suite follows TDD principles and best practices:
 
 - Proper Isolation — External dependencies (APIs, file system, network) are mocked or skipped
 - Fast Execution — In-memory SQLite database for rapid test runs
-- Comprehensive Coverage — Tests cover success paths, error conditions, and edge cases
+- Coverage — Tests cover success paths, error conditions, and edge cases
 - Clean Architecture — Testable design with dependency injection
-- External Service Handling — 85 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
+- External Service Handling — 86 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
 
 ### Continuous Integration
 
-GitHub Actions automatically runs the full test suite (393 tests) on all pull requests, including:
+GitHub Actions automatically runs the full test suite (464 tests) on all pull requests, including:
 
-- PHPUnit unit tests with comprehensive coverage validation
+- PHPUnit unit tests with coverage validation
 - Code style checks (PHP CS Fixer, CodeSniffer)
 - Static analysis (PHPStan, PHPMD)
 - Shell script linting
@@ -230,7 +247,7 @@ All tests must pass before code can be merged, ensuring code quality and prevent
 
 ### Security Features
 
-The application includes comprehensive security measures:
+The application includes the following security measures:
 
 - CSRF Protection — Custom CSRF filter for all state-changing operations
 - Input Validation — ValidationService provides sanitization for slugs, video IDs, gate keys, and integers
@@ -243,7 +260,7 @@ The application includes comprehensive security measures:
 
 Deployment is handled through GitHub Actions and Deployer with automated testing:
 
-1. Pull Request Testing — All PRs automatically run the complete test suite (393 tests) including PHPUnit tests, code quality checks, and static analysis
+1. Pull Request Testing — All PRs automatically run the complete test suite (464 tests) including PHPUnit tests, code quality checks, and static analysis
 2. Automated deployment — Deployment to production occurs on merge to main branch (only after all tests pass)
 3. Front-end assets — Assets are built and included in deployment
 4. Environment files — Securely transferred during deployment
