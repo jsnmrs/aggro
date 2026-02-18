@@ -25,8 +25,8 @@ host('dev.bmxfeed.com')
     ->setRemoteUser('bmxfeed')
     ->setDeployPath('/home/bmxfeed/aggro-dev');
 
-if (file_exists('/var/www/.ssh/config')) {
-    host('bmxfeed.com')->setConfigFile('/var/www/.ssh/config');
+if (file_exists('/home/.ssh/config')) {
+    host('bmxfeed.com')->setConfigFile('/home/.ssh/config');
 }
 
 // rsync from local.
@@ -35,6 +35,7 @@ set('rsync_src', static fn () => __DIR__);
 add('rsync', [
     'exclude' => [
         '.browserslistrc',
+        '.ddev',
         '.docksal',
         '.editorconfig',
         '.env*',

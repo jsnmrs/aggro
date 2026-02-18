@@ -42,11 +42,11 @@ This architecture improves code maintainability, testability, and follows SOLID 
 
 ## Local development setup
 
-Aggro uses [Docksal](https://docksal.io) for local development. This ensures a consistent development environment across machines.
+Aggro uses [DDEV](https://ddev.com) for local development. This ensures a consistent development environment across machines.
 
 ### Prerequisites
 
-1. Install [Docksal](https://docksal.io/installation)
+1. Install [DDEV](https://ddev.com/get-started/)
 2. Docker compatible host system
 
 ### Installation
@@ -59,36 +59,36 @@ Aggro uses [Docksal](https://docksal.io) for local development. This ensures a c
 
 2. Initialize the project:
    ```bash
-   fin init
+   ddev init
    ```
 
 3. View the site:
-   - Open http://aggro.docksal.site in your browser
+   - Open https://aggro.ddev.site in your browser
    - The init process creates a local database from aggro-db.sql
 
 ### Debugging with Xdebug
 
-Xdebug is enabled by default in the Docksal environment for debugging and profiling:
+Xdebug is enabled by default in the DDEV environment for debugging and profiling:
 
-- Server name — `aggro.docksal.site`
+- Server name — `aggro.ddev.site`
 - Port — `9003`
 - IDE key — `VSCODE`
 - Coverage — Enabled for test coverage reports
 
 Configure VS Code to listen for Xdebug connections on port 9003. The debugger will automatically connect when triggered.
 
-Performance note — Xdebug may slow down the application. If you experience performance issues during development, you can disable it by commenting out the xdebug configuration in `.docksal/etc/php/php.ini`.
+Performance note — Xdebug may slow down the application. If you experience performance issues during development, you can disable it with `ddev xdebug off` and re-enable it with `ddev xdebug on`.
 
 ### Development commands
 
-Aggro includes several custom Docksal commands to help with development:
+Aggro includes several custom DDEV commands to help with development:
 
-- `fin clicheck` — Run application maintenance tasks
-- `fin deploy [env]` — Deploy to specified environment
-- `fin frontend` — Run front-end build process
-- `fin maintain` — Run upgrades and tests
-- `fin test` — Run test suite
-- `fin upgrade` — Update Composer packages
+- `ddev clicheck` — Run application maintenance tasks
+- `ddev deploy [env]` — Deploy to specified environment
+- `ddev frontend` — Run front-end build process
+- `ddev maintain` — Run upgrades and tests
+- `ddev test` — Run test suite
+- `ddev upgrade` — Update Composer packages
 
 ### CLI maintenance commands
 
@@ -106,9 +106,9 @@ Maintenance tasks can be run via CLI for cron jobs or automation:
 
 Copy `.env-sample` to `.env` for your local environment. Key configurations:
 
-- `CI_ENVIRONMENT` — set to “development” for local work
-- `app.baseURL` — your local URL (default: http://aggro.docksal.site)
-- Database credentials — configured through Docksal
+- `CI_ENVIRONMENT` — set to "development" for local work
+- `app.baseURL` — your local URL (default: https://aggro.ddev.site)
+- Database credentials — configured through DDEV
 - API keys — for video services
 
 ### Sentry configuration
@@ -170,7 +170,7 @@ Tests use an in-memory SQLite database for fast, isolated testing without affect
 
 ```bash
 # Run all tests (includes PHPUnit + linting)
-fin test
+ddev test
 
 # Run only PHPUnit unit tests
 composer test:unit
@@ -198,13 +198,13 @@ Note — Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=cove
 
 ```bash
 # Run specific checks
-fin composer lint # PHP linting, static analysis
-fin composer test # PHP unit tests
-fin shellcheck # Shell script linting
+ddev composer lint # PHP linting, static analysis
+ddev composer test # PHP unit tests
+ddev shellcheck # Shell script linting
 
 # Individual quality tools
-fin phpfix     # Auto-fix PHP code style issues
-fin phpstan    # Run PHPStan static analysis
+ddev exec vendor/bin/php-cs-fixer fix  # Auto-fix PHP code style issues
+ddev exec vendor/bin/phpstan analyse   # Run PHPStan static analysis
 ```
 
 ### Testing Best Practices
@@ -255,10 +255,10 @@ The CI/CD pipeline ensures code quality by requiring all tests to pass before an
 
 ```bash
 # Deploy to development
-fin deploy dev
+ddev deploy dev
 
 # Deploy to production
-fin deploy prod
+ddev deploy prod
 ```
 
 ## Error monitoring
@@ -281,7 +281,7 @@ Aggro is open-source software licensed under the MIT license. See the [LICENSE](
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests (`fin test`)
+4. Run tests (`ddev test`)
 5. Submit a pull request
 
 ## Credits
@@ -289,7 +289,7 @@ Aggro is open-source software licensed under the MIT license. See the [LICENSE](
 - Developed and maintained by [Jason Morris](https://jasonmorris.com)
 - Built with [CodeIgniter 4](https://github.com/codeigniter4/CodeIgniter4)
 - Uses [SimplePie](https://github.com/simplepie/simplepie) for feed parsing
-- [Docksal](https://docksal.io) for development environment
+- [DDEV](https://ddev.com) for development environment
 
 ## Support
 
