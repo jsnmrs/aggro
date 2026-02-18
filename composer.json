@@ -7,11 +7,11 @@
   "require": {
     "php": "^8.4",
     "codeigniter4/framework": "^4.7",
-    "friendsofphp/php-cs-fixer": "^3.93",
-    "nexusphp/cs-config": "^3.27",
+    "friendsofphp/php-cs-fixer": "^3.94",
+    "nexusphp/cs-config": "^3.28",
     "nikic/php-parser": "^5.7",
     "pdepend/pdepend": "^2.16",
-    "sentry/sentry": "^4.19",
+    "sentry/sentry": "^4.20",
     "simplepie/simplepie": "^1.9",
     "symfony/config": "^7.4",
     "symfony/dependency-injection": "^7.4",
@@ -19,7 +19,7 @@
     "symfony/yaml": "^8.0"
   },
   "require-dev": {
-    "codeigniter/coding-standard": "^1.8",
+    "codeigniter/coding-standard": "^1.9",
     "deployer/deployer": "^7.5",
     "mikey179/vfsstream": "^1.6",
     "phpmd/phpmd": "^2.15",
