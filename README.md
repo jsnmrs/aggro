@@ -14,14 +14,14 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Feed generation — provides RSS/OPML feeds of aggregated content
 - Responsive design — mobile-first, responsive web interface
 - Error monitoring — integrated Sentry for real-time error tracking and performance monitoring
-- Enhanced security — parameterized database queries, secure configuration management, comprehensive input validation, CSRF protection, security headers
+- Enhanced security — parameterized database queries, secure configuration management, input validation, CSRF protection, security headers
 
 ## Tech stack
 
 - Back-end — PHP 8.4+ with CodeIgniter 4 framework
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
 - Database — MySQL/MariaDB (SQLite for testing)
-- Testing — PHPUnit 11.5 for comprehensive unit testing with coverage reporting
+- Testing — PHPUnit 11.5 for unit testing with coverage reporting
 - Debugging — Xdebug available for local development (off by default)
 - Error monitoring — Sentry for application monitoring and error tracking
 - Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
@@ -38,7 +38,7 @@ Aggro follows a clean architecture pattern with separation of concerns:
 - Helpers — Utility functions for common operations
 - Libraries — Third-party integrations and custom components
 
-This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables comprehensive unit testing with 464 tests achieving 46.22% line coverage across all architectural layers.
+This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables unit testing with 464 tests achieving 46.22% line coverage across all architectural layers.
 
 ## Local development setup
 
@@ -158,11 +158,11 @@ The `.crontab` file defines scheduled tasks for:
 
 ## Testing
 
-The project includes comprehensive testing infrastructure with 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 464 comprehensive unit tests
+- Total Tests — 464 unit tests
 - Coverage — 46.22% line coverage across all components
 - Assertions — 741 test assertions ensuring thorough validation
 - External Dependencies — 86 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
@@ -170,16 +170,16 @@ The project includes comprehensive testing infrastructure with 464 tests achievi
 
 ### Unit Testing with PHPUnit
 
-The test suite includes comprehensive coverage of:
+The test suite covers:
 
 - Controllers — HTTP request handling, response coordination, and validation (Feed: 100%, Home: 100%, BaseController: 100%)
 - Models — Core business logic and data structures (AggroModels: 100%, NewsModels: 37.59%, UtilityModels: 55.88%)
-- Helpers — Utility functions and common operations with comprehensive parameter validation
+- Helpers — Utility functions and common operations with parameter validation
 - Services — Domain-specific business logic (ArchiveService: 96.30%, ThumbnailService: 68.63%, ValidationService: 100%)
 - Repositories — Data access layer operations (ChannelRepository: 100%, VideoRepository: 82.47%)
 - Libraries — Third-party integrations (SentryService: 12.84%, SentryLogHandler: 19.44%)
 - Filters — Request/response filtering (SecurityFilter: 100%, CustomCSRF: 100%, SentryPerformance: 12.90%)
-- Security — Comprehensive security tests for SQL injection prevention, input validation, CSRF protection
+- Security — SQL injection prevention, input validation, CSRF protection
 
 Tests use an in-memory SQLite database for fast, isolated testing without affecting your development database. External services are properly mocked or skipped to ensure reliable test execution.
 
@@ -230,7 +230,7 @@ The test suite follows TDD principles and best practices:
 
 - Proper Isolation — External dependencies (APIs, file system, network) are mocked or skipped
 - Fast Execution — In-memory SQLite database for rapid test runs
-- Comprehensive Coverage — Tests cover success paths, error conditions, and edge cases
+- Coverage — Tests cover success paths, error conditions, and edge cases
 - Clean Architecture — Testable design with dependency injection
 - External Service Handling — 86 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
 
@@ -238,7 +238,7 @@ The test suite follows TDD principles and best practices:
 
 GitHub Actions automatically runs the full test suite (464 tests) on all pull requests, including:
 
-- PHPUnit unit tests with comprehensive coverage validation
+- PHPUnit unit tests with coverage validation
 - Code style checks (PHP CS Fixer, CodeSniffer)
 - Static analysis (PHPStan, PHPMD)
 - Shell script linting
@@ -247,7 +247,7 @@ All tests must pass before code can be merged, ensuring code quality and prevent
 
 ### Security Features
 
-The application includes comprehensive security measures:
+The application includes the following security measures:
 
 - CSRF Protection — Custom CSRF filter for all state-changing operations
 - Input Validation — ValidationService provides sanitization for slugs, video IDs, gate keys, and integers
