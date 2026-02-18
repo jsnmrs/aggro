@@ -30,12 +30,17 @@ FAILED=0
 for route in "${ROUTES[@]}"; do
     echo -n "  Testing $route... "
 
-    # Run the CLI route and capture output
+    # Run the CLI route with a timeout to prevent hangs
+    EXIT_CODE=0
     # shellcheck disable=SC2086 # Intentional word splitting for route args
-    OUTPUT=$(/usr/local/bin/php /var/www/public/index.php $route 2>&1) || true
+    OUTPUT=$(timeout 30 /usr/local/bin/php /var/www/public/index.php $route 2>&1) || EXIT_CODE=$?
 
+    # Check for timeout (exit code 124) or killed (137)
+    if [ $EXIT_CODE -eq 124 ] || [ $EXIT_CODE -eq 137 ]; then
+        echo -e "\033[1;31mFAILED (timed out after 30s)\033[0m"
+        FAILED=1
     # Check for 404 response (CI4 error page contains <h1>404</h1>)
-    if echo "$OUTPUT" | grep -q "<h1>404</h1>"; then
+    elif echo "$OUTPUT" | grep -q "<h1>404</h1>"; then
         echo -e "\033[1;31mFAILED (404)\033[0m"
         echo -e "\033[0;33mOutput:\033[0m"
         echo "$OUTPUT"

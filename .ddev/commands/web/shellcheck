@@ -16,5 +16,6 @@ if test ! "$(shellcheck --version)"
 fi
 
 echo -e "\\n\\033[1;33mRunning ShellCheck on DDEV commands...\\033[0m"
-shellcheck .ddev/commands/host/* .ddev/commands/web/*
+# Exclude non-shell files (README.txt, .gitattributes)
+find .ddev/commands/host .ddev/commands/web -type f ! -name '*.txt' ! -name '.git*' -print0 | xargs -0 shellcheck
 echo -e "\\nNo issues!"
