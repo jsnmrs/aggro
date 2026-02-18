@@ -38,7 +38,7 @@ Aggro follows a clean architecture pattern with separation of concerns:
 - Helpers — Utility functions for common operations
 - Libraries — Third-party integrations and custom components
 
-This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables comprehensive unit testing with 372 tests achieving 46.22% line coverage across all architectural layers.
+This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables comprehensive unit testing with 464 tests achieving 46.22% line coverage across all architectural layers.
 
 ## Local development setup
 
@@ -93,22 +93,29 @@ ddev xdebug off
 
 Aggro includes several custom DDEV commands to help with development:
 
+- `ddev check` — Check local URL responses for errors
 - `ddev clicheck` — Run application maintenance tasks
-- `ddev deploy [env]` — Deploy to specified environment
+- `ddev cron` — Manage crontab (sync or clear)
+- `ddev fire` — Run a controller method from the CLI
 - `ddev frontend` — Run front-end build process
-- `ddev maintain` — Run upgrades and tests
-- `ddev test` — Run test suite
+- `ddev shellcheck` — Run ShellCheck on custom commands
+- `ddev tunnel` — Run a controller method on the remote server
 - `ddev upgrade` — Update Composer packages
 
 ### CLI maintenance commands
 
-Maintenance tasks can be run via CLI for cron jobs or automation:
+Maintenance tasks can be run via CLI using `ddev fire` for local or `ddev tunnel` for remote:
 
-- `php spark aggro/log-clean` — Clean old log entries
-- `php spark aggro/log-error-clean` — Clean old error log entries
-- `php spark aggro/news-cache` — Clear news feed cache
-- `php spark aggro/news-clean` — Archive old news items
-- `php spark aggro/sweep` — Run all maintenance tasks
+- `aggro log` — View application log
+- `aggro log-error` — View error log
+- `aggro log-clean` — Clean old log entries
+- `aggro log-error-clean` — Clean old error log entries
+- `aggro news` — Fetch news feeds
+- `aggro news-cache` — Clear news feed cache
+- `aggro news-clean` — Archive old news items
+- `aggro sweep` — Run all maintenance tasks
+- `aggro vimeo/VIDEO_ID` — Fetch a Vimeo video
+- `aggro youtube/VIDEO_ID` — Fetch a YouTube video
 
 ## Configuration
 
@@ -151,15 +158,15 @@ The `.crontab` file defines scheduled tasks for:
 
 ## Testing
 
-The project includes comprehensive testing infrastructure with 393 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes comprehensive testing infrastructure with 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 393 comprehensive unit tests
+- Total Tests — 464 comprehensive unit tests
 - Coverage — 46.22% line coverage across all components
-- Assertions — 471 test assertions ensuring thorough validation
-- External Dependencies — 85 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
-- Test Files — 74 test files covering all major components
+- Assertions — 741 test assertions ensuring thorough validation
+- External Dependencies — 86 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- Test Files — 28 test files covering all major components
 
 ### Unit Testing with PHPUnit
 
@@ -225,11 +232,11 @@ The test suite follows TDD principles and best practices:
 - Fast Execution — In-memory SQLite database for rapid test runs
 - Comprehensive Coverage — Tests cover success paths, error conditions, and edge cases
 - Clean Architecture — Testable design with dependency injection
-- External Service Handling — 85 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
+- External Service Handling — 86 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
 
 ### Continuous Integration
 
-GitHub Actions automatically runs the full test suite (393 tests) on all pull requests, including:
+GitHub Actions automatically runs the full test suite (464 tests) on all pull requests, including:
 
 - PHPUnit unit tests with comprehensive coverage validation
 - Code style checks (PHP CS Fixer, CodeSniffer)
@@ -253,7 +260,7 @@ The application includes comprehensive security measures:
 
 Deployment is handled through GitHub Actions and Deployer with automated testing:
 
-1. Pull Request Testing — All PRs automatically run the complete test suite (393 tests) including PHPUnit tests, code quality checks, and static analysis
+1. Pull Request Testing — All PRs automatically run the complete test suite (464 tests) including PHPUnit tests, code quality checks, and static analysis
 2. Automated deployment — Deployment to production occurs on merge to main branch (only after all tests pass)
 3. Front-end assets — Assets are built and included in deployment
 4. Environment files — Securely transferred during deployment
