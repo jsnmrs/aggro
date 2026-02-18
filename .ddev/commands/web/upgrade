@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+## Description: Run Composer updates
+## Usage: upgrade
+## Example: "ddev upgrade"
+
+# Abort if anything fails
+set -e
+
+echo -e "\\n\\033[1;33mUpdating Composer packages...\\033[0m"
+composer show --no-dev --direct --name-only | xargs composer require
+
+echo -e "\\n\\033[1;33mUpdating Composer dev packages...\\033[0m"
+grep -F -v -f <(composer show --direct --no-dev --name-only | sort) <(composer show --direct --name-only | sort) | xargs composer require --dev

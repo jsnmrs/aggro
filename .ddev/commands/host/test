@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+## Description: Run local environment tests
+## Usage: test
+## Example: "ddev test"
+
+cd "$DDEV_APPROOT" || exit
+ddev init
+ddev composer lint
+ddev composer test
+ddev shellcheck
+ddev clicheck

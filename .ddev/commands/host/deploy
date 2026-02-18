@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+## Description: Deploy application
+## Usage: deploy
+## Example: "ddev deploy dev" or "ddev deploy prod"
+
+cd "$DDEV_APPROOT" || exit
+
+if [ ! "$1" ];
+  then
+    echo -e "\\n\\033[1;33mSpecify an environment to deploy to...\\033[0m"
+fi;
+
+if [ "$1" == "dev" ];
+  then
+  echo -e "\\n\\033[1;33mDeploying to development server...\\033[0m"
+  ddev exec vendor/bin/dep deploy stage=dev
+fi;
+
+if [ "$1" == "prod" ];
+  then
+  echo -e "\\n\\033[1;33mDeploying to production server...\\033[0m"
+  ddev exec vendor/bin/dep deploy stage=prod
+fi;

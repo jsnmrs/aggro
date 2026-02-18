@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+## Description: Run upgrade and local environment tests
+## Usage: maintain
+## Example: "ddev maintain"
+
+cd "$DDEV_APPROOT" || exit
+ddev upgrade
+ddev test

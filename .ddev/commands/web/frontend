@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+## Description: Run front-end build
+## Usage: frontend
+## Example: "ddev frontend"
+
+# Abort if anything fails
+set -e
+
+npm run build

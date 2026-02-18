@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+## Description: Run shellcheck on custom commands
+## Usage: shellcheck
+## Example: "ddev shellcheck"
+
+# Abort if anything fails
+set -e
+
+if test ! "$(shellcheck --version)"
+  then
+  echo -e "\\n\\033[1;33mInstalling ShellCheck...\\033[0m"
+  sudo apt-get update
+  sudo apt-get install shellcheck
+  echo -e "\\nShellCheck installed."
+fi
+
+echo -e "\\n\\033[1;33mRunning ShellCheck on DDEV commands...\\033[0m"
+shellcheck .ddev/commands/host/* .ddev/commands/web/*
+echo -e "\\nNo issues!"
