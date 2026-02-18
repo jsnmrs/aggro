@@ -7,5 +7,5 @@ webserver_type: apache-fpm
 database:
   type: mariadb
   version: "11.4"
-xdebug_enabled: true
+xdebug_enabled: false
 performance_mode: none
