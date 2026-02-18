@@ -22,7 +22,7 @@ Aggro is the codebase that powers [BMXfeed](https://bmxfeed.com), a BMX news agg
 - Front-end — vanilla CSS with PostCSS processing and no JavaScript!
 - Database — MySQL/MariaDB (SQLite for testing)
 - Testing — PHPUnit 11.5 for comprehensive unit testing with coverage reporting
-- Debugging — Xdebug enabled for local development
+- Debugging — Xdebug available for local development (off by default)
 - Error monitoring — Sentry for application monitoring and error tracking
 - Code quality — PHP CS Fixer, PHP CodeSniffer, PHPMD, PHPStan for static analysis and code standards
 - Dependencies — SimplePie for feed parsing, Composer for PHP package management, npm for front-end build tooling
@@ -68,7 +68,13 @@ Aggro uses [DDEV](https://ddev.com) for local development. This ensures a consis
 
 ### Debugging with Xdebug
 
-Xdebug is enabled by default in the DDEV environment for debugging and profiling:
+Xdebug is available in the DDEV environment but disabled by default for better performance. Enable it when you need debugging or profiling:
+
+```bash
+ddev xdebug on
+```
+
+When enabled, the configuration is:
 
 - Server name — `aggro.ddev.site`
 - Port — `9003`
@@ -77,7 +83,11 @@ Xdebug is enabled by default in the DDEV environment for debugging and profiling
 
 Configure VS Code to listen for Xdebug connections on port 9003. The debugger will automatically connect when triggered.
 
-Performance note — Xdebug may slow down the application. If you experience performance issues during development, you can disable it with `ddev xdebug off` and re-enable it with `ddev xdebug on`.
+When you're done debugging, disable Xdebug to restore performance:
+
+```bash
+ddev xdebug off
+```
 
 ### Development commands
 
@@ -175,7 +185,7 @@ ddev test
 # Run only PHPUnit unit tests
 composer test:unit
 
-# Run tests with coverage report (requires Xdebug)
+# Run tests with coverage report (requires Xdebug: ddev xdebug on)
 XDEBUG_MODE=coverage composer test:coverage
 
 # Run all Composer test scripts
@@ -192,7 +202,7 @@ When running tests with coverage, detailed HTML reports are generated in:
 
 Open the HTML report in your browser to view detailed coverage metrics by file and function.
 
-Note — Coverage reporting requires Xdebug to be enabled. Use `XDEBUG_MODE=coverage` when running coverage commands.
+Note — Coverage reporting requires Xdebug to be enabled (`ddev xdebug on`). Use `XDEBUG_MODE=coverage` when running coverage commands.
 
 ### Code Quality Checks
 
