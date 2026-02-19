@@ -8,7 +8,7 @@ use CodeIgniter\Test\CIUnitTestCase;
  * PHP version must match across:
  * - .crontab (production PHP path)
  * - .github/workflows/deploy.yml (CI/CD)
- * - .docksal/docksal.env (local development)
+ * - .ddev/config.yaml (local development)
  * - composer.json (dependency requirements)
  *
  * @internal
@@ -60,19 +60,19 @@ final class PhpVersionConsistencyTest extends CIUnitTestCase
     }
 
     /**
-     * Extract PHP version from docksal.env.
+     * Extract PHP version from DDEV config.
      *
-     * Expects format like: CLI_IMAGE='docksal/cli:php8.4-edge'
+     * Expects format like: php_version: "8.4"
      */
-    private function getDocksalPhpVersion(): ?string
+    private function getDdevPhpVersion(): ?string
     {
-        $path = ROOTPATH . '.docksal/docksal.env';
+        $path = ROOTPATH . '.ddev/config.yaml';
         if (! file_exists($path)) {
             return null;
         }
 
         $content = file_get_contents($path);
-        if (preg_match('/php(\\d+\\.\\d+)/', $content, $matches)) {
+        if (preg_match('/php_version:\\s*["\']?(\\d+\\.\\d+)/', $content, $matches)) {
             return $matches[1];
         }
 
@@ -113,7 +113,7 @@ final class PhpVersionConsistencyTest extends CIUnitTestCase
         $versions = [
             '.crontab'                     => $this->getCrontabPhpVersion(),
             '.github/workflows/deploy.yml' => $this->getDeployPhpVersion(),
-            '.docksal/docksal.env'         => $this->getDocksalPhpVersion(),
+            '.ddev/config.yaml'            => $this->getDdevPhpVersion(),
             'composer.json'                => $this->getComposerPhpVersion(),
         ];
 
@@ -146,7 +146,7 @@ final class PhpVersionConsistencyTest extends CIUnitTestCase
         $requiredFiles = [
             '.crontab'                     => ROOTPATH . '.crontab',
             '.github/workflows/deploy.yml' => ROOTPATH . '.github/workflows/deploy.yml',
-            '.docksal/docksal.env'         => ROOTPATH . '.docksal/docksal.env',
+            '.ddev/config.yaml'            => ROOTPATH . '.ddev/config.yaml',
             'composer.json'                => ROOTPATH . 'composer.json',
         ];
 
@@ -171,8 +171,8 @@ final class PhpVersionConsistencyTest extends CIUnitTestCase
         );
 
         $this->assertNotNull(
-            $this->getDocksalPhpVersion(),
-            'Could not extract PHP version from docksal.env',
+            $this->getDdevPhpVersion(),
+            'Could not extract PHP version from .ddev/config.yaml',
         );
 
         $this->assertNotNull(

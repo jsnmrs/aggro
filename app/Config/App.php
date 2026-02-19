@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      *    http://example.com/
      */
-    public string $baseURL = 'http://aggro.docksal.site/';
+    public string $baseURL = 'https://aggro.ddev.site/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
