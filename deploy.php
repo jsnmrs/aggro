@@ -36,7 +36,6 @@ add('rsync', [
     'exclude' => [
         '.browserslistrc',
         '.ddev',
-        '.docksal',
         '.editorconfig',
         '.env*',
         '.git',
