@@ -5,12 +5,12 @@ namespace Tests\Unit;
 use App\Controllers\BaseController;
 use App\Controllers\Feed;
 use CodeIgniter\Test\ControllerTestTrait;
-use Tests\Support\DatabaseTestCase;
+use Tests\Support\ServiceTestCase;
 
 /**
  * @internal
  */
-final class FeedControllerTest extends DatabaseTestCase
+final class FeedControllerTest extends ServiceTestCase
 {
     use ControllerTestTrait;
 
@@ -39,10 +39,6 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetOpmlSetsCorrectContentType(): void
     {
-        if (! $this->db->tableExists('news_feeds')) {
-            $this->markTestSkipped('Database table news_feeds not available in test environment');
-        }
-
         $result = $this->controller(Feed::class)
             ->execute('getOpml');
 
@@ -73,10 +69,6 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetNewsfeedSetsCorrectContentType(): void
     {
-        if (! $this->db->tableExists('news_feeds')) {
-            $this->markTestSkipped('Database table news_feeds not available in test environment');
-        }
-
         $result = $this->controller(Feed::class)
             ->execute('getNewsfeed');
 
@@ -87,10 +79,6 @@ final class FeedControllerTest extends DatabaseTestCase
 
     public function testGetIndexCallsGetNewsfeed(): void
     {
-        if (! $this->db->tableExists('news_feeds')) {
-            $this->markTestSkipped('Database table news_feeds not available in test environment');
-        }
-
         $result = $this->controller(Feed::class)
             ->execute('getIndex');
 

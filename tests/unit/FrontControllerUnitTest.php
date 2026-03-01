@@ -89,11 +89,12 @@ final class FrontControllerUnitTest extends RepositoryTestCase
 
     public function testGetAboutReturnsCorrectData()
     {
-        // Skip actual view rendering but test data preparation
-        $this->markTestSkipped('Method requires view rendering which needs full framework setup');
+        $result = $this->controller(Front::class)
+            ->execute('getAbout');
 
-        $result = $this->frontController->getAbout();
-        // Would test that view data contains title: 'About' and slug: 'about'
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('About', $response->getBody());
     }
 
     public function testGetError404MethodExists()
@@ -119,20 +120,20 @@ final class FrontControllerUnitTest extends RepositoryTestCase
 
     public function testGetSitesWithNullSlug()
     {
-        // Skip database operations
-        $this->markTestSkipped('Method requires database access');
+        $result = $this->controller(Front::class)
+            ->execute('getSites');
 
-        $result = $this->frontController->getSites(null);
-        // Would test that it returns sites list view
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function testGetSitesWithValidSlug()
+    public function testGetSitesWithInvalidSlugReturns404()
     {
-        // Skip database operations
-        $this->markTestSkipped('Method requires database access');
+        $result = $this->controller(Front::class)
+            ->execute('getSites', 'nonexistent-site-slug');
 
-        $result = $this->frontController->getSites('validslug');
-        // Would test that it returns site detail view or 404
+        $response = $result->response();
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     public function testGetStreamMethodExists()
@@ -200,43 +201,43 @@ final class FrontControllerUnitTest extends RepositoryTestCase
 
     public function testHandleIndividualVideoWithInvalidSlug()
     {
-        // Skip database operations but test validation logic
-        $this->markTestSkipped('Method requires database access and full framework setup');
+        // Empty slug triggers pagination, not individual video
+        // Test with a slug that won't match any video -> 404
+        $result = $this->controller(Front::class)
+            ->execute('getVideo', 'nonexistent-video-slug');
 
-        $reflection = new ReflectionClass($this->frontController);
-        $method     = $reflection->getMethod('handleIndividualVideo');
-        $method->setAccessible(true);
-
-        // Test with invalid slug format
-        $result = $method->invokeArgs($this->frontController, ['']);
-        // Would expect 404 response
+        $response = $result->response();
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     public function testGetVideoWithEmptySlug()
     {
-        // Skip database operations
-        $this->markTestSkipped('Method requires database access');
+        // Empty slug should trigger the video list / pagination view
+        $result = $this->controller(Front::class)
+            ->execute('getVideo');
 
-        $result = $this->frontController->getVideo('');
-        // Would test pagination flow
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
     }
 
     public function testGetVideoWithRecentSlug()
     {
-        // Skip database operations
-        $this->markTestSkipped('Method requires database access');
+        // 'recent' slug should trigger the video list / pagination view
+        $result = $this->controller(Front::class)
+            ->execute('getVideo', 'recent');
 
-        $result = $this->frontController->getVideo('recent');
-        // Would test pagination flow
+        $response = $result->response();
+        $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function testGetVideoWithSpecificSlug()
+    public function testGetVideoWithNonexistentSlug()
     {
-        // Skip database operations
-        $this->markTestSkipped('Method requires database access');
+        // Non-existent video slug should return 404
+        $result = $this->controller(Front::class)
+            ->execute('getVideo', 'doesnotexist123');
 
-        $result = $this->frontController->getVideo('specific-video-slug');
-        // Would test individual video display flow
+        $response = $result->response();
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     public function testSitemapMethodExists()

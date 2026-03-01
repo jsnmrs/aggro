@@ -234,37 +234,25 @@ final class NewsModelsTest extends ServiceTestCase
 
     public function testFeaturedPageReturnsEmptyArrayWhenNoFeeds()
     {
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        // featuredPage() uses raw SQL without prefixTable(), incompatible with test DB prefix
+        $this->markTestSkipped('Method uses raw SQL that does not support DB table prefix in test environment');
     }
 
     public function testFeaturedPageReturnsFeaturedFeedsWithStories()
     {
-        // Skip test that requires news_feeds and news_featured tables
-        $this->markTestSkipped('Method requires news_feeds and news_featured tables not available in test environment');
+        // featuredPage() uses raw SQL without prefixTable(), incompatible with test DB prefix
+        $this->markTestSkipped('Method uses raw SQL that does not support DB table prefix in test environment');
     }
 
     public function testGetSiteReturnsCorrectSiteData()
     {
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
-    }
-
-    public function testGetSiteReturnsNullForNonExistentSite()
-    {
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
-    }
-
-    public function testGetSitesReturnsAllSitesOrderedByName()
-    {
         // Arrange
-        $feedData1 = [
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
-            'site_name'            => 'Z Site',
-            'site_slug'            => 'z-site',
-            'site_url'             => 'https://z.com',
-            'site_feed'            => 'https://z.com/feed.xml',
+            'site_name'            => 'Test Site',
+            'site_slug'            => 'test-site',
+            'site_url'             => 'https://example.com',
+            'site_feed'            => 'https://example.com/feed.xml',
             'site_category'        => 'news',
             'flag_featured'        => 1,
             'flag_stream'          => 0,
@@ -273,32 +261,76 @@ final class NewsModelsTest extends ServiceTestCase
             'site_date_updated'    => date('Y-m-d H:i:s'),
             'site_date_last_fetch' => date('Y-m-d H:i:s'),
             'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
+        ]);
 
-        $feedData2 = [
-            'site_id'              => 2,
-            'site_name'            => 'A Site',
-            'site_slug'            => 'a-site',
-            'site_url'             => 'https://a.com',
-            'site_feed'            => 'https://a.com/feed.xml',
-            'site_category'        => 'news',
-            'flag_featured'        => 0,
-            'flag_stream'          => 1,
-            'flag_spoof'           => 0,
-            'site_date_added'      => date('Y-m-d H:i:s'),
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
+        // Act
+        $result = $this->model->getSite('test-site');
 
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertSame('Test Site', $result['site_name']);
+        $this->assertSame('test-site', $result['site_slug']);
+    }
+
+    public function testGetSiteReturnsNullForNonExistentSite()
+    {
+        $result = $this->model->getSite('nonexistent-slug');
+
+        $this->assertNull($result);
+    }
+
+    public function testGetSitesReturnsAllSitesOrderedByName()
+    {
+        // Arrange
+        $this->db->table('news_feeds')->insertBatch([
+            [
+                'site_id'              => 1,
+                'site_name'            => 'Z Site',
+                'site_slug'            => 'z-site',
+                'site_url'             => 'https://z.com',
+                'site_feed'            => 'https://z.com/feed.xml',
+                'site_category'        => 'news',
+                'flag_featured'        => 1,
+                'flag_stream'          => 0,
+                'flag_spoof'           => 0,
+                'site_date_added'      => date('Y-m-d H:i:s'),
+                'site_date_updated'    => date('Y-m-d H:i:s'),
+                'site_date_last_fetch' => date('Y-m-d H:i:s'),
+                'site_date_last_post'  => date('Y-m-d H:i:s'),
+            ],
+            [
+                'site_id'              => 2,
+                'site_name'            => 'A Site',
+                'site_slug'            => 'a-site',
+                'site_url'             => 'https://a.com',
+                'site_feed'            => 'https://a.com/feed.xml',
+                'site_category'        => 'news',
+                'flag_featured'        => 0,
+                'flag_stream'          => 1,
+                'flag_spoof'           => 0,
+                'site_date_added'      => date('Y-m-d H:i:s'),
+                'site_date_updated'    => date('Y-m-d H:i:s'),
+                'site_date_last_fetch' => date('Y-m-d H:i:s'),
+                'site_date_last_post'  => date('Y-m-d H:i:s'),
+            ],
+        ]);
+
+        // Act
+        $result = $this->model->getSites();
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertSame('A Site', $result[0]->site_name);
+        $this->assertSame('Z Site', $result[1]->site_name);
     }
 
     public function testGetSitesReturnsEmptyArrayWhenNoSites()
     {
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        $result = $this->model->getSites();
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
     }
 
     public function testGetSitesRecentReturnsRecentSitesInDescendingOrder()
@@ -307,46 +339,53 @@ final class NewsModelsTest extends ServiceTestCase
         $oldDate = date('Y-m-d H:i:s', strtotime('-2 days'));
         $newDate = date('Y-m-d H:i:s', strtotime('-1 day'));
 
-        $feedData1 = [
-            'site_id'              => 1,
-            'site_name'            => 'Old Site',
-            'site_slug'            => 'old-site',
-            'site_url'             => 'https://old.com',
-            'site_feed'            => 'https://old.com/feed.xml',
-            'site_category'        => 'news',
-            'flag_featured'        => 1,
-            'flag_stream'          => 0,
-            'flag_spoof'           => 0,
-            'site_date_added'      => $oldDate,
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
+        $this->db->table('news_feeds')->insertBatch([
+            [
+                'site_id'              => 1,
+                'site_name'            => 'Old Site',
+                'site_slug'            => 'old-site',
+                'site_url'             => 'https://old.com',
+                'site_feed'            => 'https://old.com/feed.xml',
+                'site_category'        => 'news',
+                'flag_featured'        => 1,
+                'flag_stream'          => 0,
+                'flag_spoof'           => 0,
+                'site_date_added'      => $oldDate,
+                'site_date_updated'    => date('Y-m-d H:i:s'),
+                'site_date_last_fetch' => date('Y-m-d H:i:s'),
+                'site_date_last_post'  => date('Y-m-d H:i:s'),
+            ],
+            [
+                'site_id'              => 2,
+                'site_name'            => 'New Site',
+                'site_slug'            => 'new-site',
+                'site_url'             => 'https://new.com',
+                'site_feed'            => 'https://new.com/feed.xml',
+                'site_category'        => 'news',
+                'flag_featured'        => 0,
+                'flag_stream'          => 1,
+                'flag_spoof'           => 0,
+                'site_date_added'      => $newDate,
+                'site_date_updated'    => date('Y-m-d H:i:s'),
+                'site_date_last_fetch' => date('Y-m-d H:i:s'),
+                'site_date_last_post'  => date('Y-m-d H:i:s'),
+            ],
+        ]);
 
-        $feedData2 = [
-            'site_id'              => 2,
-            'site_name'            => 'New Site',
-            'site_slug'            => 'new-site',
-            'site_url'             => 'https://new.com',
-            'site_feed'            => 'https://new.com/feed.xml',
-            'site_category'        => 'news',
-            'flag_featured'        => 0,
-            'flag_stream'          => 1,
-            'flag_spoof'           => 0,
-            'site_date_added'      => $newDate,
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
+        // Act
+        $result = $this->model->getSitesRecent();
 
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertSame('New Site', $result[0]->site_name);
+        $this->assertSame('Old Site', $result[1]->site_name);
     }
 
     public function testStreamPageReturnsStoriesWithFeedInfo()
     {
         // Arrange
-        $feedData = [
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
             'site_name'            => 'Test Site',
             'site_slug'            => 'test-site',
@@ -360,24 +399,30 @@ final class NewsModelsTest extends ServiceTestCase
             'site_date_updated'    => date('Y-m-d H:i:s'),
             'site_date_last_fetch' => date('Y-m-d H:i:s'),
             'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
+        ]);
 
-        $storyData = [
+        $this->db->table('news_featured')->insert([
             'site_id'         => 1,
             'story_title'     => 'Test Story',
             'story_permalink' => 'https://example.com/story',
             'story_hash'      => sha1('https://example.com/story'),
             'story_date'      => date('Y-m-d H:i:s'),
-        ];
+        ]);
 
-        // Skip test that requires news_feeds and news_featured tables
-        $this->markTestSkipped('Method requires news_feeds and news_featured tables not available in test environment');
+        // Act
+        $result = $this->model->streamPage();
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertSame('Test Story', $result[0]->story_title);
+        $this->assertSame('Test Site', $result[0]->site_name);
     }
 
     public function testStreamPageHandlesPagination()
     {
-        // Arrange - Insert multiple stories
-        $feedData = [
+        // Arrange
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
             'site_name'            => 'Test Site',
             'site_slug'            => 'test-site',
@@ -391,9 +436,7 @@ final class NewsModelsTest extends ServiceTestCase
             'site_date_updated'    => date('Y-m-d H:i:s'),
             'site_date_last_fetch' => date('Y-m-d H:i:s'),
             'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
-
-        $this->db->table('news_feeds')->insert($feedData);
+        ]);
 
         // Insert 3 stories for pagination test
         for ($i = 1; $i <= 3; $i++) {
@@ -406,14 +449,18 @@ final class NewsModelsTest extends ServiceTestCase
             ]);
         }
 
-        // Skip test that requires news_feeds and news_featured tables
-        $this->markTestSkipped('Method requires news_feeds and news_featured tables not available in test environment');
+        // Act - request page 1 with limit 2
+        $result = $this->model->streamPage(1, 2);
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
     }
 
     public function testGetStreamPageTotalReturnsCorrectCount()
     {
         // Arrange
-        $feedData = [
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
             'site_name'            => 'Test Site',
             'site_slug'            => 'test-site',
@@ -427,9 +474,7 @@ final class NewsModelsTest extends ServiceTestCase
             'site_date_updated'    => date('Y-m-d H:i:s'),
             'site_date_last_fetch' => date('Y-m-d H:i:s'),
             'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ];
-
-        $this->db->table('news_feeds')->insert($feedData);
+        ]);
 
         // Insert 5 stories
         for ($i = 1; $i <= 5; $i++) {
@@ -442,14 +487,21 @@ final class NewsModelsTest extends ServiceTestCase
             ]);
         }
 
-        // Skip test that requires news_feeds and news_featured tables
-        $this->markTestSkipped('Method requires news_feeds and news_featured tables not available in test environment');
+        // Act
+        $result = $this->model->getStreamPageTotal();
+
+        // Assert
+        $this->assertSame(5, $result);
     }
 
     public function testUpdateFeedUpdatesTimestamps()
     {
         // Arrange
-        $feedData = [
+        $oldFetchTime = date('Y-m-d H:i:s', strtotime('-1 hour'));
+        $oldPostTime  = date('Y-m-d H:i:s', strtotime('-2 hours'));
+        $itemDate     = date('Y-m-d H:i:s', strtotime('-30 minutes'));
+
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
             'site_name'            => 'Test Site',
             'site_slug'            => 'test-site',
@@ -461,37 +513,63 @@ final class NewsModelsTest extends ServiceTestCase
             'flag_spoof'           => 0,
             'site_date_added'      => date('Y-m-d H:i:s'),
             'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s', strtotime('-1 hour')),
-            'site_date_last_post'  => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ];
+            'site_date_last_fetch' => $oldFetchTime,
+            'site_date_last_post'  => $oldPostTime,
+        ]);
 
-        $this->db->table('news_feeds')->insert($feedData);
+        // Mock a feed object with one item
+        $mockFeed = new class ($itemDate) {
+            private string $date;
 
-        // Mock a simple feed object
-        $mockFeed        = new stdClass();
-        $mockFeed->items = [];
+            public function __construct(string $date)
+            {
+                $this->date = $date;
+            }
 
-        // Act - Skip the actual feed update since it requires SimplePie
-        $this->markTestSkipped('Method requires SimplePie feed object which is complex to mock');
+            public function get_items(int $start = 0, int $end = 0): array
+            {
+                $item = new class ($this->date) {
+                    private string $date;
 
-        // $this->model->updateFeed('test-site', $mockFeed);
+                    public function __construct(string $date)
+                    {
+                        $this->date = $date;
+                    }
+
+                    public function get_date(string $format): string
+                    {
+                        return $this->date;
+                    }
+                };
+
+                return [$item];
+            }
+        };
+
+        // Act
+        $this->model->updateFeed('test-site', $mockFeed);
+
+        // Assert
+        $row = $this->db->table('news_feeds')->where('site_slug', 'test-site')->get()->getRowArray();
+        $this->assertSame($itemDate, $row['site_date_last_post']);
+        $this->assertNotSame($oldFetchTime, $row['site_date_last_fetch']);
     }
 
     public function testGetSitesHandlesDatabaseError()
     {
-        // This test verifies error handling when database query fails
-        // Since we're using SQLite in tests, we can't easily simulate a DB error
-        // But we can test the return behavior
+        // With an empty table, getSites should return an empty array
+        $result = $this->model->getSites();
 
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
     }
 
     public function testGetSitesRecentHandlesDatabaseError()
     {
-        // This test verifies error handling when database query fails
+        // With an empty table, getSitesRecent should return an empty array
+        $result = $this->model->getSitesRecent();
 
-        // Skip test that requires news_feeds table
-        $this->markTestSkipped('Method requires news_feeds table not available in test environment');
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
     }
 }

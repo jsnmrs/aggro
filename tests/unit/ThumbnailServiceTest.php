@@ -144,108 +144,99 @@ final class ThumbnailServiceTest extends ServiceTestCase
         $this->assertTrue($result);
     }
 
-    public function testCleanThumbsHandlesGlobError()
-    {
-        // Skip test that requires file system operations and Storage config
-        $this->markTestSkipped('Method requires file system access and Storage configuration');
-
-        // This would test behavior when glob() returns false
-    }
-
-    public function testCleanThumbsDeletesOldFiles()
-    {
-        // Skip test that requires file system operations
-        $this->markTestSkipped('Method requires file system access for thumbnail cleanup testing');
-
-        // This would test actual file deletion based on age
-    }
-
     public function testIsFileEligibleForDeletionWithOldFile()
     {
-        // Skip test that requires accessing private method and file operations
-        $this->markTestSkipped('Method is private and requires file system access');
+        // Create a temp file and set its mtime to old
+        $tmpDir  = sys_get_temp_dir() . '/thumbtest_' . uniqid();
+        mkdir($tmpDir);
+        $tmpFile = $tmpDir . '/old.webp';
+        file_put_contents($tmpFile, 'data');
+        touch($tmpFile, time() - (60 * 60 * 24 * 90)); // 90 days old
 
-        // This would test the private isFileEligibleForDeletion method
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('isFileEligibleForDeletion');
+        $method->setAccessible(true);
+
+        $maxAge = 60 * 60 * 24 * 45; // 45 days
+        $result = $method->invoke($this->service, $tmpFile, $maxAge);
+
+        $this->assertTrue($result);
+
+        unlink($tmpFile);
+        rmdir($tmpDir);
     }
 
     public function testIsFileEligibleForDeletionWithNewFile()
     {
-        // Skip test that requires accessing private method
-        $this->markTestSkipped('Method is private and requires file system access');
+        $tmpDir  = sys_get_temp_dir() . '/thumbtest_' . uniqid();
+        mkdir($tmpDir);
+        $tmpFile = $tmpDir . '/new.webp';
+        file_put_contents($tmpFile, 'data');
+        // File just created, so it's fresh
 
-        // This would test files that are too new to delete
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('isFileEligibleForDeletion');
+        $method->setAccessible(true);
+
+        $maxAge = 60 * 60 * 24 * 45; // 45 days
+        $result = $method->invoke($this->service, $tmpFile, $maxAge);
+
+        $this->assertFalse($result);
+
+        unlink($tmpFile);
+        rmdir($tmpDir);
     }
 
     public function testIsFileEligibleForDeletionWithNonExistentFile()
     {
-        // Skip test that requires accessing private method
-        $this->markTestSkipped('Method is private and requires file system access');
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('isFileEligibleForDeletion');
+        $method->setAccessible(true);
 
-        // This would test behavior with files that don't exist
+        $result = $method->invoke($this->service, '/nonexistent/file.webp', 3600);
+
+        $this->assertFalse($result);
     }
 
     public function testDeleteFileSuccessful()
     {
-        // Skip test that requires accessing private method and file operations
-        $this->markTestSkipped('Method is private and requires file system access');
+        $tmpFile = tempnam(sys_get_temp_dir(), 'thumb');
+        file_put_contents($tmpFile, 'data');
 
-        // This would test successful file deletion
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('deleteFile');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->service, $tmpFile);
+
+        $this->assertTrue($result);
+        $this->assertFileDoesNotExist($tmpFile);
     }
 
-    public function testDeleteFileFailure()
+    public function testDeleteFileWithNonExistentFile()
     {
-        // Skip test that requires accessing private method
-        $this->markTestSkipped('Method is private and requires file system access');
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('deleteFile');
+        $method->setAccessible(true);
 
-        // This would test failed file deletion scenarios
+        // Suppress unlink warning for non-existent file
+        $result = @$method->invoke($this->service, '/nonexistent/file.webp');
+
+        $this->assertFalse($result);
     }
 
     public function testLogCleanupResults()
     {
-        // Skip test that requires accessing private method
-        $this->markTestSkipped('Method is private and requires UtilityModels integration');
+        // We can test this via reflection by verifying the method runs without error
+        $reflection = new ReflectionClass($this->service);
+        $method     = $reflection->getMethod('logCleanupResults');
+        $method->setAccessible(true);
 
-        // This would test logging of cleanup results
-    }
+        // Should not throw — just logs
+        $method->invoke($this->service, 5, 0);
+        $method->invoke($this->service, 3, 2);
 
-    public function testCheckThumbsHandlesMissingThumbnail()
-    {
-        // Skip test that requires file system access and helper functions
-        $this->markTestSkipped('Method requires fetch_thumbnail helper and file system access');
-
-        // This would test behavior when thumbnail files are missing
-    }
-
-    public function testCheckThumbsSkipsExistingThumbnails()
-    {
-        // Skip test that requires file system access
-        $this->markTestSkipped('Method requires file system access to check existing files');
-
-        // This would test that existing thumbnails are skipped
-    }
-
-    public function testCheckThumbsLogsResults()
-    {
-        // Skip test that requires UtilityModels integration
-        $this->markTestSkipped('Method requires UtilityModels sendLog functionality');
-
-        // This would test that results are logged via UtilityModels
-    }
-
-    public function testCleanThumbsCountsDeletedFiles()
-    {
-        // Skip test that requires file system operations
-        $this->markTestSkipped('Method requires file system access for deletion counting');
-
-        // This would test that deleted file count is accurate
-    }
-
-    public function testCleanThumbsCountsErrors()
-    {
-        // Skip test that requires file system operations
-        $this->markTestSkipped('Method requires file system access for error counting');
-
-        // This would test that deletion errors are counted
+        $this->assertTrue(true); // Reached here without error
     }
 
     public function testServiceConstructorSetsUpDependencies()

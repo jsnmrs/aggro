@@ -71,16 +71,16 @@ final class ViewHelperTest extends CIUnitTestCase
         }
     }
 
-    public function testHumanizeTimeWithInvalidDate(): void
+    public function testHumanizeTimeWithInvalidDateThrowsException(): void
     {
-        // Skip this test as humanizeTime may throw exceptions for invalid dates
-        $this->markTestSkipped('humanizeTime may throw exceptions for invalid dates');
+        $this->expectException(\Exception::class);
+        humanizeTime('not-a-date', 'UTC');
     }
 
-    public function testHumanizeTimeWithInvalidTimezone(): void
+    public function testHumanizeTimeWithInvalidTimezoneThrowsException(): void
     {
-        // Skip this test as humanizeTime may throw exceptions for invalid timezones
-        $this->markTestSkipped('humanizeTime may throw exceptions for invalid timezones');
+        $this->expectException(\Exception::class);
+        humanizeTime('2024-01-01 12:00:00', 'Invalid/Timezone');
     }
 
     public function testDisplayStoryMethodExists(): void
@@ -206,7 +206,16 @@ final class ViewHelperTest extends CIUnitTestCase
 
     public function testHumanizeTimeEdgeCases(): void
     {
-        // Skip edge cases as they may throw exceptions
-        $this->markTestSkipped('humanizeTime edge cases may throw exceptions');
+        // Test with future date
+        $futureDate = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        $result     = humanizeTime($futureDate, 'UTC');
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
+
+        // Test with date at midnight
+        $midnightDate = date('Y-m-d') . ' 00:00:00';
+        $result       = humanizeTime($midnightDate, 'UTC');
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
     }
 }

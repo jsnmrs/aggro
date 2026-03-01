@@ -99,8 +99,16 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationWithEmptyDatabase(): void
     {
-        // Skip test that requires aggro_videos table
-        $this->markTestSkipped('Database table aggro_videos not available in test environment');
+        // With no videos having duration=0, getDuration should log "0 video durations fetched."
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->once())
+            ->method('sendLog')
+            ->with('0 video durations fetched.');
+
+        $model  = new YoutubeModels(null, $mockUtility);
+        $result = $model->getDuration();
+
+        $this->assertTrue($result);
     }
 
     public function testSearchChannelHandlesVideoNotFound(): void
@@ -146,8 +154,12 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationReturnsBoolean(): void
     {
-        // Skip test that requires aggro_videos table
-        $this->markTestSkipped('Database table aggro_videos not available in test environment');
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $model       = new YoutubeModels(null, $mockUtility);
+
+        $result = $model->getDuration();
+
+        $this->assertIsBool($result);
     }
 
     public function testSearchChannelReturnsBoolean(): void
@@ -272,10 +284,13 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationLogsResults(): void
     {
-        // Skip test that requires UtilityModels integration
-        $this->markTestSkipped('Method requires UtilityModels sendLog functionality');
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->once())
+            ->method('sendLog')
+            ->with($this->stringContains('video durations fetched'));
 
-        // This would test that results are logged via UtilityModels
+        $model = new YoutubeModels(null, $mockUtility);
+        $model->getDuration();
     }
 
     public function testSearchChannelReturnsFalseForEmptyFeed(): void
@@ -304,12 +319,15 @@ final class YoutubeModelsTest extends DatabaseTestCase
         $this->assertSame(0, $result);
     }
 
-    public function testGetDurationReturnsFalseOnDatabaseError(): void
+    public function testGetDurationReturnsTrueWhenNoVideosNeedDuration(): void
     {
-        // Skip test that would require simulating database errors
-        $this->markTestSkipped('Method requires database error simulation');
+        // When there are no videos with duration=0, getDuration should still return true
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $model       = new YoutubeModels(null, $mockUtility);
 
-        // This would test error handling when database query fails
+        $result = $model->getDuration();
+
+        $this->assertTrue($result);
     }
 
     public function testSearchChannelParameterValidation(): void

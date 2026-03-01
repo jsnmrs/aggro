@@ -67,18 +67,13 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue(method_exists($this->aggroController, 'getLog'));
     }
 
-    public function testGetLogRequiresGateCheck(): void
+    public function testGetLogExecutesInCliMode(): void
     {
-        // Gate check bypasses in development/CLI environments
-        if (env('CI_ENVIRONMENT', 'production') === 'development' || is_cli()) {
-            $this->markTestSkipped('Gate check bypasses in development/CLI environments');
-        }
-
-        $_GET['g'] = null;
-        $result    = $this->controller(Aggro::class)
+        // In CLI mode gate_check() returns true, so getLog should succeed
+        $result = $this->controller(Aggro::class)
             ->execute('getLog');
 
-        $this->assertSame(403, $result->response()->getStatusCode());
+        $this->assertTrue($result->isOK());
     }
 
     public function testGetLogCleanMethodExists(): void
@@ -101,18 +96,13 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue(method_exists($this->aggroController, 'getNews'));
     }
 
-    public function testGetNewsRequiresGateCheck(): void
+    public function testGetNewsExecutesInCliMode(): void
     {
-        // Gate check bypasses in development/CLI environments
-        if (env('CI_ENVIRONMENT', 'production') === 'development' || is_cli()) {
-            $this->markTestSkipped('Gate check bypasses in development/CLI environments');
-        }
-
-        $_GET['g'] = null;
-        $result    = $this->controller(Aggro::class)
+        // In CLI mode gate_check() returns true, so getNews should succeed
+        $result = $this->controller(Aggro::class)
             ->execute('getNews');
 
-        $this->assertSame(403, $result->response()->getStatusCode());
+        $this->assertTrue($result->isOK());
     }
 
     public function testGetNewsCacheMethodExists(): void
@@ -159,76 +149,92 @@ final class AggroControllerTest extends DatabaseTestCase
 
     public function testGetNewsWithSlugClean(): void
     {
-        // Mock gate_check to return true
-        $_GET['g'] = 'testkey';
+        // In CLI mode gate_check() returns true, so we can test the clean path
+        $result = $this->controller(Aggro::class)
+            ->execute('getNews', 'clean');
 
-        // Skip actual database operations
-        $this->markTestSkipped('Method requires database access and gate authentication');
-
-        $result = $this->aggroController->getNews('clean');
-        $this->assertSame('Featured news stories cleared.', $result);
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Featured news stories cleared.', $body);
     }
 
     public function testGetNewsWithSlugCc(): void
     {
-        // Mock gate_check to return true
-        $_GET['g'] = 'testkey';
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getNews', 'cc');
 
-        // Skip actual database operations
-        $this->markTestSkipped('Method requires database access and gate authentication');
-
-        $result = $this->aggroController->getNews('cc');
-        $this->assertSame('Feed caches cleared.', $result);
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Feed caches cleared.', $body);
     }
 
     public function testGetNewsWithNullSlug(): void
     {
-        // Mock gate_check to return true
-        $_GET['g'] = 'testkey';
+        // In CLI mode gate_check() returns true, null slug triggers featuredBuilder
+        $result = $this->controller(Aggro::class)
+            ->execute('getNews');
 
-        // Skip actual database operations
-        $this->markTestSkipped('Method requires database access and gate authentication');
-
-        $result = $this->aggroController->getNews(null);
-        $this->assertSame('Featured page built.', $result);
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Featured page built.', $body);
     }
 
-    public function testGetNewsCacheRequiresGateCheck(): void
+    public function testGetNewsWithInvalidSlug(): void
     {
-        // Skip test that requires gate_check helper and database setup
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // Invalid slug should return 404
+        $result = $this->controller(Aggro::class)
+            ->execute('getNews', 'nonexistent');
+
+        $this->assertSame(404, $result->response()->getStatusCode());
     }
 
-    public function testGetNewsCleanRequiresGateCheck(): void
+    public function testGetNewsCacheReturnsExpectedMessage(): void
     {
-        // Skip test that requires gate_check helper and database setup
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getNewsCache');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Feed caches cleared.', $body);
     }
 
-    public function testGetSweepRequiresGateCheck(): void
+    public function testGetNewsCleanReturnsExpectedMessage(): void
     {
-        // Skip test that requires gate_check helper and database setup
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getNewsClean');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('Featured news stories cleared.', $body);
     }
 
-    public function testGetYouTubeDurationRequiresGateCheck(): void
+    public function testGetSweepExecutesSuccessfully(): void
     {
-        // Skip test that requires gate_check helper and database setup
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getSweep');
+
+        // getSweep should complete without errors
+        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
     }
 
-    public function testGetVimeoRequiresGateCheck(): void
+    public function testGetYouTubeDurationExecutesSuccessfully(): void
     {
-        // Gate check bypasses in development/CLI environments
-        if (env('CI_ENVIRONMENT', 'production') === 'development' || is_cli()) {
-            $this->markTestSkipped('Gate check bypasses in development/CLI environments');
-        }
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getYouTubeDuration');
 
-        $_GET['g'] = null;
-        $result    = $this->controller(Aggro::class)
+        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
+    }
+
+    public function testGetVimeoWithNullVideoIdExecutes(): void
+    {
+        // In CLI mode gate_check() returns true, null videoID fetches channels
+        $result = $this->controller(Aggro::class)
             ->execute('getVimeo');
 
-        $this->assertSame(403, $result->response()->getStatusCode());
+        // Returns false (no stale channels) or completes successfully
+        $this->assertTrue(
+            $result->isOK() || $result->response()->getStatusCode() === 200,
+        );
     }
 
     public function testGetVimeoWithInvalidVideoId(): void
@@ -242,18 +248,16 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertSame(404, $result->response()->getStatusCode());
     }
 
-    public function testGetYoutubeRequiresGateCheck(): void
+    public function testGetYoutubeWithNullVideoIdExecutes(): void
     {
-        // Gate check bypasses in development/CLI environments
-        if (env('CI_ENVIRONMENT', 'production') === 'development' || is_cli()) {
-            $this->markTestSkipped('Gate check bypasses in development/CLI environments');
-        }
-
-        $_GET['g'] = null;
-        $result    = $this->controller(Aggro::class)
+        // In CLI mode gate_check() returns true, null videoID fetches channels
+        $result = $this->controller(Aggro::class)
             ->execute('getYoutube');
 
-        $this->assertSame(403, $result->response()->getStatusCode());
+        // Returns false (no stale channels) or completes successfully
+        $this->assertTrue(
+            $result->isOK() || $result->response()->getStatusCode() === 200,
+        );
     }
 
     public function testGetYoutubeWithInvalidVideoId(): void
@@ -267,22 +271,37 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertSame(404, $result->response()->getStatusCode());
     }
 
-    public function testGetLogCleanRequiresGateCheck(): void
+    public function testGetLogCleanExecutesSuccessfully(): void
     {
-        // Skip test that requires gate_check helper and database access
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getLogClean');
+
+        // Should redirect to /aggro/log
+        $this->assertTrue(
+            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
+        );
     }
 
-    public function testGetLogErrorRequiresGateCheck(): void
+    public function testGetLogErrorExecutesSuccessfully(): void
     {
-        // Skip test that requires gate_check helper and database access
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getLogError');
+
+        $this->assertTrue($result->isOK());
     }
 
-    public function testGetLogErrorCleanRequiresGateCheck(): void
+    public function testGetLogErrorCleanExecutesSuccessfully(): void
     {
-        // Skip test that requires gate_check helper and database access
-        $this->markTestSkipped('Method requires gate_check helper and database access');
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getLogErrorClean');
+
+        // Should redirect to /aggro/log/error
+        $this->assertTrue(
+            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
+        );
     }
 
     public function testGetInfoMethodSetsHeaders(): void
@@ -298,9 +317,13 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($response->hasHeader('Expires'));
     }
 
-    public function testGetInfoOutputFormat(): void
+    public function testGetInfoOutputContainsVersionInfo(): void
     {
-        // Test the output format without triggering header issues
-        $this->markTestSkipped('Method requires proper response setup for header testing');
+        $result = $this->controller(Aggro::class)
+            ->execute('getInfo');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('CI ', $body);
+        $this->assertStringContainsString('PHP ', $body);
     }
 }

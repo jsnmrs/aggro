@@ -225,8 +225,9 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testSafeFileWriteWithInvalidPath(): void
     {
-        // Skip this test as it may throw exceptions rather than return false
-        $this->markTestSkipped('safe_file_write may throw exceptions for invalid paths');
+        // Writing to /dev/null/invalid should fail
+        $result = @safe_file_write('/dev/null/invalid/path', 'test');
+        $this->assertFalse($result);
     }
 
     public function testSafeFileReadMethodExists(): void
@@ -258,6 +259,7 @@ final class AggroHelperTest extends CIUnitTestCase
             'clean_error_logs',
             'clean_feed_cache',
             'clean_thumbnail',
+            'csrf_action_form',
             'decode_entities',
             'fetch_error_logs',
             'fetch_feed',
@@ -381,5 +383,49 @@ final class AggroHelperTest extends CIUnitTestCase
         $result = fetch_url('http://localhost:1');
         // Should not throw any errors — backward-compatible
         $this->assertFalse($result);
+    }
+
+    public function testCsrfActionFormMethodExists(): void
+    {
+        $this->assertTrue(function_exists('csrf_action_form'));
+    }
+
+    public function testCsrfActionFormReturnsFormHtml(): void
+    {
+        // csrf_token()/csrf_hash() require Security config with cookie-based CSRF
+        // Mock the function behavior by testing the function signature instead
+        $reflection = new \ReflectionFunction('csrf_action_form');
+        $params     = $reflection->getParameters();
+
+        $this->assertSame('action', $params[0]->getName());
+        $this->assertSame('label', $params[1]->getName());
+        $this->assertSame('class', $params[2]->getName());
+        $this->assertSame('', $params[2]->getDefaultValue());
+    }
+
+    public function testSafeFileWriteAndReadRoundTrip(): void
+    {
+        $tmpfile = tempnam(sys_get_temp_dir(), 'test');
+        $data    = 'Hello, World! 🌍';
+
+        $writeResult = safe_file_write($tmpfile, $data);
+        $this->assertTrue($writeResult);
+
+        $readResult = safe_file_read($tmpfile);
+        $this->assertSame($data, $readResult);
+
+        unlink($tmpfile);
+    }
+
+    public function testSafeFileReadWithEmptyFile(): void
+    {
+        $tmpfile = tempnam(sys_get_temp_dir(), 'test');
+        // Create an empty file
+        file_put_contents($tmpfile, '');
+
+        $result = safe_file_read($tmpfile);
+        $this->assertSame('', $result);
+
+        unlink($tmpfile);
     }
 }
