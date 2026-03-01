@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use ReflectionFunction;
 use TypeError;
 
 /**
@@ -394,7 +395,7 @@ final class AggroHelperTest extends CIUnitTestCase
     {
         // csrf_token()/csrf_hash() require Security config with cookie-based CSRF
         // Mock the function behavior by testing the function signature instead
-        $reflection = new \ReflectionFunction('csrf_action_form');
+        $reflection = new ReflectionFunction('csrf_action_form');
         $params     = $reflection->getParameters();
 
         $this->assertSame('action', $params[0]->getName());

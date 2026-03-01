@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use Exception;
 
 /**
  * @internal
@@ -73,13 +74,13 @@ final class ViewHelperTest extends CIUnitTestCase
 
     public function testHumanizeTimeWithInvalidDateThrowsException(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         humanizeTime('not-a-date', 'UTC');
     }
 
     public function testHumanizeTimeWithInvalidTimezoneThrowsException(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         humanizeTime('2024-01-01 12:00:00', 'Invalid/Timezone');
     }
 

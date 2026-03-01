@@ -147,7 +147,7 @@ final class ThumbnailServiceTest extends ServiceTestCase
     public function testIsFileEligibleForDeletionWithOldFile()
     {
         // Create a temp file and set its mtime to old
-        $tmpDir  = sys_get_temp_dir() . '/thumbtest_' . uniqid();
+        $tmpDir = sys_get_temp_dir() . '/thumbtest_' . uniqid();
         mkdir($tmpDir);
         $tmpFile = $tmpDir . '/old.webp';
         file_put_contents($tmpFile, 'data');
@@ -168,7 +168,7 @@ final class ThumbnailServiceTest extends ServiceTestCase
 
     public function testIsFileEligibleForDeletionWithNewFile()
     {
-        $tmpDir  = sys_get_temp_dir() . '/thumbtest_' . uniqid();
+        $tmpDir = sys_get_temp_dir() . '/thumbtest_' . uniqid();
         mkdir($tmpDir);
         $tmpFile = $tmpDir . '/new.webp';
         file_put_contents($tmpFile, 'data');

@@ -6,6 +6,7 @@ use App\Filters\SecurityFilter;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\Response;
 use CodeIgniter\Test\CIUnitTestCase;
+use Config\App;
 
 /**
  * @internal
@@ -132,7 +133,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testAfterSetsXContentTypeOptionsHeader(): void
     {
         $request  = $this->createMockRequest('get');
-        $response = new Response(new \Config\App());
+        $response = new Response(new App());
 
         $this->filter->after($request, $response);
 
@@ -142,7 +143,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testAfterSetsXXSSProtectionHeader(): void
     {
         $request  = $this->createMockRequest('get');
-        $response = new Response(new \Config\App());
+        $response = new Response(new App());
 
         $this->filter->after($request, $response);
 
@@ -152,7 +153,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testAfterReturnsNull(): void
     {
         $request  = $this->createMockRequest('get');
-        $response = new Response(new \Config\App());
+        $response = new Response(new App());
 
         $result = $this->filter->after($request, $response);
 
