@@ -11,7 +11,7 @@
     "nexusphp/cs-config": "^3.28",
     "nikic/php-parser": "^5.7",
     "pdepend/pdepend": "^2.16",
-    "sentry/sentry": "^4.20",
+    "sentry/sentry": "^4.21",
     "simplepie/simplepie": "^1.9",
     "symfony/config": "^7.4",
     "symfony/dependency-injection": "^7.4",
