@@ -38,5 +38,4 @@ parameters:
         - '#Strict comparison using !== between .* and false will always evaluate to true.#'
         - '#Right side of && is always true.#'
         - '#Calling static::.* outside of class scope.#'
-        - '#Parameter .* of function natsort expects.*#'
         - '#Parameter .* of function str_pad expects string.*#'
