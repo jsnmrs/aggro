@@ -326,4 +326,15 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertStringContainsString('CI ', $body);
         $this->assertStringContainsString('PHP ', $body);
     }
+
+    public function testGetInfoOutputContainsDeployInfo(): void
+    {
+        $result = $this->controller(Aggro::class)
+            ->execute('getInfo');
+
+        $body = $result->response()->getBody();
+        $this->assertStringContainsString('<!-- deploy:release=', $body);
+        $this->assertStringContainsString('Release:', $body);
+        $this->assertStringContainsString('Environment:', $body);
+    }
 }
