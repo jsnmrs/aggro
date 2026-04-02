@@ -119,6 +119,28 @@ task('deploy:cron', static function () {
     run('crontab -l');
 });
 
+// Clear PHP opcache after symlink swap.
+// Shared hosting (DreamHost) doesn't allow PHP-FPM restarts,
+// so we deploy a temporary script, hit it via HTTP, then remove it.
+task('deploy:opcache_clear', static function () {
+    $releasePath = get('release_or_current_path');
+    $baseUrl = get('base_url');
+    $token = bin2hex(random_bytes(16));
+    $scriptPath = $releasePath . '/public/_opcache_clear_' . $token . '.php';
+    $scriptUrl = $baseUrl . '/_opcache_clear_' . $token . '.php';
+
+    // Upload a one-shot opcache reset script
+    $scriptContent = '<?php if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
+    run("echo " . escapeshellarg($scriptContent) . " > " . escapeshellarg($scriptPath));
+
+    // Hit the script via HTTP
+    $result = runLocally("curl -s --max-time 10 '{$scriptUrl}'");
+    writeln("<info>opcache_reset result: {$result}</info>");
+
+    // Remove the script
+    run("rm -f " . escapeshellarg($scriptPath));
+});
+
 // Verify deployment by checking the live site.
 task('deploy:verify', static function () {
     $baseUrl = get('base_url');
@@ -170,6 +192,7 @@ task('deploy', [
     'deploy:writable',
     'deploy:secrets',
     'deploy:symlink',
+    'deploy:opcache_clear',
     'deploy:cron',
     'deploy:unlock',
     'deploy:verify',
