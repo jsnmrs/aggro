@@ -43,6 +43,8 @@ $RECYCLE.BIN/
 # as it poses a security risk.
 .env*
 !.env-sample
+!.env-1p
+!.env-1p-dev
 .vagrant
 Vagrantfile
 .ssh
