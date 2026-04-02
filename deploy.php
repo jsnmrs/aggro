@@ -129,13 +129,15 @@ task('deploy:opcache_clear', static function () {
     $scriptPath = $releasePath . '/public/_opcache_clear_' . $token . '.php';
     $scriptUrl = $baseUrl . '/_opcache_clear_' . $token . '.php';
 
-    // Upload a one-shot opcache reset script
-    $scriptContent = '<?php if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
+    // Upload a one-shot opcache and realpath cache reset script
+    $scriptContent = '<?php clearstatcache(true); if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
     run("echo " . escapeshellarg($scriptContent) . " > " . escapeshellarg($scriptPath));
 
-    // Hit the script via HTTP
-    $result = runLocally("curl -s --max-time 10 '{$scriptUrl}'");
-    writeln("<info>opcache_reset result: {$result}</info>");
+    // Hit the script multiple times to reach different PHP-FPM workers
+    for ($i = 1; $i <= 3; $i++) {
+        $result = runLocally("curl -s --max-time 10 '{$scriptUrl}'");
+        writeln("<info>opcache_reset result ({$i}/3): {$result}</info>");
+    }
 
     // Remove the script
     run("rm -f " . escapeshellarg($scriptPath));
@@ -146,6 +148,8 @@ task('deploy:verify', static function () {
     $baseUrl = get('base_url');
     $deployPath = get('deploy_path');
     $expectedRelease = get('release_name');
+    $maxAttempts = 3;
+    $retryDelaySecs = 5;
 
     // Verify release via SSH (filesystem is authoritative, not subject to PHP-FPM caching)
     $currentTarget = run("readlink {$deployPath}/current");
