@@ -35,7 +35,13 @@ class Aggro extends BaseController
         $this->response->setHeader('Pragma', 'no-cache');
         $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
 
+        $release = env('DEPLOY_RELEASE', 'local');
+        $timestamp = env('DEPLOY_TIMESTAMP', 'n/a');
+        $environment = ENVIRONMENT;
+
+        echo '<!-- deploy:release=' . esc($release) . ' -->';
         echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">CI ' . CodeIgniter::CI_VERSION . '<br>PHP ' . PHP_VERSION . '</h1>';
+        echo '<p style="font-family:sans-serif;color:#333;">Release: ' . esc($release) . ' | Deployed: ' . esc($timestamp) . ' | Environment: ' . esc($environment) . '</p>';
     }
 
     /**

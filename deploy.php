@@ -17,13 +17,15 @@ host('bmxfeed.com')
     ->set('labels', ['stage' => 'prod'])
     ->setHostname('bmxfeed.com')
     ->setRemoteUser('bmxfeed')
-    ->setDeployPath('/home/bmxfeed/aggro');
+    ->setDeployPath('/home/bmxfeed/aggro')
+    ->set('base_url', 'https://bmxfeed.com');
 
 host('dev.bmxfeed.com')
     ->set('labels', ['stage' => 'dev'])
     ->setHostname('dev.bmxfeed.com')
     ->setRemoteUser('bmxfeed')
-    ->setDeployPath('/home/bmxfeed/aggro-dev');
+    ->setDeployPath('/home/bmxfeed/aggro-dev')
+    ->set('base_url', 'https://dev.bmxfeed.com');
 
 if (file_exists('/home/.ssh/config')) {
     host('bmxfeed.com')->setConfigFile('/home/.ssh/config');
@@ -92,6 +94,18 @@ task('deploy:secrets', static function () {
         );
     }
 
+    // Inject deploy metadata
+    if ($envContent) {
+        $releaseName = get('release_name');
+        $deployTimestamp = date('Y-m-d H:i:s T');
+
+        $envContent = preg_replace('/^DEPLOY_RELEASE\s*=.*$/m', '', $envContent);
+        $envContent = preg_replace('/^DEPLOY_TIMESTAMP\s*=.*$/m', '', $envContent);
+
+        $envContent .= "\nDEPLOY_RELEASE='" . $releaseName . "'";
+        $envContent .= "\nDEPLOY_TIMESTAMP='" . $deployTimestamp . "'";
+    }
+
     if ($envContent) {
         file_put_contents(__DIR__ . '/.env-production', $envContent);
         upload('.env-production', get('release_or_current_path') . '/.env');
@@ -105,6 +119,48 @@ task('deploy:cron', static function () {
     run('crontab -l');
 });
 
+// Verify deployment by checking the live site.
+task('deploy:verify', static function () {
+    $baseUrl = get('base_url');
+    $expectedRelease = get('release_name');
+
+    // Check /aggro/info
+    $infoUrl = $baseUrl . '/aggro/info';
+    writeln("Verifying deployment at <info>{$infoUrl}</info>");
+
+    $infoStatus = runLocally("curl -s -o /tmp/deploy_verify.html -w '%{http_code}' '{$infoUrl}'");
+    $infoBody = runLocally('cat /tmp/deploy_verify.html');
+
+    if ($infoStatus !== '200') {
+        warning("Info page returned HTTP {$infoStatus} (expected 200)");
+    } else {
+        writeln('<info>Info page returned HTTP 200</info>');
+
+        if (preg_match('/deploy:release=(\S+)/', $infoBody, $matches)) {
+            $actualRelease = $matches[1];
+
+            if ($actualRelease === $expectedRelease) {
+                writeln("<info>Release number matches: {$actualRelease}</info>");
+            } else {
+                warning("Release mismatch: expected {$expectedRelease}, got {$actualRelease}");
+            }
+        } else {
+            warning('Could not find release marker in info page');
+        }
+    }
+
+    // Check homepage
+    $homeStatus = runLocally("curl -s -o /dev/null -w '%{http_code}' '{$baseUrl}/'");
+
+    if ($homeStatus !== '200') {
+        warning("Homepage returned HTTP {$homeStatus} (expected 200)");
+    } else {
+        writeln('<info>Homepage returned HTTP 200</info>');
+    }
+
+    runLocally('rm -f /tmp/deploy_verify.html');
+});
+
 desc('Deploy the application');
 task('deploy', [
     'deploy:info',
@@ -116,6 +172,7 @@ task('deploy', [
     'deploy:symlink',
     'deploy:cron',
     'deploy:unlock',
+    'deploy:verify',
 ]);
 
 after('deploy:failed', 'deploy:unlock');
