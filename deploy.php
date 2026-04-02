@@ -129,13 +129,15 @@ task('deploy:opcache_clear', static function () {
     $scriptPath = $releasePath . '/public/_opcache_clear_' . $token . '.php';
     $scriptUrl = $baseUrl . '/_opcache_clear_' . $token . '.php';
 
-    // Upload a one-shot opcache reset script
-    $scriptContent = '<?php if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
+    // Upload a one-shot opcache and realpath cache reset script
+    $scriptContent = '<?php clearstatcache(true); if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
     run("echo " . escapeshellarg($scriptContent) . " > " . escapeshellarg($scriptPath));
 
-    // Hit the script via HTTP
-    $result = runLocally("curl -s --max-time 10 '{$scriptUrl}'");
-    writeln("<info>opcache_reset result: {$result}</info>");
+    // Hit the script multiple times to reach different PHP-FPM workers
+    for ($i = 1; $i <= 3; $i++) {
+        $result = runLocally("curl -s --max-time 10 '{$scriptUrl}'");
+        writeln("<info>opcache_reset result ({$i}/3): {$result}</info>");
+    }
 
     // Remove the script
     run("rm -f " . escapeshellarg($scriptPath));
@@ -145,17 +147,29 @@ task('deploy:opcache_clear', static function () {
 task('deploy:verify', static function () {
     $baseUrl = get('base_url');
     $expectedRelease = get('release_name');
+    $maxAttempts = 3;
+    $retryDelaySecs = 5;
 
-    // Check /aggro/info
+    // Check /aggro/info with retries for cache propagation
     $infoUrl = $baseUrl . '/aggro/info';
     writeln("Verifying deployment at <info>{$infoUrl}</info>");
 
-    $infoStatus = runLocally("curl -s -o /tmp/deploy_verify.html -w '%{http_code}' '{$infoUrl}'");
-    $infoBody = runLocally('cat /tmp/deploy_verify.html');
+    $releaseMatched = false;
 
-    if ($infoStatus !== '200') {
-        warning("Info page returned HTTP {$infoStatus} (expected 200)");
-    } else {
+    for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+        if ($attempt > 1) {
+            writeln("<comment>Retry {$attempt}/{$maxAttempts} after {$retryDelaySecs}s (waiting for cache propagation)...</comment>");
+            runLocally("sleep {$retryDelaySecs}");
+        }
+
+        $infoStatus = runLocally("curl -s -o /tmp/deploy_verify.html -w '%{http_code}' '{$infoUrl}'");
+        $infoBody = runLocally('cat /tmp/deploy_verify.html');
+
+        if ($infoStatus !== '200') {
+            warning("Info page returned HTTP {$infoStatus} (expected 200)");
+            break;
+        }
+
         writeln('<info>Info page returned HTTP 200</info>');
 
         if (preg_match('/deploy:release=(\S+)/', $infoBody, $matches)) {
@@ -163,11 +177,16 @@ task('deploy:verify', static function () {
 
             if ($actualRelease === $expectedRelease) {
                 writeln("<info>Release number matches: {$actualRelease}</info>");
-            } else {
+                $releaseMatched = true;
+                break;
+            }
+
+            if ($attempt === $maxAttempts) {
                 warning("Release mismatch: expected {$expectedRelease}, got {$actualRelease}");
             }
         } else {
             warning('Could not find release marker in info page');
+            break;
         }
     }
 
