@@ -146,6 +146,17 @@ The `app/Config/Storage.php` file centralizes all file paths and storage-related
 - Cache durations — default cache times for various operations
 - Network timeouts — connection and request timeout settings
 
+### 1Password CLI (optional)
+
+If you use [1Password CLI](https://developer.1password.com/docs/cli/), you can manage deployment secrets through 1Password instead of an on-disk `.env-production` file.
+
+1. Create items in your 1Password vault matching the `op://` references in `.env-1p` (production) and `.env-1p-dev` (development)
+2. Add an `SSH_PRIVATE_KEY` field to each item containing the full SSH private key (including `-----BEGIN/END-----` markers, with no leading spaces)
+3. Customize the `op://Vault/Item/Field` paths to match your vault structure
+4. Deploy with `ddev deploy prod` or `ddev deploy dev` — it automatically loads the SSH key, injects secrets from 1Password, deploys, and cleans up
+
+This is entirely optional — local development still uses the standard `.env-sample` to `.env` workflow, and CI/CD uses its own secret store (`secrets.DOT_ENV` and `secrets.SSH_PRIVATE_KEY`).
+
 ### Cron jobs
 
 The `.crontab` file defines scheduled tasks for:

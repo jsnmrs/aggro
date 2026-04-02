@@ -6,6 +6,39 @@
 
 cd "$DDEV_APPROOT" || exit
 
+# Determine environment and 1Password template
+OP_GENERATED=false
+OP_SSH_AGENT=false
+OP_TEMPLATE=""
+OP_VAULT_ITEM=""
+if [ "$1" == "dev" ]; then
+  OP_TEMPLATE=".env-1p-dev"
+  OP_VAULT_ITEM="op://Aggro/development/SSH_PRIVATE_KEY"
+elif [ "$1" == "prod" ]; then
+  OP_TEMPLATE=".env-1p"
+  OP_VAULT_ITEM="op://Aggro/production/SSH_PRIVATE_KEY"
+fi
+
+# Load SSH key from 1Password into the DDEV container's agent
+if [ -n "$OP_VAULT_ITEM" ] && command -v op &>/dev/null; then
+  SSH_KEY_FILE=$(mktemp)
+  if op read "$OP_VAULT_ITEM" > "$SSH_KEY_FILE" 2>/dev/null; then
+    chmod 600 "$SSH_KEY_FILE"
+    docker cp "$SSH_KEY_FILE" "ddev-${DDEV_SITENAME}-web:/tmp/op_ssh_key"
+    ddev exec bash -c "chmod 600 /tmp/op_ssh_key && ssh-add /tmp/op_ssh_key && rm -f /tmp/op_ssh_key"
+    OP_SSH_AGENT=true
+  fi
+  rm -f "$SSH_KEY_FILE"
+fi
+
+# Generate .env-production from 1Password if available
+if [ -n "$OP_TEMPLATE" ] && [ -f "$OP_TEMPLATE" ] && [ ! -f ".env-production" ] && command -v op &>/dev/null; then
+  echo -e "\\n\\033[1;33mInjecting secrets from 1Password...\\033[0m"
+  op inject -i "$OP_TEMPLATE" -o .env-production --force
+  OP_GENERATED=true
+  ddev mutagen sync
+fi
+
 if [ ! "$1" ];
   then
     echo -e "\\n\\033[1;33mSpecify an environment to deploy to...\\033[0m"
@@ -22,3 +55,9 @@ if [ "$1" == "prod" ];
   echo -e "\\n\\033[1;33mDeploying to production server...\\033[0m"
   ddev exec vendor/bin/dep deploy stage=prod
 fi;
+
+# Clean up generated .env-production to avoid leaving secrets on disk
+if [ "$OP_GENERATED" = true ] && [ -f ".env-production" ]; then
+  rm -f .env-production
+fi
+
