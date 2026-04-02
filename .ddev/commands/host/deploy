@@ -31,12 +31,12 @@ if [ -n "$OP_VAULT_ITEM" ] && command -v op &>/dev/null; then
   rm -f "$SSH_KEY_FILE"
 fi
 
-# Generate .env-production from 1Password if available
+# Generate .env-production from 1Password and copy into container
 if [ -n "$OP_TEMPLATE" ] && [ -f "$OP_TEMPLATE" ] && [ ! -f ".env-production" ] && command -v op &>/dev/null; then
   echo -e "\\n\\033[1;33mInjecting secrets from 1Password...\\033[0m"
   op inject -i "$OP_TEMPLATE" -o .env-production --force
+  docker cp .env-production "ddev-${DDEV_SITENAME}-web:/var/www/html/.env-production"
   OP_GENERATED=true
-  ddev mutagen sync
 fi
 
 if [ ! "$1" ];
