@@ -6,6 +6,13 @@
 
 cd "$DDEV_APPROOT" || exit
 
+# Clean up secrets on exit or interrupt
+cleanup() {
+  [ -n "$SSH_KEY_FILE" ] && rm -f "$SSH_KEY_FILE"
+  [ "$OP_GENERATED" = true ] && rm -f .env-production
+}
+trap cleanup EXIT
+
 # Determine environment and 1Password template
 OP_GENERATED=false
 OP_SSH_AGENT=false
@@ -55,9 +62,4 @@ if [ "$1" == "prod" ];
   echo -e "\\n\\033[1;33mDeploying to production server...\\033[0m"
   ddev exec vendor/bin/dep deploy stage=prod
 fi;
-
-# Clean up generated .env-production to avoid leaving secrets on disk
-if [ "$OP_GENERATED" = true ] && [ -f ".env-production" ]; then
-  rm -f .env-production
-fi
 
