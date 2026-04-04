@@ -9,6 +9,7 @@ use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\CodeIgniter;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
 
 /**
  * All aggro controllers.
@@ -36,7 +37,7 @@ class Aggro extends BaseController
         $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
 
         $release     = env('DEPLOY_RELEASE', 'local');
-        $timestamp   = env('DEPLOY_TIMESTAMP', 'n/a');
+        $timestamp   = env('DEPLOY_TIMESTAMP', 'local');
         $environment = ENVIRONMENT;
 
         echo '<!-- deploy:release=' . esc($release) . ' -->';
@@ -45,7 +46,11 @@ class Aggro extends BaseController
         echo '<br><span style="color:#222;">CI</span> ' . CodeIgniter::CI_VERSION;
         echo '<br><span style="color:#222;">PHP</span> ' . PHP_VERSION;
         echo '<br><span style="color:#222;">Release</span> ' . esc($release);
-        echo '<br><span style="color:#222;">On</span> ' . esc($timestamp);
+        $deployedOn = $timestamp;
+        if ($timestamp !== 'local') {
+            $deployedOn = Time::parse($timestamp)->humanize();
+        }
+        echo '<br><span style="color:#222;">About </span> ' . esc($deployedOn);
         echo '<br><span style="color:#222;">Env</span> ' . esc($environment);
         echo '</h1>';
     }
