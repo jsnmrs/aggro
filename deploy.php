@@ -176,7 +176,7 @@ task('deploy:verify', static function () {
     $authUser = run("grep -oP \"BASIC_AUTH_USER=\\\"?\\K[^\\\"]+\" {$deployPath}/current/.env 2>/dev/null || echo ''");
     $authPass = run("grep -oP \"BASIC_AUTH_PASS=\\\"?\\K[^\\\"]+\" {$deployPath}/current/.env 2>/dev/null || echo ''");
     if ($authUser !== '' && $authPass !== '') {
-        $curlAuth = "-u '{$authUser}:{$authPass}'";
+        $curlAuth = '-u ' . escapeshellarg($authUser . ':' . $authPass);
     }
 
     $homeStatus = runLocally("curl -s -o /dev/null -w '%{http_code}' {$curlAuth} '{$baseUrl}/'");

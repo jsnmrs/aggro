@@ -44,7 +44,7 @@ class BasicAuth implements FilterInterface
         $providedUser = $_SERVER['PHP_AUTH_USER'] ?? '';
         $providedPass = $_SERVER['PHP_AUTH_PW'] ?? '';
 
-        if ($providedUser === $expectedUser && $providedPass === $expectedPass) {
+        if (hash_equals($expectedUser, $providedUser) && hash_equals($expectedPass, $providedPass)) {
             return null;
         }
 
