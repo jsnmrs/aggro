@@ -17,7 +17,6 @@ NC='\033[0m'
 # Clean up secrets on exit or interrupt
 cleanup() {
   [ -n "$SSH_KEY_FILE_SRC" ] && rm -f "$SSH_KEY_FILE_SRC"
-  [ -n "$SSH_KEY_FILE_DEST" ] && rm -f "$SSH_KEY_FILE_DEST"
 }
 trap cleanup EXIT
 
@@ -104,7 +103,7 @@ DEST_DB_PASS=$(op read "op://Aggro/${DEST_OP}/DB_PASSWORD")
 # Dump from source, pipe to destination via the DDEV container
 echo -e "${yellow}Copying ${SOURCE} database to ${DEST}...${NC}"
 ddev exec bash -c "ssh -o StrictHostKeyChecking=accept-new 'bmxfeed@${SRC_HOST}' \
-  \"mysqldump --single-transaction -h '${SRC_DB_HOST}' -u '${SRC_DB_USER}' -p'${SRC_DB_PASS}' '${SRC_DB_NAME}'\" \
+  \"mysqldump --single-transaction --no-tablespaces -h '${SRC_DB_HOST}' -u '${SRC_DB_USER}' -p'${SRC_DB_PASS}' '${SRC_DB_NAME}'\" \
   | ssh -o StrictHostKeyChecking=accept-new 'bmxfeed@${DEST_HOST}' \
   \"mysql -h '${DEST_DB_HOST}' -u '${DEST_DB_USER}' -p'${DEST_DB_PASS}' '${DEST_DB_NAME}'\""
 

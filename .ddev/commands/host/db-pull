@@ -87,7 +87,7 @@ DB_PASS=$(op read "op://Aggro/${OP_ENV}/DB_PASSWORD")
 # Run mysqldump over SSH via the DDEV container
 echo -e "${yellow}Dumping ${ENV} database...${NC}"
 ddev exec ssh -o StrictHostKeyChecking=accept-new "bmxfeed@${REMOTE_HOST}" \
-  "mysqldump --single-transaction -h '${DB_HOST}' -u '${DB_USER}' -p'${DB_PASS}' '${DB_NAME}'" \
+  "mysqldump --single-transaction --no-tablespaces -h '${DB_HOST}' -u '${DB_USER}' -p'${DB_PASS}' '${DB_NAME}'" \
   > "$OUTPUT"
 
 # Report result
