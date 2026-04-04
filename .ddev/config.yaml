@@ -8,4 +8,6 @@ database:
   type: mariadb
   version: "11.4"
 xdebug_enabled: false
-performance_mode: none
+performance_mode: mutagen
+upload_dirs:
+  - thumbs
