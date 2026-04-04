@@ -40,8 +40,14 @@ class Aggro extends BaseController
         $environment = ENVIRONMENT;
 
         echo '<!-- deploy:release=' . esc($release) . ' -->';
-        echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">CI ' . CodeIgniter::CI_VERSION . '<br>PHP ' . PHP_VERSION . '</h1>';
-        echo '<p style="font-family:sans-serif;color:#333;">Release: ' . esc($release) . ' | Deployed: ' . esc($timestamp) . ' | Environment: ' . esc($environment) . '</p>';
+        echo '<h1 style="color:#005600;font-size:10vh;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">';
+        echo '<span style="color:#222;">Aggro</span> runnin';
+        echo '<br><span style="color:#222;">CI</span> ' . CodeIgniter::CI_VERSION;
+        echo '<br><span style="color:#222;">PHP</span> ' . PHP_VERSION;
+        echo '<br><span style="color:#222;">Release</span> ' . esc($release);
+        echo '<br><span style="color:#222;">On</span> ' . esc($timestamp);
+        echo '<br><span style="color:#222;">Env</span> ' . esc($environment);
+        echo '</h1>';
     }
 
     /**
