@@ -116,6 +116,7 @@ task('deploy:secrets', static function () {
 task('deploy:cron', static function () {
     if (get('labels')['stage'] !== 'prod') {
         writeln('<comment>Skipping crontab (non-production)</comment>');
+
         return;
     }
 
