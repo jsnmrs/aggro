@@ -9,6 +9,7 @@ use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\CodeIgniter;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
 
 /**
  * All aggro controllers.
@@ -35,13 +36,24 @@ class Aggro extends BaseController
         $this->response->setHeader('Pragma', 'no-cache');
         $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
 
-        $release     = env('DEPLOY_RELEASE', 'local');
-        $timestamp   = env('DEPLOY_TIMESTAMP', 'n/a');
+        $release     = env('DEPLOY_RELEASE', 'relax, you\'re a local');
+        $timestamp   = env('DEPLOY_TIMESTAMP', 'relax, you\'re a local');
         $environment = ENVIRONMENT;
 
         echo '<!-- deploy:release=' . esc($release) . ' -->';
-        echo '<h1 style="color:#005600;font-size:15vw;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">CI ' . CodeIgniter::CI_VERSION . '<br>PHP ' . PHP_VERSION . '</h1>';
-        echo '<p style="font-family:sans-serif;color:#333;">Release: ' . esc($release) . ' | Deployed: ' . esc($timestamp) . ' | Environment: ' . esc($environment) . '</p>';
+        echo '<h1 style="color:#005600;font-size:10vh;line-height:.9;font-family:sans-serif;letter-spacing:-.05em;">';
+        echo '<span style="color:#222;">Aggro</span> runnin';
+        echo '<br><span style="color:#222;">CI</span> ' . CodeIgniter::CI_VERSION;
+        echo '<br><span style="color:#222;">PHP</span> ' . PHP_VERSION;
+        echo '<br><span style="color:#222;">Release</span> ' . esc($release);
+        $deployedOn = $timestamp;
+        if ($timestamp !== 'relax, you\'re a local') {
+            $time = Time::createFromFormat('Y-m-d H:i:s T', $timestamp);
+            $deployedOn = $time ? $time->humanize() : $timestamp;
+        }
+        echo '<br><span style="color:#222;">When</span> ' . esc($deployedOn);
+        echo '<br><span style="color:#222;">Env</span> ' . esc($environment);
+        echo '</h1>';
     }
 
     /**

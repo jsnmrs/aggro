@@ -323,8 +323,8 @@ final class AggroControllerTest extends DatabaseTestCase
             ->execute('getInfo');
 
         $body = $result->response()->getBody();
-        $this->assertStringContainsString('CI ', $body);
-        $this->assertStringContainsString('PHP ', $body);
+        $this->assertStringContainsString('CI</span>', $body);
+        $this->assertStringContainsString('PHP</span>', $body);
     }
 
     public function testGetInfoOutputContainsDeployInfo(): void
@@ -334,7 +334,7 @@ final class AggroControllerTest extends DatabaseTestCase
 
         $body = $result->response()->getBody();
         $this->assertStringContainsString('<!-- deploy:release=', $body);
-        $this->assertStringContainsString('Release:', $body);
-        $this->assertStringContainsString('Environment:', $body);
+        $this->assertStringContainsString('Release</span>', $body);
+        $this->assertStringContainsString('Env</span>', $body);
     }
 }

@@ -7,11 +7,10 @@
 # Abort if anything fails
 set -e
 
-if test ! "$(shellcheck --version)"
-  then
+if ! command -v shellcheck > /dev/null 2>&1; then
   echo -e "\\n\\033[1;33mInstalling ShellCheck...\\033[0m"
-  sudo apt-get update
-  sudo apt-get install shellcheck
+  sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq shellcheck
   echo -e "\\nShellCheck installed."
 fi
 
