@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+## Description: Push local SQL file to remote database
+## Usage: db-push
+## Example: "ddev db-push dev"
+
+set -e
+
+cd "$DDEV_APPROOT" || exit
+
+# Colors
+red='\033[0;31m'
+yellow='\033[1;33m'
+green='\033[0;32m'
+NC='\033[0m'
+
+# Clean up secrets on exit or interrupt
+cleanup() {
+  [ -n "$SSH_KEY_FILE" ] && rm -f "$SSH_KEY_FILE"
+}
+trap cleanup EXIT
+
+# Validate environment argument
+if [ -z "$1" ] || { [ "$1" != "prod" ] && [ "$1" != "dev" ]; }; then
+  echo -e "${yellow}Specify an environment: ddev db-push dev${NC}"
+  exit 1
+fi
+
+ENV="$1"
+
+# Hard-block production push
+if [ "$ENV" == "prod" ]; then
+  echo -e "${red}Pushing to production is not allowed.${NC}"
+  exit 1
+fi
+
+# Require 1Password CLI
+if ! command -v op &>/dev/null; then
+  echo -e "${red}1Password CLI (op) is required but not found.${NC}"
+  exit 1
+fi
+
+# Find the latest SQL file
+# shellcheck disable=SC2012
+SQL_FILE=$(ls -t -- *.sql 2>/dev/null | head -n1)
+
+if [ -z "$SQL_FILE" ]; then
+  echo -e "${red}No .sql files found in project root.${NC}"
+  exit 1
+fi
+
+FILE_SIZE=$(du -h "$SQL_FILE" | cut -f1)
+
+# Confirmation prompt showing which file will be pushed
+echo -e "${yellow}This will push ${SQL_FILE} (${FILE_SIZE}) to the dev database.${NC}"
+read -r -p "Type 'yes' to continue: " CONFIRM
+if [ "$CONFIRM" != "yes" ]; then
+  echo "Aborted."
+  exit 0
+fi
+
+# Set environment-specific values
+OP_ENV="development"
+REMOTE_HOST="dev.bmxfeed.com"
+
+# Load SSH key from 1Password into the DDEV container
+OP_VAULT_ITEM="op://Aggro/${OP_ENV}/SSH_PRIVATE_KEY"
+SSH_KEY_FILE=$(mktemp)
+if op read "$OP_VAULT_ITEM" > "$SSH_KEY_FILE" 2>/dev/null; then
+  chmod 600 "$SSH_KEY_FILE"
+  docker cp "$SSH_KEY_FILE" "ddev-${DDEV_SITENAME}-web:/tmp/op_ssh_key"
+  ddev exec bash -c "chmod 600 /tmp/op_ssh_key && ssh-add /tmp/op_ssh_key && rm -f /tmp/op_ssh_key"
+else
+  echo -e "${red}Failed to read SSH key from 1Password.${NC}"
+  exit 1
+fi
+rm -f "$SSH_KEY_FILE"
+
+# Read DB credentials from 1Password
+echo -e "${yellow}Reading database credentials from 1Password...${NC}"
+DB_HOST=$(op read "op://Aggro/${OP_ENV}/DB_HOSTNAME")
+DB_NAME=$(op read "op://Aggro/${OP_ENV}/DB_NAME")
+DB_USER=$(op read "op://Aggro/${OP_ENV}/DB_USERNAME")
+DB_PASS=$(op read "op://Aggro/${OP_ENV}/DB_PASSWORD")
+
+# Push SQL file to remote database via SSH
+echo -e "${yellow}Pushing ${SQL_FILE} to dev database...${NC}"
+docker cp "$SQL_FILE" "ddev-${DDEV_SITENAME}-web:/tmp/db-push.sql"
+ddev exec bash -c "ssh -o StrictHostKeyChecking=accept-new 'bmxfeed@${REMOTE_HOST}' \
+  \"mysql -h '${DB_HOST}' -u '${DB_USER}' -p'${DB_PASS}' '${DB_NAME}'\" \
+  < /tmp/db-push.sql"
+ddev exec rm -f /tmp/db-push.sql
+
+echo -e "${green}Successfully pushed ${SQL_FILE} to dev database.${NC}"
