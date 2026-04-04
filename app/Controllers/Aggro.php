@@ -36,8 +36,8 @@ class Aggro extends BaseController
         $this->response->setHeader('Pragma', 'no-cache');
         $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
 
-        $release     = env('DEPLOY_RELEASE', 'local');
-        $timestamp   = env('DEPLOY_TIMESTAMP', 'local');
+        $release     = env('DEPLOY_RELEASE', 'relax, you\'re a local');
+        $timestamp   = env('DEPLOY_TIMESTAMP', 'relax, you\'re a local');
         $environment = ENVIRONMENT;
 
         echo '<!-- deploy:release=' . esc($release) . ' -->';
@@ -47,11 +47,11 @@ class Aggro extends BaseController
         echo '<br><span style="color:#222;">PHP</span> ' . PHP_VERSION;
         echo '<br><span style="color:#222;">Release</span> ' . esc($release);
         $deployedOn = $timestamp;
-        if ($timestamp !== 'local') {
+        if ($timestamp !== 'relax, you\'re a local') {
             $time = Time::createFromFormat('Y-m-d H:i:s T', $timestamp);
             $deployedOn = $time ? $time->humanize() : $timestamp;
         }
-        echo '<br><span style="color:#222;">About </span> ' . esc($deployedOn);
+        echo '<br><span style="color:#222;">When</span> ' . esc($deployedOn);
         echo '<br><span style="color:#222;">Env</span> ' . esc($environment);
         echo '</h1>';
     }
