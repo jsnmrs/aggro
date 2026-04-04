@@ -112,8 +112,13 @@ task('deploy:secrets', static function () {
     }
 });
 
-// Copy crontab settings from repo.
+// Copy crontab settings from repo (production only).
 task('deploy:cron', static function () {
+    if (get('labels')['stage'] !== 'prod') {
+        writeln('<comment>Skipping crontab (non-production)</comment>');
+        return;
+    }
+
     run('cd ~/');
     run('crontab ' . get('release_or_current_path') . '/.crontab');
     run('crontab -l');
