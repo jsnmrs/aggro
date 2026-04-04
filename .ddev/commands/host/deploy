@@ -15,7 +15,6 @@ trap cleanup EXIT
 
 # Determine environment and 1Password template
 OP_GENERATED=false
-OP_SSH_AGENT=false
 OP_TEMPLATE=""
 OP_VAULT_ITEM=""
 if [ "$1" == "dev" ]; then
@@ -33,7 +32,6 @@ if [ -n "$OP_VAULT_ITEM" ] && command -v op &>/dev/null; then
     chmod 600 "$SSH_KEY_FILE"
     docker cp "$SSH_KEY_FILE" "ddev-${DDEV_SITENAME}-web:/tmp/op_ssh_key"
     ddev exec bash -c "chmod 600 /tmp/op_ssh_key && ssh-add /tmp/op_ssh_key && rm -f /tmp/op_ssh_key"
-    OP_SSH_AGENT=true
   fi
   rm -f "$SSH_KEY_FILE"
 fi

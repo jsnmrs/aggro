@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Filters\BasicAuth;
 use App\Filters\CustomCSRF;
 use App\Filters\SecurityFilter;
 use App\Filters\SentryPerformance;
@@ -22,6 +23,7 @@ class Filters extends BaseConfig
      * @phpstan-var array<string, class-string|list<class-string>>
      */
     public array $aliases = [
+        'basicauth'     => BasicAuth::class,
         'csrf'          => CustomCSRF::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
@@ -40,6 +42,7 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+            'basicauth',
             'security',
             // 'honeypot',
             'csrf',

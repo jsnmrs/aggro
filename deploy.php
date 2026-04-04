@@ -96,7 +96,7 @@ task('deploy:secrets', static function () {
 
     // Inject deploy metadata
     if ($envContent) {
-        $releaseName = get('release_name');
+        $releaseName     = get('release_name');
         $deployTimestamp = date('Y-m-d H:i:s T');
 
         $envContent = preg_replace('/^DEPLOY_RELEASE\s*=.*$/m', '', $envContent);
@@ -124,14 +124,14 @@ task('deploy:cron', static function () {
 // so we deploy a temporary script, hit it via HTTP, then remove it.
 task('deploy:opcache_clear', static function () {
     $releasePath = get('release_or_current_path');
-    $baseUrl = get('base_url');
-    $token = bin2hex(random_bytes(16));
-    $scriptPath = $releasePath . '/public/_opcache_clear_' . $token . '.php';
-    $scriptUrl = $baseUrl . '/_opcache_clear_' . $token . '.php';
+    $baseUrl     = get('base_url');
+    $token       = bin2hex(random_bytes(16));
+    $scriptPath  = $releasePath . '/public/_opcache_clear_' . $token . '.php';
+    $scriptUrl   = $baseUrl . '/_opcache_clear_' . $token . '.php';
 
     // Upload a one-shot opcache and realpath cache reset script
     $scriptContent = '<?php clearstatcache(true); if (function_exists("opcache_reset")) { opcache_reset(); echo "cleared"; } else { echo "no_opcache"; }';
-    run("echo " . escapeshellarg($scriptContent) . " > " . escapeshellarg($scriptPath));
+    run('echo ' . escapeshellarg($scriptContent) . ' > ' . escapeshellarg($scriptPath));
 
     // Hit the script multiple times to reach different PHP-FPM workers
     for ($i = 1; $i <= 3; $i++) {
@@ -140,16 +140,16 @@ task('deploy:opcache_clear', static function () {
     }
 
     // Remove the script
-    run("rm -f " . escapeshellarg($scriptPath));
+    run('rm -f ' . escapeshellarg($scriptPath));
 });
 
 // Verify deployment by checking the live site.
 task('deploy:verify', static function () {
-    $baseUrl = get('base_url');
-    $deployPath = get('deploy_path');
+    $baseUrl         = get('base_url');
+    $deployPath      = get('deploy_path');
     $expectedRelease = get('release_name');
-    $maxAttempts = 3;
-    $retryDelaySecs = 5;
+    $maxAttempts     = 3;
+    $retryDelaySecs  = 5;
 
     // Verify release via SSH (filesystem is authoritative, not subject to PHP-FPM caching)
     $currentTarget = run("readlink {$deployPath}/current");
@@ -171,7 +171,15 @@ task('deploy:verify', static function () {
     }
 
     // HTTP smoke test (just check that the site responds)
-    $homeStatus = runLocally("curl -s -o /dev/null -w '%{http_code}' '{$baseUrl}/'");
+    // Pass basic auth credentials for dev deployments
+    $curlAuth = '';
+    $authUser = run("grep -oP \"BASIC_AUTH_USER=\\\"?\\K[^\\\"]+\" {$deployPath}/current/.env 2>/dev/null || echo ''");
+    $authPass = run("grep -oP \"BASIC_AUTH_PASS=\\\"?\\K[^\\\"]+\" {$deployPath}/current/.env 2>/dev/null || echo ''");
+    if ($authUser !== '' && $authPass !== '') {
+        $curlAuth = "-u '{$authUser}:{$authPass}'";
+    }
+
+    $homeStatus = runLocally("curl -s -o /dev/null -w '%{http_code}' {$curlAuth} '{$baseUrl}/'");
 
     if ($homeStatus !== '200') {
         warning("Homepage returned HTTP {$homeStatus} (expected 200)");
