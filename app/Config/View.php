@@ -45,7 +45,7 @@ class View extends BaseView
      * any callable. Can be single or tag pair.
      *
      * @var         array<string, callable|list<string>|string>
-     * @phpstan-var array<string, array<ParserCallableString>|ParserCallableString|ParserCallable>
+     * @phpstan-var array<string, list<ParserCallableString>|ParserCallable|ParserCallableString>
      */
     public $plugins = [];
 
