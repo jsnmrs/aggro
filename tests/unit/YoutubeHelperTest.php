@@ -115,6 +115,20 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertSame('dQw4w9WgXcQ', $result);
     }
 
+    public function testYoutubeGetDimensionsMethodExists(): void
+    {
+        $this->assertTrue(function_exists('youtube_get_dimensions'));
+    }
+
+    public function testYoutubeGetDimensionsWithInvalidId(): void
+    {
+        $result = youtube_get_dimensions('invalid_id');
+        $this->assertIsArray($result);
+        $this->assertSame(800, $result['video_width']);
+        $this->assertSame(450, $result['video_height']);
+        $this->assertSame(1.778, $result['video_aspect_ratio']);
+    }
+
     public function testYoutubeParseMetaMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_parse_meta'));
@@ -146,6 +160,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'youtube_get_feed',
             'youtube_get_video_source',
             'youtube_id_from_url',
+            'youtube_get_dimensions',
             'youtube_parse_meta',
         ];
 
