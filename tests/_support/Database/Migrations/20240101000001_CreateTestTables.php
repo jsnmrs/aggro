@@ -166,6 +166,11 @@ class CreateTestTables extends Migration
                 'type' => 'DATETIME',
                 'null' => false,
             ],
+            'source_fail_count' => [
+                'type'    => 'INT',
+                'null'    => false,
+                'default' => 0,
+            ],
         ]);
         $this->forge->addKey('source_id', true);
         $this->forge->createTable('aggro_sources');

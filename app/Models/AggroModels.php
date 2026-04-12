@@ -176,4 +176,28 @@ class AggroModels extends Model
     {
         $this->channelRepository->updateChannel($sourceSlug);
     }
+
+    /**
+     * Increment consecutive failure count for a channel.
+     *
+     * @param string $sourceSlug Source slug.
+     *
+     * @return void
+     */
+    public function incrementChannelFailCount($sourceSlug)
+    {
+        $this->channelRepository->incrementChannelFailCount($sourceSlug);
+    }
+
+    /**
+     * Reset consecutive failure count for a channel.
+     *
+     * @param string $sourceSlug Source slug.
+     *
+     * @return void
+     */
+    public function resetChannelFailCount($sourceSlug)
+    {
+        $this->channelRepository->resetChannelFailCount($sourceSlug);
+    }
 }

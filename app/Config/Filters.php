@@ -38,7 +38,7 @@ class Filters extends BaseConfig
      * applied before and after every request.
      *
      * @var         array<string, array<string, array<string, string>>>|array<string, list<string>>
-     * @phpstan-var array<string, list<string>>|array<string, array<string, array<string, string>>>
+     * @phpstan-var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
     public array $globals = [
         'before' => [

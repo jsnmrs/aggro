@@ -2,9 +2,7 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/**
- * @var RouteCollection $routes
- */
+/** @var RouteCollection $routes */
 $routes->get('/', 'Front::getIndex');
 $routes->get('about', 'Front::getAbout');
 $routes->get('robots.txt', 'Front::robots');

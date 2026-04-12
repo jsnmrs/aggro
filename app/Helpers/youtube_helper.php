@@ -141,6 +141,48 @@ if (! function_exists('youtube_id_from_url')) {
     }
 }
 
+if (! function_exists('youtube_get_dimensions')) {
+    /**
+     * Fetch video dimensions from YouTube oEmbed.
+     *
+     * @param string $videoID
+     *                        YouTube video ID.
+     *
+     * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
+     *                                                                               Video dimensions and aspect ratio.
+     */
+    function youtube_get_dimensions(string $videoID): array
+    {
+        helper('aggro');
+
+        $defaults = [
+            'video_width'        => 800,
+            'video_height'       => 450,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $oEmbed = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
+        $result = fetch_url($oEmbed, 'json', 0);
+
+        if ($result === false || ! (is_array($result) || is_object($result))) {
+            return $defaults;
+        }
+
+        $width  = (int) ($result->width ?? 0);
+        $height = (int) ($result->height ?? 0);
+
+        if ($width <= 0 || $height <= 0) {
+            return $defaults;
+        }
+
+        return [
+            'video_width'        => $width,
+            'video_height'       => $height,
+            'video_aspect_ratio' => round($width / $height, 3),
+        ];
+    }
+}
+
 if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
@@ -182,17 +224,8 @@ if (! function_exists('youtube_parse_meta')) {
         $authorName                     = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
         $video['video_source_username'] = $authorName[0]['data'];
 
-        $oEmbed                = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $video['video_id'];
-        $result                = fetch_url($oEmbed, 'json', 0);
-        $video['video_width']  = 800;
-        $video['video_height'] = 450;
-        if ($result !== false && (is_array($result) || is_object($result))) {
-            $video['video_width']  = $result->width;
-            $video['video_height'] = $result->height;
-        }
-        $video['video_aspect_ratio'] = ($video['video_height'] > 0)
-            ? round($video['video_width'] / $video['video_height'], 3)
-            : 1.778;
+        $dimensions = youtube_get_dimensions($video['video_id']);
+        $video      = array_merge($video, $dimensions);
 
         $video['video_duration'] = youtube_get_duration($video['video_id']);
 

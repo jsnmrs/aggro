@@ -56,6 +56,7 @@ class ChannelRepository
         $query = $this->db->table('aggro_sources')
             ->where('source_type', $type)
             ->where('source_date_updated <=', $staleDateTime)
+            ->where('source_fail_count <', 20)
             ->orderBy('source_date_updated', 'ASC')
             ->limit((int) $limit)
             ->get();
@@ -95,5 +96,34 @@ class ChannelRepository
         $this->db->table('aggro_sources')
             ->where('source_slug', $sourceSlug)
             ->update(['source_date_updated' => $now]);
+    }
+
+    /**
+     * Increment consecutive failure count for a channel.
+     *
+     * @param string $sourceSlug Source slug.
+     *
+     * @return void
+     */
+    public function incrementChannelFailCount($sourceSlug)
+    {
+        $this->db->table('aggro_sources')
+            ->where('source_slug', $sourceSlug)
+            ->set('source_fail_count', 'source_fail_count + 1', false)
+            ->update();
+    }
+
+    /**
+     * Reset consecutive failure count for a channel.
+     *
+     * @param string $sourceSlug Source slug.
+     *
+     * @return void
+     */
+    public function resetChannelFailCount($sourceSlug)
+    {
+        $this->db->table('aggro_sources')
+            ->where('source_slug', $sourceSlug)
+            ->update(['source_fail_count' => 0]);
     }
 }
