@@ -149,7 +149,7 @@ if (! function_exists('youtube_get_dimensions')) {
      *                        YouTube video ID.
      *
      * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
-     *               Video dimensions and aspect ratio.
+     *                                                                               Video dimensions and aspect ratio.
      */
     function youtube_get_dimensions(string $videoID): array
     {
