@@ -138,6 +138,98 @@ final class ChannelRepositoryTest extends RepositoryTestCase
         $this->assertSame('newer_channel', $results[1]->source_slug);
     }
 
+    public function testGetChannelsExcludesHighFailureChannels()
+    {
+        // Arrange
+        $healthyChannel = $this->createTestChannel([
+            'source_slug'         => 'healthy_channel',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+            'source_fail_count'   => 0,
+        ]);
+        $failingChannel = $this->createTestChannel([
+            'source_slug'         => 'failing_channel',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+            'source_fail_count'   => 20,
+        ]);
+
+        $this->db->table('aggro_sources')->insertBatch([$healthyChannel, $failingChannel]);
+
+        // Act
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        // Assert
+        $this->assertIsArray($results);
+        $this->assertCount(1, $results);
+        $this->assertSame('healthy_channel', $results[0]->source_slug);
+    }
+
+    public function testGetChannelsIncludesChannelsBelowFailureThreshold()
+    {
+        // Arrange
+        $channel = $this->createTestChannel([
+            'source_slug'         => 'recovering_channel',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+            'source_fail_count'   => 19,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channel);
+
+        // Act
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        // Assert
+        $this->assertIsArray($results);
+        $this->assertCount(1, $results);
+        $this->assertSame('recovering_channel', $results[0]->source_slug);
+    }
+
+    public function testIncrementChannelFailCount()
+    {
+        // Arrange
+        $channelData = $this->createTestChannel([
+            'source_slug'       => 'test_channel',
+            'source_fail_count' => 3,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channelData);
+
+        // Act
+        $this->repository->incrementChannelFailCount('test_channel');
+
+        // Assert
+        $updatedChannel = $this->db->table('aggro_sources')
+            ->where('source_slug', 'test_channel')
+            ->get()
+            ->getRowArray();
+
+        $this->assertSame(4, (int) $updatedChannel['source_fail_count']);
+    }
+
+    public function testResetChannelFailCount()
+    {
+        // Arrange
+        $channelData = $this->createTestChannel([
+            'source_slug'       => 'test_channel',
+            'source_fail_count' => 15,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channelData);
+
+        // Act
+        $this->repository->resetChannelFailCount('test_channel');
+
+        // Assert
+        $updatedChannel = $this->db->table('aggro_sources')
+            ->where('source_slug', 'test_channel')
+            ->get()
+            ->getRowArray();
+
+        $this->assertSame(0, (int) $updatedChannel['source_fail_count']);
+    }
+
     public function testUpdateChannelUpdatesTimestamp()
     {
         // Arrange

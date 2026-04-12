@@ -39,6 +39,7 @@ CREATE TABLE `aggro_sources` (
   `source_channel_id` varchar(255) DEFAULT NULL,
   `source_type` varchar(255) NOT NULL DEFAULT '',
   `source_date_updated` datetime NOT NULL,
+  `source_fail_count` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`source_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -112,6 +112,7 @@ abstract class RepositoryTestCase extends CIUnitTestCase
             'source_url'          => 'https://example.com/channel',
             'source_date_added'   => date('Y-m-d H:i:s'),
             'source_date_updated' => date('Y-m-d H:i:s', strtotime('-1 hour')),
+            'source_fail_count'   => 0,
         ];
 
         return array_merge($defaults, $overrides);
