@@ -7,9 +7,11 @@
 
 use CodeIgniter\I18n\Time;
 
-if ($build['video_height'] !== 0) {
-    $ratio = round($build['video_height'] / $build['video_width'], 4);
-}
+$videoWidth  = (int) ($build['video_width'] ?? 0);
+$videoHeight = (int) ($build['video_height'] ?? 0);
+$ratio       = ($videoWidth > 0 && $videoHeight > 0)
+    ? round($videoHeight / $videoWidth, 4)
+    : 0.5625; // 16:9 fallback keeps layout intact for zero-sized records
 
 echo $this->include('includes/header'); ?>
 

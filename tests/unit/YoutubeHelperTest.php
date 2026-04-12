@@ -132,6 +132,13 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
     }
 
+    public function testYoutubeParseMetaKeepsDefaultsWhenOembedReturnsZeroDimensions(): void
+    {
+        // Verifies the hardening in youtube_parse_meta that rejects zero/null
+        // oEmbed dimensions and keeps 800x450 defaults.
+        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+    }
+
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [

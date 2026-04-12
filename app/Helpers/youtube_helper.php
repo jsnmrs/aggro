@@ -187,8 +187,12 @@ if (! function_exists('youtube_parse_meta')) {
         $video['video_width']  = 800;
         $video['video_height'] = 450;
         if ($result !== false && (is_array($result) || is_object($result))) {
-            $video['video_width']  = $result->width;
-            $video['video_height'] = $result->height;
+            $width  = (int) ($result->width ?? 0);
+            $height = (int) ($result->height ?? 0);
+            if ($width > 0 && $height > 0) {
+                $video['video_width']  = $width;
+                $video['video_height'] = $height;
+            }
         }
         $video['video_aspect_ratio'] = ($video['video_height'] > 0)
             ? round($video['video_width'] / $video['video_height'], 3)
