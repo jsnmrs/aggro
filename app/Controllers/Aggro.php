@@ -49,7 +49,7 @@ class Aggro extends BaseController
         $deployedOn = $timestamp;
         if ($timestamp !== 'relax, you\'re a local') {
             $time       = Time::createFromFormat('Y-m-d H:i:s T', $timestamp);
-            $deployedOn = $time ? $time->humanize() : $timestamp;
+            $deployedOn = $time->humanize();
         }
         echo '<br><span style="color:#222;">When</span> ' . esc($deployedOn);
         echo '<br><span style="color:#222;">Env</span> ' . esc($environment);
