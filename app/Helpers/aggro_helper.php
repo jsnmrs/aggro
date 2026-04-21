@@ -188,7 +188,7 @@ if (! function_exists('fetch_feed')) {
 
         if ($rss->error()) {
             $errormsg = $feed . ' - ' . $rss->error();
-            log_message('error', $errormsg);
+            log_message('warning', $errormsg);
         }
 
         return $rss;
