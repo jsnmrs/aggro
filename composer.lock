@@ -891,16 +891,16 @@
         },
         {
             "name": "nexusphp/cs-config",
-            "version": "v3.28.2",
+            "version": "v3.28.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NexusPHP/cs-config.git",
-                "reference": "764a5550ffafd8d517c7f7afe6ba767cd051d6d4"
+                "reference": "fb6bd0d2e1a51bd2908b1a1032f0049a6465df2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/764a5550ffafd8d517c7f7afe6ba767cd051d6d4",
-                "reference": "764a5550ffafd8d517c7f7afe6ba767cd051d6d4",
+                "url": "https://api.github.com/repos/NexusPHP/cs-config/zipball/fb6bd0d2e1a51bd2908b1a1032f0049a6465df2e",
+                "reference": "fb6bd0d2e1a51bd2908b1a1032f0049a6465df2e",
                 "shasum": ""
             },
             "require": {
@@ -938,7 +938,7 @@
                 "slack": "https://nexusphp.slack.com",
                 "source": "https://github.com/NexusPHP/cs-config.git"
             },
-            "time": "2026-04-11T19:32:22+00:00"
+            "time": "2026-04-17T10:46:08+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -4290,11 +4290,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.46",
+            "version": "2.1.51",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
-                "reference": "a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dc3b523c45e714c70de2ac5113b958223b55dc59",
+                "reference": "dc3b523c45e714c70de2ac5113b958223b55dc59",
                 "shasum": ""
             },
             "require": {
@@ -4339,7 +4339,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-04-01T09:25:14+00:00"
+            "time": "2026-04-21T18:22:01+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

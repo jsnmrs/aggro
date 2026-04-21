@@ -263,27 +263,13 @@ class Aggro extends BaseController
         }
 
         if ($videoID === null) {
-            $data['stale'] = $aggroModel->getChannels('30', 'vimeo', '5');
+            $stale = $aggroModel->getChannels('30', 'vimeo', '5');
 
-            if ($data['stale'] === false || empty($data['stale'])) {
+            if ($stale === false || empty($stale)) {
                 return false;
             }
 
-            foreach ($data['stale'] as $channel) {
-                $data['feed'] = vimeo_get_feed($channel->source_channel_id);
-
-                if ($data['feed'] === false) {
-                    $aggroModel->incrementChannelFailCount($channel->source_slug);
-                    $aggroModel->updateChannel($channel->source_slug);
-
-                    continue;
-                }
-
-                $aggroModel->resetChannelFailCount($channel->source_slug);
-                $data['number_added'] = $vimeoModel->parseChannel($data['feed']);
-                echo "\nAdded " . $data['number_added'] . ' videos from ' . $channel->source_name . ".\n";
-                $aggroModel->updateChannel($channel->source_slug);
-            }
+            $this->processStaleVimeoChannels($stale, $aggroModel, $vimeoModel);
 
             return true;
         }
@@ -327,27 +313,13 @@ class Aggro extends BaseController
         }
 
         if ($videoID === null) {
-            $data['stale'] = $aggroModel->getChannels('30', 'youtube', '5');
+            $stale = $aggroModel->getChannels('30', 'youtube', '5');
 
-            if ($data['stale'] === false || empty($data['stale'])) {
+            if ($stale === false || empty($stale)) {
                 return false;
             }
 
-            foreach ($data['stale'] as $channel) {
-                $data['feed'] = youtube_get_feed($channel->source_channel_id);
-
-                if ($data['feed'] === false || $data['feed']->error()) {
-                    $aggroModel->incrementChannelFailCount($channel->source_slug);
-                    $aggroModel->updateChannel($channel->source_slug);
-
-                    continue;
-                }
-
-                $aggroModel->resetChannelFailCount($channel->source_slug);
-                $data['number_added'] = $youtubeModel->parseChannel($data['feed']);
-                echo "\nAdded " . $data['number_added'] . ' videos from ' . $channel->source_name . ".\n";
-                $aggroModel->updateChannel($channel->source_slug);
-            }
+            $this->processStaleYoutubeChannels($stale, $aggroModel, $youtubeModel);
 
             return true;
         }
@@ -372,5 +344,49 @@ class Aggro extends BaseController
         echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . ' from ' . $sourceID . ".\n";
 
         return true;
+    }
+
+    /**
+     * Process stale Vimeo channels.
+     */
+    private function processStaleVimeoChannels(array $stale, AggroModels $aggroModel, VimeoModels $vimeoModel): void
+    {
+        foreach ($stale as $channel) {
+            $feed = vimeo_get_feed($channel->source_channel_id);
+
+            if ($feed === false) {
+                $aggroModel->incrementChannelFailCount($channel->source_slug);
+                $aggroModel->updateChannel($channel->source_slug);
+
+                continue;
+            }
+
+            $aggroModel->resetChannelFailCount($channel->source_slug);
+            $numberAdded = $vimeoModel->parseChannel($feed);
+            echo "\nAdded " . $numberAdded . ' videos from ' . $channel->source_name . ".\n";
+            $aggroModel->updateChannel($channel->source_slug);
+        }
+    }
+
+    /**
+     * Process stale YouTube channels.
+     */
+    private function processStaleYoutubeChannels(array $stale, AggroModels $aggroModel, YoutubeModels $youtubeModel): void
+    {
+        foreach ($stale as $channel) {
+            $feed = youtube_get_feed($channel->source_channel_id);
+
+            if ($feed === false || $feed->error()) {
+                $aggroModel->incrementChannelFailCount($channel->source_slug);
+                $aggroModel->updateChannel($channel->source_slug);
+
+                continue;
+            }
+
+            $aggroModel->resetChannelFailCount($channel->source_slug);
+            $numberAdded = $youtubeModel->parseChannel($feed);
+            echo "\nAdded " . $numberAdded . ' videos from ' . $channel->source_name . ".\n";
+            $aggroModel->updateChannel($channel->source_slug);
+        }
     }
 }
