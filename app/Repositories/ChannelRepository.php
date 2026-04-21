@@ -56,7 +56,7 @@ class ChannelRepository
         $query = $this->db->table('aggro_sources')
             ->where('source_type', $type)
             ->where('source_date_updated <=', $staleDateTime)
-            ->where('source_fail_count <', 20)
+            ->where('source_fail_count <', 5)
             ->orderBy('source_date_updated', 'ASC')
             ->limit((int) $limit)
             ->get();
