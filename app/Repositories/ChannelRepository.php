@@ -10,6 +10,21 @@ use Config\Database;
  */
 class ChannelRepository
 {
+    /**
+     * Multiplier applied to the stale window per consecutive failure count.
+     * Index = source_fail_count, value = multiplier on $stale minutes.
+     * The final entry applies to all fail counts at or above its index.
+     * Example with $stale = 30: 0 fails -> 30min, 1 -> 1h, 2 -> 2h, 3 -> 4h,
+     * 4 -> 8h, 5+ -> 24h.
+     */
+    private const FAIL_BACKOFF_MULTIPLIERS = [1, 2, 4, 8, 16, 48];
+
+    /**
+     * Channels with at least this many consecutive failures are skipped
+     * entirely until source_fail_count is reset by a successful fetch.
+     */
+    private const FAIL_COUNT_HARD_CAP = 20;
+
     protected $db;
     protected $utilityModel;
 
@@ -51,12 +66,32 @@ class ChannelRepository
      */
     private function fetchStaleChannels($stale, $type, $limit)
     {
-        $staleDateTime = date('Y-m-d H:i:s', strtotime("-{$stale} minutes"));
+        $now     = time();
+        $cutoffs = [];
 
-        $query = $this->db->table('aggro_sources')
+        foreach (self::FAIL_BACKOFF_MULTIPLIERS as $bucket => $multiplier) {
+            $cutoffs[$bucket] = date('Y-m-d H:i:s', $now - ((int) $stale * 60 * $multiplier));
+        }
+        $lastBucket = array_key_last(self::FAIL_BACKOFF_MULTIPLIERS);
+
+        $builder = $this->db->table('aggro_sources')
             ->where('source_type', $type)
-            ->where('source_date_updated <=', $staleDateTime)
-            ->where('source_fail_count <', 20)
+            ->where('source_fail_count <', self::FAIL_COUNT_HARD_CAP)
+            ->groupStart();
+
+        foreach (array_keys(self::FAIL_BACKOFF_MULTIPLIERS) as $bucket) {
+            $bucket === 0 ? $builder->groupStart() : $builder->orGroupStart();
+
+            if ($bucket === $lastBucket) {
+                $builder->where('source_fail_count >=', $bucket);
+            } else {
+                $builder->where('source_fail_count', $bucket);
+            }
+
+            $builder->where('source_date_updated <=', $cutoffs[$bucket])->groupEnd();
+        }
+
+        $query = $builder->groupEnd()
             ->orderBy('source_date_updated', 'ASC')
             ->limit((int) $limit)
             ->get();
