@@ -172,7 +172,7 @@ final class ChannelRepositoryTest extends RepositoryTestCase
             'source_slug'         => 'recovering_channel',
             'source_type'         => 'youtube',
             'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-            'source_fail_count'   => 4,
+            'source_fail_count'   => 19,
         ]);
 
         $this->db->table('aggro_sources')->insert($channel);
