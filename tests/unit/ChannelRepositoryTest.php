@@ -151,7 +151,7 @@ final class ChannelRepositoryTest extends RepositoryTestCase
             'source_slug'         => 'failing_channel',
             'source_type'         => 'youtube',
             'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-            'source_fail_count'   => 5,
+            'source_fail_count'   => 20,
         ]);
 
         $this->db->table('aggro_sources')->insertBatch([$healthyChannel, $failingChannel]);
@@ -172,7 +172,7 @@ final class ChannelRepositoryTest extends RepositoryTestCase
             'source_slug'         => 'recovering_channel',
             'source_type'         => 'youtube',
             'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-            'source_fail_count'   => 4,
+            'source_fail_count'   => 19,
         ]);
 
         $this->db->table('aggro_sources')->insert($channel);
@@ -213,7 +213,7 @@ final class ChannelRepositoryTest extends RepositoryTestCase
         // Arrange
         $channelData = $this->createTestChannel([
             'source_slug'       => 'test_channel',
-            'source_fail_count' => 15,
+            'source_fail_count' => 25,
         ]);
 
         $this->db->table('aggro_sources')->insert($channelData);
