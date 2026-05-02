@@ -167,11 +167,12 @@ final class ChannelRepositoryTest extends RepositoryTestCase
 
     public function testGetChannelsIncludesChannelsBelowFailureThreshold()
     {
-        // Arrange
+        // A channel one fail short of the hard cap is still eligible once its
+        // backoff window has elapsed (24 hours for fail_count >= 5).
         $channel = $this->createTestChannel([
             'source_slug'         => 'recovering_channel',
             'source_type'         => 'youtube',
-            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-25 hours')),
             'source_fail_count'   => 19,
         ]);
 
@@ -184,6 +185,86 @@ final class ChannelRepositoryTest extends RepositoryTestCase
         $this->assertIsArray($results);
         $this->assertCount(1, $results);
         $this->assertSame('recovering_channel', $results[0]->source_slug);
+    }
+
+    public function testFailingChannelIsNotStaleWithinBackoffWindow()
+    {
+        // fail_count=2 -> 2-hour backoff window; -1 hour should be excluded.
+        $channel = $this->createTestChannel([
+            'source_slug'         => 'backoff_pending',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-1 hour')),
+            'source_fail_count'   => 2,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channel);
+
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        $this->assertFalse($results);
+    }
+
+    public function testFailingChannelBecomesStaleAfterBackoffWindow()
+    {
+        // fail_count=2 -> 2-hour backoff window; -3 hours should be eligible.
+        $channel = $this->createTestChannel([
+            'source_slug'         => 'backoff_elapsed',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-3 hours')),
+            'source_fail_count'   => 2,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channel);
+
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        $this->assertIsArray($results);
+        $this->assertCount(1, $results);
+        $this->assertSame('backoff_elapsed', $results[0]->source_slug);
+    }
+
+    public function testBackoffCapsAt24Hours()
+    {
+        // fail_count=10 falls into the 5+ bucket (24-hour cap).
+        $withinCap = $this->createTestChannel([
+            'source_slug'         => 'still_in_cooldown',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-23 hours')),
+            'source_fail_count'   => 10,
+        ]);
+        $pastCap = $this->createTestChannel([
+            'source_slug'         => 'cap_elapsed',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-25 hours')),
+            'source_fail_count'   => 10,
+        ]);
+
+        $this->db->table('aggro_sources')->insertBatch([$withinCap, $pastCap]);
+
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        $this->assertIsArray($results);
+        $this->assertCount(1, $results);
+        $this->assertSame('cap_elapsed', $results[0]->source_slug);
+    }
+
+    public function testHealthyChannelStaleWindowUnchanged()
+    {
+        // fail_count=0 keeps the original 30-minute stale window.
+        $channel = $this->createTestChannel([
+            'source_slug'         => 'healthy_stale',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-31 minutes')),
+            'source_fail_count'   => 0,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channel);
+
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        $this->assertIsArray($results);
+        $this->assertCount(1, $results);
+        $this->assertSame('healthy_stale', $results[0]->source_slug);
     }
 
     public function testIncrementChannelFailCount()
