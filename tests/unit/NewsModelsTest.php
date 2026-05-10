@@ -572,4 +572,154 @@ final class NewsModelsTest extends ServiceTestCase
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
+
+    public function testSaveFeedItemsRetriesOnDeadlockAndSucceeds()
+    {
+        $stubDb = $this->makeTransactionStub(
+            [false, true],
+            [['code' => 1213, 'message' => 'Deadlock found', 'sqlstate' => '40001']],
+        );
+        $model = $this->makeModelWithStubbedDb($stubDb);
+
+        $result = $this->invokeSaveFeedItems($model, $stubDb);
+
+        $this->assertTrue($result);
+        $this->assertSame(2, $stubDb->countCalls('transStart'));
+        $this->assertSame(1, $model->sleepCallCount);
+    }
+
+    public function testSaveFeedItemsGivesUpAfterMaxDeadlockRetries()
+    {
+        $stubDb = $this->makeTransactionStub(
+            [false, false, false],
+            [
+                ['code' => 1213, 'message' => 'Deadlock found', 'sqlstate' => '40001'],
+                ['code' => 1213, 'message' => 'Deadlock found', 'sqlstate' => '40001'],
+                ['code' => 1213, 'message' => 'Deadlock found', 'sqlstate' => '40001'],
+            ],
+        );
+        $model = $this->makeModelWithStubbedDb($stubDb);
+
+        $result = $this->invokeSaveFeedItems($model, $stubDb);
+
+        $this->assertFalse($result);
+        $this->assertSame(3, $stubDb->countCalls('transStart'));
+        $this->assertSame(2, $model->sleepCallCount);
+    }
+
+    public function testSaveFeedItemsDoesNotRetryOnNonDeadlockFailure()
+    {
+        $stubDb = $this->makeTransactionStub(
+            [false],
+            [['code' => 1062, 'message' => 'Duplicate entry', 'sqlstate' => '23000']],
+        );
+        $model = $this->makeModelWithStubbedDb($stubDb);
+
+        $result = $this->invokeSaveFeedItems($model, $stubDb);
+
+        $this->assertFalse($result);
+        $this->assertSame(1, $stubDb->countCalls('transStart'));
+        $this->assertSame(0, $model->sleepCallCount);
+    }
+
+    public function testSaveFeedItemsSucceedsFirstTryWithoutRetryOverhead()
+    {
+        $stubDb = $this->makeTransactionStub([true], []);
+        $model  = $this->makeModelWithStubbedDb($stubDb);
+
+        $result = $this->invokeSaveFeedItems($model, $stubDb);
+
+        $this->assertTrue($result);
+        $this->assertSame(1, $stubDb->countCalls('transStart'));
+        $this->assertSame(0, $model->sleepCallCount);
+    }
+
+    private function makeTransactionStub(array $transStatusReturns, array $errorReturns): object
+    {
+        return new class ($transStatusReturns, $errorReturns) {
+            public array $calls = [];
+            private array $transStatusReturns;
+            private array $errorReturns;
+
+            public function __construct(array $transStatusReturns, array $errorReturns)
+            {
+                $this->transStatusReturns = $transStatusReturns;
+                $this->errorReturns       = $errorReturns;
+            }
+
+            public function transStart(): void
+            {
+                $this->calls[] = 'transStart';
+            }
+
+            public function transComplete(): void
+            {
+                $this->calls[] = 'transComplete';
+            }
+
+            public function transStatus(): bool
+            {
+                return array_shift($this->transStatusReturns) ?? true;
+            }
+
+            public function error(): array
+            {
+                return array_shift($this->errorReturns) ?? ['code' => 0, 'message' => '', 'sqlstate' => ''];
+            }
+
+            public function table(string $name): object
+            {
+                return new class () {
+                    public function where($key, $value = null): self
+                    {
+                        return $this;
+                    }
+
+                    public function update($data): bool
+                    {
+                        return true;
+                    }
+                };
+            }
+
+            public function countCalls(string $method): int
+            {
+                return count(array_filter($this->calls, static fn ($c) => $c === $method));
+            }
+        };
+    }
+
+    private function makeModelWithStubbedDb(object $stubDb): NewsModels
+    {
+        $model = new class () extends NewsModels {
+            public int $sleepCallCount = 0;
+
+            protected function sleepBetweenAttempts(int $ms): void
+            {
+                $this->sleepCallCount++;
+            }
+        };
+
+        $reflection = new ReflectionClass(NewsModels::class);
+        $dbProp     = $reflection->getProperty('db');
+        $dbProp->setValue($model, $stubDb);
+
+        return $model;
+    }
+
+    private function invokeSaveFeedItems(NewsModels $model, object $stubDb): bool
+    {
+        $row        = (object) ['site_id' => 1];
+        $emptyFetch = new class () {
+            public function get_items(int $start = 0, int $end = 0): array
+            {
+                return [];
+            }
+        };
+
+        $reflection = new ReflectionClass(NewsModels::class);
+        $method     = $reflection->getMethod('saveFeedItems');
+
+        return $method->invoke($model, $row, $emptyFetch);
+    }
 }

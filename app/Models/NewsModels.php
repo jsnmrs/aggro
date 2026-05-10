@@ -136,20 +136,60 @@ class NewsModels extends Model
      */
     private function saveFeedItems($row, $fetch)
     {
-        $this->db->transStart();
+        $maxAttempts = 3;
+        $delaysMs    = [50, 150, 400];
 
-        $this->updateLastFetchTime($row->site_id);
-        $this->processFeedItems($row, $fetch);
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $this->db->transStart();
 
-        $this->db->transComplete();
+            $this->updateLastFetchTime($row->site_id);
+            $this->processFeedItems($row, $fetch);
 
-        if ($this->db->transStatus() === false) {
-            log_message('error', 'Transaction failed for site_id ' . $row->site_id);
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() !== false) {
+                return true;
+            }
+
+            if ($this->isDeadlockError() && $attempt < $maxAttempts) {
+                $base   = $delaysMs[$attempt - 1];
+                $jitter = random_int(0, $base);
+                $this->sleepBetweenAttempts($base + $jitter);
+
+                continue;
+            }
+
+            log_message(
+                'error',
+                'Transaction failed for site_id ' . $row->site_id
+                . ' (attempt ' . $attempt . '/' . $maxAttempts . ')',
+            );
 
             return false;
         }
 
-        return true;
+        return false;
+    }
+
+    /**
+     * Detect a transient MySQL deadlock or lock-wait timeout from the last query.
+     */
+    private function isDeadlockError(): bool
+    {
+        $error = $this->db->error();
+        $code  = (int) ($error['code'] ?? 0);
+
+        return $code === 1213
+            || $code === 1205
+            || ($error['sqlstate'] ?? '') === '40001';
+    }
+
+    /**
+     * Sleep between retry attempts. Extracted so tests can override it.
+     */
+    protected function sleepBetweenAttempts(int $ms): void
+    {
+        usleep($ms * 1000);
     }
 
     /**
