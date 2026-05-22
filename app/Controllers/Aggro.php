@@ -288,8 +288,15 @@ class Aggro extends BaseController
         }
 
         if (! $aggroModel->checkVideo($videoID)) {
-            $request              = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
-            $result               = json_decode(fetch_url($request, 'json', 0));
+            $request = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
+            $result  = fetch_url($request, 'json', 0);
+
+            if ($result === false || empty($result) || ! isset($result[0]->user_url)) {
+                log_message('error', 'Vimeo API returned no usable data for video ID: ' . $videoID);
+
+                return $this->response->setStatusCode(404);
+            }
+
             $sourceID             = str_replace('https://vimeo.com/', '', $result[0]->user_url);
             $data['feed']         = vimeo_get_feed($sourceID);
             $data['number_added'] = $vimeoModel->searchChannel($data['feed'], $videoID);
