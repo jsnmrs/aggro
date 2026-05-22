@@ -21,6 +21,10 @@ parameters:
         - app/Repositories
         - app/Services
         - app/Views
+        # app/Helpers is intentionally scan-only (listed under scanDirectories
+        # above) rather than analysed. The helpers are procedural framework glue
+        # and produce ~53 pre-existing level-5 findings, mostly PHPDoc-certainty
+        # noise and SimplePie/CodeIgniter symbols phpstan cannot resolve.
     ignoreErrors:
         - '#Function base_url not found.#'
         - '#Function view not found.#'
