@@ -11,7 +11,7 @@
     "nexusphp/cs-config": "^3.28",
     "nikic/php-parser": "^5.7",
     "pdepend/pdepend": "^2.16",
-    "sentry/sentry": "^4.24",
+    "sentry/sentry": "^4.27",
     "simplepie/simplepie": "^1.9",
     "symfony/config": "^7.4",
     "symfony/dependency-injection": "^7.4",
@@ -53,6 +53,8 @@
       "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Controllers ansi phpmd.xml",
       "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Helpers ansi phpmd.xml",
       "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Models ansi phpmd.xml",
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Repositories ansi phpmd.xml",
+      "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Services ansi phpmd.xml",
       "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/phpmd app/Views ansi phpmd.xml --exclude app/Views/errors*"
     ],
     "phpfix": [

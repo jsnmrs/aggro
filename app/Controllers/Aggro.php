@@ -7,6 +7,8 @@ use App\Models\NewsModels;
 use App\Models\UtilityModels;
 use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
+use App\Services\ChannelFetchService;
+use App\Services\FeedIngestionService;
 use CodeIgniter\CodeIgniter;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
@@ -141,7 +143,8 @@ class Aggro extends BaseController
         }
 
         if ($slug === null) {
-            $newsModel->featuredBuilder();
+            $feedIngestionService = new FeedIngestionService();
+            $feedIngestionService->featuredBuilder();
 
             return 'Featured page built.';
         }
@@ -269,7 +272,8 @@ class Aggro extends BaseController
                 return false;
             }
 
-            $this->processStaleVimeoChannels($stale, $aggroModel, $vimeoModel);
+            $channelFetchService = new ChannelFetchService();
+            $channelFetchService->processStaleVimeoChannels($stale);
 
             return true;
         }
@@ -319,7 +323,8 @@ class Aggro extends BaseController
                 return false;
             }
 
-            $this->processStaleYoutubeChannels($stale, $aggroModel, $youtubeModel);
+            $channelFetchService = new ChannelFetchService();
+            $channelFetchService->processStaleYoutubeChannels($stale);
 
             return true;
         }
@@ -344,49 +349,5 @@ class Aggro extends BaseController
         echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . ' from ' . $sourceID . ".\n";
 
         return true;
-    }
-
-    /**
-     * Process stale Vimeo channels.
-     */
-    private function processStaleVimeoChannels(array $stale, AggroModels $aggroModel, VimeoModels $vimeoModel): void
-    {
-        foreach ($stale as $channel) {
-            $feed = vimeo_get_feed($channel->source_channel_id);
-
-            if ($feed === false) {
-                $aggroModel->incrementChannelFailCount($channel->source_slug);
-                $aggroModel->updateChannel($channel->source_slug);
-
-                continue;
-            }
-
-            $aggroModel->resetChannelFailCount($channel->source_slug);
-            $numberAdded = $vimeoModel->parseChannel($feed);
-            echo "\nAdded " . $numberAdded . ' videos from ' . $channel->source_name . ".\n";
-            $aggroModel->updateChannel($channel->source_slug);
-        }
-    }
-
-    /**
-     * Process stale YouTube channels.
-     */
-    private function processStaleYoutubeChannels(array $stale, AggroModels $aggroModel, YoutubeModels $youtubeModel): void
-    {
-        foreach ($stale as $channel) {
-            $feed = youtube_get_feed($channel->source_channel_id);
-
-            if ($feed === false || $feed->error()) {
-                $aggroModel->incrementChannelFailCount($channel->source_slug);
-                $aggroModel->updateChannel($channel->source_slug);
-
-                continue;
-            }
-
-            $aggroModel->resetChannelFailCount($channel->source_slug);
-            $numberAdded = $youtubeModel->parseChannel($feed);
-            echo "\nAdded " . $numberAdded . ' videos from ' . $channel->source_name . ".\n";
-            $aggroModel->updateChannel($channel->source_slug);
-        }
     }
 }
