@@ -11,8 +11,8 @@ if (! function_exists('youtube_get_duration')) {
      * @param string $videoID
      *                        YouTube videoID.
      *
-     * @return string
-     *                Video duration.
+     * @return false|string
+     *                      Video duration, or false on error.
      */
     function youtube_get_duration($videoID)
     {
@@ -59,14 +59,9 @@ if (! function_exists('youtube_get_feed')) {
             $baseUrl = 'https://www.youtube.com/feeds/videos.xml?playlist_id=';
         }
 
-        $fetch  = $baseUrl . $feedID;
-        $result = fetch_feed($fetch, 1);
+        $fetch = $baseUrl . $feedID;
 
-        if ($result !== false && (is_array($result) || is_object($result))) {
-            return $result;
-        }
-
-        return false;
+        return fetch_feed($fetch, 1);
     }
 }
 
@@ -77,8 +72,8 @@ if (! function_exists('youtube_get_video_source')) {
      * @param string $videoID
      *                        YouTube videoID.
      *
-     * @return string
-     *                Video sourceID.
+     * @return false|string
+     *                      Video sourceID, or false on error.
      *
      * @see fetchUrl()
      */
@@ -90,7 +85,7 @@ if (! function_exists('youtube_get_video_source')) {
         $fetch  = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
         $result = fetch_url($fetch, 'json', 0);
 
-        if ($result === false || ! (is_array($result) || is_object($result))) {
+        if (! is_object($result)) {
             return false;
         }
 
@@ -105,7 +100,7 @@ if (! function_exists('youtube_get_video_source')) {
             return false;
         }
 
-        if (preg_match($canonicalRegex, $channelResult, $matches) && isset($matches[1])) {
+        if (preg_match($canonicalRegex, $channelResult, $matches)) {
             return $matches[1];
         }
 
@@ -120,8 +115,8 @@ if (! function_exists('youtube_id_from_url')) {
      * @param string $url
      *                    Full video URL.
      *
-     * @return string
-     *                Youtube id from full URL.
+     * @return false|string
+     *                      Youtube id from full URL, or false if not found.
      */
     function youtube_id_from_url($url)
     {

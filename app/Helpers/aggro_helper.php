@@ -14,7 +14,7 @@ if (! function_exists('decode_entities')) {
      * Handles double-encoded and triple-encoded entities common in RSS feeds
      * where content like `&amp;#8211;` needs to become `–`.
      *
-     * @param string $text Text that may contain encoded HTML entities
+     * @param string|null $text Text that may contain encoded HTML entities
      *
      * @return string Text with all HTML entities decoded
      */
@@ -64,8 +64,8 @@ if (! function_exists('clean_feed_cache')) {
     /**
      * Delete feed cache.
      *
-     * @return string
-     *                Count of deleted cache files.
+     * @return int
+     *             Count of deleted cache files.
      */
     function clean_feed_cache()
     {
@@ -111,8 +111,8 @@ if (! function_exists('fetch_error_logs')) {
     /**
      * Get error logs.
      *
-     * @return string
-     *                Error logs.
+     * @return list<string>
+     *                      Error logs.
      */
     function fetch_error_logs()
     {
@@ -206,6 +206,8 @@ if (! function_exists('fetch_thumbnail')) {
      * @param int|null &$httpStatus
      *                              Optional. Populated with the HTTP status code from the fetch.
      *
+     * @param-out int $httpStatus
+     *
      * @return bool
      *              Video thumbnail fetched and processed.
      */
@@ -268,13 +270,16 @@ if (! function_exists('fetch_url')) {
      *                              - text: return as text, no decoding.
      *                              - simplexml: return as decoded XML.
      *                              - json: return as decoded JSON.
-     * @param string   $spoof
-     *                              Spoof user agent string (1/0).
+     * @param int      $spoof
+     *                              Spoof user agent flag (1 = spoof, 0 = default).
      * @param int|null &$httpStatus
      *                              Optional. Populated with the HTTP response code.
      *
-     * @return string
-     *                Contents of requested url with optional decoding.
+     * @param-out int $httpStatus
+     *
+     * @return array|false|object|string
+     *                                   Decoded object/array for json, SimpleXMLElement for simplexml,
+     *                                   string for text, or false on error.
      */
     function fetch_url($url, $format = 'text', $spoof = 0, &$httpStatus = null)
     {
@@ -287,7 +292,7 @@ if (! function_exists('fetch_url')) {
         curl_setopt($fetch, CURLOPT_URL, $url);
         curl_setopt($fetch, CURLOPT_USERAGENT, $agent);
         curl_setopt($fetch, CURLOPT_CONNECTTIMEOUT, $storageConfig->urlConnectTimeout);
-        curl_setopt($fetch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($fetch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($fetch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($fetch, CURLOPT_MAXREDIRS, $storageConfig->urlMaxRedirects);
         $response   = curl_exec($fetch);
