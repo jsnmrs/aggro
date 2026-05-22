@@ -5,5 +5,6 @@
  *
  * Defines CodeIgniter path constants that are set at runtime.
  */
-defined('FCPATH')   || define('FCPATH', __DIR__ . '/public/');
-defined('ROOTPATH') || define('ROOTPATH', __DIR__ . '/');
+defined('FCPATH')    || define('FCPATH', __DIR__ . '/public/');
+defined('ROOTPATH')  || define('ROOTPATH', __DIR__ . '/');
+defined('WRITEPATH') || define('WRITEPATH', __DIR__ . '/writable/');

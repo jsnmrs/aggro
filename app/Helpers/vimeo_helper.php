@@ -11,8 +11,8 @@ if (! function_exists('vimeo_get_feed')) {
      * @param string $feedID
      *                       Channel ID.
      *
-     * @return object
-     *                JSON object.
+     * @return false|object
+     *                      JSON object, or false on error.
      *
      * @see fetchUrl()
      */
@@ -43,18 +43,18 @@ if (! function_exists('vimeo_id_from_url')) {
      * @param string $url
      *                    Full video URL.
      *
-     * @return string
-     *                Vimeo id from full URL.
+     * @return false|string
+     *                      Vimeo id from full URL, or false if not found.
      */
     function vimeo_id_from_url($url)
     {
         $pattern = '/vimeo\\.com\\/([0-9]{1,10})/';
-        if (preg_match($pattern, $url, $match) && isset($match[1])) {
+        if (preg_match($pattern, $url, $match)) {
             return $match[1];
         }
 
         $pattern = '/player\\.vimeo\\.com\\/video\\/([0-9]{1,10})/';
-        if (preg_match($pattern, $url, $match) && isset($match[1])) {
+        if (preg_match($pattern, $url, $match)) {
             return $match[1];
         }
 

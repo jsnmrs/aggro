@@ -1,5 +1,8 @@
 parameters:
     level: 5
+    # Pin analysis to the deploy target (DDEV container) so results are
+    # deterministic regardless of the host PHP used to invoke phpstan.
+    phpVersion: 80400
     bootstrapFiles:
         - phpstan-bootstrap.php
     scanDirectories:
@@ -17,14 +20,11 @@ parameters:
         - app/Views
     paths:
         - app/Controllers
+        - app/Helpers
         - app/Models
         - app/Repositories
         - app/Services
         - app/Views
-        # app/Helpers is intentionally scan-only (listed under scanDirectories
-        # above) rather than analysed. The helpers are procedural framework glue
-        # and produce ~53 pre-existing level-5 findings, mostly PHPDoc-certainty
-        # noise and SimplePie/CodeIgniter symbols phpstan cannot resolve.
     ignoreErrors:
         - '#Function base_url not found.#'
         - '#Function view not found.#'
@@ -32,6 +32,9 @@ parameters:
         - '#Function esc not found.#'
         - '#Function log_message not found.#'
         - '#Function clean_path not found.#'
+        - '#Function is_cli not found.#'
+        - '#Function csrf_token not found.#'
+        - '#Function csrf_hash not found.#'
         - '#Function lang not found.#'
         - '#Function config not found.#'
         - '#Function env not found.#'
@@ -39,7 +42,6 @@ parameters:
         - '#Variable \$this might not be defined.#'
         - '#Variable \$[a-zA-Z_][a-zA-Z0-9_]* might not be defined.#'
         - '#Strict comparison using === between .* and false will always evaluate to false.#'
-        - '#Strict comparison using !== between .* and false will always evaluate to true.#'
         - '#Right side of && is always true.#'
         - '#Calling static::.* outside of class scope.#'
         - '#Parameter .* of function str_pad expects string.*#'
