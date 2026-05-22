@@ -82,11 +82,8 @@ class ChannelRepository
         foreach (array_keys(self::FAIL_BACKOFF_MULTIPLIERS) as $bucket) {
             $bucket === 0 ? $builder->groupStart() : $builder->orGroupStart();
 
-            if ($bucket === $lastBucket) {
-                $builder->where('source_fail_count >=', $bucket);
-            } else {
-                $builder->where('source_fail_count', $bucket);
-            }
+            $failCountColumn = $bucket === $lastBucket ? 'source_fail_count >=' : 'source_fail_count';
+            $builder->where($failCountColumn, $bucket);
 
             $builder->where('source_date_updated <=', $cutoffs[$bucket])->groupEnd();
         }
