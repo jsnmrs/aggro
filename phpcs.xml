@@ -5,6 +5,7 @@
   <file>app/Controllers</file>
   <file>app/Helpers</file>
   <file>app/Models</file>
+  <file>app/Services</file>
   <file>app/Views</file>
 
   <exclude-pattern>*/_ci3/*</exclude-pattern>

@@ -30,10 +30,8 @@ class ArchiveService
      */
     public function archiveVideos()
     {
-        $now = date('Y-m-d H:i:s');
-
         try {
-            $updateCount = $this->performArchiveOperation($now);
+            $updateCount = $this->performArchiveOperation();
             $message     = $updateCount . ' videos archived.';
             $this->utilityModel->sendLog($message);
 
@@ -52,18 +50,16 @@ class ArchiveService
     /**
      * Perform the archive operation in a transaction.
      *
-     * @param string $now
-     *
      * @return int Number of videos archived
      *
      * @throws Exception
      */
-    private function performArchiveOperation($now)
+    private function performArchiveOperation()
     {
         $this->db->transStart();
 
         // Optimized: Single UPDATE operation that returns affected rows count
-        $updateCount = $this->updateArchiveFlags($now);
+        $updateCount = $this->updateArchiveFlags();
 
         $this->db->transComplete();
 
@@ -79,13 +75,11 @@ class ArchiveService
     /**
      * Update archive flags for eligible videos and return count.
      *
-     * @param string $now
-     *
      * @return int Number of videos archived
      *
      * @throws Exception
      */
-    private function updateArchiveFlags($now)
+    private function updateArchiveFlags()
     {
         $storageConfig = config('Storage');
         $cutoffDate    = date('Y-m-d H:i:s', strtotime("-{$storageConfig->archiveDays} days"));
