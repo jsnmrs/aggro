@@ -8,6 +8,7 @@ use App\Models\UtilityModels;
 use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 use App\Services\ChannelFetchService;
+use App\Services\FeedIngestionService;
 use CodeIgniter\CodeIgniter;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
@@ -142,7 +143,8 @@ class Aggro extends BaseController
         }
 
         if ($slug === null) {
-            $newsModel->featuredBuilder();
+            $feedIngestionService = new FeedIngestionService();
+            $feedIngestionService->featuredBuilder();
 
             return 'Featured page built.';
         }
