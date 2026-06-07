@@ -64,6 +64,17 @@ class Format extends BaseConfig
     ];
 
     /**
+     * --------------------------------------------------------------------------
+     * Maximum depth for JSON encoding.
+     * --------------------------------------------------------------------------
+     *
+     * This value determines how deep the JSON encoder will traverse nested structures.
+     * Passed directly to json_encode()'s $depth argument by JSONFormatter, which
+     * requires a strict int on PHP 8.x.
+     */
+    public int $jsonEncodeDepth = 512;
+
+    /**
      * A Factory method to return the appropriate formatter for the given mime type.
      *
      * @return FormatterInterface
