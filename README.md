@@ -117,6 +117,33 @@ Maintenance tasks can be run via CLI using `ddev fire` for local or `ddev tunnel
 - `aggro vimeo/VIDEO_ID` — Fetch a Vimeo video
 - `aggro youtube/VIDEO_ID` — Fetch a YouTube video
 
+### Updating CodeIgniter
+
+Framework code lives in `vendor/` and updates through Composer, but the framework also ships skeleton files (`app/`, `public/`, `env`, `spark`) that are copies in this repo. When a release changes those files, [tatter/patches](https://github.com/tattersoftware/codeigniter4-patches) generates the diff and merges it into the project.
+
+1. Start from a clean working tree on a feature branch
+2. Run the patcher on the host, not in the container — `public/thumbs` is a DDEV bind mount, so the script's `rm -rf public/` always fails inside the container:
+   ```bash
+   vendor/bin/patch
+   ```
+3. Interpret the outcome:
+   - No skeleton changes — the script stops on the `tatter/scratch` branch with "nothing added to commit" (or an empty cherry-pick). There is nothing to reconcile; run the recovery steps below and move on
+   - Skeleton changes — the diff lands on the `tatter/patches` branch (resolve any conflict markers, then `git cherry-pick --continue`). Review it, merge it into your feature branch, and delete both `tatter/*` branches
+4. Update the framework itself:
+   ```bash
+   ddev composer update codeigniter4/framework
+   ```
+5. Verify with `ddev test` and `ddev check`
+
+The patcher never modifies your original branch. If it stops partway, recover with:
+
+```bash
+git checkout -f <your-branch>
+git clean -fd
+git branch -D tatter/scratch tatter/patches
+ddev composer install
+```
+
 ## Configuration
 
 ### Environment variables
