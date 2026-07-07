@@ -7,6 +7,7 @@ use App\Models\UtilityModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\Model;
 use ReflectionClass;
+use SimplePie\SimplePie;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -259,6 +260,99 @@ final class YoutubeModelsTest extends DatabaseTestCase
             public function get_items($start = 0, $end = 0): array
             {
                 return [];
+            }
+        };
+
+        $result = $model->parseChannel($mockFeed);
+        $this->assertSame(0, $result);
+    }
+
+    public function testParseChannelUpdatesPlaysForExistingVideo(): void
+    {
+        // Existing videos get their play counts refreshed from the feed
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
+        $mockAggro->expects($this->once())
+            ->method('setVideoPlays')
+            ->with('existing_video_id', 12345);
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $mockItem = new class () {
+            public function get_item_tags($namespace, $tag): array
+            {
+                if ($tag === 'videoId') {
+                    return [['data' => 'existing_video_id']];
+                }
+
+                // media:group carrying media:community > media:statistics views
+                return [[
+                    'child' => [
+                        SimplePie::NAMESPACE_MEDIARSS => [
+                            'community' => [[
+                                'child' => [
+                                    SimplePie::NAMESPACE_MEDIARSS => [
+                                        'statistics' => [[
+                                            'attribs' => ['' => ['views' => '12345']],
+                                        ]],
+                                    ],
+                                ],
+                            ]],
+                        ],
+                    ],
+                ]];
+            }
+        };
+
+        $mockFeed = new class ($mockItem) {
+            private $item;
+
+            public function __construct($item)
+            {
+                $this->item = $item;
+            }
+
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [$this->item];
+            }
+        };
+
+        $result = $model->parseChannel($mockFeed);
+        $this->assertSame(0, $result);
+    }
+
+    public function testParseChannelSkipsPlaysUpdateWithoutStatistics(): void
+    {
+        // Items without media statistics must not trigger a plays update
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
+        $mockAggro->expects($this->never())->method('setVideoPlays');
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $mockItem = new class () {
+            public function get_item_tags($namespace, $tag): array
+            {
+                return [['data' => 'existing_video_id']];
+            }
+        };
+
+        $mockFeed = new class ($mockItem) {
+            private $item;
+
+            public function __construct($item)
+            {
+                $this->item = $item;
+            }
+
+            public function get_items($start = 0, $end = 0): array
+            {
+                return [$this->item];
             }
         };
 

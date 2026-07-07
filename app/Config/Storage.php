@@ -30,6 +30,14 @@ class Storage extends BaseConfig
     public int $minVideoDuration = 61; // seconds
 
     /**
+     * Play count refresh configuration.
+     */
+    public int $playsBatchSize = 10;
+
+    public int $playsIssueThreshold = 10;
+    public int $playsRequestDelay   = 1; // seconds between fetches
+
+    /**
      * Cache and network configuration.
      */
     public int $defaultCacheDuration = 1800; // 30 minutes

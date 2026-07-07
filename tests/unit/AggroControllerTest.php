@@ -225,6 +225,20 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
     }
 
+    public function testGetPlaysMethodExists(): void
+    {
+        $this->assertTrue(method_exists($this->aggroController, 'getPlays'));
+    }
+
+    public function testGetPlaysExecutesSuccessfully(): void
+    {
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getPlays');
+
+        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
+    }
+
     public function testGetVimeoWithNullVideoIdExecutes(): void
     {
         // In CLI mode gate_check() returns true, null videoID fetches channels

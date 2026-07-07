@@ -71,6 +71,13 @@ class YoutubeModels extends Model
                 $video = youtube_parse_meta($item);
                 $this->aggroModel->addVideo($video);
                 $addCount++;
+
+                continue;
+            }
+
+            $plays = youtube_parse_plays($item);
+            if ($plays !== false) {
+                $this->aggroModel->setVideoPlays($currentVideoId, (int) $plays);
             }
         }
 
