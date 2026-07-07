@@ -218,4 +218,44 @@ final class VimeoModelsTest extends DatabaseTestCase
         $result = $model->parseChannel([]);
         $this->assertSame(0, $result);
     }
+
+    public function testParseChannelUpdatesPlaysForExistingVideo(): void
+    {
+        // Existing videos get their play counts refreshed from the feed
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
+        $mockAggro->expects($this->once())
+            ->method('setVideoPlays')
+            ->with('existing_video_id', 4321);
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $feed = [
+            (object) ['id' => 'existing_video_id', 'stats_number_of_plays' => 4321],
+        ];
+
+        $result = $model->parseChannel($feed);
+        $this->assertSame(0, $result);
+    }
+
+    public function testParseChannelSkipsPlaysUpdateWhenStatsHidden(): void
+    {
+        // Vimeo owners can hide stats; no update should happen without the field
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(true);
+        $mockAggro->expects($this->never())->method('setVideoPlays');
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $feed = [
+            (object) ['id' => 'existing_video_id', 'title' => 'Hidden Stats Video'],
+        ];
+
+        $result = $model->parseChannel($feed);
+        $this->assertSame(0, $result);
+    }
 }

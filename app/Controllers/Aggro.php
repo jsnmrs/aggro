@@ -9,6 +9,7 @@ use App\Models\VimeoModels;
 use App\Models\YoutubeModels;
 use App\Services\ChannelFetchService;
 use App\Services\FeedIngestionService;
+use App\Services\PlaysService;
 use CodeIgniter\CodeIgniter;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
@@ -226,6 +227,28 @@ class Aggro extends BaseController
         $flagged = $aggroModel->flagBrokenThumbnails();
         if ($flagged > 0) {
             echo "\n" . $flagged . " broken thumbnail(s) flagged.\n";
+        }
+
+        return true;
+    }
+
+    /**
+     * Refresh play counts for a batch of videos.
+     *
+     * Set cron to run every 15 minutes.
+     */
+    public function getPlays(): bool|ResponseInterface
+    {
+        helper('aggro');
+
+        if (! gate_check()) {
+            return $this->response->setStatusCode(403);
+        }
+
+        $playsService = new PlaysService();
+
+        if ($playsService->refreshPlays()) {
+            echo "\nPlay counts refreshed.\n";
         }
 
         return true;

@@ -73,8 +73,11 @@ CREATE TABLE `aggro_videos` (
   `flag_favorite` int(1) NOT NULL DEFAULT '0',
   `notes` text,
   `thumbnail_issue_count` int NOT NULL DEFAULT '0',
+  `plays_date_updated` datetime DEFAULT NULL,
+  `plays_issue_count` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`aggro_id`),
-  UNIQUE KEY `videoid` (`video_id`)
+  UNIQUE KEY `videoid` (`video_id`),
+  KEY `idx_video_plays_refresh` (`flag_bad`,`plays_date_updated`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

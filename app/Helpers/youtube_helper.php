@@ -33,6 +33,33 @@ if (! function_exists('youtube_get_duration')) {
     }
 }
 
+if (! function_exists('youtube_get_plays')) {
+    /**
+     * Fetch YouTube video play count.
+     *
+     * @param string $videoID
+     *                        YouTube videoID.
+     *
+     * @return false|string
+     *                      Play count, or false on error.
+     */
+    function youtube_get_plays($videoID)
+    {
+        helper('aggro');
+
+        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
+        $resultPage = fetch_url($videoPage, 'text', 0);
+
+        if ($resultPage !== false && is_string($resultPage)) {
+            if (preg_match('/"viewCount":"(\d+)"/', $resultPage, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return false;
+    }
+}
+
 if (! function_exists('youtube_get_feed')) {
     /**
      * Fetch YouTube channel feed.
@@ -178,6 +205,26 @@ if (! function_exists('youtube_get_dimensions')) {
     }
 }
 
+if (! function_exists('youtube_parse_plays')) {
+    /**
+     * Parse play count from a YouTube feed item.
+     *
+     * @return false|string
+     *                      Play count, or false when statistics are absent.
+     */
+    function youtube_parse_plays(object $item)
+    {
+        $group = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
+        $views = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'][0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'][0]['attribs']['']['views'] ?? null;
+
+        if ($views === null) {
+            return false;
+        }
+
+        return $views;
+    }
+}
+
 if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
@@ -204,11 +251,12 @@ if (! function_exists('youtube_parse_meta')) {
         if ($video['video_date_uploaded'] <= $archive) {
             $video['flag_archive'] = 1;
         }
-        $video['video_title']           = $item->get_title();
+        $video['video_title'] = $item->get_title();
+        $video['video_plays'] = youtube_parse_plays($item);
+        if ($video['video_plays'] === false) {
+            $video['video_plays'] = 0;
+        }
         $group                          = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
-        $community                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['community'];
-        $statistics                     = $community[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['statistics'];
-        $video['video_plays']           = $statistics[0]['attribs']['']['views'];
         $thumbnail                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
         $video['video_thumbnail_url']   = $thumbnail[0]['attribs']['']['url'];
         $channelID                      = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'channelId');

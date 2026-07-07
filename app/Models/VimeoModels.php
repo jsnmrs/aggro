@@ -93,7 +93,11 @@ class VimeoModels extends Model
                 $video = vimeo_parse_meta($item);
                 $this->aggroModel->addVideo($video);
                 $addCount++;
+
+                continue;
             }
+
+            $this->updateExistingVideoPlays($item);
         }
 
         if ($addCount >= 1) {
@@ -102,5 +106,22 @@ class VimeoModels extends Model
         }
 
         return $addCount;
+    }
+
+    /**
+     * Refresh stored play count for an existing video from feed data.
+     *
+     * Vimeo owners can hide stats; without the field no update happens.
+     *
+     * @param object $item
+     *                     Feed item.
+     *
+     * @return void
+     */
+    private function updateExistingVideoPlays($item)
+    {
+        if (isset($item->stats_number_of_plays)) {
+            $this->aggroModel->setVideoPlays($item->id, (int) $item->stats_number_of_plays);
+        }
     }
 }

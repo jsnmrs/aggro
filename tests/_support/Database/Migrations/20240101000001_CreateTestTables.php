@@ -117,6 +117,15 @@ class CreateTestTables extends Migration
                 'null'    => false,
                 'default' => 0,
             ],
+            'plays_date_updated' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'plays_issue_count' => [
+                'type'    => 'INT',
+                'null'    => false,
+                'default' => 0,
+            ],
         ]);
         $this->forge->addKey('aggro_id', true);
         $this->forge->addUniqueKey('video_id');

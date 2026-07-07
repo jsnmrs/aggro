@@ -165,6 +165,22 @@ class AggroModels extends Model
     }
 
     /**
+     * Set play count for a video.
+     *
+     * @param string $videoId
+     *                        Video id.
+     * @param int    $plays
+     *                        Play count.
+     *
+     * @return bool
+     *              Play count written.
+     */
+    public function setVideoPlays($videoId, $plays)
+    {
+        return $this->videoRepository->updateVideoPlays($videoId, $plays);
+    }
+
+    /**
      * Update video source last fetch timestamp.
      *
      * @param string $sourceSlug

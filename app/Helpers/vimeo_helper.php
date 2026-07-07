@@ -36,6 +36,35 @@ if (! function_exists('vimeo_get_feed')) {
     }
 }
 
+if (! function_exists('vimeo_get_plays')) {
+    /**
+     * Fetch Vimeo video play count.
+     *
+     * @param string $videoID
+     *                        Vimeo videoID.
+     *
+     * @return false|string|null
+     *                           Play count, null when the owner hides stats, or false on error.
+     */
+    function vimeo_get_plays($videoID)
+    {
+        helper('aggro');
+
+        $fetch  = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
+        $result = fetch_url($fetch, 'json', 0);
+
+        if ($result === false || ! is_array($result) || ! isset($result[0]) || ! is_object($result[0])) {
+            return false;
+        }
+
+        if (! isset($result[0]->stats_number_of_plays)) {
+            return null;
+        }
+
+        return (string) $result[0]->stats_number_of_plays;
+    }
+}
+
 if (! function_exists('vimeo_id_from_url')) {
     /**
      * Parse vimeo video id from full URL.

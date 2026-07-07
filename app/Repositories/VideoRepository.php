@@ -259,6 +259,120 @@ class VideoRepository
     }
 
     /**
+     * Get videos due for a play count refresh.
+     *
+     * Never-refreshed videos come first, then oldest refresh. Archived
+     * videos are included so the whole table cycles over time.
+     *
+     * @param int $limit
+     *                   Batch size.
+     *
+     * @return array
+     *               Video rows with video_id and video_type.
+     */
+    public function getVideosForPlaysRefresh($limit = 10)
+    {
+        $query = $this->db->table('aggro_videos')
+            ->select('video_id, video_type')
+            ->where('flag_bad', 0)
+            ->orderBy('plays_date_updated', 'ASC')
+            ->limit((int) $limit)
+            ->get();
+
+        return $query->getResult();
+    }
+
+    /**
+     * Update play count for a video.
+     *
+     * A zero or negative count never overwrites a stored count; the
+     * refresh timestamp is still stamped so the batch cursor advances.
+     *
+     * @param string $videoId
+     *                        Video id.
+     * @param int    $plays
+     *                        Play count.
+     *
+     * @return bool
+     *              Play count written.
+     */
+    public function updateVideoPlays($videoId, $plays)
+    {
+        if ((int) $plays <= 0) {
+            $this->stampPlaysChecked($videoId);
+
+            return false;
+        }
+
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update([
+                'video_plays'        => (int) $plays,
+                'plays_date_updated' => date('Y-m-d H:i:s'),
+                'plays_issue_count'  => 0,
+            ]);
+
+        return true;
+    }
+
+    /**
+     * Stamp a video as checked for plays without changing the count.
+     *
+     * @param string $videoId
+     *                        Video id.
+     */
+    public function stampPlaysChecked($videoId)
+    {
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update([
+                'plays_date_updated' => date('Y-m-d H:i:s'),
+                'plays_issue_count'  => 0,
+            ]);
+    }
+
+    /**
+     * Record a failed play count fetch for a video.
+     *
+     * Videos failing more times than the configured threshold are
+     * permanently flagged bad, mirroring the thumbnail issue pattern.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return bool
+     *              Video flagged bad.
+     */
+    public function recordPlaysIssue($videoId)
+    {
+        $storageConfig = config('Storage');
+
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->set('plays_issue_count', 'plays_issue_count + 1', false)
+            ->set('plays_date_updated', date('Y-m-d H:i:s'))
+            ->update();
+
+        $video = $this->db->table('aggro_videos')
+            ->select('plays_issue_count')
+            ->where('video_id', $videoId)
+            ->get()
+            ->getRow();
+
+        if ($video === null || (int) $video->plays_issue_count <= $storageConfig->playsIssueThreshold) {
+            return false;
+        }
+
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update(['flag_bad' => 1]);
+
+        log_message('error', 'Flagged video ' . $videoId . ' as bad — play count fetch failure count exceeded threshold (' . $storageConfig->playsIssueThreshold . ').');
+
+        return true;
+    }
+
+    /**
      * Get single video.
      *
      * @param string $slug
