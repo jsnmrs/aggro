@@ -1,6 +1,10 @@
 # Disable directory browsing
 Options All -Indexes
 
+# Return 404 for dotfiles and dot-directories (.env, .git, etc.),
+# except .well-known (ACME/security.txt)
+RedirectMatch 404 "/\.(?!well-known/)"
+
 # Add webp and avif image format support
 AddType image/webp .webp
 AddType image/avif .avif
