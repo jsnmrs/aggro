@@ -301,11 +301,13 @@ if (! function_exists('fetch_url')) {
         $errorInfo  = curl_error($fetch);
         curl_close($fetch);
 
-        if ($httpCode === 403 || $httpCode === 404 || $httpCode === 500) {
+        // A 404 means the content is gone, not an application error,
+        // so it stays out of Sentry (which only receives error and above).
+        $failureLogLevels = [403 => 'error', 404 => 'warning', 500 => 'error'];
+
+        if (isset($failureLogLevels[$httpCode])) {
             $message = $url . ' returned ' . $httpCode . '.';
-            // A 404 means the content is gone, not an application error,
-            // so it stays out of Sentry (which only receives error and above).
-            log_message($httpCode === 404 ? 'warning' : 'error', $message);
+            log_message($failureLogLevels[$httpCode], $message);
 
             return false;
         }
