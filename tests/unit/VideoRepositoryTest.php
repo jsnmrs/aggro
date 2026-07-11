@@ -1,6 +1,8 @@
 <?php
 
 use App\Repositories\VideoRepository;
+use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\BaseConnection;
 use Tests\Support\RepositoryTestCase;
 
 /**
@@ -233,6 +235,29 @@ final class VideoRepositoryTest extends RepositoryTestCase
         // Assert
         $this->assertCount(1, $results);
         $this->assertSame('archived_video', $results[0]->video_id);
+    }
+
+    public function testGetVideosForPlaysRefreshReturnsEmptyArrayWhenQueryFails()
+    {
+        // Arrange - Force the query builder's get() to fail like a DB error
+        $builder = $this->createMock(BaseBuilder::class);
+        $builder->method('select')->willReturnSelf();
+        $builder->method('where')->willReturnSelf();
+        $builder->method('orderBy')->willReturnSelf();
+        $builder->method('limit')->willReturnSelf();
+        $builder->method('get')->willReturn(false);
+
+        $connection = $this->createMock(BaseConnection::class);
+        $connection->method('table')->willReturn($builder);
+
+        $repository = new VideoRepository();
+        $this->setPrivateProperty($repository, 'db', $connection);
+
+        // Act
+        $results = $repository->getVideosForPlaysRefresh(10);
+
+        // Assert
+        $this->assertSame([], $results);
     }
 
     public function testUpdateVideoPlaysWritesCountAndResetsIssues()

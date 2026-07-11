@@ -279,6 +279,12 @@ class VideoRepository
             ->limit((int) $limit)
             ->get();
 
+        if ($query === false) {
+            log_message('error', 'Play count refresh query failed.');
+
+            return [];
+        }
+
         return $query->getResult();
     }
 
