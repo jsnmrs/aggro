@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use ReflectionFunction;
 
 /**
  * @internal
@@ -13,6 +14,16 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         parent::setUp();
         helper('youtube');
+    }
+
+    public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
+    {
+        $params = (new ReflectionFunction('youtube_get_plays'))->getParameters();
+
+        $this->assertCount(2, $params);
+        $this->assertSame('httpStatus', $params[1]->getName());
+        $this->assertTrue($params[1]->isPassedByReference());
+        $this->assertTrue($params[1]->isOptional());
     }
 
     public function testYoutubeGetDurationMethodExists(): void

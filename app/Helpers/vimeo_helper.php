@@ -40,18 +40,22 @@ if (! function_exists('vimeo_get_plays')) {
     /**
      * Fetch Vimeo video play count.
      *
-     * @param string $videoID
-     *                        Vimeo videoID.
+     * @param string   $videoID
+     *                              Vimeo videoID.
+     * @param int|null &$httpStatus
+     *                              Optional. Populated with the HTTP response code.
+     *
+     * @param-out int $httpStatus
      *
      * @return false|string|null
      *                           Play count, null when the owner hides stats, or false on error.
      */
-    function vimeo_get_plays($videoID)
+    function vimeo_get_plays($videoID, &$httpStatus = null)
     {
         helper('aggro');
 
         $fetch  = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
-        $result = fetch_url($fetch, 'json', 0);
+        $result = fetch_url($fetch, 'json', 0, $httpStatus);
 
         if ($result === false || ! is_array($result) || ! isset($result[0]) || ! is_object($result[0])) {
             return false;

@@ -260,6 +260,30 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertSame([], $results);
     }
 
+    public function testFlagVideoBadSetsFlagImmediately()
+    {
+        // Arrange
+        $videoData = $this->createTestVideo(['video_id' => 'gone_404']);
+        $this->db->table('aggro_videos')->insert($videoData);
+
+        // Act
+        $result = $this->repository->flagVideoBad('gone_404');
+
+        // Assert
+        $this->assertTrue($result);
+        $row = $this->db->table('aggro_videos')->where('video_id', 'gone_404')->get()->getRowArray();
+        $this->assertSame(1, (int) $row['flag_bad']);
+    }
+
+    public function testFlagVideoBadReturnsFalseForNonExistentVideo()
+    {
+        // Act
+        $result = $this->repository->flagVideoBad('non_existent_video');
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
     public function testUpdateVideoPlaysWritesCountAndResetsIssues()
     {
         // Arrange

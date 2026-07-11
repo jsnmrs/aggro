@@ -37,18 +37,22 @@ if (! function_exists('youtube_get_plays')) {
     /**
      * Fetch YouTube video play count.
      *
-     * @param string $videoID
-     *                        YouTube videoID.
+     * @param string   $videoID
+     *                              YouTube videoID.
+     * @param int|null &$httpStatus
+     *                              Optional. Populated with the HTTP response code.
+     *
+     * @param-out int $httpStatus
      *
      * @return false|string
      *                      Play count, or false on error.
      */
-    function youtube_get_plays($videoID)
+    function youtube_get_plays($videoID, &$httpStatus = null)
     {
         helper('aggro');
 
         $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
-        $resultPage = fetch_url($videoPage, 'text', 0);
+        $resultPage = fetch_url($videoPage, 'text', 0, $httpStatus);
 
         if ($resultPage !== false && is_string($resultPage)) {
             if (preg_match('/"viewCount":"(\d+)"/', $resultPage, $matches)) {
