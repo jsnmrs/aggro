@@ -303,7 +303,9 @@ if (! function_exists('fetch_url')) {
 
         if ($httpCode === 403 || $httpCode === 404 || $httpCode === 500) {
             $message = $url . ' returned ' . $httpCode . '.';
-            log_message('error', $message);
+            // A 404 means the content is gone, not an application error,
+            // so it stays out of Sentry (which only receives error and above).
+            log_message($httpCode === 404 ? 'warning' : 'error', $message);
 
             return false;
         }
