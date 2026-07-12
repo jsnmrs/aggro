@@ -44,9 +44,12 @@ final class PlaysServiceTest extends ServiceTestCase
     {
         return new class (null, $utilityModel) extends PlaysService {
             public array $responses = [];
+            public array $statuses  = [];
 
-            protected function fetchPlays(object $video)
+            protected function fetchPlays(object $video, ?int &$httpStatus = null)
             {
+                $httpStatus = $this->statuses[$video->video_id] ?? 200;
+
                 if (! array_key_exists($video->video_id, $this->responses)) {
                     return false;
                 }
@@ -164,6 +167,48 @@ final class PlaysServiceTest extends ServiceTestCase
         $this->assertSame(1, (int) $row['plays_issue_count']);
         $this->assertNotNull($row['plays_date_updated']);
         $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testRefreshPlaysFlagsBadImmediatelyOn404()
+    {
+        // Arrange
+        $this->insertTestVideo($this->makeVideo([
+            'video_id'    => 'deleted_video',
+            'video_plays' => 900,
+        ]));
+
+        $this->service->responses = ['deleted_video' => false];
+        $this->service->statuses  = ['deleted_video' => 404];
+
+        // Act
+        $this->service->refreshPlays();
+
+        // Assert - Flagged bad on first 404, threshold path not taken
+        $row = $this->getVideoRow('deleted_video');
+        $this->assertSame(1, (int) $row['flag_bad']);
+        $this->assertSame(0, (int) $row['plays_issue_count']);
+        $this->assertSame(900, (int) $row['video_plays']);
+        $this->assertLogged('warning', 'Flagged video deleted_video as bad — source returned 404.');
+    }
+
+    public function testRefreshPlaysRecordsIssueOnTransientFailure()
+    {
+        // Arrange
+        $this->insertTestVideo($this->makeVideo([
+            'video_id'    => 'flaky_video',
+            'video_plays' => 900,
+        ]));
+
+        $this->service->responses = ['flaky_video' => false];
+        $this->service->statuses  = ['flaky_video' => 500];
+
+        // Act
+        $this->service->refreshPlays();
+
+        // Assert - Transient failure keeps the threshold path
+        $row = $this->getVideoRow('flaky_video');
+        $this->assertSame(0, (int) $row['flag_bad']);
+        $this->assertSame(1, (int) $row['plays_issue_count']);
     }
 
     public function testRefreshPlaysDoesNotOverwriteWithZero()

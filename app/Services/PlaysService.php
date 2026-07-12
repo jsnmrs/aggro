@@ -44,9 +44,17 @@ class PlaysService
                 sleep($storageConfig->playsRequestDelay);
             }
 
-            $plays = $this->fetchPlays($video);
+            $httpStatus = null;
+            $plays      = $this->fetchPlays($video, $httpStatus);
 
             if ($plays === false) {
+                if ($httpStatus === 404) {
+                    $this->videoRepository->flagVideoBad($video->video_id);
+                    log_message('warning', 'Flagged video ' . $video->video_id . ' as bad — source returned 404.');
+
+                    continue;
+                }
+
                 $this->videoRepository->recordPlaysIssue($video->video_id);
 
                 continue;
@@ -72,19 +80,23 @@ class PlaysService
     /**
      * Fetch the current play count for a video from its public endpoint.
      *
-     * @param object $video
-     *                      Row with video_id and video_type.
+     * @param object   $video
+     *                              Row with video_id and video_type.
+     * @param int|null &$httpStatus
+     *                              Optional. Populated with the HTTP response code.
+     *
+     * @param-out int $httpStatus
      *
      * @return false|int|null
      *                        Play count, null when the source hides stats, or false on fetch failure.
      */
-    protected function fetchPlays(object $video)
+    protected function fetchPlays(object $video, ?int &$httpStatus = null)
     {
         if ($video->video_type === 'vimeo') {
-            return $this->normalizePlays(vimeo_get_plays($video->video_id));
+            return $this->normalizePlays(vimeo_get_plays($video->video_id, $httpStatus));
         }
 
-        return $this->normalizePlays(youtube_get_plays($video->video_id));
+        return $this->normalizePlays(youtube_get_plays($video->video_id, $httpStatus));
     }
 
     /**

@@ -316,6 +316,16 @@ ddev deploy dev
 ddev deploy prod
 ```
 
+### Database migrations
+
+Deployments intentionally do not run database migrations (see the `deploy` task list in `deploy.php`). When a release includes new migrations, SSH to the server and run them from the current release directory:
+
+```bash
+php spark migrate
+```
+
+Because deployment to production happens automatically on merge to main, run migrations immediately after merging a PR that includes them — new code that depends on the schema change will error until the migration runs.
+
 ## Error monitoring
 
 Aggro uses Sentry for application monitoring:

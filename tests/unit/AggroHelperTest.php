@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
 use TypeError;
 
@@ -366,6 +367,15 @@ final class AggroHelperTest extends CIUnitTestCase
         fetch_url('https://httpbin.org/status/404', 'text', 0, $httpStatus);
 
         $this->assertSame(404, $httpStatus);
+    }
+
+    public function testFetchUrl404LogsWarningNotError(): void
+    {
+        $result = fetch_url('https://httpbin.org/status/404', 'text', 0);
+
+        $this->assertFalse($result);
+        $this->assertLogged('warning', 'https://httpbin.org/status/404 returned 404.');
+        $this->assertFalse(TestLogger::didLog('error', 'https://httpbin.org/status/404 returned 404.'));
     }
 
     public function testFetchThumbnailPassesThroughHttpStatus(): void

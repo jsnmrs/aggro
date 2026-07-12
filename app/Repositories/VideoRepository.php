@@ -279,6 +279,12 @@ class VideoRepository
             ->limit((int) $limit)
             ->get();
 
+        if ($query === false) {
+            log_message('error', 'Play count refresh query failed.');
+
+            return [];
+        }
+
         return $query->getResult();
     }
 
@@ -370,6 +376,27 @@ class VideoRepository
         log_message('error', 'Flagged video ' . $videoId . ' as bad — play count fetch failure count exceeded threshold (' . $storageConfig->playsIssueThreshold . ').');
 
         return true;
+    }
+
+    /**
+     * Flag a video as bad immediately.
+     *
+     * Used when a source confirms the video is permanently gone, so it
+     * skips the failure-count threshold entirely.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return bool
+     *              Video flagged bad.
+     */
+    public function flagVideoBad($videoId)
+    {
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update(['flag_bad' => 1]);
+
+        return $this->db->affectedRows() > 0;
     }
 
     /**
