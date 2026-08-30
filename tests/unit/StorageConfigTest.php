@@ -64,6 +64,8 @@ final class StorageConfigTest extends CIUnitTestCase
         $this->assertSame(20, $this->config->feedTimeout);
         $this->assertSame(20, $this->config->urlConnectTimeout);
         $this->assertSame(4, $this->config->urlMaxRedirects);
+        $this->assertSame(10, $this->config->playsIssueThreshold);
+        $this->assertSame(10, $this->config->durationIssueThreshold);
     }
 
     public function testArchiveAgeIsLessThanCleanupAge(): void

@@ -23,6 +23,70 @@ final class YoutubeModelsTest extends DatabaseTestCase
         $this->model = new YoutubeModels();
     }
 
+    /**
+     * Build a YoutubeModels whose fetchDuration() returns canned results
+     * keyed by video_id instead of scraping YouTube.
+     *
+     * @param UtilityModels|null $utilityModel Optional utility model override
+     */
+    private function buildModelWithCannedDurations(?UtilityModels $utilityModel = null): YoutubeModels
+    {
+        $utilityModel ??= $this->createMock(UtilityModels::class);
+
+        return new class (null, $utilityModel) extends YoutubeModels {
+            /**
+             * @var array<string, false|string>
+             */
+            public array $durations = [];
+
+            /**
+             * @var array<string, bool>
+             */
+            public array $unavailable = [];
+
+            protected function fetchDuration($videoId, &$unavailable = null)
+            {
+                $unavailable = $this->unavailable[$videoId] ?? false;
+
+                return $this->durations[$videoId] ?? false;
+            }
+        };
+    }
+
+    /**
+     * Insert a YouTube video awaiting a duration.
+     *
+     * @param array $overrides Optional data to override defaults
+     */
+    private function insertVideoNeedingDuration(string $videoId, array $overrides = []): void
+    {
+        $defaults = [
+            'video_id'             => $videoId,
+            'aggro_date_added'     => date('Y-m-d H:i:s'),
+            'aggro_date_updated'   => date('Y-m-d H:i:s'),
+            'video_date_uploaded'  => date('Y-m-d H:i:s'),
+            'video_title'          => 'Test Video',
+            'video_type'           => 'youtube',
+            'video_duration'       => 0,
+            'flag_archive'         => 0,
+            'flag_bad'             => 0,
+            'duration_issue_count' => 0,
+        ];
+
+        $this->db->table('aggro_videos')->insert(array_merge($defaults, $overrides));
+    }
+
+    /**
+     * Fetch a video row by video_id.
+     */
+    private function getVideoRow(string $videoId): array
+    {
+        return $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->get()
+            ->getRowArray();
+    }
+
     public function testModelExtendsCodeIgniterModel(): void
     {
         $this->assertInstanceOf(Model::class, $this->model);
@@ -362,18 +426,142 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testGetDurationUpdatesVideoDatabase(): void
     {
-        // Skip test that requires aggro_videos table and YouTube API integration
-        $this->markTestSkipped('Method requires aggro_videos table and youtube_get_duration helper');
+        // Arrange
+        $this->insertVideoNeedingDuration('good_video', ['duration_issue_count' => 4]);
 
-        // This would test updating video durations in the database
+        $model            = $this->buildModelWithCannedDurations();
+        $model->durations = ['good_video' => '820'];
+
+        // Act
+        $model->getDuration();
+
+        // Assert - Duration written and the failure count cleared
+        $row = $this->getVideoRow('good_video');
+        $this->assertSame(820, (int) $row['video_duration']);
+        $this->assertSame(0, (int) $row['duration_issue_count']);
+        $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testGetDurationFlagsBadWhenSourceReportsUnavailable(): void
+    {
+        // Arrange - YouTube answers 200 for deleted videos, so playabilityStatus
+        // is the only signal that retrying will never succeed.
+        $this->insertVideoNeedingDuration('gone_video');
+
+        $model              = $this->buildModelWithCannedDurations();
+        $model->unavailable = ['gone_video' => true];
+
+        // Act
+        $model->getDuration();
+
+        // Assert - Flagged on the first failure, threshold path not taken
+        $row = $this->getVideoRow('gone_video');
+        $this->assertSame(1, (int) $row['flag_bad']);
+        $this->assertSame(0, (int) $row['duration_issue_count']);
+        $this->assertSame(0, (int) $row['video_duration']);
+        $this->assertLogged('warning', 'Flagged video gone_video as bad — source reports it unavailable.');
+    }
+
+    public function testGetDurationRecordsRetiredVideoInSiteLog(): void
+    {
+        // Arrange - Retiring a video hides it from the site for good, so the
+        // reason belongs in aggro_log where it can be read back.
+        $messages = [];
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->method('sendLog')->willReturnCallback(
+            static function ($message) use (&$messages) {
+                $messages[] = $message;
+
+                return true;
+            },
+        );
+
+        $this->insertVideoNeedingDuration('gone_video');
+
+        $model              = $this->buildModelWithCannedDurations($mockUtility);
+        $model->unavailable = ['gone_video' => true];
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $this->assertContains('Retired gone_video. Source reports the video is unavailable.', $messages);
+    }
+
+    public function testGetDurationDoesNotRecordRetirementForAmbiguousFailure(): void
+    {
+        // Arrange - A transient failure may still recover, so nothing is retired
+        $messages = [];
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->method('sendLog')->willReturnCallback(
+            static function ($message) use (&$messages) {
+                $messages[] = $message;
+
+                return true;
+            },
+        );
+
+        $this->insertVideoNeedingDuration('flaky_video');
+
+        $model = $this->buildModelWithCannedDurations($mockUtility);
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $this->assertNotContains('Retired flaky_video. Source reports the video is unavailable.', $messages);
     }
 
     public function testGetDurationHandlesApiFailure(): void
     {
-        // Skip test that requires YouTube API integration
-        $this->markTestSkipped('Method requires youtube_get_duration helper function');
+        // Arrange - A fetch failure with no availability signal is ambiguous
+        $this->insertVideoNeedingDuration('flaky_video');
 
-        // This would test error handling when YouTube API fails
+        $model = $this->buildModelWithCannedDurations();
+
+        // Act
+        $model->getDuration();
+
+        // Assert - Counted, not flagged, so a transient blip can recover
+        $row = $this->getVideoRow('flaky_video');
+        $this->assertSame(1, (int) $row['duration_issue_count']);
+        $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testGetDurationFlagsBadOnceIssueCountExceedsThreshold(): void
+    {
+        // Arrange
+        $storageConfig = config('Storage');
+        $this->insertVideoNeedingDuration('worn_out_video', [
+            'duration_issue_count' => $storageConfig->durationIssueThreshold,
+        ]);
+
+        $model = $this->buildModelWithCannedDurations();
+
+        // Act
+        $model->getDuration();
+
+        // Assert - One more failure crosses the threshold and retires the video
+        $row = $this->getVideoRow('worn_out_video');
+        $this->assertSame($storageConfig->durationIssueThreshold + 1, (int) $row['duration_issue_count']);
+        $this->assertSame(1, (int) $row['flag_bad']);
+    }
+
+    public function testGetDurationSkipsVideosAlreadyFlaggedBad(): void
+    {
+        // Arrange - A retired video must never be picked up again
+        $this->insertVideoNeedingDuration('retired_video', ['flag_bad' => 1]);
+
+        $model = $this->buildModelWithCannedDurations();
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $row = $this->getVideoRow('retired_video');
+        $this->assertSame(0, (int) $row['duration_issue_count']);
     }
 
     public function testGetDurationLogsResults(): void

@@ -38,6 +38,11 @@ class Storage extends BaseConfig
     public int $playsRequestDelay   = 1; // seconds between fetches
 
     /**
+     * Duration fetch configuration.
+     */
+    public int $durationIssueThreshold = 10;
+
+    /**
      * Cache and network configuration.
      */
     public int $defaultCacheDuration = 1800; // 30 minutes

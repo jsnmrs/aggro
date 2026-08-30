@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Repositories\VideoRepository;
 use CodeIgniter\Model;
 
 /**
@@ -11,12 +12,14 @@ class YoutubeModels extends Model
 {
     protected $aggroModel;
     protected $utilityModel;
+    protected $videoRepository;
 
-    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null)
+    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null, ?VideoRepository $videoRepository = null)
     {
         parent::__construct();
-        $this->aggroModel   = $aggroModel ?? new AggroModels();
-        $this->utilityModel = $utilityModel ?? new UtilityModels();
+        $this->aggroModel      = $aggroModel ?? new AggroModels();
+        $this->utilityModel    = $utilityModel ?? new UtilityModels();
+        $this->videoRepository = $videoRepository ?? new VideoRepository();
     }
 
     /**
@@ -121,14 +124,24 @@ class YoutubeModels extends Model
             $results = $query->getResult();
 
             foreach ($results as $result) {
-                $videoDuration = youtube_get_duration($result->video_id);
+                $unavailable   = false;
+                $videoDuration = $this->fetchDuration($result->video_id, $unavailable);
+
                 if ($videoDuration !== false && is_numeric($videoDuration)) {
-                    $sql = 'UPDATE aggro_videos SET video_duration = ? WHERE video_id = ?';
-                    $this->db->query($sql, [$videoDuration, $result->video_id]);
+                    $this->videoRepository->updateVideoDuration($result->video_id, $videoDuration);
+
+                    continue;
                 }
-                if ($videoDuration === false) {
-                    log_message('error', 'Failed to get duration for video ' . $result->video_id);
+
+                if ($unavailable) {
+                    $this->videoRepository->flagVideoBad($result->video_id);
+                    $this->utilityModel->sendLog('Retired ' . $result->video_id . '. Source reports the video is unavailable.');
+                    log_message('warning', 'Flagged video ' . $result->video_id . ' as bad — source reports it unavailable.');
+
+                    continue;
                 }
+
+                $this->videoRepository->recordDurationIssue($result->video_id);
             }
         }
 
@@ -136,5 +149,28 @@ class YoutubeModels extends Model
         $this->utilityModel->sendLog($message);
 
         return true;
+    }
+
+    /**
+     * Fetch the duration for a single video.
+     *
+     * Wraps the helper so tests can drive the outcome without network access.
+     *
+     * @param string    $videoId
+     *                                Video id.
+     * @param bool|null &$unavailable
+     *                                Optional. Populated with true when the source
+     *                                reports the video as unwatchable.
+     *
+     * @param-out bool $unavailable
+     *
+     * @return false|string
+     *                      Video duration, or false on error.
+     */
+    protected function fetchDuration($videoId, &$unavailable = null)
+    {
+        helper('youtube');
+
+        return youtube_get_duration($videoId, $unavailable);
     }
 }

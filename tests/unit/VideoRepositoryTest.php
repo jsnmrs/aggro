@@ -401,4 +401,80 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertSame(10, (int) $row['plays_issue_count']);
         $this->assertSame(0, (int) $row['flag_bad']);
     }
+
+    public function testRecordDurationIssueIncrementsCount()
+    {
+        // Arrange
+        $video = $this->createTestVideo(['video_id' => 'duration_issue_video']);
+        $this->db->table('aggro_videos')->insert($video);
+
+        // Act
+        $flagged = $this->repository->recordDurationIssue('duration_issue_video');
+
+        // Assert
+        $this->assertFalse($flagged);
+
+        $row = $this->db->table('aggro_videos')->where('video_id', 'duration_issue_video')->get()->getRowArray();
+        $this->assertSame(1, (int) $row['duration_issue_count']);
+        $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testRecordDurationIssueFlagsBadOverThreshold()
+    {
+        // Arrange - Already at the threshold; one more failure tips it over
+        $video = $this->createTestVideo([
+            'video_id'             => 'chronic_duration_video',
+            'duration_issue_count' => 10,
+        ]);
+        $this->db->table('aggro_videos')->insert($video);
+
+        // Act
+        $flagged = $this->repository->recordDurationIssue('chronic_duration_video');
+
+        // Assert
+        $this->assertTrue($flagged);
+
+        $row = $this->db->table('aggro_videos')->where('video_id', 'chronic_duration_video')->get()->getRowArray();
+        $this->assertSame(11, (int) $row['duration_issue_count']);
+        $this->assertSame(1, (int) $row['flag_bad']);
+    }
+
+    public function testRecordDurationIssueDoesNotFlagAtThreshold()
+    {
+        // Arrange
+        $video = $this->createTestVideo([
+            'video_id'             => 'borderline_duration_video',
+            'duration_issue_count' => 9,
+        ]);
+        $this->db->table('aggro_videos')->insert($video);
+
+        // Act
+        $flagged = $this->repository->recordDurationIssue('borderline_duration_video');
+
+        // Assert - Count reaches the threshold but does not exceed it
+        $this->assertFalse($flagged);
+
+        $row = $this->db->table('aggro_videos')->where('video_id', 'borderline_duration_video')->get()->getRowArray();
+        $this->assertSame(10, (int) $row['duration_issue_count']);
+        $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testUpdateVideoDurationWritesDurationAndClearsIssueCount()
+    {
+        // Arrange
+        $video = $this->createTestVideo([
+            'video_id'             => 'recovered_video',
+            'video_duration'       => 0,
+            'duration_issue_count' => 6,
+        ]);
+        $this->db->table('aggro_videos')->insert($video);
+
+        // Act
+        $this->repository->updateVideoDuration('recovered_video', '402');
+
+        // Assert
+        $row = $this->db->table('aggro_videos')->where('video_id', 'recovered_video')->get()->getRowArray();
+        $this->assertSame(402, (int) $row['video_duration']);
+        $this->assertSame(0, (int) $row['duration_issue_count']);
+    }
 }
