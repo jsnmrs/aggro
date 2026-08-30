@@ -126,6 +126,11 @@ class CreateTestTables extends Migration
                 'null'    => false,
                 'default' => 0,
             ],
+            'duration_issue_count' => [
+                'type'    => 'INT',
+                'null'    => false,
+                'default' => 0,
+            ],
         ]);
         $this->forge->addKey('aggro_id', true);
         $this->forge->addUniqueKey('video_id');

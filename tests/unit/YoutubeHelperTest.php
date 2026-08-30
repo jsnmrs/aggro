@@ -45,6 +45,70 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertFalse($result);
     }
 
+    public function testYoutubeGetDurationAcceptsUnavailableOutParam(): void
+    {
+        $params = (new ReflectionFunction('youtube_get_duration'))->getParameters();
+
+        $this->assertCount(2, $params);
+        $this->assertSame('unavailable', $params[1]->getName());
+        $this->assertTrue($params[1]->isPassedByReference());
+        $this->assertTrue($params[1]->isOptional());
+    }
+
+    public function testYoutubeParseDurationReturnsLengthForPlayableVideo(): void
+    {
+        $page = '{"playabilityStatus":{"status":"OK"},"videoDetails":{"lengthSeconds":"820"}}';
+
+        $unavailable = null;
+        $this->assertSame('820', youtube_parse_duration($page, $unavailable));
+        $this->assertFalse($unavailable);
+    }
+
+    public function testYoutubeParseDurationFlagsUnavailableVideo(): void
+    {
+        // YouTube answers 200 for deleted and private videos, so the only
+        // signal is playabilityStatus in the page body.
+        $page = '{"playabilityStatus":{"status":"ERROR","reason":"Video unavailable"}}';
+
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration($page, $unavailable));
+        $this->assertTrue($unavailable);
+    }
+
+    public function testYoutubeParseDurationFlagsLoginRequiredVideo(): void
+    {
+        $page = '{"playabilityStatus":{"status":"LOGIN_REQUIRED"}}';
+
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration($page, $unavailable));
+        $this->assertTrue($unavailable);
+    }
+
+    public function testYoutubeParseDurationDoesNotFlagPageWithoutPlayabilityStatus(): void
+    {
+        // A consent interstitial or bot check carries no playability status,
+        // so it stays ambiguous rather than being treated as permanent.
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration('<html>consent</html>', $unavailable));
+        $this->assertFalse($unavailable);
+    }
+
+    public function testYoutubeParseDurationRejectsZeroLength(): void
+    {
+        $page = '{"playabilityStatus":{"status":"OK"},"videoDetails":{"lengthSeconds":"0"}}';
+
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration($page, $unavailable));
+        $this->assertFalse($unavailable);
+    }
+
+    public function testYoutubeParseDurationWithEmptyPage(): void
+    {
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration('', $unavailable));
+        $this->assertFalse($unavailable);
+    }
+
     public function testYoutubeGetFeedMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_get_feed'));
@@ -168,6 +232,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $expectedFunctions = [
             'youtube_get_duration',
+            'youtube_parse_duration',
             'youtube_get_feed',
             'youtube_get_video_source',
             'youtube_id_from_url',

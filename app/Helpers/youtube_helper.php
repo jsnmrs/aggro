@@ -4,32 +4,76 @@
  * @file
  * YouTube helper functions.
  */
-if (! function_exists('youtube_get_duration')) {
+if (! function_exists('youtube_parse_duration')) {
     /**
-     * Fetch YouTube video duration.
+     * Read the duration out of a fetched YouTube watch page.
      *
-     * @param string $videoID
-     *                        YouTube videoID.
+     * YouTube answers 200 for deleted, private, and sign-in-gated videos,
+     * so the HTTP status says nothing about availability. The page body
+     * does: a playable video reports playabilityStatus OK, anything else
+     * is permanently unwatchable and will never yield a duration.
+     *
+     * @param string    $page
+     *                                Fetched watch page markup.
+     * @param bool|null &$unavailable
+     *                                Optional. Populated with true when the page
+     *                                reports the video as unwatchable.
+     *
+     * @param-out bool $unavailable
      *
      * @return false|string
-     *                      Video duration, or false on error.
+     *                      Video duration in seconds, or false when unavailable.
      */
-    function youtube_get_duration($videoID)
+    function youtube_parse_duration($page, &$unavailable = null)
     {
-        helper('aggro');
+        $unavailable = false;
 
-        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
-        $resultPage = fetch_url($videoPage, 'text', 0);
+        if ($page === '') {
+            return false;
+        }
 
-        if ($resultPage !== false && is_string($resultPage)) {
-            if (preg_match('/"lengthSeconds":"(\d+)"/', $resultPage, $matches)) {
-                if ($matches[1] > 0) {
-                    return $matches[1];
-                }
+        if (preg_match('/"playabilityStatus":\{"status":"(\w+)"/', $page, $status)) {
+            $unavailable = $status[1] !== 'OK';
+        }
+
+        if (preg_match('/"lengthSeconds":"(\d+)"/', $page, $matches)) {
+            if ($matches[1] > 0) {
+                return $matches[1];
             }
         }
 
         return false;
+    }
+}
+
+if (! function_exists('youtube_get_duration')) {
+    /**
+     * Fetch YouTube video duration.
+     *
+     * @param string    $videoID
+     *                                YouTube videoID.
+     * @param bool|null &$unavailable
+     *                                Optional. Populated with true when the source
+     *                                reports the video as unwatchable.
+     *
+     * @param-out bool $unavailable
+     *
+     * @return false|string
+     *                      Video duration, or false on error.
+     */
+    function youtube_get_duration($videoID, &$unavailable = null)
+    {
+        helper('aggro');
+
+        $unavailable = false;
+        $videoPage   = 'https://www.youtube.com/watch?v=' . $videoID;
+        $resultPage  = fetch_url($videoPage, 'text', 0);
+
+        if ($resultPage === false || ! is_string($resultPage)) {
+            return false;
+        }
+
+        return youtube_parse_duration($resultPage, $unavailable);
     }
 }
 
