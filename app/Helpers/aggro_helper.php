@@ -292,6 +292,7 @@ if (! function_exists('fetch_url')) {
         curl_setopt($fetch, CURLOPT_URL, $url);
         curl_setopt($fetch, CURLOPT_USERAGENT, $agent);
         curl_setopt($fetch, CURLOPT_CONNECTTIMEOUT, $storageConfig->urlConnectTimeout);
+        curl_setopt($fetch, CURLOPT_TIMEOUT, $storageConfig->urlTimeout);
         curl_setopt($fetch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($fetch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($fetch, CURLOPT_MAXREDIRS, $storageConfig->urlMaxRedirects);
@@ -312,9 +313,13 @@ if (! function_exists('fetch_url')) {
             return false;
         }
 
+        // Transport failures (DNS, connect, or transfer timeouts) carry no
+        // HTTP status and are usually transient. Callers count repeated
+        // failures and retire persistent offenders at error level, so the
+        // per-attempt message stays at warning to keep Sentry quiet.
         if (empty($response)) {
             $message = $url . ' returned no data. Error: ' . $errorInfo;
-            log_message('error', $message);
+            log_message('warning', $message);
 
             return false;
         }
