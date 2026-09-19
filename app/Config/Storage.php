@@ -50,6 +50,7 @@ class Storage extends BaseConfig
     public int $feedItemLimit     = 10;
     public int $feedTimeout       = 20; // seconds
     public int $urlConnectTimeout = 20; // seconds
+    public int $urlTimeout        = 60; // seconds, total transfer time
     public int $urlMaxRedirects   = 4;
 
     /**

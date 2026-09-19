@@ -103,6 +103,17 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertFalse($result);
     }
 
+    public function testFetchUrlLogsTransportFailureAtWarning(): void
+    {
+        $result = fetch_url('invalid-url', 'text', 0, $httpStatus);
+
+        // Transport failures never reach Sentry; callers retire repeat offenders
+        $this->assertFalse($result);
+        $this->assertSame(0, $httpStatus);
+        $this->assertLogContains('warning', 'invalid-url returned no data.');
+        $this->assertFalse(TestLogger::didLog('error', 'invalid-url returned no data.', false));
+    }
+
     public function testFetchUrlWithTextFormat(): void
     {
         $result = fetch_url('invalid-url', 'text');
