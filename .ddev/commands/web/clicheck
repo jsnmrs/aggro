@@ -18,6 +18,7 @@ ROUTES=(
     "aggro news-cache"
     "aggro sweep"
     "aggro duration"
+    "aggro plays"
     "aggro vimeo"
     "aggro youtube"
     "aggro log-clean"
