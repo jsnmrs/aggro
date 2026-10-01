@@ -7,6 +7,7 @@ use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
 use SimplePie\SimplePie;
 use Tests\Support\BlocksNetworkTrait;
+use Tests\Support\YoutubeFeedTrait;
 
 /**
  * @internal
@@ -14,6 +15,7 @@ use Tests\Support\BlocksNetworkTrait;
 final class YoutubeHelperTest extends CIUnitTestCase
 {
     use BlocksNetworkTrait;
+    use YoutubeFeedTrait;
 
     protected function setUp(): void
     {
@@ -33,44 +35,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertSame(0, $httpStatus);
         $this->assertFalse($result);
         $this->assertTrue(TestLogger::didLog('warning', '127.0.0.1 port 1', false));
-    }
-
-    /**
-     * Parse an Atom entry with the given XML-encoded title into a feed item.
-     *
-     * @param string $entryXml Optional. Further child elements for the entry.
-     */
-    private function makeFeedItem(string $xmlTitle, string $entryXml = ''): object
-    {
-        $feed = new SimplePie();
-        $feed->enable_cache(false);
-        $feed->set_raw_data(
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:yt="http://www.youtube.com/xml/schemas/2015"'
-            . ' xmlns:media="http://search.yahoo.com/mrss/"><title>Channel</title>'
-            . '<entry><title>' . $xmlTitle . '</title>' . $entryXml . '</entry></feed>',
-        );
-        $feed->init();
-
-        return $feed->get_item(0);
-    }
-
-    /**
-     * Build the child elements YouTube sends with a video feed entry.
-     */
-    private function videoEntryXml(bool $withThumbnail = true): string
-    {
-        $thumbnail = $withThumbnail
-            ? '<media:thumbnail url="https://i1.ytimg.com/vi/aggroTest01/hqdefault.jpg" width="480" height="360"/>'
-            : '';
-
-        return '<yt:videoId>aggroTest01</yt:videoId>'
-            . '<yt:channelId>UCaggroTestChannel</yt:channelId>'
-            . '<author><name>Test Rider</name><uri>https://www.youtube.com/channel/UCaggroTestChannel</uri></author>'
-            . '<published>2020-01-15T12:00:00+00:00</published>'
-            . '<media:group>' . $thumbnail
-            . '<media:community><media:statistics views="12345"/></media:community>'
-            . '</media:group>';
     }
 
     public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
@@ -335,7 +299,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeParseMetaHandlesItemWithoutThumbnail(): void
     {
-        $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml(false));
+        $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml('aggroTest01', false));
 
         $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820');
 
