@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 
 /**
- * Tests for the video view's aspect ratio calculation.
+ * Tests for the video view's aspect ratio calculation and title escaping.
  *
  * @internal
  */
@@ -69,5 +69,16 @@ final class VideoViewTest extends CIUnitTestCase
         $output = $this->renderVideo($this->makeBuild(['video_width' => '0']));
 
         $this->assertStringContainsString('--aspect-ratio: 0.5625', $output);
+    }
+
+    public function testRawTitleIsEscapedOnce(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['video_title' => 'S&M "Game" <of> Bike']));
+
+        $this->assertStringContainsString('<h1>S&amp;M &quot;Game&quot; &lt;of&gt; Bike</h1>', $output);
+        $this->assertStringContainsString('title="S&amp;M &quot;Game&quot; &lt;of&gt; Bike (embedded video)"', $output);
+        $this->assertStringNotContainsString('&amp;amp;', $output);
+        $this->assertStringNotContainsString('&amp;quot;', $output);
+        $this->assertStringNotContainsString('<of>', $output);
     }
 }
