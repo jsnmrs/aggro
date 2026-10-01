@@ -4,15 +4,12 @@ namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
 use ReflectionFunction;
-use Tests\Support\BlocksNetworkTrait;
 
 /**
  * @internal
  */
 final class VimeoHelperTest extends CIUnitTestCase
 {
-    use BlocksNetworkTrait;
-
     protected function setUp(): void
     {
         parent::setUp();

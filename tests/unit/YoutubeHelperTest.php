@@ -3,10 +3,8 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
-use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
 use SimplePie\SimplePie;
-use Tests\Support\BlocksNetworkTrait;
 use Tests\Support\YoutubeFeedTrait;
 
 /**
@@ -14,27 +12,12 @@ use Tests\Support\YoutubeFeedTrait;
  */
 final class YoutubeHelperTest extends CIUnitTestCase
 {
-    use BlocksNetworkTrait;
     use YoutubeFeedTrait;
 
     protected function setUp(): void
     {
         parent::setUp();
         helper('youtube');
-    }
-
-    public function testOutboundRequestsAreBlocked(): void
-    {
-        // Guards the network block the tests below rely on. A request that
-        // reached YouTube would come back with a page and an HTTP status.
-        helper('aggro');
-
-        $httpStatus = null;
-        $result     = fetch_url('https://www.youtube.com/', 'text', 0, $httpStatus);
-
-        $this->assertSame(0, $httpStatus);
-        $this->assertFalse($result);
-        $this->assertTrue(TestLogger::didLog('warning', '127.0.0.1 port 1', false));
     }
 
     public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void

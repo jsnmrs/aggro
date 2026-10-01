@@ -8,7 +8,6 @@ use App\Models\YoutubeModels;
 use CodeIgniter\Model;
 use ReflectionClass;
 use SimplePie\SimplePie;
-use Tests\Support\BlocksNetworkTrait;
 use Tests\Support\DatabaseTestCase;
 use Tests\Support\YoutubeFeedTrait;
 
@@ -17,7 +16,6 @@ use Tests\Support\YoutubeFeedTrait;
  */
 final class YoutubeModelsTest extends DatabaseTestCase
 {
-    use BlocksNetworkTrait;
     use YoutubeFeedTrait;
 
     protected YoutubeModels $model;

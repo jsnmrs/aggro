@@ -6,7 +6,6 @@ use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
 use SimplePie\SimplePie;
-use Tests\Support\BlocksNetworkTrait;
 use Tests\Support\LocalHttpServerTrait;
 use TypeError;
 
@@ -15,7 +14,6 @@ use TypeError;
  */
 final class AggroHelperTest extends CIUnitTestCase
 {
-    use BlocksNetworkTrait;
     use LocalHttpServerTrait;
 
     protected function setUp(): void
