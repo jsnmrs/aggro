@@ -5,33 +5,19 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 use ReflectionFunction;
 use SimplePie\SimplePie;
+use Tests\Support\YoutubeFeedTrait;
 
 /**
  * @internal
  */
 final class YoutubeHelperTest extends CIUnitTestCase
 {
+    use YoutubeFeedTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
         helper('youtube');
-    }
-
-    /**
-     * Parse an Atom entry with the given XML-encoded title into a feed item.
-     */
-    private function makeFeedItem(string $xmlTitle): object
-    {
-        $feed = new SimplePie();
-        $feed->enable_cache(false);
-        $feed->set_raw_data(
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<feed xmlns="http://www.w3.org/2005/Atom"><title>Channel</title>'
-            . '<entry><title>' . $xmlTitle . '</title></entry></feed>',
-        );
-        $feed->init();
-
-        return $feed->get_item(0);
     }
 
     public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
@@ -51,10 +37,9 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetDurationWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so no watch page comes back
         $result = youtube_get_duration('invalid_id');
-        // Should return false or numeric duration
-        $this->assertTrue($result === false || is_numeric($result));
+        $this->assertFalse($result);
     }
 
     public function testYoutubeGetDurationWithEmptyId(): void
@@ -134,17 +119,18 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetFeedWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so the feed comes back carrying an error
         $result = youtube_get_feed('invalid_channel_id');
-        // Should return false or object
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testYoutubeGetFeedWithEmptyId(): void
     {
+        // Returns a SimplePie object even for an empty ID
         $result = youtube_get_feed('');
-        // May return SimplePie object even for empty ID
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testYoutubeGetVideoSourceMethodExists(): void
@@ -154,10 +140,9 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetVideoSourceWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so no oEmbed response comes back
         $result = youtube_get_video_source('invalid_video_id');
-        // Should return false or string
-        $this->assertTrue($result === false || is_string($result));
+        $this->assertFalse($result);
     }
 
     public function testYoutubeGetVideoSourceWithEmptyId(): void
@@ -222,6 +207,40 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertSame(1.778, $result['video_aspect_ratio']);
     }
 
+    public function testYoutubeParseDimensionsReturnsOembedDimensions(): void
+    {
+        $result = youtube_parse_dimensions((object) ['width' => 200, 'height' => 150]);
+
+        $this->assertSame(200, $result['video_width']);
+        $this->assertSame(150, $result['video_height']);
+        $this->assertSame(1.333, $result['video_aspect_ratio']);
+    }
+
+    public function testYoutubeParseDimensionsKeepsDefaultsForZeroDimensions(): void
+    {
+        $expected = [
+            'video_width'        => 800,
+            'video_height'       => 450,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $this->assertSame($expected, youtube_parse_dimensions((object) ['width' => 0, 'height' => 113]));
+        $this->assertSame($expected, youtube_parse_dimensions((object) ['width' => 200, 'height' => 0]));
+        $this->assertSame($expected, youtube_parse_dimensions((object) []));
+    }
+
+    public function testYoutubeParseDimensionsKeepsDefaultsForFailedFetch(): void
+    {
+        $expected = [
+            'video_width'        => 800,
+            'video_height'       => 450,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $this->assertSame($expected, youtube_parse_dimensions(false));
+        $this->assertSame($expected, youtube_parse_dimensions('Not Found'));
+    }
+
     public function testYoutubeParseMetaMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_parse_meta'));
@@ -229,21 +248,67 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeParseMetaWithValidItem(): void
     {
-        // Skip this test as mocking SimplePie item objects is complex
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        $item       = $this->makeFeedItem('S&amp;M Bikes', $this->videoEntryXml());
+        $dimensions = [
+            'video_width'        => 1280,
+            'video_height'       => 720,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $video = youtube_parse_meta($item, $dimensions, '820');
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $video['aggro_date_added']);
+        $this->assertSame($video['aggro_date_added'], $video['aggro_date_updated']);
+        unset($video['aggro_date_added'], $video['aggro_date_updated']);
+
+        $this->assertSame([
+            'video_id'              => 'aggroTest01',
+            'video_date_uploaded'   => date('Y-m-d H:i:s', strtotime('2020-01-15T12:00:00+00:00')),
+            'flag_bad'              => 0,
+            'flag_archive'          => 1,
+            'video_type'            => 'youtube',
+            'video_title'           => 'S&M Bikes',
+            'video_plays'           => '12345',
+            'video_thumbnail_url'   => 'https://i1.ytimg.com/vi/aggroTest01/hqdefault.jpg',
+            'video_source_id'       => 'UCaggroTestChannel',
+            'video_source_url'      => 'https://www.youtube.com/channel/UCaggroTestChannel',
+            'video_source_username' => 'Test Rider',
+            'video_width'           => 1280,
+            'video_height'          => 720,
+            'video_aspect_ratio'    => 1.778,
+            'video_duration'        => '820',
+        ], $video);
     }
 
     public function testYoutubeParseMetaHandlesItemWithoutThumbnail(): void
     {
-        // Skip this test as mocking SimplePie item objects is complex
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml('aggroTest01', false));
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820');
+
+        $this->assertSame('https://i.ytimg.com/vi/aggroTest01/hqdefault.jpg', $video['video_thumbnail_url']);
     }
 
     public function testYoutubeParseMetaKeepsDefaultsWhenOembedReturnsZeroDimensions(): void
     {
-        // Verifies the hardening in youtube_parse_meta that rejects zero/null
-        // oEmbed dimensions and keeps 800x450 defaults.
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        // Verifies the hardening in youtube_parse_dimensions that rejects
+        // zero/null oEmbed dimensions and keeps 800x450 defaults.
+        $item = $this->makeFeedItem('Zero Dimensions', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), '820');
+
+        $this->assertSame(800, $video['video_width']);
+        $this->assertSame(450, $video['video_height']);
+        $this->assertSame(1.778, $video['video_aspect_ratio']);
+    }
+
+    public function testYoutubeParseMetaStoresZeroWhenDurationLookupFails(): void
+    {
+        $item = $this->makeFeedItem('No Duration', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
+
+        $this->assertSame(0, $video['video_duration']);
     }
 
     public function testYoutubeParseTitleReturnsRawText(): void
@@ -278,6 +343,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'youtube_get_video_source',
             'youtube_id_from_url',
             'youtube_get_dimensions',
+            'youtube_parse_dimensions',
             'youtube_parse_title',
             'youtube_parse_meta',
         ];
@@ -291,7 +357,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         // Test that functions return expected types for invalid input
         $this->assertFalse(youtube_get_duration(''));
-        $this->assertTrue(youtube_get_feed('') === false || is_object(youtube_get_feed('')));
+        $this->assertInstanceOf(SimplePie::class, youtube_get_feed(''));
         $this->assertFalse(youtube_get_video_source(''));
         $this->assertFalse(youtube_id_from_url('invalid'));
     }

@@ -23,10 +23,9 @@ final class VimeoHelperTest extends CIUnitTestCase
 
     public function testVimeoGetFeedWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so no API response comes back
         $result = vimeo_get_feed('invalid_id');
-        // Should return false or object/array
-        $this->assertTrue($result === false || is_object($result) || is_array($result));
+        $this->assertFalse($result);
     }
 
     public function testVimeoGetFeedWithEmptyId(): void

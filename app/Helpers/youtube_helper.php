@@ -211,28 +211,23 @@ if (! function_exists('youtube_id_from_url')) {
     }
 }
 
-if (! function_exists('youtube_get_dimensions')) {
+if (! function_exists('youtube_parse_dimensions')) {
     /**
-     * Fetch video dimensions from YouTube oEmbed.
+     * Read the video dimensions out of a fetched YouTube oEmbed response.
      *
-     * @param string $videoID
-     *                        YouTube video ID.
+     * @param array|false|object|string $result
+     *                                          Decoded oEmbed response, or false when the fetch failed.
      *
      * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
      *                                                                               Video dimensions and aspect ratio.
      */
-    function youtube_get_dimensions(string $videoID): array
+    function youtube_parse_dimensions($result): array
     {
-        helper('aggro');
-
         $defaults = [
             'video_width'        => 800,
             'video_height'       => 450,
             'video_aspect_ratio' => 1.778,
         ];
-
-        $oEmbed = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
-        $result = fetch_url($oEmbed, 'json', 0);
 
         if ($result === false || ! (is_array($result) || is_object($result))) {
             return $defaults;
@@ -250,6 +245,27 @@ if (! function_exists('youtube_get_dimensions')) {
             'video_height'       => $height,
             'video_aspect_ratio' => round($width / $height, 3),
         ];
+    }
+}
+
+if (! function_exists('youtube_get_dimensions')) {
+    /**
+     * Fetch video dimensions from YouTube oEmbed.
+     *
+     * @param string $videoID
+     *                        YouTube video ID.
+     *
+     * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
+     *                                                                               Video dimensions and aspect ratio.
+     */
+    function youtube_get_dimensions(string $videoID): array
+    {
+        helper('aggro');
+
+        $oEmbed = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
+        $result = fetch_url($oEmbed, 'json', 0);
+
+        return youtube_parse_dimensions($result);
     }
 }
 
@@ -295,10 +311,17 @@ if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
      *
+     * @param array{video_width: int, video_height: int, video_aspect_ratio: float}|null $dimensions
+     *                                                                                               Optional. Video dimensions and aspect ratio.
+     *                                                                                               Fetched from YouTube when omitted.
+     * @param false|string|null                                                          $duration
+     *                                                                                               Optional. Video duration, or false when unknown.
+     *                                                                                               Fetched from YouTube when omitted.
+     *
      * @return array
      *               Video metadata added.
      */
-    function youtube_parse_meta(object $item)
+    function youtube_parse_meta(object $item, ?array $dimensions = null, $duration = null)
     {
         helper('aggro');
         $video = [];
@@ -323,8 +346,7 @@ if (! function_exists('youtube_parse_meta')) {
             $video['video_plays'] = 0;
         }
         $group                          = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
-        $thumbnail                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
-        $video['video_thumbnail_url']   = $thumbnail[0]['attribs']['']['url'];
+        $video['video_thumbnail_url']   = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'][0]['attribs']['']['url'] ?? 'https://i.ytimg.com/vi/' . $video['video_id'] . '/hqdefault.jpg';
         $channelID                      = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'channelId');
         $video['video_source_id']       = $channelID[0]['data'];
         $author                         = $item->get_item_tags('http://www.w3.org/2005/Atom', 'author');
@@ -333,10 +355,10 @@ if (! function_exists('youtube_parse_meta')) {
         $authorName                     = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
         $video['video_source_username'] = $authorName[0]['data'];
 
-        $dimensions = youtube_get_dimensions($video['video_id']);
-        $video      = array_merge($video, $dimensions);
+        $dimensions ??= youtube_get_dimensions($video['video_id']);
+        $video = array_merge($video, $dimensions);
 
-        $video['video_duration'] = youtube_get_duration($video['video_id']);
+        $video['video_duration'] = $duration ?? youtube_get_duration($video['video_id']);
 
         if (! $video['video_duration']) {
             $video['video_duration'] = 0;

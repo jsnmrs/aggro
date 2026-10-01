@@ -5,6 +5,8 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
+use SimplePie\SimplePie;
+use Tests\Support\LocalHttpServerTrait;
 use TypeError;
 
 /**
@@ -12,6 +14,8 @@ use TypeError;
  */
 final class AggroHelperTest extends CIUnitTestCase
 {
+    use LocalHttpServerTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -75,10 +79,10 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchFeedWithValidParameters(): void
     {
-        // Test with invalid URL to avoid external dependencies
+        // The fetch is blocked, so the feed comes back carrying an error
         $result = fetch_feed('invalid-url', 0);
-        // Should return false or SimplePie object
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testFetchThumbnailMethodExists(): void
@@ -88,8 +92,9 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchThumbnailWithValidParameters(): void
     {
+        // The fetch is blocked, so there is no image to save
         $result = fetch_thumbnail('test123', 'https://example.com/thumb.jpg');
-        $this->assertIsBool($result);
+        $this->assertFalse($result);
     }
 
     public function testFetchUrlMethodExists(): void
@@ -374,26 +379,27 @@ final class AggroHelperTest extends CIUnitTestCase
     public function testFetchUrlHttpStatusSetOn404(): void
     {
         $httpStatus = null;
-        // httpbin returns 404 for this endpoint
-        fetch_url('https://httpbin.org/status/404', 'text', 0, $httpStatus);
+        // The local server returns 404 for this endpoint
+        fetch_url($this->localUrl('/status/404'), 'text', 0, $httpStatus);
 
         $this->assertSame(404, $httpStatus);
     }
 
     public function testFetchUrl404LogsWarningNotError(): void
     {
-        $result = fetch_url('https://httpbin.org/status/404', 'text', 0);
+        $url    = $this->localUrl('/status/404');
+        $result = fetch_url($url, 'text', 0);
 
         $this->assertFalse($result);
-        $this->assertLogged('warning', 'https://httpbin.org/status/404 returned 404.');
-        $this->assertFalse(TestLogger::didLog('error', 'https://httpbin.org/status/404 returned 404.'));
+        $this->assertLogged('warning', $url . ' returned 404.');
+        $this->assertFalse(TestLogger::didLog('error', $url . ' returned 404.'));
     }
 
     public function testFetchThumbnailPassesThroughHttpStatus(): void
     {
         $httpStatus = null;
         // Fetching a non-existent thumbnail should populate httpStatus
-        fetch_thumbnail('nonexistent_video', 'https://httpbin.org/status/404', $httpStatus);
+        fetch_thumbnail('nonexistent_video', $this->localUrl('/status/404'), $httpStatus);
 
         $this->assertIsInt($httpStatus);
         $this->assertSame(404, $httpStatus);

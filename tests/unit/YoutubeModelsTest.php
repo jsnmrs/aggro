@@ -9,12 +9,15 @@ use CodeIgniter\Model;
 use ReflectionClass;
 use SimplePie\SimplePie;
 use Tests\Support\DatabaseTestCase;
+use Tests\Support\YoutubeFeedTrait;
 
 /**
  * @internal
  */
 final class YoutubeModelsTest extends DatabaseTestCase
 {
+    use YoutubeFeedTrait;
+
     protected YoutubeModels $model;
 
     protected function setUp(): void
@@ -255,14 +258,35 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testSearchChannelWithValidVideoId(): void
     {
-        // Skip test that requires YouTube helper functions and AggroModels integration
-        $this->markTestSkipped('Method requires youtube_parse_meta helper and AggroModels integration');
+        // The dimension and duration lookups are blocked, so the video is
+        // added with the 800x450 defaults and no duration.
+        $added = [];
 
-        // This would test finding a specific video in a feed
-        // $mockItem = $this->createMockYouTubeItem('target_video_id');
-        // $mockFeed = $this->createMockFeedWithItems([$mockItem]);
-        // $result = $this->model->searchChannel($mockFeed, 'target_video_id');
-        // $this->assertTrue($result);
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(false);
+        $mockAggro->expects($this->once())
+            ->method('addVideo')
+            ->willReturnCallback(static function ($video) use (&$added) {
+                $added[] = $video;
+
+                return true;
+            });
+
+        $model = new YoutubeModels($mockAggro, $this->createMock(UtilityModels::class));
+
+        $feed = $this->makeFeed(
+            '<title>Other Video</title>' . $this->videoEntryXml('otherVideo1'),
+            '<title>Target Video</title>' . $this->videoEntryXml('targetVideo'),
+        );
+
+        $result = $model->searchChannel($feed, 'targetVideo');
+
+        $this->assertTrue($result);
+        $this->assertSame('targetVideo', $added[0]['video_id']);
+        $this->assertSame('Target Video', $added[0]['video_title']);
+        $this->assertSame(800, $added[0]['video_width']);
+        $this->assertSame(450, $added[0]['video_height']);
+        $this->assertSame(0, $added[0]['video_duration']);
     }
 
     public function testSearchChannelWithExistingVideo(): void
@@ -303,10 +327,35 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
     public function testParseChannelWithMultipleNewVideos(): void
     {
-        // Skip test that requires YouTube helper functions
-        $this->markTestSkipped('Method requires youtube_parse_meta helper and AggroModels integration');
+        $addedIds = [];
 
-        // This would test processing multiple videos from a feed
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(false);
+        $mockAggro->expects($this->exactly(2))
+            ->method('addVideo')
+            ->willReturnCallback(static function ($video) use (&$addedIds) {
+                $addedIds[] = $video['video_id'];
+
+                return true;
+            });
+        $mockAggro->expects($this->never())->method('setVideoPlays');
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->once())
+            ->method('sendLog')
+            ->with('Ran YouTube fetch. Added 2 new-to-me videos.');
+
+        $model = new YoutubeModels($mockAggro, $mockUtility);
+
+        $feed = $this->makeFeed(
+            '<title>First Video</title>' . $this->videoEntryXml('firstVideo1'),
+            '<title>Second Video</title>' . $this->videoEntryXml('secondVideo'),
+        );
+
+        $result = $model->parseChannel($feed);
+
+        $this->assertSame(2, $result);
+        $this->assertEqualsCanonicalizing(['firstVideo1', 'secondVideo'], $addedIds);
     }
 
     public function testParseChannelDoesNotLogForZeroVideos(): void
