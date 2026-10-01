@@ -222,6 +222,40 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertSame(1.778, $result['video_aspect_ratio']);
     }
 
+    public function testYoutubeParseDimensionsReturnsOembedDimensions(): void
+    {
+        $result = youtube_parse_dimensions((object) ['width' => 200, 'height' => 150]);
+
+        $this->assertSame(200, $result['video_width']);
+        $this->assertSame(150, $result['video_height']);
+        $this->assertSame(1.333, $result['video_aspect_ratio']);
+    }
+
+    public function testYoutubeParseDimensionsKeepsDefaultsForZeroDimensions(): void
+    {
+        $expected = [
+            'video_width'        => 800,
+            'video_height'       => 450,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $this->assertSame($expected, youtube_parse_dimensions((object) ['width' => 0, 'height' => 113]));
+        $this->assertSame($expected, youtube_parse_dimensions((object) ['width' => 200, 'height' => 0]));
+        $this->assertSame($expected, youtube_parse_dimensions((object) []));
+    }
+
+    public function testYoutubeParseDimensionsKeepsDefaultsForFailedFetch(): void
+    {
+        $expected = [
+            'video_width'        => 800,
+            'video_height'       => 450,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $this->assertSame($expected, youtube_parse_dimensions(false));
+        $this->assertSame($expected, youtube_parse_dimensions('Not Found'));
+    }
+
     public function testYoutubeParseMetaMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_parse_meta'));
@@ -278,6 +312,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'youtube_get_video_source',
             'youtube_id_from_url',
             'youtube_get_dimensions',
+            'youtube_parse_dimensions',
             'youtube_parse_title',
             'youtube_parse_meta',
         ];

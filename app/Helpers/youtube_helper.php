@@ -211,28 +211,23 @@ if (! function_exists('youtube_id_from_url')) {
     }
 }
 
-if (! function_exists('youtube_get_dimensions')) {
+if (! function_exists('youtube_parse_dimensions')) {
     /**
-     * Fetch video dimensions from YouTube oEmbed.
+     * Read the video dimensions out of a fetched YouTube oEmbed response.
      *
-     * @param string $videoID
-     *                        YouTube video ID.
+     * @param array|false|object|string $result
+     *                                          Decoded oEmbed response, or false when the fetch failed.
      *
      * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
      *                                                                               Video dimensions and aspect ratio.
      */
-    function youtube_get_dimensions(string $videoID): array
+    function youtube_parse_dimensions($result): array
     {
-        helper('aggro');
-
         $defaults = [
             'video_width'        => 800,
             'video_height'       => 450,
             'video_aspect_ratio' => 1.778,
         ];
-
-        $oEmbed = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
-        $result = fetch_url($oEmbed, 'json', 0);
 
         if ($result === false || ! (is_array($result) || is_object($result))) {
             return $defaults;
@@ -250,6 +245,27 @@ if (! function_exists('youtube_get_dimensions')) {
             'video_height'       => $height,
             'video_aspect_ratio' => round($width / $height, 3),
         ];
+    }
+}
+
+if (! function_exists('youtube_get_dimensions')) {
+    /**
+     * Fetch video dimensions from YouTube oEmbed.
+     *
+     * @param string $videoID
+     *                        YouTube video ID.
+     *
+     * @return array{video_width: int, video_height: int, video_aspect_ratio: float}
+     *                                                                               Video dimensions and aspect ratio.
+     */
+    function youtube_get_dimensions(string $videoID): array
+    {
+        helper('aggro');
+
+        $oEmbed = 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D' . $videoID;
+        $result = fetch_url($oEmbed, 'json', 0);
+
+        return youtube_parse_dimensions($result);
     }
 }
 
