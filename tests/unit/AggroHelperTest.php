@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
+use Tests\Support\LocalHttpServerTrait;
 use TypeError;
 
 /**
@@ -12,6 +13,8 @@ use TypeError;
  */
 final class AggroHelperTest extends CIUnitTestCase
 {
+    use LocalHttpServerTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -374,26 +377,27 @@ final class AggroHelperTest extends CIUnitTestCase
     public function testFetchUrlHttpStatusSetOn404(): void
     {
         $httpStatus = null;
-        // httpbin returns 404 for this endpoint
-        fetch_url('https://httpbin.org/status/404', 'text', 0, $httpStatus);
+        // The local server returns 404 for this endpoint
+        fetch_url($this->localUrl('/status/404'), 'text', 0, $httpStatus);
 
         $this->assertSame(404, $httpStatus);
     }
 
     public function testFetchUrl404LogsWarningNotError(): void
     {
-        $result = fetch_url('https://httpbin.org/status/404', 'text', 0);
+        $url    = $this->localUrl('/status/404');
+        $result = fetch_url($url, 'text', 0);
 
         $this->assertFalse($result);
-        $this->assertLogged('warning', 'https://httpbin.org/status/404 returned 404.');
-        $this->assertFalse(TestLogger::didLog('error', 'https://httpbin.org/status/404 returned 404.'));
+        $this->assertLogged('warning', $url . ' returned 404.');
+        $this->assertFalse(TestLogger::didLog('error', $url . ' returned 404.'));
     }
 
     public function testFetchThumbnailPassesThroughHttpStatus(): void
     {
         $httpStatus = null;
         // Fetching a non-existent thumbnail should populate httpStatus
-        fetch_thumbnail('nonexistent_video', 'https://httpbin.org/status/404', $httpStatus);
+        fetch_thumbnail('nonexistent_video', $this->localUrl('/status/404'), $httpStatus);
 
         $this->assertIsInt($httpStatus);
         $this->assertSame(404, $httpStatus);
