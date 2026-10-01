@@ -3,18 +3,36 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
 use SimplePie\SimplePie;
+use Tests\Support\BlocksNetworkTrait;
 
 /**
  * @internal
  */
 final class YoutubeHelperTest extends CIUnitTestCase
 {
+    use BlocksNetworkTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
         helper('youtube');
+    }
+
+    public function testOutboundRequestsAreBlocked(): void
+    {
+        // Guards the network block the tests below rely on. A request that
+        // reached YouTube would come back with a page and an HTTP status.
+        helper('aggro');
+
+        $httpStatus = null;
+        $result     = fetch_url('https://www.youtube.com/', 'text', 0, $httpStatus);
+
+        $this->assertSame(0, $httpStatus);
+        $this->assertFalse($result);
+        $this->assertTrue(TestLogger::didLog('warning', '127.0.0.1 port 1', false));
     }
 
     /**
@@ -72,10 +90,9 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetDurationWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so no watch page comes back
         $result = youtube_get_duration('invalid_id');
-        // Should return false or numeric duration
-        $this->assertTrue($result === false || is_numeric($result));
+        $this->assertFalse($result);
     }
 
     public function testYoutubeGetDurationWithEmptyId(): void
@@ -155,17 +172,18 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetFeedWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so the feed comes back carrying an error
         $result = youtube_get_feed('invalid_channel_id');
-        // Should return false or object
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testYoutubeGetFeedWithEmptyId(): void
     {
+        // Returns a SimplePie object even for an empty ID
         $result = youtube_get_feed('');
-        // May return SimplePie object even for empty ID
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testYoutubeGetVideoSourceMethodExists(): void
@@ -175,10 +193,9 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeGetVideoSourceWithValidId(): void
     {
-        // Test with invalid ID to avoid external API calls
+        // The fetch is blocked, so no oEmbed response comes back
         $result = youtube_get_video_source('invalid_video_id');
-        // Should return false or string
-        $this->assertTrue($result === false || is_string($result));
+        $this->assertFalse($result);
     }
 
     public function testYoutubeGetVideoSourceWithEmptyId(): void
@@ -393,7 +410,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         // Test that functions return expected types for invalid input
         $this->assertFalse(youtube_get_duration(''));
-        $this->assertTrue(youtube_get_feed('') === false || is_object(youtube_get_feed('')));
+        $this->assertInstanceOf(SimplePie::class, youtube_get_feed(''));
         $this->assertFalse(youtube_get_video_source(''));
         $this->assertFalse(youtube_id_from_url('invalid'));
     }
