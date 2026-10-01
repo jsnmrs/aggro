@@ -273,6 +273,24 @@ if (! function_exists('youtube_parse_plays')) {
     }
 }
 
+if (! function_exists('youtube_parse_title')) {
+    /**
+     * Parse the raw title from a YouTube feed item.
+     *
+     * SimplePie returns titles HTML-encoded, so they are decoded here and
+     * encoded once at display time in views.
+     *
+     * @return string
+     *                Video title with HTML entities decoded.
+     */
+    function youtube_parse_title(object $item): string
+    {
+        helper('aggro');
+
+        return decode_entities($item->get_title());
+    }
+}
+
 if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
@@ -299,7 +317,7 @@ if (! function_exists('youtube_parse_meta')) {
         if ($video['video_date_uploaded'] <= $archive) {
             $video['flag_archive'] = 1;
         }
-        $video['video_title'] = $item->get_title();
+        $video['video_title'] = youtube_parse_title($item);
         $video['video_plays'] = youtube_parse_plays($item);
         if ($video['video_plays'] === false) {
             $video['video_plays'] = 0;

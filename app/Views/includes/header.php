@@ -15,10 +15,10 @@
       echo '[DEV] ';
   }
 if (isset($build['site_name'])) {
-    echo $build['site_name'] . ' | ';
+    echo esc($build['site_name']) . ' | ';
 }
 if (isset($build['video_title'])) {
-    echo $build['video_title'] . ' | ';
+    echo esc($build['video_title']) . ' | ';
 }
 if (isset($page) && $page >= 2 && isset($endpage)) {
     echo 'Recent Videos ' . $page . ' of ' . $endpage . ' | ';

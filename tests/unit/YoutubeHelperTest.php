@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
 use ReflectionFunction;
+use SimplePie\SimplePie;
 
 /**
  * @internal
@@ -14,6 +15,23 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         parent::setUp();
         helper('youtube');
+    }
+
+    /**
+     * Parse an Atom entry with the given XML-encoded title into a feed item.
+     */
+    private function makeFeedItem(string $xmlTitle): object
+    {
+        $feed = new SimplePie();
+        $feed->enable_cache(false);
+        $feed->set_raw_data(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<feed xmlns="http://www.w3.org/2005/Atom"><title>Channel</title>'
+            . '<entry><title>' . $xmlTitle . '</title></entry></feed>',
+        );
+        $feed->init();
+
+        return $feed->get_item(0);
     }
 
     public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
@@ -228,6 +246,29 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
     }
 
+    public function testYoutubeParseTitleReturnsRawText(): void
+    {
+        // SimplePie HTML-encodes titles, so the helper must decode them
+        // to keep stored titles raw (encoding happens in views).
+        $item = $this->makeFeedItem('S&amp;M "Game" &lt;of&gt; Bike &amp; 90\'s');
+
+        $this->assertSame('S&M "Game" <of> Bike & 90\'s', youtube_parse_title($item));
+    }
+
+    public function testYoutubeParseTitleLeavesPlainTextUnchanged(): void
+    {
+        $item = $this->makeFeedItem('Café – Trails Session');
+
+        $this->assertSame('Café – Trails Session', youtube_parse_title($item));
+    }
+
+    public function testYoutubeParseTitleWithEmptyTitle(): void
+    {
+        $item = $this->makeFeedItem('');
+
+        $this->assertSame('', youtube_parse_title($item));
+    }
+
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
@@ -237,6 +278,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'youtube_get_video_source',
             'youtube_id_from_url',
             'youtube_get_dimensions',
+            'youtube_parse_title',
             'youtube_parse_meta',
         ];
 
