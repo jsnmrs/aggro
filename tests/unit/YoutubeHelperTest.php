@@ -19,19 +19,40 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     /**
      * Parse an Atom entry with the given XML-encoded title into a feed item.
+     *
+     * @param string $entryXml Optional. Further child elements for the entry.
      */
-    private function makeFeedItem(string $xmlTitle): object
+    private function makeFeedItem(string $xmlTitle, string $entryXml = ''): object
     {
         $feed = new SimplePie();
         $feed->enable_cache(false);
         $feed->set_raw_data(
             '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<feed xmlns="http://www.w3.org/2005/Atom"><title>Channel</title>'
-            . '<entry><title>' . $xmlTitle . '</title></entry></feed>',
+            . '<feed xmlns="http://www.w3.org/2005/Atom" xmlns:yt="http://www.youtube.com/xml/schemas/2015"'
+            . ' xmlns:media="http://search.yahoo.com/mrss/"><title>Channel</title>'
+            . '<entry><title>' . $xmlTitle . '</title>' . $entryXml . '</entry></feed>',
         );
         $feed->init();
 
         return $feed->get_item(0);
+    }
+
+    /**
+     * Build the child elements YouTube sends with a video feed entry.
+     */
+    private function videoEntryXml(bool $withThumbnail = true): string
+    {
+        $thumbnail = $withThumbnail
+            ? '<media:thumbnail url="https://i1.ytimg.com/vi/aggroTest01/hqdefault.jpg" width="480" height="360"/>'
+            : '';
+
+        return '<yt:videoId>aggroTest01</yt:videoId>'
+            . '<yt:channelId>UCaggroTestChannel</yt:channelId>'
+            . '<author><name>Test Rider</name><uri>https://www.youtube.com/channel/UCaggroTestChannel</uri></author>'
+            . '<published>2020-01-15T12:00:00+00:00</published>'
+            . '<media:group>' . $thumbnail
+            . '<media:community><media:statistics views="12345"/></media:community>'
+            . '</media:group>';
     }
 
     public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
@@ -263,21 +284,67 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeParseMetaWithValidItem(): void
     {
-        // Skip this test as mocking SimplePie item objects is complex
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        $item       = $this->makeFeedItem('S&amp;M Bikes', $this->videoEntryXml());
+        $dimensions = [
+            'video_width'        => 1280,
+            'video_height'       => 720,
+            'video_aspect_ratio' => 1.778,
+        ];
+
+        $video = youtube_parse_meta($item, $dimensions, '820');
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $video['aggro_date_added']);
+        $this->assertSame($video['aggro_date_added'], $video['aggro_date_updated']);
+        unset($video['aggro_date_added'], $video['aggro_date_updated']);
+
+        $this->assertSame([
+            'video_id'              => 'aggroTest01',
+            'video_date_uploaded'   => date('Y-m-d H:i:s', strtotime('2020-01-15T12:00:00+00:00')),
+            'flag_bad'              => 0,
+            'flag_archive'          => 1,
+            'video_type'            => 'youtube',
+            'video_title'           => 'S&M Bikes',
+            'video_plays'           => '12345',
+            'video_thumbnail_url'   => 'https://i1.ytimg.com/vi/aggroTest01/hqdefault.jpg',
+            'video_source_id'       => 'UCaggroTestChannel',
+            'video_source_url'      => 'https://www.youtube.com/channel/UCaggroTestChannel',
+            'video_source_username' => 'Test Rider',
+            'video_width'           => 1280,
+            'video_height'          => 720,
+            'video_aspect_ratio'    => 1.778,
+            'video_duration'        => '820',
+        ], $video);
     }
 
     public function testYoutubeParseMetaHandlesItemWithoutThumbnail(): void
     {
-        // Skip this test as mocking SimplePie item objects is complex
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml(false));
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820');
+
+        $this->assertSame('https://i.ytimg.com/vi/aggroTest01/hqdefault.jpg', $video['video_thumbnail_url']);
     }
 
     public function testYoutubeParseMetaKeepsDefaultsWhenOembedReturnsZeroDimensions(): void
     {
-        // Verifies the hardening in youtube_parse_meta that rejects zero/null
-        // oEmbed dimensions and keeps 800x450 defaults.
-        $this->markTestSkipped('youtube_parse_meta test skipped due to complex SimplePie item mocking');
+        // Verifies the hardening in youtube_parse_dimensions that rejects
+        // zero/null oEmbed dimensions and keeps 800x450 defaults.
+        $item = $this->makeFeedItem('Zero Dimensions', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), '820');
+
+        $this->assertSame(800, $video['video_width']);
+        $this->assertSame(450, $video['video_height']);
+        $this->assertSame(1.778, $video['video_aspect_ratio']);
+    }
+
+    public function testYoutubeParseMetaStoresZeroWhenDurationLookupFails(): void
+    {
+        $item = $this->makeFeedItem('No Duration', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
+
+        $this->assertSame(0, $video['video_duration']);
     }
 
     public function testYoutubeParseTitleReturnsRawText(): void

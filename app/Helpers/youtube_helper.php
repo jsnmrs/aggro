@@ -311,10 +311,17 @@ if (! function_exists('youtube_parse_meta')) {
     /**
      * Parse youtube video metadata for DB import.
      *
+     * @param array{video_width: int, video_height: int, video_aspect_ratio: float}|null $dimensions
+     *                                                                                               Optional. Video dimensions and aspect ratio.
+     *                                                                                               Fetched from YouTube when omitted.
+     * @param false|string|null                                                          $duration
+     *                                                                                               Optional. Video duration, or false when unknown.
+     *                                                                                               Fetched from YouTube when omitted.
+     *
      * @return array
      *               Video metadata added.
      */
-    function youtube_parse_meta(object $item)
+    function youtube_parse_meta(object $item, ?array $dimensions = null, $duration = null)
     {
         helper('aggro');
         $video = [];
@@ -339,8 +346,7 @@ if (! function_exists('youtube_parse_meta')) {
             $video['video_plays'] = 0;
         }
         $group                          = $item->get_item_tags(SimplePie\SimplePie::NAMESPACE_MEDIARSS, 'group');
-        $thumbnail                      = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'];
-        $video['video_thumbnail_url']   = $thumbnail[0]['attribs']['']['url'];
+        $video['video_thumbnail_url']   = $group[0]['child'][SimplePie\SimplePie::NAMESPACE_MEDIARSS]['thumbnail'][0]['attribs']['']['url'] ?? 'https://i.ytimg.com/vi/' . $video['video_id'] . '/hqdefault.jpg';
         $channelID                      = $item->get_item_tags('http://www.youtube.com/xml/schemas/2015', 'channelId');
         $video['video_source_id']       = $channelID[0]['data'];
         $author                         = $item->get_item_tags('http://www.w3.org/2005/Atom', 'author');
@@ -349,10 +355,10 @@ if (! function_exists('youtube_parse_meta')) {
         $authorName                     = $author[0]['child']['http://www.w3.org/2005/Atom']['name'];
         $video['video_source_username'] = $authorName[0]['data'];
 
-        $dimensions = youtube_get_dimensions($video['video_id']);
-        $video      = array_merge($video, $dimensions);
+        $dimensions ??= youtube_get_dimensions($video['video_id']);
+        $video = array_merge($video, $dimensions);
 
-        $video['video_duration'] = youtube_get_duration($video['video_id']);
+        $video['video_duration'] = $duration ?? youtube_get_duration($video['video_id']);
 
         if (! $video['video_duration']) {
             $video['video_duration'] = 0;
