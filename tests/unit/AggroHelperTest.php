@@ -5,6 +5,8 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
 use ReflectionFunction;
+use SimplePie\SimplePie;
+use Tests\Support\BlocksNetworkTrait;
 use Tests\Support\LocalHttpServerTrait;
 use TypeError;
 
@@ -13,6 +15,7 @@ use TypeError;
  */
 final class AggroHelperTest extends CIUnitTestCase
 {
+    use BlocksNetworkTrait;
     use LocalHttpServerTrait;
 
     protected function setUp(): void
@@ -78,10 +81,10 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchFeedWithValidParameters(): void
     {
-        // Test with invalid URL to avoid external dependencies
+        // The fetch is blocked, so the feed comes back carrying an error
         $result = fetch_feed('invalid-url', 0);
-        // Should return false or SimplePie object
-        $this->assertTrue($result === false || is_object($result));
+        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertNotNull($result->error());
     }
 
     public function testFetchThumbnailMethodExists(): void
@@ -91,8 +94,9 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchThumbnailWithValidParameters(): void
     {
+        // The fetch is blocked, so there is no image to save
         $result = fetch_thumbnail('test123', 'https://example.com/thumb.jpg');
-        $this->assertIsBool($result);
+        $this->assertFalse($result);
     }
 
     public function testFetchUrlMethodExists(): void
