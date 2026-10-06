@@ -42,7 +42,7 @@ class YoutubeModels extends Model
             $currentVideoId = $currentVideo[0]['data'];
 
             if ($currentVideoId === $videoId && ! $this->aggroModel->checkVideo($currentVideoId)) {
-                $video = youtube_parse_meta($item);
+                $video = youtube_parse_meta($item, null, $this->fetchDurationForIngest($currentVideoId));
                 $this->aggroModel->addVideo($video);
 
                 return true;
@@ -71,7 +71,7 @@ class YoutubeModels extends Model
             $currentVideoId = $currentVideo[0]['data'];
 
             if (! $this->aggroModel->checkVideo($currentVideoId)) {
-                $video = youtube_parse_meta($item);
+                $video = youtube_parse_meta($item, null, $this->fetchDurationForIngest($currentVideoId));
                 $this->aggroModel->addVideo($video);
                 $addCount++;
 
@@ -95,10 +95,13 @@ class YoutubeModels extends Model
     /**
      * Get duration for YouTube videos.
      *
-     * Write count of updated videos to log.
+     * Newest videos are filled first, since those are the ones the front
+     * page shows. The batch is capped and requests are spaced out to stay
+     * polite to the watch page. Write count of updated videos, and any
+     * backlog left over, to log.
      *
      * @return bool
-     *              Archive complete.
+     *              Batch complete.
      *
      * @see sendLog()
      */
@@ -106,49 +109,120 @@ class YoutubeModels extends Model
     {
         helper('youtube');
 
+        $storageConfig = config('Storage');
+
         $query = $this->db->table('aggro_videos')
             ->where('flag_archive', 0)
             ->where('flag_bad', 0)
             ->where('video_duration', 0)
             ->where('video_type', 'youtube')
-            ->limit(10)
+            ->orderBy('aggro_date_added', 'DESC')
+            ->limit($storageConfig->durationBatchSize)
             ->get();
 
         if ($query === false) {
             return false;
         }
 
-        $update = count($query->getResultArray());
+        $updated = 0;
 
-        if ($update > 0) {
-            $results = $query->getResult();
-
-            foreach ($results as $result) {
-                $unavailable   = false;
-                $videoDuration = $this->fetchDuration($result->video_id, $unavailable);
-
-                if ($videoDuration !== false && is_numeric($videoDuration)) {
-                    $this->videoRepository->updateVideoDuration($result->video_id, $videoDuration);
-
-                    continue;
-                }
-
-                if ($unavailable) {
-                    $this->videoRepository->flagVideoBad($result->video_id);
-                    $this->utilityModel->sendLog('Retired ' . $result->video_id . '. Source reports the video is unavailable.');
-                    log_message('warning', 'Flagged video ' . $result->video_id . ' as bad — source reports it unavailable.');
-
-                    continue;
-                }
-
-                $this->videoRepository->recordDurationIssue($result->video_id);
+        foreach ($query->getResult() as $index => $result) {
+            if ($index > 0) {
+                $this->sleepBetweenFetches();
             }
+
+            $unavailable   = false;
+            $videoDuration = $this->fetchDuration($result->video_id, $unavailable);
+
+            if ($videoDuration !== false && is_numeric($videoDuration)) {
+                $this->videoRepository->updateVideoDuration($result->video_id, $videoDuration);
+                $updated++;
+
+                continue;
+            }
+
+            if ($unavailable) {
+                $this->videoRepository->flagVideoBad($result->video_id);
+                $this->utilityModel->sendLog('Retired ' . $result->video_id . '. Source reports the video is unavailable.');
+                log_message('warning', 'Flagged video ' . $result->video_id . ' as bad — source reports it unavailable.');
+
+                continue;
+            }
+
+            $this->videoRepository->recordDurationIssue($result->video_id);
         }
 
-        $message = $update . ' video durations fetched.';
-        $this->utilityModel->sendLog($message);
+        $this->utilityModel->sendLog($this->durationLogMessage($updated));
 
         return true;
+    }
+
+    /**
+     * Describe a duration run, noting any backlog the batch did not reach.
+     *
+     * @param int $updated
+     *                     Number of durations written this run.
+     *
+     * @return string
+     *                Log message.
+     */
+    private function durationLogMessage($updated)
+    {
+        $remaining = $this->db->table('aggro_videos')
+            ->where('flag_archive', 0)
+            ->where('flag_bad', 0)
+            ->where('video_duration', 0)
+            ->where('video_type', 'youtube')
+            ->countAllResults();
+
+        $message = $updated . ' video durations fetched';
+
+        if ($remaining > 0) {
+            $message .= ', ' . $remaining . ' still waiting';
+        }
+
+        return $message . '.';
+    }
+
+    /**
+     * Fetch a duration at ingest, retrying once on an ambiguous failure.
+     *
+     * A single flaky watch-page request should not hide a video until the
+     * nightly job reaches it. A video the source reports as unavailable is
+     * not retried, since it will never yield a duration.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return false|string
+     *                      Video duration, or false when both attempts fail.
+     */
+    protected function fetchDurationForIngest($videoId)
+    {
+        $unavailable = false;
+        $duration    = $this->fetchDuration($videoId, $unavailable);
+
+        if ($duration !== false || $unavailable) {
+            return $duration;
+        }
+
+        $this->sleepBetweenFetches();
+
+        return $this->fetchDuration($videoId, $unavailable);
+    }
+
+    /**
+     * Pause between watch-page fetches so the job stays polite.
+     *
+     * Extracted so tests can override it.
+     */
+    protected function sleepBetweenFetches(): void
+    {
+        $delay = config('Storage')->durationRequestDelay;
+
+        if ($delay > 0) {
+            sleep($delay);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Models\AggroModels;
 use App\Models\UtilityModels;
 use App\Models\YoutubeModels;
 use CodeIgniter\Model;
+use Config\Storage;
 use ReflectionClass;
 use SimplePie\SimplePie;
 use Tests\Support\DatabaseTestCase;
@@ -19,41 +20,104 @@ final class YoutubeModelsTest extends DatabaseTestCase
     use YoutubeFeedTrait;
 
     protected YoutubeModels $model;
+    private Storage $storageConfig;
+    private int $originalBatchSize;
+    private int $originalDelay;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->storageConfig                       = config('Storage');
+        $this->originalBatchSize                   = $this->storageConfig->durationBatchSize;
+        $this->originalDelay                       = $this->storageConfig->durationRequestDelay;
+        $this->storageConfig->durationRequestDelay = 0;
+
         $this->model = new YoutubeModels();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->storageConfig->durationBatchSize    = $this->originalBatchSize;
+        $this->storageConfig->durationRequestDelay = $this->originalDelay;
+        parent::tearDown();
     }
 
     /**
      * Build a YoutubeModels whose fetchDuration() returns canned results
      * keyed by video_id instead of scraping YouTube.
      *
+     * Each fetch and each pause is counted so tests can assert on the
+     * request budget without spending wall-clock time.
+     *
      * @param UtilityModels|null $utilityModel Optional utility model override
+     * @param AggroModels|null   $aggroModel   Optional aggro model override
      */
-    private function buildModelWithCannedDurations(?UtilityModels $utilityModel = null): YoutubeModels
+    private function buildModelWithCannedDurations(?UtilityModels $utilityModel = null, ?AggroModels $aggroModel = null): YoutubeModels
     {
         $utilityModel ??= $this->createMock(UtilityModels::class);
 
-        return new class (null, $utilityModel) extends YoutubeModels {
+        return new class ($aggroModel, $utilityModel) extends YoutubeModels {
             /**
              * @var array<string, false|string>
              */
             public array $durations = [];
 
             /**
+             * Per-video results consumed in order, ahead of $durations.
+             *
+             * @var array<string, list<false|string>>
+             */
+            public array $durationSequence = [];
+
+            /**
              * @var array<string, bool>
              */
             public array $unavailable = [];
 
+            /**
+             * @var array<string, int>
+             */
+            public array $fetchCalls = [];
+
+            public int $sleepCalls = 0;
+
             protected function fetchDuration($videoId, &$unavailable = null)
             {
-                $unavailable = $this->unavailable[$videoId] ?? false;
+                $unavailable                = $this->unavailable[$videoId] ?? false;
+                $this->fetchCalls[$videoId] = ($this->fetchCalls[$videoId] ?? 0) + 1;
+
+                if (! empty($this->durationSequence[$videoId])) {
+                    return array_shift($this->durationSequence[$videoId]);
+                }
 
                 return $this->durations[$videoId] ?? false;
             }
+
+            protected function sleepBetweenFetches(): void
+            {
+                $this->sleepCalls++;
+            }
         };
+    }
+
+    /**
+     * Build an AggroModels mock that treats every video as new and
+     * captures each row passed to addVideo().
+     *
+     * @param array $added Receives the added rows
+     */
+    private function buildAggroCapturingAdds(array &$added): AggroModels
+    {
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(false);
+        $mockAggro->method('addVideo')->willReturnCallback(static function ($video) use (&$added) {
+            $added[] = $video;
+
+            return true;
+        });
+
+        return $mockAggro;
     }
 
     /**
@@ -695,5 +759,178 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
         // Skip getDuration test that requires aggro_videos table
         // $this->assertIsBool($this->model->getDuration());
+    }
+
+    public function testSearchChannelRetriesDurationOnceOnAmbiguousFailure(): void
+    {
+        // Arrange - One flaky watch-page fetch should not hide the video
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->durationSequence = ['targetVideo' => [false, '820']];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $result = $model->searchChannel($feed, 'targetVideo');
+
+        // Assert - Second attempt is stored, after exactly one pause
+        $this->assertTrue($result);
+        $this->assertSame('820', $added[0]['video_duration']);
+        $this->assertSame(2, $model->fetchCalls['targetVideo']);
+        $this->assertSame(1, $model->sleepCalls);
+    }
+
+    public function testSearchChannelDoesNotRetryWhenSourceReportsUnavailable(): void
+    {
+        // Arrange - A video the source says is gone will never yield a duration
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->unavailable = ['targetVideo' => true];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $model->searchChannel($feed, 'targetVideo');
+
+        // Assert
+        $this->assertSame(0, $added[0]['video_duration']);
+        $this->assertSame(1, $model->fetchCalls['targetVideo']);
+        $this->assertSame(0, $model->sleepCalls);
+    }
+
+    public function testSearchChannelStoresZeroWhenRetryAlsoFails(): void
+    {
+        // Arrange - A sustained block fails both attempts
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->durationSequence = ['targetVideo' => [false, false]];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $model->searchChannel($feed, 'targetVideo');
+
+        // Assert - Stored as zero for the nightly job, no third attempt
+        $this->assertSame(0, $added[0]['video_duration']);
+        $this->assertSame(2, $model->fetchCalls['targetVideo']);
+        $this->assertSame(1, $model->sleepCalls);
+    }
+
+    public function testParseChannelRetriesDurationForEachNewVideo(): void
+    {
+        // Arrange - The channel sweep is a separate call site from searchChannel
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->durationSequence = [
+            'videoOne' => [false, '820'],
+            'videoTwo' => [false, '640'],
+        ];
+
+        $feed = $this->makeFeed(
+            '<title>Video One</title>' . $this->videoEntryXml('videoOne'),
+            '<title>Video Two</title>' . $this->videoEntryXml('videoTwo'),
+        );
+
+        // Act
+        $result = $model->parseChannel($feed);
+
+        // Assert - SimplePie does not promise item order, so key on video id
+        $durations = array_column($added, 'video_duration', 'video_id');
+        $this->assertSame(2, $result);
+        $this->assertSame('820', $durations['videoOne']);
+        $this->assertSame('640', $durations['videoTwo']);
+        $this->assertSame(2, $model->fetchCalls['videoOne']);
+        $this->assertSame(2, $model->fetchCalls['videoTwo']);
+        $this->assertSame(2, $model->sleepCalls);
+    }
+
+    public function testGetDurationRespectsBatchSize(): void
+    {
+        // Arrange
+        $this->storageConfig->durationBatchSize = 2;
+
+        $this->insertVideoNeedingDuration('video_a');
+        $this->insertVideoNeedingDuration('video_b');
+        $this->insertVideoNeedingDuration('video_c');
+
+        $model            = $this->buildModelWithCannedDurations();
+        $model->durations = ['video_a' => '100', 'video_b' => '200', 'video_c' => '300'];
+
+        // Act
+        $model->getDuration();
+
+        // Assert - Two fetched with one pause between them, one left over
+        $updated = $this->db->table('aggro_videos')
+            ->where('video_duration >', 0)
+            ->countAllResults();
+        $this->assertSame(2, $updated);
+        $this->assertSame(1, $model->sleepCalls);
+    }
+
+    public function testGetDurationProcessesBacklogBeyondTen(): void
+    {
+        // Arrange - A backlog larger than the old fixed limit clears in one run
+        $model            = $this->buildModelWithCannedDurations();
+        $model->durations = [];
+
+        for ($index = 1; $index <= 12; $index++) {
+            $videoId = 'backlog_' . $index;
+            $this->insertVideoNeedingDuration($videoId);
+            $model->durations[$videoId] = '120';
+        }
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $remaining = $this->db->table('aggro_videos')
+            ->where('video_duration', 0)
+            ->countAllResults();
+        $this->assertSame(0, $remaining);
+        $this->assertSame(11, $model->sleepCalls);
+    }
+
+    public function testGetDurationFillsNewestFirst(): void
+    {
+        // Arrange - The front page shows newest first, so those should surface first
+        $this->storageConfig->durationBatchSize = 1;
+
+        $this->insertVideoNeedingDuration('older_video', ['aggro_date_added' => '2026-09-28 10:00:00']);
+        $this->insertVideoNeedingDuration('newer_video', ['aggro_date_added' => '2026-10-05 10:00:00']);
+
+        $model            = $this->buildModelWithCannedDurations();
+        $model->durations = ['older_video' => '100', 'newer_video' => '200'];
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $this->assertSame(200, (int) $this->getVideoRow('newer_video')['video_duration']);
+        $this->assertSame(0, (int) $this->getVideoRow('older_video')['video_duration']);
+    }
+
+    public function testGetDurationLogsRemainingBacklog(): void
+    {
+        // Arrange - The log line should say how far behind the job is
+        $this->storageConfig->durationBatchSize = 2;
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->expects($this->once())
+            ->method('sendLog')
+            ->with('2 video durations fetched, 1 still waiting.');
+
+        $this->insertVideoNeedingDuration('video_a');
+        $this->insertVideoNeedingDuration('video_b');
+        $this->insertVideoNeedingDuration('video_c');
+
+        $model            = $this->buildModelWithCannedDurations($mockUtility);
+        $model->durations = ['video_a' => '100', 'video_b' => '200', 'video_c' => '300'];
+
+        // Act
+        $model->getDuration();
     }
 }

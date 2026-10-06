@@ -42,6 +42,9 @@ class Storage extends BaseConfig
      */
     public int $durationIssueThreshold = 10;
 
+    public int $durationBatchSize    = 50; // per nightly run, 0 = no cap
+    public int $durationRequestDelay = 1; // seconds between fetches
+
     /**
      * Cache and network configuration.
      */
