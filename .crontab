@@ -34,7 +34,8 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro plays
 ## Refresh a batch of video play counts every hour
-0 * * * * $PHP_PATH $INDEX_PATH aggro plays
+## Paused temporarily
+# 0 * * * * $PHP_PATH $INDEX_PATH aggro plays
 
 ## aggro vimeo
 ## Look for new Vimeo videos every 7 minutes
@@ -42,4 +43,5 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro youtube
 ## Look for new YouTube videos every 5 minutes
-*/5 * * * * $PHP_PATH $INDEX_PATH aggro youtube
+## Paused temporarily
+# */5 * * * * $PHP_PATH $INDEX_PATH aggro youtube
