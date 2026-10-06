@@ -304,7 +304,10 @@ if (! function_exists('fetch_url')) {
 
         // A 404 means the content is gone, not an application error,
         // so it stays out of Sentry (which only receives error and above).
-        $failureLogLevels = [403 => 'error', 404 => 'warning', 500 => 'error'];
+        // A 429 is the host being rate limited. Its body is a CAPTCHA page,
+        // not the content, so callers must see a failed fetch rather than
+        // parse it. It clears on its own, so it also stays at warning.
+        $failureLogLevels = [403 => 'error', 404 => 'warning', 429 => 'warning', 500 => 'error'];
 
         if (isset($failureLogLevels[$httpCode])) {
             $message = $url . ' returned ' . $httpCode . '.';

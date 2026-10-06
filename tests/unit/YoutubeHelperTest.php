@@ -78,13 +78,25 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertTrue($unavailable);
     }
 
-    public function testYoutubeParseDurationFlagsLoginRequiredVideo(): void
+    public function testYoutubeParseDurationFlagsUnplayableVideo(): void
     {
-        $page = '{"playabilityStatus":{"status":"LOGIN_REQUIRED"}}';
+        $page = '{"playabilityStatus":{"status":"UNPLAYABLE","reason":"This video is not available"}}';
 
         $unavailable = null;
         $this->assertFalse(youtube_parse_duration($page, $unavailable));
         $this->assertTrue($unavailable);
+    }
+
+    public function testYoutubeParseDurationDoesNotFlagLoginRequiredVideo(): void
+    {
+        // YouTube's bot wall answers 200 with LOGIN_REQUIRED ("Sign in to
+        // confirm you're not a bot"), the same status private and age-gated
+        // videos get, so it cannot be read as permanent.
+        $page = '{"playabilityStatus":{"status":"LOGIN_REQUIRED","reason":"Sign in to confirm you\u2019re not a bot"}}';
+
+        $unavailable = null;
+        $this->assertFalse(youtube_parse_duration($page, $unavailable));
+        $this->assertFalse($unavailable);
     }
 
     public function testYoutubeParseDurationDoesNotFlagPageWithoutPlayabilityStatus(): void

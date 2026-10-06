@@ -395,6 +395,20 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertFalse(TestLogger::didLog('error', $url . ' returned 404.'));
     }
 
+    public function testFetchUrl429ReturnsFalseAndLogsWarning(): void
+    {
+        // A rate-limited host gets Google's CAPTCHA page with a 429, which
+        // must not reach callers that parse the body as a watch page.
+        $url        = $this->localUrl('/status/429');
+        $httpStatus = null;
+        $result     = fetch_url($url, 'text', 0, $httpStatus);
+
+        $this->assertFalse($result);
+        $this->assertSame(429, $httpStatus);
+        $this->assertLogged('warning', $url . ' returned 429.');
+        $this->assertFalse(TestLogger::didLog('error', $url . ' returned 429.'));
+    }
+
     public function testFetchThumbnailPassesThroughHttpStatus(): void
     {
         $httpStatus = null;

@@ -10,8 +10,11 @@ if (! function_exists('youtube_parse_duration')) {
      *
      * YouTube answers 200 for deleted, private, and sign-in-gated videos,
      * so the HTTP status says nothing about availability. The page body
-     * does: a playable video reports playabilityStatus OK, anything else
-     * is permanently unwatchable and will never yield a duration.
+     * does: a playable video reports playabilityStatus OK, and ERROR or
+     * UNPLAYABLE means the video is gone and will never yield a duration.
+     * LOGIN_REQUIRED is ambiguous. Private and age-gated videos report it,
+     * but so does YouTube's bot wall ("Sign in to confirm you're not a
+     * bot"), so it is left to the caller's failure threshold.
      *
      * @param string    $page
      *                                Fetched watch page markup.
@@ -33,7 +36,7 @@ if (! function_exists('youtube_parse_duration')) {
         }
 
         if (preg_match('/"playabilityStatus":\{"status":"(\w+)"/', $page, $status)) {
-            $unavailable = $status[1] !== 'OK';
+            $unavailable = in_array($status[1], ['ERROR', 'UNPLAYABLE'], true);
         }
 
         if (preg_match('/"lengthSeconds":"(\d+)"/', $page, $matches)) {
