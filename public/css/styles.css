@@ -229,8 +229,7 @@ footer .ago--muted {
 .nav a {
   margin-top: -0.15rem;
   margin-bottom: 0.25rem;
-  padding-right: 0.25rem;
-  padding-left: 0.25rem;
+  padding: 0.15rem 0.25rem;
 }
 
 .nav--bottom a {
