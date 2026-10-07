@@ -9,7 +9,7 @@
       <h1>Directory</h1>
       <p>This directory is filled with bmx-related sites that have RSS feeds. You can import all of these sites into your favorite feed reader with the <a href="/opml">bmxfeed OPML file</a>.</p>
 
-      <ul class="columns links">
+      <ul class="columns links" role="list">
         <?php foreach ($build as $siteResult) :?>
         <li><a href="/sites/<?= esc($siteResult->site_slug); ?>"><?= esc($siteResult->site_name); ?></a></li>
         <?php endforeach; ?>

@@ -143,7 +143,11 @@ ul,
 ol {
   margin-top: 0.5rem;
   padding-left: 0;
-  list-style-type: none;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style-type: none; /* This is for you, Safari/VoiceOver */
 }
 
 ul,

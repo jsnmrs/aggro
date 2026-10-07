@@ -18,7 +18,7 @@ echo $this->include('includes/header'); ?>
         <p class="hug">Feed: <a class="url" href="<?= esc($build['site_feed']); ?>"><?= esc($build['site_feed']); ?></a></p>
       </div>
       <h2>Recently on <?= esc($build['site_name']); ?></h2>
-      <ul class="links">
+      <ul class="links" role="list">
       <?php if ($feedfetch->error) :?>
         <li>Unable to get <?= esc($build['site_name']); ?> feed.</li>
       <?php endif; ?>

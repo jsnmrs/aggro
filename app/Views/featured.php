@@ -15,7 +15,7 @@
         <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?></a>
         <span class="ago--muted"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></span>
       </h2>
-      <ol class="links">
+      <ol class="links" role="list">
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $storyNum = 'story' . $story; ?>
         <?= displayStory($row, $storyNum); ?>
