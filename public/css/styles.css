@@ -331,6 +331,10 @@ footer .ago--muted {
   padding-bottom: 2rem;
 }
 
+.url {
+  overflow-wrap: anywhere;
+}
+
 .wrap,
 .randb {
   max-width: 55em;
