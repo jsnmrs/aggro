@@ -12,7 +12,7 @@
  <?php foreach ($build as $row) :?>
     <article class="box box--feature">
       <h2>
-        <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?></a>
+        <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?> <span class="visually-hidden">on BMXfeed</span></a>
         <span class="ago--muted"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></span>
       </h2>
       <ol class="links" role="list">
