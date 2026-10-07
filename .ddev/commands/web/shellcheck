@@ -15,6 +15,7 @@ if ! command -v shellcheck > /dev/null 2>&1; then
 fi
 
 echo -e "\\n\\033[1;33mRunning ShellCheck on DDEV commands...\\033[0m"
-# Exclude non-shell files (README.txt, .gitattributes)
-find .ddev/commands/host .ddev/commands/web -type f ! -name '*.txt' ! -name '.git*' -print0 | xargs -0 shellcheck
+# Exclude non-shell files (README.txt, .gitattributes). Scripts the
+# commands stream to other hosts live in .ddev/scripts.
+find .ddev/commands/host .ddev/commands/web .ddev/scripts -type f ! -name '*.txt' ! -name '.git*' -print0 | xargs -0 shellcheck
 echo -e "\\nNo issues!"

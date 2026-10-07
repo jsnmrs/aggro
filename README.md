@@ -99,6 +99,7 @@ Aggro includes several custom DDEV commands to help with development:
 - `ddev fire` — Run a controller method from the CLI
 - `ddev frontend` — Run front-end build process
 - `ddev shellcheck` — Run ShellCheck on custom commands
+- `ddev sourcecheck` — Probe YouTube and Vimeo endpoints from prod, dev, or the local container
 - `ddev tunnel` — Run a controller method on the remote server
 - `ddev upgrade` — Update Composer packages
 
