@@ -29,12 +29,16 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro duration
 ## Older video durations every day (at 1am)
-## Paused temporarily
+## Disabled while the YouTube watch page is gated from this host, since
+## each failed fetch counts toward retiring the video. Re-enable when
+## `ddev sourcecheck prod` reports the watch page OK.
 # 0 1 * * * $PHP_PATH $INDEX_PATH aggro duration
 
 ## aggro plays
 ## Refresh a batch of video play counts every hour
-## Paused temporarily
+## Disabled while the YouTube watch page is gated from this host, since
+## each failed fetch counts toward retiring the video. Re-enable when
+## `ddev sourcecheck prod` reports the watch page OK.
 # 0 * * * * $PHP_PATH $INDEX_PATH aggro plays
 
 ## aggro vimeo
@@ -43,5 +47,4 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 
 ## aggro youtube
 ## Look for new YouTube videos every 5 minutes
-## Paused temporarily
-# */5 * * * * $PHP_PATH $INDEX_PATH aggro youtube
+*/5 * * * * $PHP_PATH $INDEX_PATH aggro youtube
