@@ -233,9 +233,9 @@ class Aggro extends BaseController
     }
 
     /**
-     * Refresh play counts for a batch of videos.
+     * Refresh play counts for a batch of Vimeo videos.
      *
-     * Set cron to run every 15 minutes.
+     * Set cron to run every hour.
      */
     public function getPlays(): bool|ResponseInterface
     {

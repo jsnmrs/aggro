@@ -200,15 +200,15 @@ YouTube ingest reads the channel feed, the oEmbed endpoint, and the `/shorts/` r
 
 ## Testing
 
-The project includes 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes 616 tests achieving 67.75% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 464 unit tests
-- Coverage — 46.22% line coverage across all components
-- Assertions — 741 test assertions ensuring thorough validation
-- External Dependencies — 86 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
-- Test Files — 28 test files covering all major components
+- Total Tests — 616 unit and feature tests
+- Coverage — 67.75% line coverage across all components
+- Assertions — 1,155 test assertions ensuring thorough validation
+- External Dependencies — 27 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- Test Files — 44 test files covering all major components
 
 ### Unit Testing with PHPUnit
 
