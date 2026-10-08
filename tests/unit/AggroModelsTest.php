@@ -70,7 +70,6 @@ final class AggroModelsTest extends DatabaseTestCase
             'video_width'           => 1920,
             'video_height'          => 1080,
             'video_aspect_ratio'    => 16 / 9,
-            'video_duration'        => 180,
             'video_source_id'       => 'channel123',
             'video_source_username' => 'test-channel',
             'video_source_url'      => 'https://example.com/channel',

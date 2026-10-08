@@ -94,7 +94,6 @@ abstract class RepositoryTestCase extends CIUnitTestCase
             'video_width'           => 1920,
             'video_height'          => 1080,
             'video_aspect_ratio'    => 16 / 9,
-            'video_duration'        => 300,
             'video_source_id'       => 'test_source',
             'video_source_username' => 'testuser',
             'video_source_url'      => 'https://example.com/video',

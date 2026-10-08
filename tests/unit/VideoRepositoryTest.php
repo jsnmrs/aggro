@@ -79,20 +79,17 @@ final class VideoRepositoryTest extends RepositoryTestCase
             'video_id'         => 'active_video',
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id'       => 'archived_video',
-            'flag_archive'   => 1,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'archived_video',
+            'flag_archive' => 1,
+            'flag_bad'     => 0,
         ]);
         $badVideo = $this->createTestVideo([
-            'video_id'       => 'bad_video',
-            'flag_archive'   => 0,
-            'flag_bad'       => 1,
-            'video_duration' => 300,
+            'video_id'     => 'bad_video',
+            'flag_archive' => 0,
+            'flag_bad'     => 1,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo, $archivedVideo, $badVideo]);
@@ -152,22 +149,19 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Arrange
         $activeVideo1 = $this->createTestVideo([
-            'video_id'       => 'active_1',
-            'flag_archive'   => 0,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'active_1',
+            'flag_archive' => 0,
+            'flag_bad'     => 0,
         ]);
         $activeVideo2 = $this->createTestVideo([
-            'video_id'       => 'active_2',
-            'flag_archive'   => 0,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'active_2',
+            'flag_archive' => 0,
+            'flag_bad'     => 0,
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id'       => 'archived',
-            'flag_archive'   => 1,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'archived',
+            'flag_archive' => 1,
+            'flag_bad'     => 0,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo1, $activeVideo2, $archivedVideo]);
@@ -187,14 +181,12 @@ final class VideoRepositoryTest extends RepositoryTestCase
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 day')),
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
         ]);
         $oldVideo = $this->createTestVideo([
             'video_id'         => 'old',
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 year')),
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$recentVideo, $oldVideo]);

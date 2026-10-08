@@ -68,12 +68,6 @@ class CreateTestTables extends Migration
                 'null'       => false,
                 'default'    => '16:9',
             ],
-            'video_duration' => [
-                'type'       => 'INT',
-                'constraint' => 10,
-                'null'       => false,
-                'default'    => 0,
-            ],
             'video_type' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
@@ -128,11 +122,6 @@ class CreateTestTables extends Migration
                 'null' => true,
             ],
             'plays_issue_count' => [
-                'type'    => 'INT',
-                'null'    => false,
-                'default' => 0,
-            ],
-            'duration_issue_count' => [
                 'type'    => 'INT',
                 'null'    => false,
                 'default' => 0,
