@@ -126,6 +126,7 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertSame(120, $result['video_duration']);
         $this->assertSame(1.778, $result['video_aspect_ratio']); // 1920/1080 rounded to 3 decimals
         $this->assertSame(0, $result['flag_bad']);
+        $this->assertSame(0, $result['flag_short']);
     }
 
     public function testVimeoParseMetaWithOldVideo(): void

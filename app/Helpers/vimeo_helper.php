@@ -113,6 +113,7 @@ if (! function_exists('vimeo_parse_meta')) {
         $video['aggro_date_updated']  = $now;
         $video['video_date_uploaded'] = date('Y-m-d H:i:s', strtotime($item->upload_date));
         $video['flag_bad']            = 0;
+        $video['flag_short']          = 0;
         $video['flag_archive']        = 0;
         $video['video_type']          = 'vimeo';
         if ($video['video_date_uploaded'] <= $archive) {
