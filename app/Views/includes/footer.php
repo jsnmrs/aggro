@@ -11,10 +11,9 @@ use CodeIgniter\I18n\Time;
 <div class="floor">
   <div class="wrap">
     <footer>
-      <p class="tagline">BMXfeed <span class="ago--muted"><?php
+      <p class="tagline">BMXfeed <span class="ago--muted">established <?php
       $time = Time::createFromFormat('Y-m-d H:i:s', '2006-12-24 12:00:00', 'America/New_York');
-echo $time->humanize();
-?></span></p>
+?><time datetime="2006-12-24"><?= $time->humanize(); ?></time></span></p>
     </footer>
     <nav aria-label="Footer">
       <ul class="nav nav--bottom">

@@ -13,7 +13,7 @@
     <article class="box box--feature">
       <h2>
         <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?> <span class="visually-hidden">on BMXfeed</span></a>
-        <span class="ago--muted"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></span>
+        <time class="ago--muted" datetime="<?= esc($row['site_date_last_post']); ?>"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></time>
       </h2>
       <ol class="links" role="list">
       <?php for ($story = 1; $story < 4; $story++) :?>
