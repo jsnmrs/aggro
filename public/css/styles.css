@@ -295,6 +295,7 @@ footer .ago--muted {
 .cta {
   margin: 0.5rem auto;
   font-size: 1.35rem;
+  padding: 0.15rem;
 }
 
 .tagline {
