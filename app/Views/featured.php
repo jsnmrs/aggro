@@ -5,17 +5,17 @@
 
 <main id="content" class="floor" tabindex="-1">
  <div class="wrap">
-    <h1>News</h1>
+    <h1>Featured</h1>
  </div>
 
  <div class="wrap">
  <?php foreach ($build as $row) :?>
     <article class="box box--feature">
       <h2>
-        <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?></a>
-        <span class="ago--muted"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></span>
+        <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?> <span class="visually-hidden">on BMXfeed</span></a>
+        <time class="ago--muted" datetime="<?= esc($row['site_date_last_post']); ?>"><?= humanizeTime($row['site_date_last_post'], 'America/New_York'); ?></time>
       </h2>
-      <ol class="links">
+      <ol class="links" role="list">
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $storyNum = 'story' . $story; ?>
         <?= displayStory($row, $storyNum); ?>

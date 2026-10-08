@@ -25,10 +25,15 @@
 <?php endforeach; ?>
   </div>
 
-<?php if ($page !== $endpage && $endpage !== 0) { ?>
-  <div class="wrap">
-    <a href="/video/<?= esc($sort); ?>/<?= $page + 1; ?>" class="cta">Jump to page <?= $page + 1; ?></a>
-  </div>
+<?php if ($endpage > 1) { ?>
+  <nav class="wrap" aria-label="Pagination">
+    <?php if ($page > 1) { ?>
+      <a href="<?= $page === 2 ? '/video' : '/video/' . esc($sort) . '/' . ($page - 1); ?>" class="cta">Back to page <?= $page - 1; ?></a>
+    <?php } ?>
+    <?php if ($page !== $endpage) { ?>
+      <a href="/video/<?= esc($sort); ?>/<?= $page + 1; ?>" class="cta">Jump to page <?= $page + 1; ?></a>
+    <?php } ?>
+  </nav>
 <?php } ?>
 </main>
 

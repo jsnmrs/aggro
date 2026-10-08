@@ -13,10 +13,12 @@ echo $this->include('includes/header'); ?>
   <div class="wrap">
     <div class="full">
       <h1><?= esc($build['site_name']); ?></h1>
-      <p class="hug">Site: <a href="<?= esc($build['site_url']); ?>"><?= esc($build['site_url']); ?></a></p>
-      <p class="hug">Feed: <a href="<?= esc($build['site_feed']); ?>"><?= esc($build['site_feed']); ?></a></p>
+      <div class="meta">
+        <p class="hug">Site: <a class="url" href="<?= esc($build['site_url']); ?>"><?= esc($build['site_url']); ?></a></p>
+        <p class="hug">Feed: <a class="url" href="<?= esc($build['site_feed']); ?>"><?= esc($build['site_feed']); ?></a></p>
+      </div>
       <h2>Recently on <?= esc($build['site_name']); ?></h2>
-      <ul class="links">
+      <ul class="links" role="list">
       <?php if ($feedfetch->error) :?>
         <li>Unable to get <?= esc($build['site_name']); ?> feed.</li>
       <?php endif; ?>
