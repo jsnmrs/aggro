@@ -278,8 +278,10 @@ class VideoRepository
     /**
      * Get videos due for a play count refresh.
      *
-     * Never-refreshed videos come first, then oldest refresh. Archived
-     * videos are included so the whole table cycles over time.
+     * Only Vimeo videos are selected, since YouTube play counts arrive
+     * with the channel feed. Never-refreshed videos come first, then
+     * oldest refresh. Archived videos are included so the whole table
+     * cycles over time.
      *
      * @param int $limit
      *                   Batch size.
@@ -292,6 +294,7 @@ class VideoRepository
         $query = $this->db->table('aggro_videos')
             ->select('video_id, video_type')
             ->where('flag_bad', 0)
+            ->where('video_type', 'vimeo')
             ->orderBy('plays_date_updated', 'ASC')
             ->limit((int) $limit)
             ->get();

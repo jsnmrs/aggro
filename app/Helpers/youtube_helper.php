@@ -80,37 +80,6 @@ if (! function_exists('youtube_get_duration')) {
     }
 }
 
-if (! function_exists('youtube_get_plays')) {
-    /**
-     * Fetch YouTube video play count.
-     *
-     * @param string   $videoID
-     *                              YouTube videoID.
-     * @param int|null &$httpStatus
-     *                              Optional. Populated with the HTTP response code.
-     *
-     * @param-out int $httpStatus
-     *
-     * @return false|string
-     *                      Play count, or false on error.
-     */
-    function youtube_get_plays($videoID, &$httpStatus = null)
-    {
-        helper('aggro');
-
-        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
-        $resultPage = fetch_url($videoPage, 'text', 0, $httpStatus);
-
-        if ($resultPage !== false && is_string($resultPage)) {
-            if (preg_match('/"viewCount":"(\d+)"/', $resultPage, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        return false;
-    }
-}
-
 if (! function_exists('youtube_get_feed')) {
     /**
      * Fetch YouTube channel feed.

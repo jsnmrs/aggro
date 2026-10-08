@@ -83,7 +83,7 @@ final class PlaysServiceTest extends ServiceTestCase
             'video_source_id'       => 'test_source',
             'video_source_username' => 'testuser',
             'video_source_url'      => 'https://example.com/video',
-            'video_type'            => 'youtube',
+            'video_type'            => 'vimeo',
         ];
 
         return array_merge($defaults, $overrides);
@@ -102,7 +102,7 @@ final class PlaysServiceTest extends ServiceTestCase
 
     public function testRefreshPlaysUpdatesPlayCounts()
     {
-        // Arrange
+        // Arrange - YouTube play counts arrive with the channel feed, so the job leaves them alone
         $this->insertTestVideo($this->makeVideo(['video_id' => 'yt_video', 'video_type' => 'youtube']));
         $this->insertTestVideo($this->makeVideo(['video_id' => 'vimeo_video', 'video_type' => 'vimeo']));
 
@@ -118,13 +118,13 @@ final class PlaysServiceTest extends ServiceTestCase
         $this->assertTrue($result);
 
         $ytRow = $this->getVideoRow('yt_video');
-        $this->assertSame(5000, (int) $ytRow['video_plays']);
-        $this->assertNotNull($ytRow['plays_date_updated']);
-        $this->assertSame(0, (int) $ytRow['plays_issue_count']);
+        $this->assertSame(100, (int) $ytRow['video_plays']);
+        $this->assertNull($ytRow['plays_date_updated']);
 
         $vimeoRow = $this->getVideoRow('vimeo_video');
         $this->assertSame(250, (int) $vimeoRow['video_plays']);
         $this->assertNotNull($vimeoRow['plays_date_updated']);
+        $this->assertSame(0, (int) $vimeoRow['plays_issue_count']);
     }
 
     public function testRefreshPlaysStampsWithoutOverwritingWhenStatsHidden()

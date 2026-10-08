@@ -267,19 +267,44 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertCount(2, $yearResults);
     }
 
+    public function testGetVideosForPlaysRefreshReturnsOnlyVimeoVideos()
+    {
+        // Arrange - YouTube play counts arrive with the channel feed
+        $youtubeVideo = $this->createTestVideo([
+            'video_id'   => 'youtube_video',
+            'video_type' => 'youtube',
+        ]);
+        $vimeoVideo = $this->createTestVideo([
+            'video_id'   => 'vimeo_video',
+            'video_type' => 'vimeo',
+        ]);
+
+        $this->db->table('aggro_videos')->insertBatch([$youtubeVideo, $vimeoVideo]);
+
+        // Act
+        $results = $this->repository->getVideosForPlaysRefresh(10);
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertSame('vimeo_video', $results[0]->video_id);
+    }
+
     public function testGetVideosForPlaysRefreshOrdersNeverRefreshedFirst()
     {
         // Arrange
         $neverRefreshed = $this->createTestVideo([
             'video_id'           => 'never_refreshed',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => null,
         ]);
         $refreshedOld = $this->createTestVideo([
             'video_id'           => 'refreshed_old',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => date('Y-m-d H:i:s', strtotime('-10 days')),
         ]);
         $refreshedRecent = $this->createTestVideo([
             'video_id'           => 'refreshed_recent',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => date('Y-m-d H:i:s', strtotime('-1 day')),
         ]);
 
@@ -298,12 +323,14 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Arrange
         $badVideo = $this->createTestVideo([
-            'video_id' => 'bad_video',
-            'flag_bad' => 1,
+            'video_id'   => 'bad_video',
+            'video_type' => 'vimeo',
+            'flag_bad'   => 1,
         ]);
         $goodVideo = $this->createTestVideo([
-            'video_id' => 'good_video',
-            'flag_bad' => 0,
+            'video_id'   => 'good_video',
+            'video_type' => 'vimeo',
+            'flag_bad'   => 0,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$badVideo, $goodVideo]);
@@ -321,6 +348,7 @@ final class VideoRepositoryTest extends RepositoryTestCase
         // Arrange
         $archivedVideo = $this->createTestVideo([
             'video_id'     => 'archived_video',
+            'video_type'   => 'vimeo',
             'flag_archive' => 1,
         ]);
 

@@ -20,16 +20,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
         helper('youtube');
     }
 
-    public function testYoutubeGetPlaysAcceptsHttpStatusOutParam(): void
-    {
-        $params = (new ReflectionFunction('youtube_get_plays'))->getParameters();
-
-        $this->assertCount(2, $params);
-        $this->assertSame('httpStatus', $params[1]->getName());
-        $this->assertTrue($params[1]->isPassedByReference());
-        $this->assertTrue($params[1]->isOptional());
-    }
-
     public function testYoutubeGetDurationMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_get_duration'));
