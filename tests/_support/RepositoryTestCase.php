@@ -61,6 +61,11 @@ abstract class RepositoryTestCase extends CIUnitTestCase
     {
         parent::setUp();
         $this->db = Database::connect('tests');
+
+        // The connection is shared across test classes, and a test that
+        // deliberately fails a transaction leaves its status false in
+        // strict mode, so every later transStatus() check would fail too.
+        $this->db->resetTransStatus();
     }
 
     protected function tearDown(): void
@@ -82,6 +87,7 @@ abstract class RepositoryTestCase extends CIUnitTestCase
             'video_date_uploaded'   => date('Y-m-d H:i:s'),
             'flag_archive'          => 0,
             'flag_bad'              => 0,
+            'flag_short'            => 0,
             'video_plays'           => 100,
             'video_title'           => 'Test Video Title',
             'video_thumbnail_url'   => 'https://example.com/thumb.jpg',

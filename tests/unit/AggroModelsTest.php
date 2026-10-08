@@ -63,6 +63,7 @@ final class AggroModelsTest extends DatabaseTestCase
             'aggro_date_updated'    => date('Y-m-d H:i:s'),
             'video_date_uploaded'   => date('Y-m-d H:i:s'),
             'flag_archive'          => 0,
+            'flag_short'            => 0,
             'video_plays'           => 0,
             'video_title'           => 'Test Video',
             'video_thumbnail_url'   => 'https://example.com/thumb.jpg',

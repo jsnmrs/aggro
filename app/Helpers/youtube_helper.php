@@ -272,6 +272,61 @@ if (! function_exists('youtube_get_dimensions')) {
     }
 }
 
+if (! function_exists('youtube_parse_short')) {
+    /**
+     * Read whether a video is a Short out of its /shorts/ response.
+     *
+     * YouTube serves a Short at its /shorts/ URL and redirects a regular
+     * video from there to its watch page, so the status line alone
+     * answers the question. The body is never read: a 200 body can itself
+     * be a bot-wall page, and the redirect target is enough.
+     *
+     * @param int    $httpStatus
+     *                            HTTP status of the /shorts/ request, without
+     *                            following redirects.
+     * @param string $redirectUrl
+     *                            Location target when the response is a redirect.
+     *
+     * @return bool|null
+     *                   True for a Short, false for a regular video, or null
+     *                   when the response answers neither way.
+     */
+    function youtube_parse_short(int $httpStatus, string $redirectUrl = ''): ?bool
+    {
+        if ($httpStatus === 200) {
+            return true;
+        }
+
+        if ($httpStatus >= 300 && $httpStatus < 400 && parse_url($redirectUrl, PHP_URL_PATH) === '/watch') {
+            return false;
+        }
+
+        return null;
+    }
+}
+
+if (! function_exists('youtube_get_short')) {
+    /**
+     * Check whether a YouTube video is a Short.
+     *
+     * @param string $videoID
+     *                        YouTube videoID.
+     *
+     * @return bool|null
+     *                   True for a Short, false for a regular video, or null
+     *                   when the check is inconclusive.
+     */
+    function youtube_get_short(string $videoID): ?bool
+    {
+        helper('aggro');
+
+        $redirectUrl = '';
+        $httpStatus  = fetch_url_status('https://www.youtube.com/shorts/' . $videoID, 0, $redirectUrl);
+
+        return youtube_parse_short($httpStatus, $redirectUrl);
+    }
+}
+
 if (! function_exists('youtube_parse_plays')) {
     /**
      * Parse play count from a YouTube feed item.
@@ -320,11 +375,14 @@ if (! function_exists('youtube_parse_meta')) {
      * @param false|string|null                                                          $duration
      *                                                                                               Optional. Video duration, or false when unknown.
      *                                                                                               Fetched from YouTube when omitted.
+     * @param bool|null                                                                  $short
+     *                                                                                               Optional. True for a Short, false for a regular video.
+     *                                                                                               Omitted or inconclusive (null) stores the video as regular.
      *
      * @return array
      *               Video metadata added.
      */
-    function youtube_parse_meta(object $item, ?array $dimensions = null, $duration = null)
+    function youtube_parse_meta(object $item, ?array $dimensions = null, $duration = null, ?bool $short = null)
     {
         helper('aggro');
         $video = [];
@@ -366,6 +424,8 @@ if (! function_exists('youtube_parse_meta')) {
         if (! $video['video_duration']) {
             $video['video_duration'] = 0;
         }
+
+        $video['flag_short'] = (int) $short;
 
         return $video;
     }

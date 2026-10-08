@@ -267,7 +267,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'video_aspect_ratio' => 1.778,
         ];
 
-        $video = youtube_parse_meta($item, $dimensions, '820');
+        $video = youtube_parse_meta($item, $dimensions, '820', false);
 
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $video['aggro_date_added']);
         $this->assertSame($video['aggro_date_added'], $video['aggro_date_updated']);
@@ -289,6 +289,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'video_height'          => 720,
             'video_aspect_ratio'    => 1.778,
             'video_duration'        => '820',
+            'flag_short'            => 0,
         ], $video);
     }
 
@@ -296,7 +297,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml('aggroTest01', false));
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820');
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820', false);
 
         $this->assertSame('https://i.ytimg.com/vi/aggroTest01/hqdefault.jpg', $video['video_thumbnail_url']);
     }
@@ -307,7 +308,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
         // zero/null oEmbed dimensions and keeps 800x450 defaults.
         $item = $this->makeFeedItem('Zero Dimensions', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), '820');
+        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), '820', false);
 
         $this->assertSame(800, $video['video_width']);
         $this->assertSame(450, $video['video_height']);
@@ -318,9 +319,76 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $item = $this->makeFeedItem('No Duration', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, false);
 
         $this->assertSame(0, $video['video_duration']);
+    }
+
+    public function testYoutubeParseShortReturnsTrueForShortsPage(): void
+    {
+        // A Short is served at its /shorts/ URL, so the status is 200
+        $this->assertTrue(youtube_parse_short(200, ''));
+    }
+
+    public function testYoutubeParseShortReturnsFalseForRedirectToWatchPage(): void
+    {
+        // A regular video is redirected from /shorts/ to its watch page
+        $this->assertFalse(youtube_parse_short(303, 'https://www.youtube.com/watch?v=aggroTest01'));
+        $this->assertFalse(youtube_parse_short(302, 'https://www.youtube.com/watch?v=aggroTest01'));
+        $this->assertFalse(youtube_parse_short(301, 'https://www.youtube.com/watch?v=aggroTest01&pp=0gcJCaICQVKahPAF'));
+    }
+
+    public function testYoutubeParseShortReturnsNullForRedirectElsewhere(): void
+    {
+        $this->assertNull(youtube_parse_short(303, 'https://www.youtube.com/sorry/index'));
+        $this->assertNull(youtube_parse_short(303, ''));
+    }
+
+    public function testYoutubeParseShortReturnsNullForOtherStatuses(): void
+    {
+        $this->assertNull(youtube_parse_short(0, ''));
+        $this->assertNull(youtube_parse_short(404, ''));
+        $this->assertNull(youtube_parse_short(429, ''));
+        $this->assertNull(youtube_parse_short(500, ''));
+    }
+
+    public function testYoutubeGetShortMethodExists(): void
+    {
+        $this->assertTrue(function_exists('youtube_get_short'));
+    }
+
+    public function testYoutubeGetShortReturnsNullWhenFetchFails(): void
+    {
+        // The fetch is blocked, so the probe never completes
+        $this->assertNull(youtube_get_short('invalid_id'));
+    }
+
+    public function testYoutubeParseMetaFlagsShort(): void
+    {
+        $item = $this->makeFeedItem('A Short', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, true);
+
+        $this->assertSame(1, $video['flag_short']);
+    }
+
+    public function testYoutubeParseMetaStoresRegularVideoWithoutShortFlag(): void
+    {
+        $item = $this->makeFeedItem('A Video', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820', false);
+
+        $this->assertSame(0, $video['flag_short']);
+    }
+
+    public function testYoutubeParseMetaStoresRegularVideoWhenShortsCheckIsInconclusive(): void
+    {
+        // A check that could not answer must not hide the video
+        $item = $this->makeFeedItem('Unknown', $this->videoEntryXml());
+
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, null);
+
+        $this->assertSame(0, $video['flag_short']);
     }
 
     public function testYoutubeParseTitleReturnsRawText(): void
@@ -356,6 +424,8 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'youtube_id_from_url',
             'youtube_get_dimensions',
             'youtube_parse_dimensions',
+            'youtube_get_short',
+            'youtube_parse_short',
             'youtube_parse_title',
             'youtube_parse_meta',
         ];

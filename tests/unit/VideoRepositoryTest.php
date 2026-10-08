@@ -106,6 +106,103 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertSame('active_video', $results[0]->video_id);
     }
 
+    public function testGetVideosShowsVideosWithUnknownDuration()
+    {
+        // Arrange - A duration the source has not yet supplied must not hide the video
+        $unknownDuration = $this->createTestVideo([
+            'video_id'         => 'unknown_duration',
+            'video_duration'   => 0,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+
+        $this->db->table('aggro_videos')->insert($unknownDuration);
+
+        // Act
+        $results = $this->repository->getVideos('month', '10', '0');
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertSame('unknown_duration', $results[0]->video_id);
+    }
+
+    public function testGetVideosHidesVideosShorterThanMinimum()
+    {
+        // Arrange
+        $storageConfig = config('Storage');
+        $tooShort      = $this->createTestVideo([
+            'video_id'         => 'too_short',
+            'video_duration'   => $storageConfig->minVideoDuration - 31,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+        $longEnough = $this->createTestVideo([
+            'video_id'         => 'long_enough',
+            'video_duration'   => $storageConfig->minVideoDuration,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+
+        $this->db->table('aggro_videos')->insertBatch([$tooShort, $longEnough]);
+
+        // Act
+        $results = $this->repository->getVideos('month', '10', '0');
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertSame('long_enough', $results[0]->video_id);
+    }
+
+    public function testGetVideosHidesShorts()
+    {
+        // Arrange - The flag hides a Short whether or not its duration is known
+        $shortUnknownDuration = $this->createTestVideo([
+            'video_id'         => 'short_unknown',
+            'flag_short'       => 1,
+            'video_duration'   => 0,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+        $shortKnownDuration = $this->createTestVideo([
+            'video_id'         => 'short_known',
+            'flag_short'       => 1,
+            'video_duration'   => 300,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+        $regular = $this->createTestVideo([
+            'video_id'         => 'regular',
+            'flag_short'       => 0,
+            'video_duration'   => 300,
+            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+        ]);
+
+        $this->db->table('aggro_videos')->insertBatch([$shortUnknownDuration, $shortKnownDuration, $regular]);
+
+        // Act
+        $results = $this->repository->getVideos('month', '10', '0');
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertSame('regular', $results[0]->video_id);
+    }
+
+    public function testGetVideosTotalCountsUnknownDurationAndExcludesShorts()
+    {
+        // Arrange
+        $storageConfig = config('Storage');
+        $rows          = [
+            $this->createTestVideo(['video_id' => 'unknown_duration', 'video_duration' => 0]),
+            $this->createTestVideo(['video_id' => 'long_enough', 'video_duration' => $storageConfig->minVideoDuration]),
+            $this->createTestVideo(['video_id' => 'too_short', 'video_duration' => $storageConfig->minVideoDuration - 31]),
+            $this->createTestVideo(['video_id' => 'short_unknown', 'video_duration' => 0, 'flag_short' => 1]),
+            $this->createTestVideo(['video_id' => 'short_known', 'video_duration' => 300, 'flag_short' => 1]),
+        ];
+
+        $this->db->table('aggro_videos')->insertBatch($rows);
+
+        // Act
+        $total = $this->repository->getVideosTotal();
+
+        // Assert
+        $this->assertSame(2, $total);
+    }
+
     public function testGetVideosTotalReturnsCorrectCount()
     {
         // Arrange
@@ -282,6 +379,49 @@ final class VideoRepositoryTest extends RepositoryTestCase
 
         // Assert
         $this->assertFalse($result);
+    }
+
+    public function testFlagVideoShortSetsFlag()
+    {
+        // Arrange
+        $videoData = $this->createTestVideo(['video_id' => 'a_short']);
+        $this->db->table('aggro_videos')->insert($videoData);
+
+        // Act
+        $result = $this->repository->flagVideoShort('a_short');
+
+        // Assert
+        $this->assertTrue($result);
+        $row = $this->db->table('aggro_videos')->where('video_id', 'a_short')->get()->getRowArray();
+        $this->assertSame(1, (int) $row['flag_short']);
+        $this->assertSame(0, (int) $row['flag_bad']);
+    }
+
+    public function testFlagVideoShortReturnsFalseForNonExistentVideo()
+    {
+        // Act
+        $result = $this->repository->flagVideoShort('non_existent_video');
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    public function testAddVideoStoresFlagShort()
+    {
+        // Arrange - Archived on arrival so no thumbnail is fetched
+        $videoData = $this->createTestVideo([
+            'video_id'     => 'stored_short',
+            'flag_short'   => 1,
+            'flag_archive' => 1,
+        ]);
+
+        // Act
+        $result = $this->repository->addVideo($videoData);
+
+        // Assert
+        $this->assertTrue($result);
+        $row = $this->db->table('aggro_videos')->where('video_id', 'stored_short')->get()->getRowArray();
+        $this->assertSame(1, (int) $row['flag_short']);
     }
 
     public function testUpdateVideoPlaysWritesCountAndResetsIssues()

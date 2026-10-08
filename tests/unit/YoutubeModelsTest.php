@@ -80,7 +80,35 @@ final class YoutubeModelsTest extends DatabaseTestCase
              */
             public array $fetchCalls = [];
 
+            /**
+             * @var array<string, bool|null>
+             */
+            public array $shorts = [];
+
+            /**
+             * Per-video Shorts results consumed in order, ahead of $shorts.
+             *
+             * @var array<string, list<bool|null>>
+             */
+            public array $shortSequence = [];
+
+            /**
+             * @var array<string, int>
+             */
+            public array $shortCalls = [];
+
             public int $sleepCalls = 0;
+
+            protected function fetchShort($videoId): ?bool
+            {
+                $this->shortCalls[$videoId] = ($this->shortCalls[$videoId] ?? 0) + 1;
+
+                if (! empty($this->shortSequence[$videoId])) {
+                    return array_shift($this->shortSequence[$videoId]);
+                }
+
+                return $this->shorts[$videoId] ?? false;
+            }
 
             protected function fetchDuration($videoId, &$unavailable = null)
             {
@@ -932,5 +960,206 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
         // Act
         $model->getDuration();
+    }
+
+    public function testSearchChannelFlagsShortAndSkipsWatchPage(): void
+    {
+        // Arrange - A Short never needs a duration, so the watch page is not fetched
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->shorts = ['targetVideo' => true];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $result = $model->searchChannel($feed, 'targetVideo');
+
+        // Assert
+        $this->assertTrue($result);
+        $this->assertSame(1, $added[0]['flag_short']);
+        $this->assertSame(0, $added[0]['video_duration']);
+        $this->assertSame(1, $model->shortCalls['targetVideo']);
+        $this->assertArrayNotHasKey('targetVideo', $model->fetchCalls);
+        $this->assertSame(0, $model->sleepCalls);
+    }
+
+    public function testSearchChannelStoresRegularVideoWithoutShortFlag(): void
+    {
+        // Arrange
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->shorts    = ['targetVideo' => false];
+        $model->durations = ['targetVideo' => '820'];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $model->searchChannel($feed, 'targetVideo');
+
+        // Assert
+        $this->assertSame(0, $added[0]['flag_short']);
+        $this->assertSame('820', $added[0]['video_duration']);
+        $this->assertSame(1, $model->shortCalls['targetVideo']);
+        $this->assertSame(1, $model->fetchCalls['targetVideo']);
+    }
+
+    public function testSearchChannelRetriesShortsCheckOnceWhenInconclusive(): void
+    {
+        // Arrange - One flaky probe should not let a Short through
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->shortSequence = ['targetVideo' => [null, true]];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $model->searchChannel($feed, 'targetVideo');
+
+        // Assert - Second probe is trusted, after exactly one pause
+        $this->assertSame(1, $added[0]['flag_short']);
+        $this->assertSame(2, $model->shortCalls['targetVideo']);
+        $this->assertSame(1, $model->sleepCalls);
+    }
+
+    public function testSearchChannelStoresRegularVideoWhenShortsCheckStaysInconclusive(): void
+    {
+        // Arrange - When the probe cannot answer, the video shows rather than vanishes
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->shortSequence = ['targetVideo' => [null, null]];
+        $model->durations     = ['targetVideo' => '820'];
+
+        $feed = $this->makeFeed('<title>Target Video</title>' . $this->videoEntryXml('targetVideo'));
+
+        // Act
+        $model->searchChannel($feed, 'targetVideo');
+
+        // Assert - Stored as a regular video, with its duration, and logged
+        $this->assertSame(0, $added[0]['flag_short']);
+        $this->assertSame('820', $added[0]['video_duration']);
+        $this->assertSame(2, $model->shortCalls['targetVideo']);
+        $this->assertLogged('warning', 'Shorts check for targetVideo was inconclusive. Stored as a regular video.');
+    }
+
+    public function testParseChannelFlagsShortsForEachNewVideo(): void
+    {
+        // Arrange - The channel sweep is a separate call site from searchChannel
+        $added = [];
+        $model = $this->buildModelWithCannedDurations(null, $this->buildAggroCapturingAdds($added));
+
+        $model->shorts    = ['videoOne' => true, 'videoTwo' => false];
+        $model->durations = ['videoTwo' => '640'];
+
+        $feed = $this->makeFeed(
+            '<title>Video One</title>' . $this->videoEntryXml('videoOne'),
+            '<title>Video Two</title>' . $this->videoEntryXml('videoTwo'),
+        );
+
+        // Act
+        $count = $model->parseChannel($feed);
+
+        // Assert
+        $this->assertSame(2, $count);
+        $flags = array_column($added, 'flag_short', 'video_id');
+        $this->assertSame(1, $flags['videoOne']);
+        $this->assertSame(0, $flags['videoTwo']);
+        $this->assertArrayNotHasKey('videoOne', $model->fetchCalls);
+        $this->assertSame(1, $model->fetchCalls['videoTwo']);
+    }
+
+    public function testGetDurationFlagsShortsWithoutFetchingDuration(): void
+    {
+        // Arrange - A Short in the backlog is flagged and skipped, not fetched
+        $messages = [];
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $mockUtility->method('sendLog')->willReturnCallback(
+            static function ($message) use (&$messages) {
+                $messages[] = $message;
+
+                return true;
+            },
+        );
+
+        $this->insertVideoNeedingDuration('short_video');
+
+        $model         = $this->buildModelWithCannedDurations($mockUtility);
+        $model->shorts = ['short_video' => true];
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $row = $this->getVideoRow('short_video');
+        $this->assertSame(1, (int) $row['flag_short']);
+        $this->assertSame(0, (int) $row['video_duration']);
+        $this->assertSame(0, (int) $row['duration_issue_count']);
+        $this->assertArrayNotHasKey('short_video', $model->fetchCalls);
+        $this->assertContains('Flagged short_video as a Short.', $messages);
+    }
+
+    public function testGetDurationSkipsFlaggedShorts(): void
+    {
+        // Arrange - A flagged Short keeps a zero duration and must never be re-selected
+        $this->insertVideoNeedingDuration('known_short', ['flag_short' => 1]);
+
+        $model = $this->buildModelWithCannedDurations();
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $this->assertSame([], $model->shortCalls);
+        $this->assertSame([], $model->fetchCalls);
+        $this->assertSame(0, (int) $this->getVideoRow('known_short')['duration_issue_count']);
+    }
+
+    public function testGetDurationFetchesDurationWhenShortsCheckIsInconclusive(): void
+    {
+        // Arrange - An inconclusive probe falls through to the watch page
+        $this->insertVideoNeedingDuration('maybe_short');
+
+        $model            = $this->buildModelWithCannedDurations();
+        $model->shorts    = ['maybe_short' => null];
+        $model->durations = ['maybe_short' => '120'];
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $row = $this->getVideoRow('maybe_short');
+        $this->assertSame(120, (int) $row['video_duration']);
+        $this->assertSame(0, (int) $row['flag_short']);
+    }
+
+    public function testGetDurationLogMessageCountsShorts(): void
+    {
+        // Arrange
+        $mockUtility = $this->createMock(UtilityModels::class);
+        $messages    = [];
+        $mockUtility->method('sendLog')->willReturnCallback(
+            static function ($message) use (&$messages) {
+                $messages[] = $message;
+
+                return true;
+            },
+        );
+
+        $this->insertVideoNeedingDuration('video_a');
+        $this->insertVideoNeedingDuration('short_b');
+
+        $model            = $this->buildModelWithCannedDurations($mockUtility);
+        $model->durations = ['video_a' => '100'];
+        $model->shorts    = ['short_b' => true];
+
+        // Act
+        $model->getDuration();
+
+        // Assert
+        $this->assertContains('1 video durations fetched, 1 flagged as Shorts.', $messages);
     }
 }

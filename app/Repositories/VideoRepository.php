@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\UtilityModels;
+use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use Config\Database;
 use Exception;
@@ -70,6 +71,7 @@ class VideoRepository
             'video_date_uploaded'   => $video['video_date_uploaded'],
             'flag_archive'          => $video['flag_archive'],
             'flag_bad'              => 0,
+            'flag_short'            => $video['flag_short'],
             'video_plays'           => $video['video_plays'],
             'video_title'           => $video['video_title'],
             'video_thumbnail_url'   => $video['video_thumbnail_url'],
@@ -202,14 +204,9 @@ class VideoRepository
      */
     public function getVideos($range = 'month', $perpage = '10', $offset = '0')
     {
-        $storageConfig    = config('Storage');
         $rangeConstraints = $this->getRangeConstraints($range);
 
-        $query = $this->db->table('aggro_videos')
-            ->where('flag_bad', 0)
-            ->where('flag_archive', 0)
-            ->where('video_duration >=', (int) $storageConfig->minVideoDuration)
-            ->where('aggro_date_updated !=', '0000-00-00 00:00:00')
+        $query = $this->visibleVideos()
             ->where('aggro_date_added >=', $rangeConstraints['start'])
             ->where('aggro_date_added <=', $rangeConstraints['end'])
             ->orderBy('aggro_date_added', 'DESC')
@@ -245,17 +242,37 @@ class VideoRepository
      */
     public function getVideosTotal()
     {
-        $storageConfig = config('Storage');
-
-        $query = $this->db->table('aggro_videos')
+        $query = $this->visibleVideos()
             ->selectCount('*', 'total')
-            ->where('flag_bad', 0)
-            ->where('flag_archive', 0)
-            ->where('video_duration >=', (int) $storageConfig->minVideoDuration)
-            ->where('aggro_date_updated !=', '0000-00-00 00:00:00')
             ->get();
 
         return (int) $query->getRow()->total;
+    }
+
+    /**
+     * Start a query over the videos the site shows.
+     *
+     * A video is hidden when it is retired, archived, or a Short. A known
+     * duration under the minimum also hides it, since that is what the
+     * minimum is for. An unknown duration (0) does not, because the source
+     * may not have supplied one yet and the Short flag already covers the
+     * videos the minimum exists to keep out.
+     *
+     * @return BaseBuilder
+     */
+    private function visibleVideos()
+    {
+        $storageConfig = config('Storage');
+
+        return $this->db->table('aggro_videos')
+            ->where('flag_bad', 0)
+            ->where('flag_archive', 0)
+            ->where('flag_short', 0)
+            ->groupStart()
+            ->where('video_duration', 0)
+            ->orWhere('video_duration >=', (int) $storageConfig->minVideoDuration)
+            ->groupEnd()
+            ->where('aggro_date_updated !=', '0000-00-00 00:00:00');
     }
 
     /**
@@ -458,6 +475,27 @@ class VideoRepository
         $this->db->table('aggro_videos')
             ->where('video_id', $videoId)
             ->update(['flag_bad' => 1]);
+
+        return $this->db->affectedRows() > 0;
+    }
+
+    /**
+     * Flag a video as a Short.
+     *
+     * A Short stays in the table for bookkeeping but is hidden from the
+     * site, and never needs a duration.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return bool
+     *              Video flagged as a Short.
+     */
+    public function flagVideoShort($videoId)
+    {
+        $this->db->table('aggro_videos')
+            ->where('video_id', $videoId)
+            ->update(['flag_short' => 1]);
 
         return $this->db->affectedRows() > 0;
     }

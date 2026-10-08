@@ -348,6 +348,53 @@ if (! function_exists('fetch_url')) {
     }
 }
 
+if (! function_exists('fetch_url_status')) {
+    /**
+     * Fetch only the HTTP status of a URL, without following redirects.
+     *
+     * Some endpoints answer a question with the status line alone, such
+     * as a redirect that says where a resource really lives. The body is
+     * discarded and never inspected, so a page that is itself a bot wall
+     * or CAPTCHA cannot be mistaken for content. Every status is a valid
+     * answer for a probe, so nothing is logged here; the caller decides
+     * what counts as inconclusive.
+     *
+     * @param string      $url
+     *                                  URL to request.
+     * @param int         $spoof
+     *                                  Use spoofed user agent.
+     * @param string|null &$redirectUrl
+     *                                  Optional. Populated with the Location target
+     *                                  when the response is a redirect, otherwise ''.
+     *
+     * @param-out string $redirectUrl
+     *
+     * @return int
+     *             HTTP status code, or 0 when the request never completed.
+     */
+    function fetch_url_status($url, $spoof = 0, &$redirectUrl = null): int
+    {
+        $storageConfig = config('Storage');
+        $agent         = env('UA_BMXFEED', 'Aggro/1.0');
+        if ($spoof === 1) {
+            $agent = env('UA_SPOOF', 'Mozilla/5.0 (compatible; Aggro/1.0)');
+        }
+        $fetch = curl_init();
+        curl_setopt($fetch, CURLOPT_URL, $url);
+        curl_setopt($fetch, CURLOPT_USERAGENT, $agent);
+        curl_setopt($fetch, CURLOPT_CONNECTTIMEOUT, $storageConfig->urlConnectTimeout);
+        curl_setopt($fetch, CURLOPT_TIMEOUT, $storageConfig->urlTimeout);
+        curl_setopt($fetch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($fetch, CURLOPT_FOLLOWLOCATION, false);
+        curl_exec($fetch);
+        $httpCode    = (int) curl_getinfo($fetch, CURLINFO_HTTP_CODE);
+        $redirectUrl = (string) curl_getinfo($fetch, CURLINFO_REDIRECT_URL);
+        curl_close($fetch);
+
+        return $httpCode;
+    }
+}
+
 if (! function_exists('gate_check')) {
     /**
      * Check request context for pass through.
