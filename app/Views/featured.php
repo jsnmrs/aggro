@@ -5,7 +5,7 @@
 
 <main id="content" class="floor" tabindex="-1">
  <div class="wrap">
-    <h1>News</h1>
+    <h1>Featured</h1>
  </div>
 
  <div class="wrap">

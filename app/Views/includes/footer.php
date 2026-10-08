@@ -22,7 +22,7 @@ echo $time->humanize();
           <?php if ($slug === 'featured') {
               echo ' aria-current="page"';
           }
-?>>News</a></li>
+?>>Featured</a></li>
         <li><a href="/stream"
           <?php if ($slug === 'stream') {
               echo ' aria-current="page"';
