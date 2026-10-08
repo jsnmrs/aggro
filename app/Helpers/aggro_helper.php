@@ -360,12 +360,12 @@ if (! function_exists('fetch_url_status')) {
      * what counts as inconclusive.
      *
      * @param string      $url
-     *                                 URL to request.
+     *                                  URL to request.
      * @param int         $spoof
-     *                                 Use spoofed user agent.
+     *                                  Use spoofed user agent.
      * @param string|null &$redirectUrl
-     *                                 Optional. Populated with the Location target
-     *                                 when the response is a redirect, otherwise ''.
+     *                                  Optional. Populated with the Location target
+     *                                  when the response is a redirect, otherwise ''.
      *
      * @param-out string $redirectUrl
      *

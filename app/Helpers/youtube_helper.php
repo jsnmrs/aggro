@@ -377,7 +377,7 @@ if (! function_exists('youtube_parse_meta')) {
      *                                                                                               Fetched from YouTube when omitted.
      * @param bool|null                                                                  $short
      *                                                                                               Optional. True for a Short, false for a regular video.
-     *                                                                                               Checked against YouTube when omitted.
+     *                                                                                               Omitted or inconclusive (null) stores the video as regular.
      *
      * @return array
      *               Video metadata added.
@@ -425,8 +425,7 @@ if (! function_exists('youtube_parse_meta')) {
             $video['video_duration'] = 0;
         }
 
-        $short ??= youtube_get_short($video['video_id']);
-        $video['flag_short'] = $short === true ? 1 : 0;
+        $video['flag_short'] = (int) $short;
 
         return $video;
     }

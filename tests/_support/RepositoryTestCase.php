@@ -61,6 +61,11 @@ abstract class RepositoryTestCase extends CIUnitTestCase
     {
         parent::setUp();
         $this->db = Database::connect('tests');
+
+        // The connection is shared across test classes, and a test that
+        // deliberately fails a transaction leaves its status false in
+        // strict mode, so every later transStatus() check would fail too.
+        $this->db->resetTransStatus();
     }
 
     protected function tearDown(): void

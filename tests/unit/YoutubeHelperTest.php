@@ -383,10 +383,10 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
     public function testYoutubeParseMetaStoresRegularVideoWhenShortsCheckIsInconclusive(): void
     {
-        // The fetch is blocked, so the probe comes back inconclusive
+        // A check that could not answer must not hide the video
         $item = $this->makeFeedItem('Unknown', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, null);
 
         $this->assertSame(0, $video['flag_short']);
     }

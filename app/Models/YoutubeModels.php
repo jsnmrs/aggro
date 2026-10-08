@@ -42,7 +42,7 @@ class YoutubeModels extends Model
             $currentVideoId = $currentVideo[0]['data'];
 
             if ($currentVideoId === $videoId && ! $this->aggroModel->checkVideo($currentVideoId)) {
-                $video = youtube_parse_meta($item, null, $this->fetchDurationForIngest($currentVideoId));
+                $video = $this->ingestMeta($item, $currentVideoId);
                 $this->aggroModel->addVideo($video);
 
                 return true;
@@ -71,7 +71,7 @@ class YoutubeModels extends Model
             $currentVideoId = $currentVideo[0]['data'];
 
             if (! $this->aggroModel->checkVideo($currentVideoId)) {
-                $video = youtube_parse_meta($item, null, $this->fetchDurationForIngest($currentVideoId));
+                $video = $this->ingestMeta($item, $currentVideoId);
                 $this->aggroModel->addVideo($video);
                 $addCount++;
 
@@ -97,8 +97,9 @@ class YoutubeModels extends Model
      *
      * Newest videos are filled first, since those are the ones the front
      * page shows. The batch is capped and requests are spaced out to stay
-     * polite to the watch page. Write count of updated videos, and any
-     * backlog left over, to log.
+     * polite to the watch page. A Short is flagged and skipped: the flag
+     * hides it, so it never needs a duration. Write count of updated
+     * videos, Shorts flagged, and any backlog left over, to log.
      *
      * @return bool
      *              Batch complete.
@@ -115,6 +116,7 @@ class YoutubeModels extends Model
             ->where('flag_archive', 0)
             ->where('flag_bad', 0)
             ->where('video_duration', 0)
+            ->where('flag_short', 0)
             ->where('video_type', 'youtube')
             ->orderBy('aggro_date_added', 'DESC')
             ->limit($storageConfig->durationBatchSize)
@@ -125,10 +127,19 @@ class YoutubeModels extends Model
         }
 
         $updated = 0;
+        $shorts  = 0;
 
         foreach ($query->getResult() as $index => $result) {
             if ($index > 0) {
                 $this->sleepBetweenFetches();
+            }
+
+            if ($this->fetchShort($result->video_id) === true) {
+                $this->videoRepository->flagVideoShort($result->video_id);
+                $this->utilityModel->sendLog('Flagged ' . $result->video_id . ' as a Short.');
+                $shorts++;
+
+                continue;
             }
 
             $unavailable   = false;
@@ -152,7 +163,7 @@ class YoutubeModels extends Model
             $this->videoRepository->recordDurationIssue($result->video_id);
         }
 
-        $this->utilityModel->sendLog($this->durationLogMessage($updated));
+        $this->utilityModel->sendLog($this->durationLogMessage($updated, $shorts));
 
         return true;
     }
@@ -162,26 +173,86 @@ class YoutubeModels extends Model
      *
      * @param int $updated
      *                     Number of durations written this run.
+     * @param int $shorts
+     *                     Number of videos flagged as Shorts this run.
      *
      * @return string
      *                Log message.
      */
-    private function durationLogMessage($updated)
+    private function durationLogMessage($updated, $shorts = 0)
     {
         $remaining = $this->db->table('aggro_videos')
             ->where('flag_archive', 0)
             ->where('flag_bad', 0)
             ->where('video_duration', 0)
+            ->where('flag_short', 0)
             ->where('video_type', 'youtube')
             ->countAllResults();
 
         $message = $updated . ' video durations fetched';
+
+        if ($shorts > 0) {
+            $message .= ', ' . $shorts . ' flagged as Shorts';
+        }
 
         if ($remaining > 0) {
             $message .= ', ' . $remaining . ' still waiting';
         }
 
         return $message . '.';
+    }
+
+    /**
+     * Build the row for a video arriving from a feed.
+     *
+     * The Shorts check runs first. A Short is hidden by its flag and never
+     * needs a duration, so its watch page is not fetched.
+     *
+     * @param object $item
+     *                        Feed item.
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return array
+     *               Video metadata for insert.
+     */
+    private function ingestMeta(object $item, string $videoId): array
+    {
+        $short    = $this->fetchShortForIngest($videoId);
+        $duration = $short ? false : $this->fetchDurationForIngest($videoId);
+
+        return youtube_parse_meta($item, null, $duration, $short);
+    }
+
+    /**
+     * Check for a Short at ingest, retrying once on an inconclusive answer.
+     *
+     * When neither probe can answer, the video is stored as a regular
+     * video, so a flaky probe makes a Short show rather than making a
+     * video vanish.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return bool
+     *              Video is a Short.
+     */
+    protected function fetchShortForIngest($videoId): bool
+    {
+        $short = $this->fetchShort($videoId);
+
+        if ($short === null) {
+            $this->sleepBetweenFetches();
+            $short = $this->fetchShort($videoId);
+        }
+
+        if ($short === null) {
+            log_message('warning', 'Shorts check for ' . $videoId . ' was inconclusive. Stored as a regular video.');
+
+            return false;
+        }
+
+        return $short;
     }
 
     /**
@@ -223,6 +294,25 @@ class YoutubeModels extends Model
         if ($delay > 0) {
             sleep($delay);
         }
+    }
+
+    /**
+     * Check whether a single video is a Short.
+     *
+     * Wraps the helper so tests can drive the outcome without network access.
+     *
+     * @param string $videoId
+     *                        Video id.
+     *
+     * @return bool|null
+     *                   True for a Short, false for a regular video, or null
+     *                   when the check is inconclusive.
+     */
+    protected function fetchShort($videoId): ?bool
+    {
+        helper('youtube');
+
+        return youtube_get_short($videoId);
     }
 
     /**

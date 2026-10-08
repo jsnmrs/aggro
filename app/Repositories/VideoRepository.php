@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\UtilityModels;
+use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use Config\Database;
 use Exception;
@@ -257,7 +258,7 @@ class VideoRepository
      * may not have supplied one yet and the Short flag already covers the
      * videos the minimum exists to keep out.
      *
-     * @return \CodeIgniter\Database\BaseBuilder
+     * @return BaseBuilder
      */
     private function visibleVideos()
     {
