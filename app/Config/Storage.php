@@ -26,8 +26,7 @@ class Storage extends BaseConfig
      */
     public int $archiveDays = 31;
 
-    public int $cleanupDays      = 45;
-    public int $minVideoDuration = 61; // seconds
+    public int $cleanupDays = 45;
 
     /**
      * Play count refresh configuration.
@@ -38,12 +37,9 @@ class Storage extends BaseConfig
     public int $playsRequestDelay   = 1; // seconds between fetches
 
     /**
-     * Duration fetch configuration.
+     * Shorts probe configuration.
      */
-    public int $durationIssueThreshold = 10;
-
-    public int $durationBatchSize    = 50; // per nightly run, 0 = no cap
-    public int $durationRequestDelay = 1; // seconds between fetches
+    public int $shortRequestDelay = 1; // seconds between probes
 
     /**
      * Cache and network configuration.

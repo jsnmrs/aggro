@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
-use ReflectionFunction;
 use SimplePie\SimplePie;
 use Tests\Support\YoutubeFeedTrait;
 
@@ -18,100 +17,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         parent::setUp();
         helper('youtube');
-    }
-
-    public function testYoutubeGetDurationMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_get_duration'));
-    }
-
-    public function testYoutubeGetDurationWithValidId(): void
-    {
-        // The fetch is blocked, so no watch page comes back
-        $result = youtube_get_duration('invalid_id');
-        $this->assertFalse($result);
-    }
-
-    public function testYoutubeGetDurationWithEmptyId(): void
-    {
-        $result = youtube_get_duration('');
-        $this->assertFalse($result);
-    }
-
-    public function testYoutubeGetDurationAcceptsUnavailableOutParam(): void
-    {
-        $params = (new ReflectionFunction('youtube_get_duration'))->getParameters();
-
-        $this->assertCount(2, $params);
-        $this->assertSame('unavailable', $params[1]->getName());
-        $this->assertTrue($params[1]->isPassedByReference());
-        $this->assertTrue($params[1]->isOptional());
-    }
-
-    public function testYoutubeParseDurationReturnsLengthForPlayableVideo(): void
-    {
-        $page = '{"playabilityStatus":{"status":"OK"},"videoDetails":{"lengthSeconds":"820"}}';
-
-        $unavailable = null;
-        $this->assertSame('820', youtube_parse_duration($page, $unavailable));
-        $this->assertFalse($unavailable);
-    }
-
-    public function testYoutubeParseDurationFlagsUnavailableVideo(): void
-    {
-        // YouTube answers 200 for deleted and private videos, so the only
-        // signal is playabilityStatus in the page body.
-        $page = '{"playabilityStatus":{"status":"ERROR","reason":"Video unavailable"}}';
-
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration($page, $unavailable));
-        $this->assertTrue($unavailable);
-    }
-
-    public function testYoutubeParseDurationFlagsUnplayableVideo(): void
-    {
-        $page = '{"playabilityStatus":{"status":"UNPLAYABLE","reason":"This video is not available"}}';
-
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration($page, $unavailable));
-        $this->assertTrue($unavailable);
-    }
-
-    public function testYoutubeParseDurationDoesNotFlagLoginRequiredVideo(): void
-    {
-        // YouTube's bot wall answers 200 with LOGIN_REQUIRED ("Sign in to
-        // confirm you're not a bot"), the same status private and age-gated
-        // videos get, so it cannot be read as permanent.
-        $page = '{"playabilityStatus":{"status":"LOGIN_REQUIRED","reason":"Sign in to confirm you\u2019re not a bot"}}';
-
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration($page, $unavailable));
-        $this->assertFalse($unavailable);
-    }
-
-    public function testYoutubeParseDurationDoesNotFlagPageWithoutPlayabilityStatus(): void
-    {
-        // A consent interstitial or bot check carries no playability status,
-        // so it stays ambiguous rather than being treated as permanent.
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration('<html>consent</html>', $unavailable));
-        $this->assertFalse($unavailable);
-    }
-
-    public function testYoutubeParseDurationRejectsZeroLength(): void
-    {
-        $page = '{"playabilityStatus":{"status":"OK"},"videoDetails":{"lengthSeconds":"0"}}';
-
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration($page, $unavailable));
-        $this->assertFalse($unavailable);
-    }
-
-    public function testYoutubeParseDurationWithEmptyPage(): void
-    {
-        $unavailable = null;
-        $this->assertFalse(youtube_parse_duration('', $unavailable));
-        $this->assertFalse($unavailable);
     }
 
     public function testYoutubeGetFeedMethodExists(): void
@@ -257,7 +162,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'video_aspect_ratio' => 1.778,
         ];
 
-        $video = youtube_parse_meta($item, $dimensions, '820', false);
+        $video = youtube_parse_meta($item, $dimensions, false);
 
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $video['aggro_date_added']);
         $this->assertSame($video['aggro_date_added'], $video['aggro_date_updated']);
@@ -278,7 +183,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
             'video_width'           => 1280,
             'video_height'          => 720,
             'video_aspect_ratio'    => 1.778,
-            'video_duration'        => '820',
             'flag_short'            => 0,
         ], $video);
     }
@@ -287,7 +191,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $item = $this->makeFeedItem('No Thumbnail', $this->videoEntryXml('aggroTest01', false));
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820', false);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
 
         $this->assertSame('https://i.ytimg.com/vi/aggroTest01/hqdefault.jpg', $video['video_thumbnail_url']);
     }
@@ -298,20 +202,11 @@ final class YoutubeHelperTest extends CIUnitTestCase
         // zero/null oEmbed dimensions and keeps 800x450 defaults.
         $item = $this->makeFeedItem('Zero Dimensions', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), '820', false);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions((object) ['width' => 0, 'height' => 0]), false);
 
         $this->assertSame(800, $video['video_width']);
         $this->assertSame(450, $video['video_height']);
         $this->assertSame(1.778, $video['video_aspect_ratio']);
-    }
-
-    public function testYoutubeParseMetaStoresZeroWhenDurationLookupFails(): void
-    {
-        $item = $this->makeFeedItem('No Duration', $this->videoEntryXml());
-
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, false);
-
-        $this->assertSame(0, $video['video_duration']);
     }
 
     public function testYoutubeParseShortReturnsTrueForShortsPage(): void
@@ -357,7 +252,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $item = $this->makeFeedItem('A Short', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, true);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), true);
 
         $this->assertSame(1, $video['flag_short']);
     }
@@ -366,7 +261,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $item = $this->makeFeedItem('A Video', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), '820', false);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false);
 
         $this->assertSame(0, $video['flag_short']);
     }
@@ -376,7 +271,7 @@ final class YoutubeHelperTest extends CIUnitTestCase
         // A check that could not answer must not hide the video
         $item = $this->makeFeedItem('Unknown', $this->videoEntryXml());
 
-        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), false, null);
+        $video = youtube_parse_meta($item, youtube_parse_dimensions(false), null);
 
         $this->assertSame(0, $video['flag_short']);
     }
@@ -407,8 +302,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
-            'youtube_get_duration',
-            'youtube_parse_duration',
             'youtube_get_feed',
             'youtube_get_video_source',
             'youtube_id_from_url',
@@ -428,7 +321,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
     public function testFunctionReturnTypes(): void
     {
         // Test that functions return expected types for invalid input
-        $this->assertFalse(youtube_get_duration(''));
         $this->assertInstanceOf(SimplePie::class, youtube_get_feed(''));
         $this->assertFalse(youtube_get_video_source(''));
         $this->assertFalse(youtube_id_from_url('invalid'));

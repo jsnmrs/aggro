@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Repositories\VideoRepository;
 use CodeIgniter\Model;
 
 /**
@@ -12,14 +11,12 @@ class YoutubeModels extends Model
 {
     protected $aggroModel;
     protected $utilityModel;
-    protected $videoRepository;
 
-    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null, ?VideoRepository $videoRepository = null)
+    public function __construct(?AggroModels $aggroModel = null, ?UtilityModels $utilityModel = null)
     {
         parent::__construct();
-        $this->aggroModel      = $aggroModel ?? new AggroModels();
-        $this->utilityModel    = $utilityModel ?? new UtilityModels();
-        $this->videoRepository = $videoRepository ?? new VideoRepository();
+        $this->aggroModel   = $aggroModel ?? new AggroModels();
+        $this->utilityModel = $utilityModel ?? new UtilityModels();
     }
 
     /**
@@ -93,120 +90,10 @@ class YoutubeModels extends Model
     }
 
     /**
-     * Get duration for YouTube videos.
-     *
-     * Newest videos are filled first, since those are the ones the front
-     * page shows. The batch is capped and requests are spaced out to stay
-     * polite to the watch page. A Short is flagged and skipped: the flag
-     * hides it, so it never needs a duration. Write count of updated
-     * videos, Shorts flagged, and any backlog left over, to log.
-     *
-     * @return bool
-     *              Batch complete.
-     *
-     * @see sendLog()
-     */
-    public function getDuration()
-    {
-        helper('youtube');
-
-        $storageConfig = config('Storage');
-
-        $query = $this->db->table('aggro_videos')
-            ->where('flag_archive', 0)
-            ->where('flag_bad', 0)
-            ->where('video_duration', 0)
-            ->where('flag_short', 0)
-            ->where('video_type', 'youtube')
-            ->orderBy('aggro_date_added', 'DESC')
-            ->limit($storageConfig->durationBatchSize)
-            ->get();
-
-        if ($query === false) {
-            return false;
-        }
-
-        $updated = 0;
-        $shorts  = 0;
-
-        foreach ($query->getResult() as $index => $result) {
-            if ($index > 0) {
-                $this->sleepBetweenFetches();
-            }
-
-            if ($this->fetchShort($result->video_id) === true) {
-                $this->videoRepository->flagVideoShort($result->video_id);
-                $this->utilityModel->sendLog('Flagged ' . $result->video_id . ' as a Short.');
-                $shorts++;
-
-                continue;
-            }
-
-            $unavailable   = false;
-            $videoDuration = $this->fetchDuration($result->video_id, $unavailable);
-
-            if ($videoDuration !== false && is_numeric($videoDuration)) {
-                $this->videoRepository->updateVideoDuration($result->video_id, $videoDuration);
-                $updated++;
-
-                continue;
-            }
-
-            if ($unavailable) {
-                $this->videoRepository->flagVideoBad($result->video_id);
-                $this->utilityModel->sendLog('Retired ' . $result->video_id . '. Source reports the video is unavailable.');
-                log_message('warning', 'Flagged video ' . $result->video_id . ' as bad — source reports it unavailable.');
-
-                continue;
-            }
-
-            $this->videoRepository->recordDurationIssue($result->video_id);
-        }
-
-        $this->utilityModel->sendLog($this->durationLogMessage($updated, $shorts));
-
-        return true;
-    }
-
-    /**
-     * Describe a duration run, noting any backlog the batch did not reach.
-     *
-     * @param int $updated
-     *                     Number of durations written this run.
-     * @param int $shorts
-     *                     Number of videos flagged as Shorts this run.
-     *
-     * @return string
-     *                Log message.
-     */
-    private function durationLogMessage($updated, $shorts = 0)
-    {
-        $remaining = $this->db->table('aggro_videos')
-            ->where('flag_archive', 0)
-            ->where('flag_bad', 0)
-            ->where('video_duration', 0)
-            ->where('flag_short', 0)
-            ->where('video_type', 'youtube')
-            ->countAllResults();
-
-        $message = $updated . ' video durations fetched';
-
-        if ($shorts > 0) {
-            $message .= ', ' . $shorts . ' flagged as Shorts';
-        }
-
-        if ($remaining > 0) {
-            $message .= ', ' . $remaining . ' still waiting';
-        }
-
-        return $message . '.';
-    }
-
-    /**
      * Build the row for a video arriving from a feed.
      *
-     * The Shorts check runs first. A Short is hidden by its flag and never
-     * needs a duration, so its watch page is not fetched.
+     * The /shorts/ probe decides the Short flag. Nothing else beyond the
+     * feed item and oEmbed is read.
      *
      * @param object $item
      *                        Feed item.
@@ -218,10 +105,7 @@ class YoutubeModels extends Model
      */
     private function ingestMeta(object $item, string $videoId): array
     {
-        $short    = $this->fetchShortForIngest($videoId);
-        $duration = $short ? false : $this->fetchDurationForIngest($videoId);
-
-        return youtube_parse_meta($item, null, $duration, $short);
+        return youtube_parse_meta($item, null, $this->fetchShortForIngest($videoId));
     }
 
     /**
@@ -256,40 +140,13 @@ class YoutubeModels extends Model
     }
 
     /**
-     * Fetch a duration at ingest, retrying once on an ambiguous failure.
-     *
-     * A single flaky watch-page request should not hide a video until the
-     * nightly job reaches it. A video the source reports as unavailable is
-     * not retried, since it will never yield a duration.
-     *
-     * @param string $videoId
-     *                        Video id.
-     *
-     * @return false|string
-     *                      Video duration, or false when both attempts fail.
-     */
-    protected function fetchDurationForIngest($videoId)
-    {
-        $unavailable = false;
-        $duration    = $this->fetchDuration($videoId, $unavailable);
-
-        if ($duration !== false || $unavailable) {
-            return $duration;
-        }
-
-        $this->sleepBetweenFetches();
-
-        return $this->fetchDuration($videoId, $unavailable);
-    }
-
-    /**
-     * Pause between watch-page fetches so the job stays polite.
+     * Pause between /shorts/ probes so ingest stays polite.
      *
      * Extracted so tests can override it.
      */
     protected function sleepBetweenFetches(): void
     {
-        $delay = config('Storage')->durationRequestDelay;
+        $delay = config('Storage')->shortRequestDelay;
 
         if ($delay > 0) {
             sleep($delay);
@@ -313,28 +170,5 @@ class YoutubeModels extends Model
         helper('youtube');
 
         return youtube_get_short($videoId);
-    }
-
-    /**
-     * Fetch the duration for a single video.
-     *
-     * Wraps the helper so tests can drive the outcome without network access.
-     *
-     * @param string    $videoId
-     *                                Video id.
-     * @param bool|null &$unavailable
-     *                                Optional. Populated with true when the source
-     *                                reports the video as unwatchable.
-     *
-     * @param-out bool $unavailable
-     *
-     * @return false|string
-     *                      Video duration, or false on error.
-     */
-    protected function fetchDuration($videoId, &$unavailable = null)
-    {
-        helper('youtube');
-
-        return youtube_get_duration($videoId, $unavailable);
     }
 }

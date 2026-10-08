@@ -78,7 +78,6 @@ class VideoRepository
             'video_width'           => $video['video_width'],
             'video_height'          => $video['video_height'],
             'video_aspect_ratio'    => $video['video_aspect_ratio'],
-            'video_duration'        => $video['video_duration'],
             'video_source_id'       => $video['video_source_id'],
             'video_source_username' => $video['video_source_username'],
             'video_source_url'      => $video['video_source_url'],
@@ -252,26 +251,16 @@ class VideoRepository
     /**
      * Start a query over the videos the site shows.
      *
-     * A video is hidden when it is retired, archived, or a Short. A known
-     * duration under the minimum also hides it, since that is what the
-     * minimum is for. An unknown duration (0) does not, because the source
-     * may not have supplied one yet and the Short flag already covers the
-     * videos the minimum exists to keep out.
+     * A video is hidden when it is retired, archived, or a Short.
      *
      * @return BaseBuilder
      */
     private function visibleVideos()
     {
-        $storageConfig = config('Storage');
-
         return $this->db->table('aggro_videos')
             ->where('flag_bad', 0)
             ->where('flag_archive', 0)
             ->where('flag_short', 0)
-            ->groupStart()
-            ->where('video_duration', 0)
-            ->orWhere('video_duration >=', (int) $storageConfig->minVideoDuration)
-            ->groupEnd()
             ->where('aggro_date_updated !=', '0000-00-00 00:00:00');
     }
 
@@ -399,69 +388,6 @@ class VideoRepository
     }
 
     /**
-     * Record a failed duration fetch for a video.
-     *
-     * Videos failing more times than the configured threshold are
-     * permanently flagged bad, mirroring the plays issue pattern.
-     *
-     * @param string $videoId
-     *                        Video id.
-     *
-     * @return bool
-     *              Video flagged bad.
-     */
-    public function recordDurationIssue($videoId)
-    {
-        $storageConfig = config('Storage');
-
-        $this->db->table('aggro_videos')
-            ->where('video_id', $videoId)
-            ->set('duration_issue_count', 'duration_issue_count + 1', false)
-            ->update();
-
-        $video = $this->db->table('aggro_videos')
-            ->select('duration_issue_count')
-            ->where('video_id', $videoId)
-            ->get()
-            ->getRow();
-
-        if ($video === null || (int) $video->duration_issue_count <= $storageConfig->durationIssueThreshold) {
-            return false;
-        }
-
-        $this->db->table('aggro_videos')
-            ->where('video_id', $videoId)
-            ->update(['flag_bad' => 1]);
-
-        log_message('error', 'Flagged video ' . $videoId . ' as bad — duration fetch failure count exceeded threshold (' . $storageConfig->durationIssueThreshold . ').');
-
-        return true;
-    }
-
-    /**
-     * Write a fetched duration and clear the failure count.
-     *
-     * @param string $videoId
-     *                         Video id.
-     * @param int    $duration
-     *                         Duration in seconds.
-     *
-     * @return bool
-     *              Duration written.
-     */
-    public function updateVideoDuration($videoId, $duration)
-    {
-        $this->db->table('aggro_videos')
-            ->where('video_id', $videoId)
-            ->update([
-                'video_duration'       => (int) $duration,
-                'duration_issue_count' => 0,
-            ]);
-
-        return true;
-    }
-
-    /**
      * Flag a video as bad immediately.
      *
      * Used when a source confirms the video is permanently gone, so it
@@ -478,27 +404,6 @@ class VideoRepository
         $this->db->table('aggro_videos')
             ->where('video_id', $videoId)
             ->update(['flag_bad' => 1]);
-
-        return $this->db->affectedRows() > 0;
-    }
-
-    /**
-     * Flag a video as a Short.
-     *
-     * A Short stays in the table for bookkeeping but is hidden from the
-     * site, and never needs a duration.
-     *
-     * @param string $videoId
-     *                        Video id.
-     *
-     * @return bool
-     *              Video flagged as a Short.
-     */
-    public function flagVideoShort($videoId)
-    {
-        $this->db->table('aggro_videos')
-            ->where('video_id', $videoId)
-            ->update(['flag_short' => 1]);
 
         return $this->db->affectedRows() > 0;
     }
