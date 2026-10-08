@@ -283,6 +283,7 @@ final class AggroHelperTest extends CIUnitTestCase
             'fetch_feed',
             'fetch_thumbnail',
             'fetch_url',
+            'fetch_url_status',
             'gate_check',
             'safe_file_write',
             'safe_file_read',
@@ -407,6 +408,38 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertSame(429, $httpStatus);
         $this->assertLogged('warning', $url . ' returned 429.');
         $this->assertFalse(TestLogger::didLog('error', $url . ' returned 429.'));
+    }
+
+    public function testFetchUrlStatusMethodExists(): void
+    {
+        $this->assertTrue(function_exists('fetch_url_status'));
+    }
+
+    public function testFetchUrlStatusReturnsStatusWithoutFollowingRedirect(): void
+    {
+        $redirectUrl = null;
+        $status      = fetch_url_status($this->localUrl('/redirect/303'), 0, $redirectUrl);
+
+        $this->assertSame(303, $status);
+        $this->assertStringEndsWith('/watch?v=test', $redirectUrl);
+    }
+
+    public function testFetchUrlStatusReturnsDirectStatus(): void
+    {
+        $redirectUrl = null;
+        $status      = fetch_url_status($this->localUrl('/status/200'), 0, $redirectUrl);
+
+        $this->assertSame(200, $status);
+        $this->assertSame('', $redirectUrl);
+    }
+
+    public function testFetchUrlStatusReturnsZeroOnTransportFailure(): void
+    {
+        $redirectUrl = null;
+        $status      = fetch_url_status('http://localhost:1', 0, $redirectUrl);
+
+        $this->assertSame(0, $status);
+        $this->assertSame('', $redirectUrl);
     }
 
     public function testFetchThumbnailPassesThroughHttpStatus(): void

@@ -82,6 +82,7 @@ abstract class RepositoryTestCase extends CIUnitTestCase
             'video_date_uploaded'   => date('Y-m-d H:i:s'),
             'flag_archive'          => 0,
             'flag_bad'              => 0,
+            'flag_short'            => 0,
             'video_plays'           => 100,
             'video_title'           => 'Test Video Title',
             'video_thumbnail_url'   => 'https://example.com/thumb.jpg',

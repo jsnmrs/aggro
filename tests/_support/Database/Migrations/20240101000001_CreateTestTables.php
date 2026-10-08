@@ -112,6 +112,12 @@ class CreateTestTables extends Migration
                 'null'       => false,
                 'default'    => 0,
             ],
+            'flag_short' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'null'       => false,
+                'default'    => 0,
+            ],
             'thumbnail_issue_count' => [
                 'type'    => 'INT',
                 'null'    => false,
