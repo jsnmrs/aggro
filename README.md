@@ -194,10 +194,9 @@ The `.crontab` file defines scheduled tasks for:
 - Vimeo video checks — every 7 minutes
 - Archive management — daily
 - Feed cache clearing — monthly
-- YouTube duration backfill — daily
-- YouTube play count refresh — hourly
+- Vimeo play count refresh — hourly
 
-The duration backfill and play count refresh both read the YouTube watch page, and each failed fetch counts toward retiring the video. They are commented out in `.crontab` while YouTube gates the watch page from the production host, and should be re-enabled once `ddev sourcecheck prod` reports the watch page OK. New videos still arrive in the meantime: a video with no duration yet is shown, and the `/shorts/` redirect check keeps Shorts off the site.
+YouTube ingest reads the channel feed, the oEmbed endpoint, and the `/shorts/` redirect, so YouTube gating its watch page does not affect it. YouTube play counts arrive with the channel feed, and the `/shorts/` redirect check keeps Shorts off the site.
 
 ## Testing
 
