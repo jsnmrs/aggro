@@ -6,7 +6,10 @@ use App\Models\UtilityModels;
 use App\Repositories\VideoRepository;
 
 /**
- * Service for refreshing video play counts from public endpoints.
+ * Service for refreshing Vimeo play counts from the Vimeo API.
+ *
+ * YouTube play counts arrive with the channel feed, so YouTube videos
+ * are never selected here.
  */
 class PlaysService
 {
@@ -33,7 +36,7 @@ class PlaysService
      */
     public function refreshPlays()
     {
-        helper(['aggro', 'youtube', 'vimeo']);
+        helper(['aggro', 'vimeo']);
 
         $storageConfig = config('Storage');
         $videos        = $this->videoRepository->getVideosForPlaysRefresh($storageConfig->playsBatchSize);
@@ -78,7 +81,7 @@ class PlaysService
     }
 
     /**
-     * Fetch the current play count for a video from its public endpoint.
+     * Fetch the current play count for a video from the Vimeo API.
      *
      * @param object   $video
      *                              Row with video_id and video_type.
@@ -92,11 +95,7 @@ class PlaysService
      */
     protected function fetchPlays(object $video, ?int &$httpStatus = null)
     {
-        if ($video->video_type === 'vimeo') {
-            return $this->normalizePlays(vimeo_get_plays($video->video_id, $httpStatus));
-        }
-
-        return $this->normalizePlays(youtube_get_plays($video->video_id, $httpStatus));
+        return $this->normalizePlays(vimeo_get_plays($video->video_id, $httpStatus));
     }
 
     /**

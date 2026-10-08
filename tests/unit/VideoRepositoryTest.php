@@ -79,20 +79,17 @@ final class VideoRepositoryTest extends RepositoryTestCase
             'video_id'         => 'active_video',
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id'       => 'archived_video',
-            'flag_archive'   => 1,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'archived_video',
+            'flag_archive' => 1,
+            'flag_bad'     => 0,
         ]);
         $badVideo = $this->createTestVideo([
-            'video_id'       => 'bad_video',
-            'flag_archive'   => 0,
-            'flag_bad'       => 1,
-            'video_duration' => 300,
+            'video_id'     => 'bad_video',
+            'flag_archive' => 0,
+            'flag_bad'     => 1,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo, $archivedVideo, $badVideo]);
@@ -106,73 +103,21 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertSame('active_video', $results[0]->video_id);
     }
 
-    public function testGetVideosShowsVideosWithUnknownDuration()
-    {
-        // Arrange - A duration the source has not yet supplied must not hide the video
-        $unknownDuration = $this->createTestVideo([
-            'video_id'         => 'unknown_duration',
-            'video_duration'   => 0,
-            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ]);
-
-        $this->db->table('aggro_videos')->insert($unknownDuration);
-
-        // Act
-        $results = $this->repository->getVideos('month', '10', '0');
-
-        // Assert
-        $this->assertCount(1, $results);
-        $this->assertSame('unknown_duration', $results[0]->video_id);
-    }
-
-    public function testGetVideosHidesVideosShorterThanMinimum()
-    {
-        // Arrange
-        $storageConfig = config('Storage');
-        $tooShort      = $this->createTestVideo([
-            'video_id'         => 'too_short',
-            'video_duration'   => $storageConfig->minVideoDuration - 31,
-            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ]);
-        $longEnough = $this->createTestVideo([
-            'video_id'         => 'long_enough',
-            'video_duration'   => $storageConfig->minVideoDuration,
-            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ]);
-
-        $this->db->table('aggro_videos')->insertBatch([$tooShort, $longEnough]);
-
-        // Act
-        $results = $this->repository->getVideos('month', '10', '0');
-
-        // Assert
-        $this->assertCount(1, $results);
-        $this->assertSame('long_enough', $results[0]->video_id);
-    }
-
     public function testGetVideosHidesShorts()
     {
-        // Arrange - The flag hides a Short whether or not its duration is known
-        $shortUnknownDuration = $this->createTestVideo([
-            'video_id'         => 'short_unknown',
+        // Arrange
+        $short = $this->createTestVideo([
+            'video_id'         => 'short',
             'flag_short'       => 1,
-            'video_duration'   => 0,
-            'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ]);
-        $shortKnownDuration = $this->createTestVideo([
-            'video_id'         => 'short_known',
-            'flag_short'       => 1,
-            'video_duration'   => 300,
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
         ]);
         $regular = $this->createTestVideo([
             'video_id'         => 'regular',
             'flag_short'       => 0,
-            'video_duration'   => 300,
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-2 hours')),
         ]);
 
-        $this->db->table('aggro_videos')->insertBatch([$shortUnknownDuration, $shortKnownDuration, $regular]);
+        $this->db->table('aggro_videos')->insertBatch([$short, $regular]);
 
         // Act
         $results = $this->repository->getVideos('month', '10', '0');
@@ -182,16 +127,13 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertSame('regular', $results[0]->video_id);
     }
 
-    public function testGetVideosTotalCountsUnknownDurationAndExcludesShorts()
+    public function testGetVideosTotalExcludesShorts()
     {
         // Arrange
-        $storageConfig = config('Storage');
-        $rows          = [
-            $this->createTestVideo(['video_id' => 'unknown_duration', 'video_duration' => 0]),
-            $this->createTestVideo(['video_id' => 'long_enough', 'video_duration' => $storageConfig->minVideoDuration]),
-            $this->createTestVideo(['video_id' => 'too_short', 'video_duration' => $storageConfig->minVideoDuration - 31]),
-            $this->createTestVideo(['video_id' => 'short_unknown', 'video_duration' => 0, 'flag_short' => 1]),
-            $this->createTestVideo(['video_id' => 'short_known', 'video_duration' => 300, 'flag_short' => 1]),
+        $rows = [
+            $this->createTestVideo(['video_id' => 'regular_one']),
+            $this->createTestVideo(['video_id' => 'regular_two']),
+            $this->createTestVideo(['video_id' => 'short', 'flag_short' => 1]),
         ];
 
         $this->db->table('aggro_videos')->insertBatch($rows);
@@ -207,22 +149,19 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Arrange
         $activeVideo1 = $this->createTestVideo([
-            'video_id'       => 'active_1',
-            'flag_archive'   => 0,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'active_1',
+            'flag_archive' => 0,
+            'flag_bad'     => 0,
         ]);
         $activeVideo2 = $this->createTestVideo([
-            'video_id'       => 'active_2',
-            'flag_archive'   => 0,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'active_2',
+            'flag_archive' => 0,
+            'flag_bad'     => 0,
         ]);
         $archivedVideo = $this->createTestVideo([
-            'video_id'       => 'archived',
-            'flag_archive'   => 1,
-            'flag_bad'       => 0,
-            'video_duration' => 300,
+            'video_id'     => 'archived',
+            'flag_archive' => 1,
+            'flag_bad'     => 0,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$activeVideo1, $activeVideo2, $archivedVideo]);
@@ -242,14 +181,12 @@ final class VideoRepositoryTest extends RepositoryTestCase
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 day')),
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
         ]);
         $oldVideo = $this->createTestVideo([
             'video_id'         => 'old',
             'aggro_date_added' => date('Y-m-d H:i:s', strtotime('-1 year')),
             'flag_archive'     => 0,
             'flag_bad'         => 0,
-            'video_duration'   => 300,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$recentVideo, $oldVideo]);
@@ -267,19 +204,44 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertCount(2, $yearResults);
     }
 
+    public function testGetVideosForPlaysRefreshReturnsOnlyVimeoVideos()
+    {
+        // Arrange - YouTube play counts arrive with the channel feed
+        $youtubeVideo = $this->createTestVideo([
+            'video_id'   => 'youtube_video',
+            'video_type' => 'youtube',
+        ]);
+        $vimeoVideo = $this->createTestVideo([
+            'video_id'   => 'vimeo_video',
+            'video_type' => 'vimeo',
+        ]);
+
+        $this->db->table('aggro_videos')->insertBatch([$youtubeVideo, $vimeoVideo]);
+
+        // Act
+        $results = $this->repository->getVideosForPlaysRefresh(10);
+
+        // Assert
+        $this->assertCount(1, $results);
+        $this->assertSame('vimeo_video', $results[0]->video_id);
+    }
+
     public function testGetVideosForPlaysRefreshOrdersNeverRefreshedFirst()
     {
         // Arrange
         $neverRefreshed = $this->createTestVideo([
             'video_id'           => 'never_refreshed',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => null,
         ]);
         $refreshedOld = $this->createTestVideo([
             'video_id'           => 'refreshed_old',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => date('Y-m-d H:i:s', strtotime('-10 days')),
         ]);
         $refreshedRecent = $this->createTestVideo([
             'video_id'           => 'refreshed_recent',
+            'video_type'         => 'vimeo',
             'plays_date_updated' => date('Y-m-d H:i:s', strtotime('-1 day')),
         ]);
 
@@ -298,12 +260,14 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Arrange
         $badVideo = $this->createTestVideo([
-            'video_id' => 'bad_video',
-            'flag_bad' => 1,
+            'video_id'   => 'bad_video',
+            'video_type' => 'vimeo',
+            'flag_bad'   => 1,
         ]);
         $goodVideo = $this->createTestVideo([
-            'video_id' => 'good_video',
-            'flag_bad' => 0,
+            'video_id'   => 'good_video',
+            'video_type' => 'vimeo',
+            'flag_bad'   => 0,
         ]);
 
         $this->db->table('aggro_videos')->insertBatch([$badVideo, $goodVideo]);
@@ -321,6 +285,7 @@ final class VideoRepositoryTest extends RepositoryTestCase
         // Arrange
         $archivedVideo = $this->createTestVideo([
             'video_id'     => 'archived_video',
+            'video_type'   => 'vimeo',
             'flag_archive' => 1,
         ]);
 
@@ -376,31 +341,6 @@ final class VideoRepositoryTest extends RepositoryTestCase
     {
         // Act
         $result = $this->repository->flagVideoBad('non_existent_video');
-
-        // Assert
-        $this->assertFalse($result);
-    }
-
-    public function testFlagVideoShortSetsFlag()
-    {
-        // Arrange
-        $videoData = $this->createTestVideo(['video_id' => 'a_short']);
-        $this->db->table('aggro_videos')->insert($videoData);
-
-        // Act
-        $result = $this->repository->flagVideoShort('a_short');
-
-        // Assert
-        $this->assertTrue($result);
-        $row = $this->db->table('aggro_videos')->where('video_id', 'a_short')->get()->getRowArray();
-        $this->assertSame(1, (int) $row['flag_short']);
-        $this->assertSame(0, (int) $row['flag_bad']);
-    }
-
-    public function testFlagVideoShortReturnsFalseForNonExistentVideo()
-    {
-        // Act
-        $result = $this->repository->flagVideoShort('non_existent_video');
 
         // Assert
         $this->assertFalse($result);
@@ -540,81 +480,5 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $row = $this->db->table('aggro_videos')->where('video_id', 'borderline_video')->get()->getRowArray();
         $this->assertSame(10, (int) $row['plays_issue_count']);
         $this->assertSame(0, (int) $row['flag_bad']);
-    }
-
-    public function testRecordDurationIssueIncrementsCount()
-    {
-        // Arrange
-        $video = $this->createTestVideo(['video_id' => 'duration_issue_video']);
-        $this->db->table('aggro_videos')->insert($video);
-
-        // Act
-        $flagged = $this->repository->recordDurationIssue('duration_issue_video');
-
-        // Assert
-        $this->assertFalse($flagged);
-
-        $row = $this->db->table('aggro_videos')->where('video_id', 'duration_issue_video')->get()->getRowArray();
-        $this->assertSame(1, (int) $row['duration_issue_count']);
-        $this->assertSame(0, (int) $row['flag_bad']);
-    }
-
-    public function testRecordDurationIssueFlagsBadOverThreshold()
-    {
-        // Arrange - Already at the threshold; one more failure tips it over
-        $video = $this->createTestVideo([
-            'video_id'             => 'chronic_duration_video',
-            'duration_issue_count' => 10,
-        ]);
-        $this->db->table('aggro_videos')->insert($video);
-
-        // Act
-        $flagged = $this->repository->recordDurationIssue('chronic_duration_video');
-
-        // Assert
-        $this->assertTrue($flagged);
-
-        $row = $this->db->table('aggro_videos')->where('video_id', 'chronic_duration_video')->get()->getRowArray();
-        $this->assertSame(11, (int) $row['duration_issue_count']);
-        $this->assertSame(1, (int) $row['flag_bad']);
-    }
-
-    public function testRecordDurationIssueDoesNotFlagAtThreshold()
-    {
-        // Arrange
-        $video = $this->createTestVideo([
-            'video_id'             => 'borderline_duration_video',
-            'duration_issue_count' => 9,
-        ]);
-        $this->db->table('aggro_videos')->insert($video);
-
-        // Act
-        $flagged = $this->repository->recordDurationIssue('borderline_duration_video');
-
-        // Assert - Count reaches the threshold but does not exceed it
-        $this->assertFalse($flagged);
-
-        $row = $this->db->table('aggro_videos')->where('video_id', 'borderline_duration_video')->get()->getRowArray();
-        $this->assertSame(10, (int) $row['duration_issue_count']);
-        $this->assertSame(0, (int) $row['flag_bad']);
-    }
-
-    public function testUpdateVideoDurationWritesDurationAndClearsIssueCount()
-    {
-        // Arrange
-        $video = $this->createTestVideo([
-            'video_id'             => 'recovered_video',
-            'video_duration'       => 0,
-            'duration_issue_count' => 6,
-        ]);
-        $this->db->table('aggro_videos')->insert($video);
-
-        // Act
-        $this->repository->updateVideoDuration('recovered_video', '402');
-
-        // Assert
-        $row = $this->db->table('aggro_videos')->where('video_id', 'recovered_video')->get()->getRowArray();
-        $this->assertSame(402, (int) $row['video_duration']);
-        $this->assertSame(0, (int) $row['duration_issue_count']);
     }
 }

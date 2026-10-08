@@ -112,7 +112,6 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertArrayHasKey('video_width', $result);
         $this->assertArrayHasKey('video_height', $result);
         $this->assertArrayHasKey('video_aspect_ratio', $result);
-        $this->assertArrayHasKey('video_duration', $result);
         $this->assertArrayHasKey('video_source_username', $result);
         $this->assertArrayHasKey('video_source_url', $result);
         $this->assertArrayHasKey('flag_archive', $result);
@@ -123,7 +122,6 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertSame('Test Vimeo Video', $result['video_title']);
         $this->assertSame(1920, $result['video_width']);
         $this->assertSame(1080, $result['video_height']);
-        $this->assertSame(120, $result['video_duration']);
         $this->assertSame(1.778, $result['video_aspect_ratio']); // 1920/1080 rounded to 3 decimals
         $this->assertSame(0, $result['flag_bad']);
         $this->assertSame(0, $result['flag_short']);

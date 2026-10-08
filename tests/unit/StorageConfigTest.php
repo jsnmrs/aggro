@@ -58,7 +58,6 @@ final class StorageConfigTest extends CIUnitTestCase
         $this->assertSame(40, $this->config->thumbnailQuality);
         $this->assertSame(31, $this->config->archiveDays);
         $this->assertSame(45, $this->config->cleanupDays);
-        $this->assertSame(61, $this->config->minVideoDuration);
         $this->assertSame(1800, $this->config->defaultCacheDuration);
         $this->assertSame(10, $this->config->feedItemLimit);
         $this->assertSame(20, $this->config->feedTimeout);
@@ -66,9 +65,7 @@ final class StorageConfigTest extends CIUnitTestCase
         $this->assertSame(60, $this->config->urlTimeout);
         $this->assertSame(4, $this->config->urlMaxRedirects);
         $this->assertSame(10, $this->config->playsIssueThreshold);
-        $this->assertSame(10, $this->config->durationIssueThreshold);
-        $this->assertSame(50, $this->config->durationBatchSize);
-        $this->assertSame(1, $this->config->durationRequestDelay);
+        $this->assertSame(1, $this->config->shortRequestDelay);
     }
 
     public function testArchiveAgeIsLessThanCleanupAge(): void

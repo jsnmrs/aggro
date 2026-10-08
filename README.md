@@ -194,22 +194,21 @@ The `.crontab` file defines scheduled tasks for:
 - Vimeo video checks — every 7 minutes
 - Archive management — daily
 - Feed cache clearing — monthly
-- YouTube duration backfill — daily
-- YouTube play count refresh — hourly
+- Vimeo play count refresh — hourly
 
-The duration backfill and play count refresh both read the YouTube watch page, and each failed fetch counts toward retiring the video. They are commented out in `.crontab` while YouTube gates the watch page from the production host, and should be re-enabled once `ddev sourcecheck prod` reports the watch page OK. New videos still arrive in the meantime: a video with no duration yet is shown, and the `/shorts/` redirect check keeps Shorts off the site.
+YouTube ingest reads the channel feed, the oEmbed endpoint, and the `/shorts/` redirect, so YouTube gating its watch page does not affect it. YouTube play counts arrive with the channel feed, and the `/shorts/` redirect check keeps Shorts off the site.
 
 ## Testing
 
-The project includes 464 tests achieving 46.22% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes 616 tests achieving 67.75% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 464 unit tests
-- Coverage — 46.22% line coverage across all components
-- Assertions — 741 test assertions ensuring thorough validation
-- External Dependencies — 86 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
-- Test Files — 28 test files covering all major components
+- Total Tests — 616 unit and feature tests
+- Coverage — 67.75% line coverage across all components
+- Assertions — 1,155 test assertions ensuring thorough validation
+- External Dependencies — 27 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- Test Files — 44 test files covering all major components
 
 ### Unit Testing with PHPUnit
 

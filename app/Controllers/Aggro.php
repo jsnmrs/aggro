@@ -233,9 +233,9 @@ class Aggro extends BaseController
     }
 
     /**
-     * Refresh play counts for a batch of videos.
+     * Refresh play counts for a batch of Vimeo videos.
      *
-     * Set cron to run every 15 minutes.
+     * Set cron to run every hour.
      */
     public function getPlays(): bool|ResponseInterface
     {
@@ -249,25 +249,6 @@ class Aggro extends BaseController
 
         if ($playsService->refreshPlays()) {
             echo "\nPlay counts refreshed.\n";
-        }
-
-        return true;
-    }
-
-    /**
-     * Update duration value for videos.
-     */
-    public function getYouTubeDuration(): bool|ResponseInterface
-    {
-        helper(['aggro', 'youtube']);
-        $youtubeModel = new YoutubeModels();
-
-        if (! gate_check()) {
-            return $this->response->setStatusCode(403);
-        }
-
-        if ($youtubeModel->getDuration()) {
-            echo "\nDurations fetched.\n";
         }
 
         return true;

@@ -4,113 +4,6 @@
  * @file
  * YouTube helper functions.
  */
-if (! function_exists('youtube_parse_duration')) {
-    /**
-     * Read the duration out of a fetched YouTube watch page.
-     *
-     * YouTube answers 200 for deleted, private, and sign-in-gated videos,
-     * so the HTTP status says nothing about availability. The page body
-     * does: a playable video reports playabilityStatus OK, and ERROR or
-     * UNPLAYABLE means the video is gone and will never yield a duration.
-     * LOGIN_REQUIRED is ambiguous. Private and age-gated videos report it,
-     * but so does YouTube's bot wall ("Sign in to confirm you're not a
-     * bot"), so it is left to the caller's failure threshold.
-     *
-     * @param string    $page
-     *                                Fetched watch page markup.
-     * @param bool|null &$unavailable
-     *                                Optional. Populated with true when the page
-     *                                reports the video as unwatchable.
-     *
-     * @param-out bool $unavailable
-     *
-     * @return false|string
-     *                      Video duration in seconds, or false when unavailable.
-     */
-    function youtube_parse_duration($page, &$unavailable = null)
-    {
-        $unavailable = false;
-
-        if ($page === '') {
-            return false;
-        }
-
-        if (preg_match('/"playabilityStatus":\{"status":"(\w+)"/', $page, $status)) {
-            $unavailable = in_array($status[1], ['ERROR', 'UNPLAYABLE'], true);
-        }
-
-        if (preg_match('/"lengthSeconds":"(\d+)"/', $page, $matches)) {
-            if ($matches[1] > 0) {
-                return $matches[1];
-            }
-        }
-
-        return false;
-    }
-}
-
-if (! function_exists('youtube_get_duration')) {
-    /**
-     * Fetch YouTube video duration.
-     *
-     * @param string    $videoID
-     *                                YouTube videoID.
-     * @param bool|null &$unavailable
-     *                                Optional. Populated with true when the source
-     *                                reports the video as unwatchable.
-     *
-     * @param-out bool $unavailable
-     *
-     * @return false|string
-     *                      Video duration, or false on error.
-     */
-    function youtube_get_duration($videoID, &$unavailable = null)
-    {
-        helper('aggro');
-
-        $unavailable = false;
-        $videoPage   = 'https://www.youtube.com/watch?v=' . $videoID;
-        $resultPage  = fetch_url($videoPage, 'text', 0);
-
-        if ($resultPage === false || ! is_string($resultPage)) {
-            return false;
-        }
-
-        return youtube_parse_duration($resultPage, $unavailable);
-    }
-}
-
-if (! function_exists('youtube_get_plays')) {
-    /**
-     * Fetch YouTube video play count.
-     *
-     * @param string   $videoID
-     *                              YouTube videoID.
-     * @param int|null &$httpStatus
-     *                              Optional. Populated with the HTTP response code.
-     *
-     * @param-out int $httpStatus
-     *
-     * @return false|string
-     *                      Play count, or false on error.
-     */
-    function youtube_get_plays($videoID, &$httpStatus = null)
-    {
-        helper('aggro');
-
-        $videoPage  = 'https://www.youtube.com/watch?v=' . $videoID;
-        $resultPage = fetch_url($videoPage, 'text', 0, $httpStatus);
-
-        if ($resultPage !== false && is_string($resultPage)) {
-            if (preg_match('/"viewCount":"(\d+)"/', $resultPage, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        return false;
-    }
-}
-
 if (! function_exists('youtube_get_feed')) {
     /**
      * Fetch YouTube channel feed.
@@ -372,9 +265,6 @@ if (! function_exists('youtube_parse_meta')) {
      * @param array{video_width: int, video_height: int, video_aspect_ratio: float}|null $dimensions
      *                                                                                               Optional. Video dimensions and aspect ratio.
      *                                                                                               Fetched from YouTube when omitted.
-     * @param false|string|null                                                          $duration
-     *                                                                                               Optional. Video duration, or false when unknown.
-     *                                                                                               Fetched from YouTube when omitted.
      * @param bool|null                                                                  $short
      *                                                                                               Optional. True for a Short, false for a regular video.
      *                                                                                               Omitted or inconclusive (null) stores the video as regular.
@@ -382,7 +272,7 @@ if (! function_exists('youtube_parse_meta')) {
      * @return array
      *               Video metadata added.
      */
-    function youtube_parse_meta(object $item, ?array $dimensions = null, $duration = null, ?bool $short = null)
+    function youtube_parse_meta(object $item, ?array $dimensions = null, ?bool $short = null)
     {
         helper('aggro');
         $video = [];
@@ -418,12 +308,6 @@ if (! function_exists('youtube_parse_meta')) {
 
         $dimensions ??= youtube_get_dimensions($video['video_id']);
         $video = array_merge($video, $dimensions);
-
-        $video['video_duration'] = $duration ?? youtube_get_duration($video['video_id']);
-
-        if (! $video['video_duration']) {
-            $video['video_duration'] = 0;
-        }
 
         $video['flag_short'] = (int) $short;
 

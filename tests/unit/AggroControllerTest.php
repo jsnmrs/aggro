@@ -120,11 +120,6 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue(method_exists($this->aggroController, 'getSweep'));
     }
 
-    public function testGetYouTubeDurationMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getYouTubeDuration'));
-    }
-
     public function testGetVimeoMethodExists(): void
     {
         $this->assertTrue(method_exists($this->aggroController, 'getVimeo'));
@@ -213,15 +208,6 @@ final class AggroControllerTest extends DatabaseTestCase
             ->execute('getSweep');
 
         // getSweep should complete without errors
-        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
-    }
-
-    public function testGetYouTubeDurationExecutesSuccessfully(): void
-    {
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getYouTubeDuration');
-
         $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
     }
 
