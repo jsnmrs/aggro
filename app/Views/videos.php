@@ -11,19 +11,22 @@
     } ?></h1>
   </div>
 
-  <div class="wrap">
 <?php if ($endpage === 0) { ?>
+  <div class="wrap">
     <p>No videos found.</p>
-<?php } ?>
+  </div>
+<?php } else { ?>
+  <ul class="wrap" role="list">
 <?php foreach ($build as $row) :?>
-    <div class="box box--video">
+    <li class="box box--video">
       <a href="/video/<?= esc($row->video_id); ?>">
         <img src="/thumbs/<?= esc($row->video_id); ?>.webp" width="340" height="192" alt="">
         <p><?= esc($row->video_title ?? ''); ?></p>
       </a>
-    </div>
+    </li>
 <?php endforeach; ?>
-  </div>
+  </ul>
+<?php } ?>
 
 <?php if ($endpage > 1) { ?>
   <nav class="wrap" aria-label="Pagination">

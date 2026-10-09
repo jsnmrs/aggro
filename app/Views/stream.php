@@ -1,13 +1,7 @@
-<?php
-
-/**
+<?= /**
  * @file
  * Stream page template.
- */
-
-use CodeIgniter\I18n\Time;
-
-echo $this->include('includes/header'); ?>
+ */ $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
@@ -25,10 +19,7 @@ echo $this->include('includes/header'); ?>
               echo '[missing title]';
           } ?></a>
           </span>
-          <span class="ago--muted"><?php
-          $time = Time::createFromFormat('Y-m-d H:i:s', $row->story_date, 'America/New_York');
-          echo $time->humanize();
-          ?> on <?= esc($row->site_name ?? ''); ?></span>
+          <span class="ago--muted"><?= timeAgo($row->story_date, 'America/New_York'); ?> on <?= esc($row->site_name ?? ''); ?></span>
         </li>
       <?php endforeach; ?>
       </ol>
