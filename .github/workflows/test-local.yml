@@ -15,5 +15,7 @@ jobs:
         run: curl -fsSL https://ddev.com/install.sh | bash
       - name: Display DDEV version
         run: ddev version
-      - name: Init, code checks, test, and admin
+      - name: Init
+        run: ddev init
+      - name: Code checks, test, and admin
         run: ddev test
