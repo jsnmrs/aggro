@@ -100,6 +100,10 @@ body {
   text-decoration-thickness: 0.12rem;
 }
 
+:any-link[aria-current="page"] {
+  font-weight: 700;
+}
+
 :any-link:focus-visible {
   color: var(--primary);
   text-decoration: none;
