@@ -44,6 +44,32 @@ if (! function_exists('timeAgo')) {
     }
 }
 
+if (! function_exists('storyTitle')) {
+    /**
+     * Escaped story title, or a readable fallback that names the site for
+     * screen reader users when the feed supplied no title.
+     *
+     * @param string|null $title
+     * @param string|null $siteName
+     *
+     * @return string
+     */
+    function storyTitle($title, $siteName = null)
+    {
+        if (($title ?? '') !== '') {
+            return esc($title);
+        }
+
+        $fallback = 'Untitled post';
+
+        if (($siteName ?? '') !== '') {
+            $fallback .= '<span class="visually-hidden"> on ' . esc($siteName) . '</span>';
+        }
+
+        return $fallback;
+    }
+}
+
 if (! function_exists('displayStory')) {
     /**
      * Display a story link if it exists, otherwise display a message.
@@ -57,10 +83,9 @@ if (! function_exists('displayStory')) {
     {
         if (isset($row[$storyNum])) {
             $story = $row[$storyNum];
-            $title = $story['story_title'] ?? '';
-            $title = $title === '' ? '[missing title]' : $title;
+            $title = storyTitle($story['story_title'] ?? null, $row['site_name'] ?? null);
 
-            return '<li><a href="' . esc($story['story_permalink']) . '" rel="noopener noreferrer" data-outgoing="' . esc($story['story_hash']) . '">' . esc($title) . '</a></li>';
+            return '<li><a href="' . esc($story['story_permalink']) . '" rel="noopener noreferrer" data-outgoing="' . esc($story['story_hash']) . '">' . $title . '</a></li>';
         }
         if ($storyNum === 'story1') {
             return '<li>No recent posts</li>';

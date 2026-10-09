@@ -59,6 +59,7 @@ final class StreamViewTest extends CIUnitTestCase
     {
         $output = $this->renderStream([$this->makeRow(['story_title' => ''])]);
 
-        $this->assertStringContainsString('[missing title]</a>', $output);
+        $this->assertStringContainsString('>Untitled post<span class="visually-hidden"> on Example Site</span></a>', $output);
+        $this->assertStringNotContainsString('[missing title]', $output);
     }
 }

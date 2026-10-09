@@ -176,7 +176,8 @@ final class ViewHelperTest extends CIUnitTestCase
     public function testDisplayStoryWithEmptyTitle(): void
     {
         $row = [
-            1 => [
+            'site_name' => 'Example Site',
+            1           => [
                 'story_title'     => '',
                 'story_permalink' => 'https://example.com/story',
                 'story_hash'      => 'hash123',
@@ -186,7 +187,8 @@ final class ViewHelperTest extends CIUnitTestCase
         $result = displayStory($row, 1);
 
         $this->assertIsString($result);
-        $this->assertStringContainsString('[missing title]', $result);
+        $this->assertStringContainsString('>Untitled post<span class="visually-hidden"> on Example Site</span></a>', $result);
+        $this->assertStringNotContainsString('[missing title]', $result);
     }
 
     public function testDisplayStoryWithMissingTitle(): void
@@ -201,7 +203,24 @@ final class ViewHelperTest extends CIUnitTestCase
         $result = displayStory($row, 1);
 
         $this->assertIsString($result);
-        $this->assertStringContainsString('[missing title]', $result);
+        $this->assertStringContainsString('>Untitled post</a>', $result);
+    }
+
+    public function testStoryTitleEscapesTitle(): void
+    {
+        $this->assertSame('S&amp;M &quot;Bikes&quot;', storyTitle('S&M "Bikes"', 'Example Site'));
+    }
+
+    public function testStoryTitleFallbackNamesSite(): void
+    {
+        $this->assertSame('Untitled post<span class="visually-hidden"> on S&amp;M</span>', storyTitle('', 'S&M'));
+        $this->assertSame('Untitled post<span class="visually-hidden"> on S&amp;M</span>', storyTitle(null, 'S&M'));
+    }
+
+    public function testStoryTitleFallbackWithoutSite(): void
+    {
+        $this->assertSame('Untitled post', storyTitle('', null));
+        $this->assertSame('Untitled post', storyTitle(null, ''));
     }
 
     public function testDisplayStoryWithSpecialStoryKey(): void
@@ -218,6 +237,7 @@ final class ViewHelperTest extends CIUnitTestCase
         $expectedFunctions = [
             'humanizeTime',
             'timeAgo',
+            'storyTitle',
             'displayStory',
         ];
 
