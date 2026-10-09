@@ -1,13 +1,7 @@
-<?php
-
-/**
+<?= /**
  * @file
  * Single site page template.
- */
-
-use CodeIgniter\I18n\Time;
-
-echo $this->include('includes/header'); ?>
+ */ $this->include('includes/header'); ?>
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
@@ -27,11 +21,7 @@ echo $this->include('includes/header'); ?>
           <a href="<?= esc($item->get_permalink()); ?>" rel="noopener noreferrer">
             <?= esc(decode_entities($item->get_title())); ?>
           </a>
-          <span class="ago--muted"><?php
-          $tempDate = $item->get_date('Y-m-d H:i:s');
-          $time     = Time::createFromFormat('Y-m-d H:i:s', $tempDate, 'America/New_York');
-          echo $time->humanize();
-          ?></span>
+          <?= timeAgo($item->get_date('Y-m-d H:i:s'), 'America/New_York', 'ago--muted'); ?>
         </li>
       <?php endforeach; ?>
       </ul>

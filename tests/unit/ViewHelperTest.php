@@ -84,6 +84,37 @@ final class ViewHelperTest extends CIUnitTestCase
         humanizeTime('2024-01-01 12:00:00', 'Invalid/Timezone');
     }
 
+    public function testTimeAgoRendersTimeElementWithOffset(): void
+    {
+        $result = timeAgo('2024-07-01 12:00:00', 'America/New_York', 'ago--muted');
+
+        $this->assertStringStartsWith('<time class="ago--muted" datetime="2024-07-01T12:00:00-04:00">', $result);
+        $this->assertStringEndsWith('</time>', $result);
+        $this->assertStringContainsString('ago', $result);
+    }
+
+    public function testTimeAgoOmitsClassWhenNotGiven(): void
+    {
+        $result = timeAgo('2024-01-01 12:00:00', 'UTC');
+
+        $this->assertStringStartsWith('<time datetime="2024-01-01T12:00:00+00:00">', $result);
+        $this->assertStringNotContainsString('class=', $result);
+    }
+
+    public function testTimeAgoEscapesClass(): void
+    {
+        $result = timeAgo('2024-01-01 12:00:00', 'UTC', 'ago" onclick="x');
+
+        $this->assertStringNotContainsString('onclick="x', $result);
+        $this->assertStringContainsString('&quot;', $result);
+    }
+
+    public function testTimeAgoWithInvalidDateThrowsException(): void
+    {
+        $this->expectException(Exception::class);
+        timeAgo('not-a-date', 'UTC');
+    }
+
     public function testDisplayStoryMethodExists(): void
     {
         $this->assertTrue(function_exists('displayStory'));
@@ -186,6 +217,7 @@ final class ViewHelperTest extends CIUnitTestCase
     {
         $expectedFunctions = [
             'humanizeTime',
+            'timeAgo',
             'displayStory',
         ];
 

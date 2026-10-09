@@ -11,6 +11,12 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class VideoViewTest extends CIUnitTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        helper('view');
+    }
+
     /**
      * Build a minimal $build array for rendering the video view.
      */
@@ -69,6 +75,14 @@ final class VideoViewTest extends CIUnitTestCase
         $output = $this->renderVideo($this->makeBuild(['video_width' => '0']));
 
         $this->assertStringContainsString('--aspect-ratio: 0.5625', $output);
+    }
+
+    public function testSpottedDateIsTimeElement(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['aggro_date_added' => '2024-01-01 12:00:00']));
+
+        $this->assertStringContainsString('Spotted <time datetime="2024-01-01T12:00:00-05:00">', $output);
+        $this->assertStringNotContainsString('Spotted <span>', $output);
     }
 
     public function testRawTitleIsEscapedOnce(): void

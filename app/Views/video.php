@@ -4,9 +4,6 @@
  * @file
  * Single video page template.
  */
-
-use CodeIgniter\I18n\Time;
-
 $videoWidth  = (int) ($build['video_width'] ?? 0);
 $videoHeight = (int) ($build['video_height'] ?? 0);
 $ratio       = ($videoWidth > 0 && $videoHeight > 0)
@@ -19,10 +16,7 @@ echo $this->include('includes/header'); ?>
   <div class="wrap">
     <div class="full">
       <h1><?= esc($build['video_title'] ?? ''); ?></h1>
-      <p>Spotted <span><?php
-      $time = Time::createFromFormat('Y-m-d H:i:s', $build['aggro_date_added'], 'America/New_York');
-echo $time->humanize();
-?></span> via <a href="<?= esc($build['video_source_url']); ?>" rel="noopener noreferrer"><?= esc($build['video_source_username']); ?></a>.</p>
+      <p>Spotted <?= timeAgo($build['aggro_date_added'], 'America/New_York'); ?> via <a href="<?= esc($build['video_source_url']); ?>" rel="noopener noreferrer"><?= esc($build['video_source_username']); ?></a>.</p>
     </div>
   </div>
 

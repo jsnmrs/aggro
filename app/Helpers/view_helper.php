@@ -25,6 +25,25 @@ if (! function_exists('humanizeTime')) {
     }
 }
 
+if (! function_exists('timeAgo')) {
+    /**
+     * Render a relative time inside a <time> element with an ISO 8601 datetime.
+     *
+     * @param string      $date     Date in Y-m-d H:i:s format
+     * @param string      $timezone Timezone the date is stored in
+     * @param string|null $class    Optional class attribute
+     *
+     * @return string
+     */
+    function timeAgo($date, $timezone, $class = null)
+    {
+        $time  = Time::createFromFormat('Y-m-d H:i:s', $date, $timezone);
+        $attrs = $class === null ? '' : ' class="' . esc($class, 'attr') . '"';
+
+        return '<time' . $attrs . ' datetime="' . esc($time->format('c')) . '">' . esc($time->humanize()) . '</time>';
+    }
+}
+
 if (! function_exists('displayStory')) {
     /**
      * Display a story link if it exists, otherwise display a message.
