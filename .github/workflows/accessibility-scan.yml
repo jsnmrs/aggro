@@ -51,19 +51,26 @@ jobs:
       # Site phase: the scan crawls the DDEV site, built the same way
       # the local test workflow builds it, plus the CSS that lives
       # outside version control.
-      #
-      # certutil (libnss3-tools) must exist before the DDEV installer runs
-      # mkcert -install, so the DDEV certificate authority lands in the NSS
-      # store that Chromium reads. The site sends a Strict-Transport-Security
-      # header, so the browser insists on HTTPS for every page it crawls.
-      - name: Install certificate tools
-        run: sudo apt-get install -y libnss3-tools
-
       - name: Install DDEV
         run: curl -fsSL https://ddev.com/install.sh | bash
 
       - name: Start site
         run: ddev init
+
+      # The site sends a Strict-Transport-Security header, so Chrome insists
+      # on HTTPS for every page it crawls. Chrome on Linux reads user
+      # certificates from the NSS store, which does not exist on a fresh
+      # runner and which mkcert -install only populates when it already
+      # exists, so create it and import the DDEV certificate authority.
+      - name: Trust the DDEV certificate authority in Chrome
+        run: |
+          sudo apt-get install -y libnss3-tools
+          mkdir -p "$HOME/.pki/nssdb"
+          if [ ! -f "$HOME/.pki/nssdb/cert9.db" ]; then
+            certutil -d "sql:$HOME/.pki/nssdb" -N --empty-password
+          fi
+          certutil -d "sql:$HOME/.pki/nssdb" -A -t "C,," -n "mkcert" -i "$(mkcert -CAROOT)/rootCA.pem"
+          certutil -d "sql:$HOME/.pki/nssdb" -L
 
       - name: Build CSS
         run: ddev frontend
