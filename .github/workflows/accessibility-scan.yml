@@ -57,6 +57,11 @@ jobs:
       - name: Start site
         run: ddev init
 
+      # The checked-in database dump can trail the migrations, and
+      # without them the video pages return a 500 and drop out of the crawl.
+      - name: Run database migrations
+        run: ddev exec php spark migrate
+
       # The site sends a Strict-Transport-Security header, so Chrome insists
       # on HTTPS for every page it crawls. Chrome on Linux reads user
       # certificates from the NSS store, which does not exist on a fresh
