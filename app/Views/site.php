@@ -8,8 +8,8 @@
     <div class="full">
       <h1><?= esc($build['site_name']); ?></h1>
       <div class="meta">
-        <p class="hug">Site: <a class="url" href="<?= esc($build['site_url']); ?>"><?= esc($build['site_url']); ?></a></p>
-        <p class="hug">Feed: <a class="url" href="<?= esc($build['site_feed']); ?>"><?= esc($build['site_feed']); ?></a></p>
+        <p class="hug">Site: <a class="url" href="<?= esc($build['site_url']); ?>"><span class="visually-hidden"><?= esc($build['site_name']); ?> website: </span><?= esc($build['site_url']); ?></a></p>
+        <p class="hug">Feed: <a class="url" href="<?= esc($build['site_feed']); ?>"><span class="visually-hidden"><?= esc($build['site_name']); ?> RSS feed: </span><?= esc($build['site_feed']); ?></a></p>
       </div>
       <h2>Recently on <?= esc($build['site_name']); ?></h2>
       <ul class="links" role="list">
