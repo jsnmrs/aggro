@@ -14,10 +14,7 @@
       <?php foreach ($build as $row) :?>
         <li class="stream">
           <span class="stream__title">
-            <a href="<?= esc($row->story_permalink); ?>" rel="noopener noreferrer" data-outgoing="<?= esc($row->story_hash); ?>"><?= esc($row->story_title ?? '');
-          if (($row->story_title ?? '') === '') {
-              echo '[missing title]';
-          } ?></a>
+            <a href="<?= esc($row->story_permalink); ?>" rel="noopener noreferrer" data-outgoing="<?= esc($row->story_hash); ?>"><?= storyTitle($row->story_title ?? null, $row->site_name ?? null); ?></a>
           </span>
           <span class="ago--muted"><?= timeAgo($row->story_date, 'America/New_York'); ?> on <?= esc($row->site_name ?? ''); ?></span>
         </li>

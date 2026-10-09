@@ -100,6 +100,10 @@ body {
   text-decoration-thickness: 0.12rem;
 }
 
+:any-link[aria-current="page"] {
+  font-weight: 700;
+}
+
 :any-link:focus-visible {
   color: var(--primary);
   text-decoration: none;
@@ -210,7 +214,7 @@ main {
   padding-left: 0.25rem;
   color: var(--gray-darker);
   font-weight: 400;
-  font-size: 70%;
+  font-size: max(0.875rem, 70%);
 }
 
 footer .ago--muted {
