@@ -85,6 +85,42 @@ final class VideoViewTest extends CIUnitTestCase
         $this->assertStringNotContainsString('Spotted <span>', $output);
     }
 
+    public function testEmptyTitleFallsBackToSourceName(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['video_title' => '']));
+
+        $this->assertStringContainsString('<h1>Untitled video from testuser</h1>', $output);
+        $this->assertStringContainsString('title="Untitled video from testuser (embedded video)"', $output);
+        $this->assertStringNotContainsString('<h1></h1>', $output);
+        $this->assertStringNotContainsString('title=" (embedded video)"', $output);
+    }
+
+    public function testYoutubePageLinksToSourceVideo(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['video_title' => 'S&M "Game" <of> Bike']));
+
+        $this->assertStringContainsString('<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" rel="noopener noreferrer">Watch <span class="visually-hidden">S&amp;M &quot;Game&quot; &lt;of&gt; Bike </span>on YouTube</a>', $output);
+    }
+
+    public function testVimeoPageLinksToSourceVideo(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['video_type' => 'vimeo', 'video_id' => '123456789']));
+
+        $this->assertStringContainsString('<a href="https://vimeo.com/123456789" rel="noopener noreferrer">Watch <span class="visually-hidden">Test Video </span>on Vimeo</a>', $output);
+        $this->assertStringNotContainsString('youtube.com/watch', $output);
+    }
+
+    public function testVimeoEmbedUsesAllowListNotVendorAttributes(): void
+    {
+        $output = $this->renderVideo($this->makeBuild(['video_type' => 'vimeo', 'video_id' => '123456789']));
+
+        $this->assertStringContainsString('src="https://player.vimeo.com/video/123456789?', $output);
+        $this->assertStringContainsString('allow="fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>', $output);
+        $this->assertStringNotContainsString('webkitAllowFullScreen', $output);
+        $this->assertStringNotContainsString('mozallowfullscreen', $output);
+        $this->assertStringNotContainsString('allowFullScreen', $output);
+    }
+
     public function testRawTitleIsEscapedOnce(): void
     {
         $output = $this->renderVideo($this->makeBuild(['video_title' => 'S&M "Game" <of> Bike']));

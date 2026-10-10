@@ -18,10 +18,7 @@ if (isset($build['site_name'])) {
     echo esc($build['site_name']) . ' | ';
 }
 if (isset($build['video_title'])) {
-    echo esc($build['video_title']) . ' | ';
-}
-if (isset($page) && $page >= 2 && isset($endpage)) {
-    echo 'Recent Videos ' . $page . ' of ' . $endpage . ' | ';
+    echo videoTitle($build['video_title'], $build['video_source_username'] ?? null) . ' | ';
 }
 if (isset($title)) {
     echo esc($title) . ' | ';

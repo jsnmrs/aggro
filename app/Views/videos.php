@@ -5,10 +5,7 @@
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
-    <h1>Recent Videos<?php
-    if ($page >= 2) {
-        echo ' ' . $page . ' of ' . $endpage;
-    } ?></h1>
+    <h1><?= esc($title); ?></h1>
   </div>
 
 <?php if ($endpage === 0) { ?>
@@ -21,7 +18,7 @@
     <li class="box box--video">
       <a href="/video/<?= esc($row->video_id); ?>">
         <img src="/thumbs/<?= esc($row->video_id); ?>.webp" width="340" height="192" alt="">
-        <p><?= esc($row->video_title ?? ''); ?></p>
+        <p><?= videoTitle($row->video_title ?? null, $row->video_source_username ?? null); ?></p>
       </a>
     </li>
 <?php endforeach; ?>

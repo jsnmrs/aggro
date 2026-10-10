@@ -223,6 +223,23 @@ final class ViewHelperTest extends CIUnitTestCase
         $this->assertSame('Untitled post', storyTitle(null, ''));
     }
 
+    public function testVideoTitleEscapesTitle(): void
+    {
+        $this->assertSame('S&amp;M &quot;Game&quot; &lt;of&gt; Bike', videoTitle('S&M "Game" <of> Bike', 'Example Channel'));
+    }
+
+    public function testVideoTitleFallbackNamesSource(): void
+    {
+        $this->assertSame('Untitled video from S&amp;M', videoTitle('', 'S&M'));
+        $this->assertSame('Untitled video from S&amp;M', videoTitle(null, 'S&M'));
+    }
+
+    public function testVideoTitleFallbackWithoutSource(): void
+    {
+        $this->assertSame('Untitled video', videoTitle('', null));
+        $this->assertSame('Untitled video', videoTitle(null, ''));
+    }
+
     public function testDisplayStoryWithSpecialStoryKey(): void
     {
         $row = [];
@@ -238,6 +255,7 @@ final class ViewHelperTest extends CIUnitTestCase
             'humanizeTime',
             'timeAgo',
             'storyTitle',
+            'videoTitle',
             'displayStory',
         ];
 
