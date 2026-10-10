@@ -4,6 +4,9 @@
 ## Usage: test
 ## Example: "ddev test"
 
+# Abort if anything fails
+set -e
+
 cd "$DDEV_APPROOT" || exit
 # Run Composer scripts through exec so their output streams even without
 # a TTY; ddev composer swallows it, which hides test failures in CI.
