@@ -337,4 +337,47 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertStringContainsString('Release</span>', $body);
         $this->assertStringContainsString('Env</span>', $body);
     }
+
+    /**
+     * An undeployed install carries DEPLOY_RELEASE="" and DEPLOY_TIMESTAMP=""
+     * from .env-sample, which must read as "not deployed" rather than be
+     * parsed as a timestamp.
+     */
+    public function testGetInfoTreatsEmptyDeployValuesAsLocal(): void
+    {
+        $original = [];
+
+        foreach (['DEPLOY_RELEASE', 'DEPLOY_TIMESTAMP'] as $key) {
+            $original[$key] = [$_ENV[$key] ?? null, $_SERVER[$key] ?? null, getenv($key)];
+            $_ENV[$key]     = '';
+            $_SERVER[$key]  = '';
+            putenv($key . '=');
+        }
+
+        try {
+            $body = $this->controller(Aggro::class)
+                ->execute('getInfo')
+                ->response()
+                ->getBody();
+        } finally {
+            foreach ($original as $key => [$env, $server, $getenv]) {
+                if ($env === null) {
+                    unset($_ENV[$key]);
+                } else {
+                    $_ENV[$key] = $env;
+                }
+
+                if ($server === null) {
+                    unset($_SERVER[$key]);
+                } else {
+                    $_SERVER[$key] = $server;
+                }
+
+                putenv($getenv === false ? $key : $key . '=' . $getenv);
+            }
+        }
+
+        $this->assertStringContainsString('Release</span> relax, you&#039;re a local', $body);
+        $this->assertStringContainsString('When</span> relax, you&#039;re a local', $body);
+    }
 }
