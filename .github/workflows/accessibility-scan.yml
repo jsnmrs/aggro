@@ -1,0 +1,143 @@
+name: Accessibility scan
+
+on:
+  workflow_dispatch: # enable run button on github.com
+  pull_request: # run on all pull requests
+  schedule:
+    - cron: "03 00 * * 4" # run every Thursday at 12:03am
+
+concurrency:
+  group: accessibility-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  changes:
+    name: Check for template or style changes
+    runs-on: ubuntu-latest
+    outputs:
+      scan: ${{ steps.check_files.outputs.accessibility_scan_triggers }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Only scan pull requests that touch rendered markup or styles.
+      # Manual and scheduled runs always scan.
+      - name: Check if files requiring accessibility testing changed
+        id: check_files
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            accessibility_scan_triggers:
+              - 'app/Views/**'
+              - 'app/Helpers/**'
+              - 'public/css/**'
+              - '.github/workflows/accessibility-scan.yml'
+
+  scan:
+    name: Scan for accessibility issues
+    runs-on: ubuntu-latest
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.scan == 'true'
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Site phase: the scan crawls the DDEV site, built the same way
+      # the local test workflow builds it, plus the CSS that lives
+      # outside version control.
+      - name: Install DDEV
+        run: curl -fsSL https://ddev.com/install.sh | bash
+
+      - name: Start site
+        run: ddev init
+
+      # The checked-in database dump can trail the migrations, and
+      # without them the video pages return a 500 and drop out of the crawl.
+      - name: Run database migrations
+        run: ddev exec php spark migrate
+
+      # The site sends a Strict-Transport-Security header, so Chrome insists
+      # on HTTPS for every page it crawls. Chrome on Linux reads user
+      # certificates from the NSS store, which does not exist on a fresh
+      # runner and which mkcert -install only populates when it already
+      # exists, so create it and import the DDEV certificate authority.
+      - name: Trust the DDEV certificate authority in Chrome
+        run: |
+          sudo apt-get install -y libnss3-tools
+          mkdir -p "$HOME/.pki/nssdb"
+          if [ ! -f "$HOME/.pki/nssdb/cert9.db" ]; then
+            certutil -d "sql:$HOME/.pki/nssdb" -N --empty-password
+          fi
+          certutil -d "sql:$HOME/.pki/nssdb" -A -t "C,," -n "mkcert" -i "$(mkcert -CAROOT)/rootCA.pem"
+          certutil -d "sql:$HOME/.pki/nssdb" -L
+
+      - name: Build CSS
+        run: ddev frontend
+
+      # A GET, not HEAD: the app answers HEAD requests with a 404.
+      - name: Wait for site to be ready
+        timeout-minutes: 2
+        run: |
+          attempt_counter=0
+          max_attempts=40
+          until curl --output /dev/null --silent --fail --insecure --max-time 3 https://aggro.ddev.site; do
+            if [ ${attempt_counter} -eq ${max_attempts} ]; then
+              echo "Max attempts reached. Site not started."
+              exit 1
+            fi
+            printf '.'
+            attempt_counter=$((attempt_counter+1))
+            sleep 2
+          done
+
+      # Scan phase
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Cache Puppeteer browser
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer
+
+      - name: Create report directory
+        run: mkdir -p _accessibility-reports
+
+      - name: Scan site
+        id: scan
+        uses: double-great/accessibility-scan-action@v0.7.2
+        with:
+          url: "https://aggro.ddev.site"
+        timeout-minutes: 10
+
+      - name: Stop site
+        if: always()
+        run: ddev stop || true
+
+      - name: Upload report as artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: "Accessibility report"
+          path: ${{ github.workspace }}/_accessibility-reports/
+
+      - name: Post comment to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{ steps.scan.outputs['summary-report'] }}`
+            })
