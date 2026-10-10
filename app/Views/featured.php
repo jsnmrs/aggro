@@ -10,11 +10,11 @@
 
  <div class="wrap">
  <?php foreach ($build as $row) :?>
-    <article class="box box--feature">
-      <h2>
+    <article class="box box--feature" aria-labelledby="site-<?= esc($row['site_slug'], 'attr'); ?>">
+      <h2 id="site-<?= esc($row['site_slug'], 'attr'); ?>">
         <a href="/sites/<?= esc($row['site_slug']); ?>"><?= esc($row['site_name']); ?> <span class="visually-hidden">on BMXfeed</span></a>
-        <?= timeAgo($row['site_date_last_post'], 'America/New_York', 'ago--muted'); ?>
       </h2>
+      <p class="hug">Last post <?= timeAgo($row['site_date_last_post'], 'America/New_York', 'ago--muted'); ?></p>
       <ol class="links" role="list">
       <?php for ($story = 1; $story < 4; $story++) :?>
         <?php $storyNum = 'story' . $story; ?>
