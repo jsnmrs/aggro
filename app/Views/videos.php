@@ -21,7 +21,7 @@
     <li class="box box--video">
       <a href="/video/<?= esc($row->video_id); ?>">
         <img src="/thumbs/<?= esc($row->video_id); ?>.webp" width="340" height="192" alt="">
-        <p><?= esc($row->video_title ?? ''); ?></p>
+        <p><?= videoTitle($row->video_title ?? null, $row->video_source_username ?? null); ?></p>
       </a>
     </li>
 <?php endforeach; ?>

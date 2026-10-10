@@ -11,6 +11,12 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class HeaderViewTest extends CIUnitTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        helper('view');
+    }
+
     /**
      * Render the header include and return the contents of its title element.
      */
@@ -35,6 +41,14 @@ final class HeaderViewTest extends CIUnitTestCase
         $title = $this->renderTitle(['site_name' => 'S&M "Bikes" <BMX>']);
 
         $this->assertStringContainsString('S&amp;M &quot;Bikes&quot; &lt;BMX&gt; | ', $title);
+    }
+
+    public function testEmptyVideoTitleFallsBackToSourceName(): void
+    {
+        $title = $this->renderTitle(['video_title' => '', 'video_source_username' => 'S&M']);
+
+        $this->assertStringContainsString('Untitled video from S&amp;M | ', $title);
+        $this->assertStringNotContainsString('> | ', $title);
     }
 
     public function testPlainVideoTitleIsUnchanged(): void
