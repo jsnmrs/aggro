@@ -70,6 +70,33 @@ if (! function_exists('storyTitle')) {
     }
 }
 
+if (! function_exists('videoTitle')) {
+    /**
+     * Escaped video title, or a readable fallback that names the source
+     * channel when the video API supplied no title. Plain text only, so it
+     * is safe in headings, link text, and title attributes alike.
+     *
+     * @param string|null $title
+     * @param string|null $source
+     *
+     * @return string
+     */
+    function videoTitle($title, $source = null)
+    {
+        if (($title ?? '') !== '') {
+            return esc($title);
+        }
+
+        $fallback = 'Untitled video';
+
+        if (($source ?? '') !== '') {
+            $fallback .= ' from ' . esc($source);
+        }
+
+        return $fallback;
+    }
+}
+
 if (! function_exists('displayStory')) {
     /**
      * Display a story link if it exists, otherwise display a message.

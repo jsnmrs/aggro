@@ -168,9 +168,8 @@ class Front extends BaseController
     private function handleVideosPagination(): string
     {
         $data = [
-            'title' => 'Videos',
-            'slug'  => 'video',
-            'page'  => 1,
+            'slug' => 'video',
+            'page' => 1,
         ];
 
         // Validate and set page number
@@ -191,11 +190,17 @@ class Front extends BaseController
         // Get total and calculate pagination
         $aggroModel      = new AggroModels();
         $data['total']   = $aggroModel->getVideosTotal();
-        $data['endpage'] = ceil((int) $data['total'] / $data['perpage']);
+        $data['endpage'] = (int) ceil((int) $data['total'] / $data['perpage']);
 
         // Validate page exists
         if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
             return $this->getError404();
+        }
+
+        // The page title doubles as the heading so every list page names itself the same way
+        $data['title'] = 'Recent Videos';
+        if ($data['page'] >= 2) {
+            $data['title'] .= ' ' . $data['page'] . ' of ' . $data['endpage'];
         }
 
         // Get videos and render

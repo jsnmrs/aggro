@@ -85,6 +85,52 @@ final class FrontControllerTest extends RepositoryTestCase
         $response->assertStatus(200);
     }
 
+    public function testVideoPageTitleMatchesHeading()
+    {
+        $body = (string) $this->get('/video')->response()->getBody();
+
+        $this->assertStringContainsString('Recent Videos | BMXfeed</title>', $body);
+        $this->assertStringContainsString('<h1>Recent Videos</h1>', $body);
+    }
+
+    /**
+     * Seed visible videos so the list paginates (30 per page).
+     */
+    private function seedVideos(int $count): void
+    {
+        for ($i = 0; $i < $count; $i++) {
+            $this->db->table('aggro_videos')->insert($this->createTestVideo([
+                'video_id'         => 'paged' . $i,
+                'aggro_date_added' => date('Y-m-d H:i:s', strtotime("-{$i} minutes -1 day")),
+            ]));
+        }
+    }
+
+    public function testVideoListWithNoVideosShowsEmptyState()
+    {
+        $body = (string) $this->get('/video')->response()->getBody();
+
+        $this->assertStringContainsString('No videos found.', $body);
+        $this->assertStringNotContainsString('<ul class="wrap"', $body);
+        $this->assertStringNotContainsString('Jump to page', $body);
+    }
+
+    public function testLastVideoListPageDoesNotLinkPastTheEnd()
+    {
+        $this->seedVideos(31);
+
+        $firstPage = (string) $this->get('/video')->response()->getBody();
+        $this->assertStringContainsString('Jump to page 2', $firstPage);
+
+        $lastPage = $this->get('/video/recent/2');
+        $lastPage->assertStatus(200);
+        $body = (string) $lastPage->response()->getBody();
+        $this->assertStringContainsString('Back to page 1', $body);
+        $this->assertStringNotContainsString('Jump to page 3', $body);
+
+        $this->get('/video/recent/3')->assertStatus(404);
+    }
+
     public function testNonexistentVideoReturns404()
     {
         $response = $this->get('/video/nonexistent-slug');
