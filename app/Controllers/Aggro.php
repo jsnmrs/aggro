@@ -39,8 +39,9 @@ class Aggro extends BaseController
         $this->response->setHeader('Pragma', 'no-cache');
         $this->response->setHeader('Expires', 'Thu, 1 Jan 1970 00:00:00 GMT');
 
-        $release     = env('DEPLOY_RELEASE', 'relax, you\'re a local');
-        $timestamp   = env('DEPLOY_TIMESTAMP', 'relax, you\'re a local');
+        // An undeployed install carries these as empty strings, not absent.
+        $release     = env('DEPLOY_RELEASE') ?: 'relax, you\'re a local';
+        $timestamp   = env('DEPLOY_TIMESTAMP') ?: 'relax, you\'re a local';
         $environment = ENVIRONMENT;
 
         echo '<!-- deploy:release=' . esc($release) . ' -->';
