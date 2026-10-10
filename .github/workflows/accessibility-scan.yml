@@ -36,6 +36,8 @@ jobs:
               - 'app/Views/**'
               - 'app/Helpers/**'
               - 'public/css/**'
+              - 'tests/browser/**'
+              - 'package.json'
               - '.github/workflows/accessibility-scan.yml'
 
   scan:
@@ -117,6 +119,29 @@ jobs:
         with:
           url: "https://aggro.ddev.site"
         timeout-minutes: 10
+
+      # Browser checks phase: keyboard, reflow, and markup checks the crawler
+      # cannot make. These run even when the crawl above reports failures.
+      - name: Cache Playwright browser
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+
+      # The postinstall script rebuilds the CSS, which is harmless because
+      # ddev frontend already produced the same output.
+      - name: Install npm dependencies
+        if: ${{ !cancelled() }}
+        run: npm ci
+
+      - name: Install Chromium
+        if: ${{ !cancelled() }}
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser checks
+        if: ${{ !cancelled() }}
+        run: npm run browser-check
 
       - name: Stop site
         if: always()
