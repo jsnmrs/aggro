@@ -52,12 +52,12 @@ final class FeaturedViewTest extends CIUnitTestCase
         $this->assertStringNotContainsString('<time', $matches[1]);
     }
 
-    public function testLastPostTimeFollowsTheHeading(): void
+    public function testLastPostTimeDirectlyFollowsTheHeading(): void
     {
         $output = $this->renderFeatured([$this->makeRow('fatbmx', 'FATBMX')]);
 
-        $this->assertStringContainsString('</h2>', $output);
-        $this->assertStringContainsString('<p class="hug">Last post <time class="ago--muted" datetime="2024-01-01T12:00:00-05:00">', $output);
+        $this->assertSame(1, preg_match('/<\/h2>\s*<time class="ago--muted" datetime="2024-01-01T12:00:00-05:00">/', $output));
+        $this->assertStringNotContainsString('Last post', $output);
     }
 
     public function testArticleIsLabelledByItsHeading(): void

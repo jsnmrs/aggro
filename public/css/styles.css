@@ -371,6 +371,16 @@ h3,
   flex-basis: 100%;
 }
 
+/* The last-post time sits beside the site heading but outside it, so
+   heading navigation reads only the site name. */
+.box--feature h2 {
+  display: inline-block;
+}
+
+.box--feature h2 + .ago--muted {
+  font-size: calc(1.75rem * 0.7);
+}
+
 @media screen and (width >= 48em) {
   .box--feature {
     flex-basis: 48%;
