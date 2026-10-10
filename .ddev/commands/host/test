@@ -5,7 +5,9 @@
 ## Example: "ddev test"
 
 cd "$DDEV_APPROOT" || exit
-ddev composer lint
-ddev composer test
+# Run Composer scripts through exec so their output streams even without
+# a TTY; ddev composer swallows it, which hides test failures in CI.
+ddev exec composer lint
+ddev exec composer test
 ddev shellcheck
 ddev clicheck
