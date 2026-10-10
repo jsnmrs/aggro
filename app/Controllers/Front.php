@@ -191,7 +191,7 @@ class Front extends BaseController
         // Get total and calculate pagination
         $aggroModel      = new AggroModels();
         $data['total']   = $aggroModel->getVideosTotal();
-        $data['endpage'] = ceil((int) $data['total'] / $data['perpage']);
+        $data['endpage'] = (int) ceil((int) $data['total'] / $data['perpage']);
 
         // Validate page exists
         if ($data['page'] > $data['endpage'] && $data['endpage'] > 0) {
