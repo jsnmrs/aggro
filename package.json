@@ -8,6 +8,7 @@
     "url": "https://github.com/jsnmrs/aggro.git"
   },
   "scripts": {
+    "browser-check": "node tests/browser/a11y-check.js",
     "build": "npm run css",
     "css": "npm run prettier && npm run stylelint && npm run postcss",
     "postinstall": "npm run build",
@@ -20,6 +21,7 @@
     "@double-great/stylelint-a11y": "3.5.4",
     "autoprefixer": "10.6.1",
     "cssnano": "9.1.1",
+    "playwright": "1.64.0",
     "postcss": "8.5.28",
     "postcss-cli": "12.0.0",
     "prettier": "3.9.9",
