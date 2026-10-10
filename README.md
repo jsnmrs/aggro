@@ -239,7 +239,12 @@ XDEBUG_MODE=coverage composer test:coverage
 
 # Run all Composer test scripts
 composer test
+
+# Browser-driven accessibility checks against the running site (runs on the host)
+npm run browser-check
 ```
+
+The browser checks drive the site in headless Chromium and cover what the crawler scan in CI cannot: the skip link lands on the main content, every Tab stop shows a solid focus outline, nothing scrolls horizontally at 320px, and every `<time>` carries an ISO 8601 `datetime`. They run against `https://aggro.ddev.site` by default; set `BASE_URL` to point elsewhere and `VERBOSE=1` to print passing checks too.
 
 ### Test Coverage Reports
 

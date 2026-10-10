@@ -1,8 +1,16 @@
 /**
  * Browser-driven accessibility checks.
  *
+ * Covers what the crawler scan cannot see. On every public page:
+ * - the response status is what the route promises
+ * - every <time datetime> value is ISO 8601
+ * - nothing scrolls horizontally at a 320px wide viewport (WCAG 1.4.10)
+ * - the skip link is the first Tab stop and lands on main#content
+ * - every Tab stop shows a solid outline (WCAG 2.4.7)
+ *
  * Runs on the host against a live site (the DDEV container has no browser)
- * with `npm run browser-check`. BASE_URL overrides the target site.
+ * with `npm run browser-check`. BASE_URL overrides the target site, and
+ * VERBOSE=1 prints passing checks as well as failures.
  */
 
 const { chromium } = require("playwright");
