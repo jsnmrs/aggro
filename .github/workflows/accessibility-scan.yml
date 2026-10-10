@@ -96,6 +96,17 @@ jobs:
             sleep 2
           done
 
+      # The crawler scans inside embedded players, and YouTube's own player
+      # markup fails axe's aria-allowed-attr rule on every video page. A
+      # baseline cannot absorb that, because the scanner keys each issue on
+      # the HTML snippet, which carries the video title, so every video
+      # would need its own entry. Keep the embeds from loading instead so
+      # the scan covers only this site's markup.
+      - name: Block embedded player hosts
+        run: |
+          printf '127.0.0.1 www.youtube.com\n127.0.0.1 player.vimeo.com\n' | sudo tee -a /etc/hosts
+          getent hosts www.youtube.com player.vimeo.com
+
       # Scan phase
       - name: Set up Node.js
         uses: actions/setup-node@v7
