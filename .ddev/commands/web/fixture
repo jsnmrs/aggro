@@ -32,10 +32,11 @@ dump() {
 {
   echo "-- Fixture dump for CI and fresh local installs. Regenerate with: ddev fixture"
   echo
-  # Schema only
-  dump --no-data aggro_log watch
+  # Schema only. Sources stay empty so the CLI checks that run the
+  # YouTube and Vimeo routes in CI have nothing to fetch.
+  dump --no-data aggro_log aggro_sources watch
   # Schema and every row
-  dump aggro_sources migrations news_feeds
+  dump migrations news_feeds
   # Schema and a sample of rows
   dump news_featured --where="$STORIES"
   dump aggro_videos --where="$VIDEOS"

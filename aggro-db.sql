@@ -21,6 +21,21 @@ CREATE TABLE `aggro_log` (
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1669037 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `aggro_sources`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `aggro_sources` (
+  `source_id` int(11) NOT NULL AUTO_INCREMENT,
+  `source_name` varchar(255) NOT NULL DEFAULT '',
+  `source_slug` varchar(255) NOT NULL DEFAULT '',
+  `source_channel_id` varchar(255) DEFAULT NULL,
+  `source_type` varchar(255) NOT NULL DEFAULT '',
+  `source_date_updated` datetime NOT NULL,
+  `source_fail_count` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`source_id`),
+  KEY `idx_source_type_date` (`source_type`,`source_date_updated`)
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `watch`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -56,106 +71,6 @@ CREATE TABLE `watch` (
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
-DROP TABLE IF EXISTS `aggro_sources`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `aggro_sources` (
-  `source_id` int(11) NOT NULL AUTO_INCREMENT,
-  `source_name` varchar(255) NOT NULL DEFAULT '',
-  `source_slug` varchar(255) NOT NULL DEFAULT '',
-  `source_channel_id` varchar(255) DEFAULT NULL,
-  `source_type` varchar(255) NOT NULL DEFAULT '',
-  `source_date_updated` datetime NOT NULL,
-  `source_fail_count` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`source_id`),
-  KEY `idx_source_type_date` (`source_type`,`source_date_updated`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-LOCK TABLES `aggro_sources` WRITE;
-/*!40000 ALTER TABLE `aggro_sources` DISABLE KEYS */;
-INSERT INTO `aggro_sources` VALUES (5,'YouTube BSD','yt-bsd','UCG89NxV6p_7UieCd6EPY75Q','youtube','2026-10-09 18:25:11',0);
-INSERT INTO `aggro_sources` VALUES (6,'YouTube Fit','yt-fit','UCEQr272sFLulvnv4iV06x_A','youtube','2026-10-09 18:25:12',0);
-INSERT INTO `aggro_sources` VALUES (7,'YouTube Subrosa','yt-subrosa','UC1mS5upidopyedyx-PVOKAw','youtube','2026-10-09 18:45:13',0);
-INSERT INTO `aggro_sources` VALUES (8,'YouTube Cinema','yt-cinema','UCNLec6yKTHYI0IxF1dV79ww','youtube','2026-10-09 18:15:10',0);
-INSERT INTO `aggro_sources` VALUES (9,'YouTube Shadow','yt-shadow','UCJ0b_1_El3khcbVAYfpQncQ','youtube','2026-10-09 18:00:11',0);
-INSERT INTO `aggro_sources` VALUES (10,'YouTube Eclat','yt-eclat','UCqAboz3vCG5TdLRiyTtcXXA','youtube','2026-10-09 18:50:12',0);
-INSERT INTO `aggro_sources` VALUES (11,'YouTube Federal','yt-federal','UCg-C5SGBn1qxMlxWbJWLQrg','youtube','2026-10-09 18:59:08',0);
-INSERT INTO `aggro_sources` VALUES (12,'YouTube Animal','yt-animal','UCr60e2IA3bcsUwIVi8XokBA','youtube','2026-10-09 17:40:09',0);
-INSERT INTO `aggro_sources` VALUES (13,'YouTube Props','yt-props','UClzXqNF98-g5CuivuW53hbQ','youtube','2026-10-09 17:55:09',0);
-INSERT INTO `aggro_sources` VALUES (14,'YouTube SandM','yt-sandm','UCufV3snTuldPBVIq9UtL2ng','youtube','2026-10-09 18:30:12',0);
-INSERT INTO `aggro_sources` VALUES (15,'YouTube Woozy','yt-woozy','UCbX0ZHJ10u3HUNMb9x9JxYw','youtube','2026-10-09 18:30:12',0);
-INSERT INTO `aggro_sources` VALUES (16,'YouTube RideBMX','yt-ridebmx','UCdJBLqPpsyNSPmAhVmD3HSg','youtube','2026-10-09 17:50:09',0);
-INSERT INTO `aggro_sources` VALUES (17,'YouTube VitalBMX','yt-vitalbmx','UCCCTVDXsyHLCjjOJQplirSA','youtube','2026-10-09 18:35:11',0);
-INSERT INTO `aggro_sources` VALUES (18,'YouTube Colony','yt-colony','UC2bGSgCvxF2dM9Yig3z2gxA','youtube','2026-10-09 17:40:09',0);
-INSERT INTO `aggro_sources` VALUES (19,'YouTube Volume','yt-volume','UCpTs-33BH4YnCSTCUBlLidw','youtube','2026-10-09 17:55:09',0);
-INSERT INTO `aggro_sources` VALUES (20,'YouTube FBM','yt-fbm','UCyjH_Bmb0B19zoG_uMNbsrg','youtube','2026-10-09 17:45:10',0);
-INSERT INTO `aggro_sources` VALUES (21,'YouTube Kink','yt-kink','UCTcAhfF9BLSDoJawNXZ7t-Q','youtube','2026-10-09 18:10:10',0);
-INSERT INTO `aggro_sources` VALUES (22,'YouTube Odyssey','yt-odyssey','UCJHbVOD6qHuwkTth4Nn38PQ','youtube','2026-10-09 18:20:10',0);
-INSERT INTO `aggro_sources` VALUES (23,'YouTube United','yt-united','UCFnp89P-9c8iRr2qjoOq-Lw','youtube','2026-10-09 18:20:11',0);
-INSERT INTO `aggro_sources` VALUES (24,'YouTube Tim Knoll','yt-timknoll','UC0pHfUqcepR5Nq7FRZWLicg','youtube','2026-10-09 18:40:13',0);
-INSERT INTO `aggro_sources` VALUES (25,'YouTube DUB','yt-dub','UC1hhgHZPmpSRHJxdMHCqneQ','youtube','2026-10-09 18:40:13',0);
-INSERT INTO `aggro_sources` VALUES (26,'Vimeo Diggest','vimeo-diggest','thediggest','vimeo','2026-10-09 18:59:03',0);
-INSERT INTO `aggro_sources` VALUES (28,'YouTube BMX Union','yt-bmxunion','UCHLRliWm-dlLpD_16dKrzRg','youtube','2026-10-09 18:30:12',0);
-INSERT INTO `aggro_sources` VALUES (29,'YouTube Dig','yt-dig','UCuFLeyZaC1yMXPjKafghtIw','youtube','2026-10-09 18:00:11',0);
-INSERT INTO `aggro_sources` VALUES (30,'YouTube Merritt','yt-merritt','UCWWCwqQj0MIGZahGrOo4j0Q','youtube','2026-10-09 18:40:13',0);
-INSERT INTO `aggro_sources` VALUES (31,'YouTube Profile','yt-profile','UC1K6CuWe6lUj_ikgjwEcKTA','youtube','2026-10-09 18:25:11',0);
-INSERT INTO `aggro_sources` VALUES (32,'YouTube Madera','yt-madera','UCo5P_VcTbZqz4AdGsMRWNtg','youtube','2026-10-09 18:00:11',0);
-INSERT INTO `aggro_sources` VALUES (33,'YouTube Scotty Cramner','yt-scottycramner','UCxS2lX7728bTnmK1t21bYlA','youtube','2026-10-09 18:40:13',0);
-INSERT INTO `aggro_sources` VALUES (34,'YouTube Empire','yt-empire','UCbG3Z6xacVvGczFaXcDvB2A','youtube','2026-10-09 18:25:11',0);
-INSERT INTO `aggro_sources` VALUES (35,'YouTube RideUK','yt-rideuk','UCs0nji0Wy6WRV630Dzxhxzw','youtube','2026-10-09 18:40:14',0);
-INSERT INTO `aggro_sources` VALUES (36,'YouTube Snakebite','yt-snakebite','UC8npzcQ9nw14vODWm33heHw','youtube','2026-10-09 17:55:10',0);
-INSERT INTO `aggro_sources` VALUES (37,'Vimeo Neil Waddington','vimeo-neilwadd','user13129876','vimeo','2026-10-09 18:59:05',0);
-INSERT INTO `aggro_sources` VALUES (38,'YouTube Demolition','yt-demolition','UCBN0xKuGw_ee1Hap7K0-DXQ','youtube','2026-10-09 18:25:11',0);
-INSERT INTO `aggro_sources` VALUES (39,'YouTube Trey Jones','yt-treyjones','UCr6LYZGbXGyUQKSciAcA22g','youtube','2026-10-09 18:45:13',0);
-INSERT INTO `aggro_sources` VALUES (40,'YouTube Freedom','yt-freedom','UCyPFwLmziUkiw4gw9QkI8_w','youtube','2026-10-09 18:30:12',0);
-INSERT INTO `aggro_sources` VALUES (41,'YouTube Fly Bikes','yt-flybikes','UC9h7gL_K1ntBr68gDkRcf1Q','youtube','2026-10-09 18:35:11',0);
-INSERT INTO `aggro_sources` VALUES (42,'YouTube Sunday','yt-sunday','UCsMczRyPB91lkNug1-2vGcQ','youtube','2026-10-09 18:35:11',0);
-INSERT INTO `aggro_sources` VALUES (43,'YouTube Cult','yt-cult','UCUXFXlTfxxykngI4m_LmYWg','youtube','2026-10-09 17:45:09',0);
-INSERT INTO `aggro_sources` VALUES (44,'YouTube Haro','yt-haro','UCaJlQVNBNDcK6y_xzyz2a1A','youtube','2026-10-09 18:45:14',0);
-INSERT INTO `aggro_sources` VALUES (45,'Vimeo Heresy','vimeo-heresy','heresybmx','vimeo','2026-10-09 18:59:07',0);
-INSERT INTO `aggro_sources` VALUES (46,'YouTube Ryan Howard','yt-ryanhoward','UCuWckoNW0j7QwEABiLU8P9g','youtube','2026-10-09 18:45:14',0);
-INSERT INTO `aggro_sources` VALUES (47,'YouTube Source','yt-source','UCr1vAo8ZyBFeKTpbLyVDr9g','youtube','2026-10-09 18:50:12',0);
-INSERT INTO `aggro_sources` VALUES (48,'YouTube Our BMX','yt-ourbmx','UCuSZUuRMLzOP0I6ItdA6uAQ','youtube','2026-10-09 17:45:10',0);
-INSERT INTO `aggro_sources` VALUES (49,'YouTube Studies Club','yt-studies-club','UCG_-HPmpYbR_MBQTEme4jLQ','youtube','2026-10-09 18:50:12',0);
-INSERT INTO `aggro_sources` VALUES (50,'YouTube Palaver','yt-palaver','UCByAPnqyK4xaHCTz9nDlnrg','youtube','2026-10-09 18:59:08',0);
-INSERT INTO `aggro_sources` VALUES (51,'YouTube Taj','yt-taj','UCjmNysPmNS_g3_RzPt2e25A','youtube','2026-10-09 17:50:09',0);
-INSERT INTO `aggro_sources` VALUES (53,'YouTube Burn Slow','yt-burnslow','UCQJ6hAiXPUrhSGZZ87cuTbQ','youtube','2026-10-09 18:05:10',0);
-INSERT INTO `aggro_sources` VALUES (54,'YouTube Pusher','yt-pusher','UC_iqEilYDFna3H1FARgARvg','youtube','2026-10-09 17:50:09',0);
-INSERT INTO `aggro_sources` VALUES (55,'YouTube Fast and Loose','yet-fastloose','UCfV0hrErcW9z2R4wyatWy1w','youtube','2026-10-09 17:50:09',0);
-INSERT INTO `aggro_sources` VALUES (57,'YouTube GT','yt-gt','UCUHYVA13z3SiBSi_u4p3hqQ','youtube','2026-10-09 17:50:10',0);
-INSERT INTO `aggro_sources` VALUES (58,'YouTube Mavro','yt-mavro','UCW9yPSTV289Qpf-kDKFQIVQ','youtube','2026-10-09 17:55:09',0);
-INSERT INTO `aggro_sources` VALUES (59,'YouTube Vans BMX','yt-vans-bmx','PL7F9E124C9CC70619','youtube','2026-10-09 18:00:10',0);
-INSERT INTO `aggro_sources` VALUES (60,'YouTube Monster BMX','yt-monster-bmx','PL044C788448C3B3FC','youtube','2026-10-09 18:35:10',0);
-INSERT INTO `aggro_sources` VALUES (61,'YouTube We The People','yt-wtp','UCkJ8F2VXvwJzsg-NkFg4f2g','youtube','2026-10-09 18:59:08',0);
-INSERT INTO `aggro_sources` VALUES (62,'YouTube Tree','yt-tree','UCvVA6U1-A4TO0hBzHBdAzuw','youtube','2026-10-09 18:05:10',0);
-INSERT INTO `aggro_sources` VALUES (63,'YouTube Powers BMX','yt-powers','UCOXspPzdIOXSmOp-b0unB3A','youtube','2026-10-09 18:10:10',0);
-INSERT INTO `aggro_sources` VALUES (64,'YouTube Primo','yt-primo','UCEh_E7g7isCtH2Jht0SbDPQ','youtube','2026-10-09 17:55:09',0);
-INSERT INTO `aggro_sources` VALUES (65,'YouTube Hyper','yt-hyper','UCKe03vm0ChdjRhkLopPpnrA','youtube','2026-10-09 18:00:10',0);
-INSERT INTO `aggro_sources` VALUES (66,'YouTube Relic','yt-relic','UC4KSH8nZqojmbVuEjUFzLgw','youtube','2026-10-09 18:10:10',0);
-INSERT INTO `aggro_sources` VALUES (67,'YouTube Endless','yt-endless','UCnJGOBDBLM1iNfyaEzgGvYQ','youtube','2026-10-09 18:35:11',0);
-INSERT INTO `aggro_sources` VALUES (68,'YouTube Fiend','yt-fiend','UCk0J3k5HbHJ-GP0DZwmz6UA','youtube','2026-10-09 18:45:13',0);
-INSERT INTO `aggro_sources` VALUES (69,'YouTube USL','yt-usl','UCVtdR0HHu4j2dSOtHgYKdvQ','youtube','2026-10-09 18:05:09',0);
-INSERT INTO `aggro_sources` VALUES (70,'YouTube Street Watch','yt-streetwatch','UCvva-0RN6JYpC2cogLF9svg','youtube','2026-10-09 18:50:12',0);
-INSERT INTO `aggro_sources` VALUES (71,'YouTube Brakeless TV','yt-brakelesstv','UC4TZ2hTU2bsepM47pui7vVw','youtube','2026-10-09 18:50:12',0);
-INSERT INTO `aggro_sources` VALUES (72,'YouTube Jungle Workshop','yt-jungleworkshop','UCBfsEs7hFXC1W7pajLmQXtg','youtube','2026-10-09 18:10:10',0);
-INSERT INTO `aggro_sources` VALUES (74,'YouTube Dennis Enarson','yt-enarson','UCcNSdIT5yN5OXkoLO2NIs7A','youtube','2026-10-09 18:05:10',0);
-INSERT INTO `aggro_sources` VALUES (76,'YouTube Yawn','yt-yawn','UCIwwoxrAunuqk7WBeSsdolQ','youtube','2026-10-09 18:15:10',0);
-INSERT INTO `aggro_sources` VALUES (77,'YouTube Kevin Peraza','yt-peraza','UChn3aMcSR2iDrJnY0txE2-A','youtube','2026-10-09 18:15:10',0);
-INSERT INTO `aggro_sources` VALUES (78,'YouTube Calvin Kosovich','yt-kosovich','UCTS7DUd1ggDmA64AyWWVYFw','youtube','2026-10-09 18:05:09',0);
-INSERT INTO `aggro_sources` VALUES (79,'YouTube Boddy Kanode','yt-kanode','UCOPLpJqkOBVw2oqD68dFHbQ','youtube','2026-10-09 18:15:10',0);
-INSERT INTO `aggro_sources` VALUES (80,'YouTube Grant Castelluzzo','yt-grant-c','UCv-eFgHL_hcOg7xYSc3O0iA','youtube','2026-10-09 18:15:11',0);
-INSERT INTO `aggro_sources` VALUES (81,'YouTube War Party','yt-warparty','UCf9Krg4kLndrhnZVmoLq_mA','youtube','2026-10-09 18:20:10',0);
-INSERT INTO `aggro_sources` VALUES (82,'YouTube Woodward BMX','yt-woodward','PL66B0A48E4E3E6DE1','youtube','2026-10-09 18:20:11',0);
-INSERT INTO `aggro_sources` VALUES (83,'YouTube LUX','yt-lux','UCpLJVzG2_I68lX855M_7Eqg','youtube','2026-10-09 18:59:08',0);
-INSERT INTO `aggro_sources` VALUES (85,'YouTube Dan Foley','yt-dan-foley','UCsK-Dbcs3dPhqsshvU-Ir5w','youtube','2026-10-09 18:59:08',0);
-INSERT INTO `aggro_sources` VALUES (86,'YouTube Stranger','yt-stranger','UCwFISG7xz0QbiGFzwUllyEw','youtube','2026-10-09 18:30:12',0);
-INSERT INTO `aggro_sources` VALUES (87,'YouTube 90 East','yt-90-east','UCFtnn5hgMqafvoZHJgp4Uqw','youtube','2026-10-09 17:45:09',0);
-INSERT INTO `aggro_sources` VALUES (88,'YouTube Steve Crandall','yt-crandal','UCFuvMlKbmYdySCUjWo36fZA','youtube','2026-10-09 18:20:11',0);
-INSERT INTO `aggro_sources` VALUES (92,'YouTube Terrible One','yt-t1','UCqm9K3EEV3QL0U8ZnWu8ggQ','youtube','2026-10-09 18:10:09',0);
-INSERT INTO `aggro_sources` VALUES (93,'YouTube Frequentleigh','yt-leigh','UCycyysxUtRm2YGNUQJKuesQ','youtube','2026-10-09 17:45:09',0);
-/*!40000 ALTER TABLE `aggro_sources` ENABLE KEYS */;
-UNLOCK TABLES;
 DROP TABLE IF EXISTS `migrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
