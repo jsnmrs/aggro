@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+## Description: Regenerate the fixture dump CI imports (aggro-db.sql) from the local database
+## Usage: fixture
+## Example: "ddev fixture"
+
+# Abort if anything fails, including inside the dump pipeline
+set -e -o pipefail
+
+cd /var/www/html
+
+OUTPUT="aggro-db.sql"
+
+# The videos page only lists videos added in the last year, so the fixture
+# needs regenerating from a current database before the rows age out.
+# Row limits keep the dump small while covering every page type: the
+# featured sites, both stream pages, two pages of videos, a few Shorts,
+# and a Vimeo embed.
+STORIES="story_id IN (SELECT story_id FROM (SELECT story_id, ROW_NUMBER() OVER (PARTITION BY site_id ORDER BY story_date DESC) AS rn FROM news_featured) ranked WHERE rn <= 3) \
+  OR story_id IN (SELECT story_id FROM (SELECT story_id FROM news_featured ORDER BY story_date DESC LIMIT 60) latest)"
+
+VIDEOS="aggro_id IN (SELECT aggro_id FROM (SELECT aggro_id FROM aggro_videos WHERE flag_bad = 0 AND flag_archive = 0 AND flag_short = 0 AND aggro_date_updated <> '0000-00-00 00:00:00' ORDER BY aggro_date_added DESC LIMIT 35) visible) \
+  OR aggro_id IN (SELECT aggro_id FROM (SELECT aggro_id FROM aggro_videos WHERE flag_archive = 0 AND flag_short = 1 ORDER BY aggro_date_added DESC LIMIT 5) shorts) \
+  OR aggro_id IN (SELECT aggro_id FROM (SELECT aggro_id FROM aggro_videos WHERE flag_archive = 0 AND video_type = 'vimeo' ORDER BY aggro_date_added DESC LIMIT 2) vimeo)"
+
+# The --where subqueries read the table being dumped, which LOCK TABLES
+# would refuse, so skip the locks; this database is local and idle.
+dump() {
+  mysqldump --skip-dump-date --skip-extended-insert --skip-comments --skip-lock-tables db "$@"
+}
+
+{
+  echo "-- Fixture dump for CI and fresh local installs. Regenerate with: ddev fixture"
+  echo
+  # Schema only
+  dump --no-data aggro_log watch
+  # Schema and every row
+  dump aggro_sources migrations news_feeds
+  # Schema and a sample of rows
+  dump news_featured --where="$STORIES"
+  dump aggro_videos --where="$VIDEOS"
+} | grep -v '^/\*M\?!999999' > "$OUTPUT"
+
+echo "Wrote $OUTPUT ($(wc -l < "$OUTPUT" | tr -d ' ') lines, $(grep -c '^INSERT INTO' "$OUTPUT") rows)"
+echo "ddev init imports the newest *.sql file, which is now this fixture; move or touch a full dump first if you want that instead."
