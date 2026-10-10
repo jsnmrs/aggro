@@ -85,6 +85,14 @@ final class FrontControllerTest extends RepositoryTestCase
         $response->assertStatus(200);
     }
 
+    public function testVideoPageTitleMatchesHeading()
+    {
+        $body = (string) $this->get('/video')->response()->getBody();
+
+        $this->assertStringContainsString('Recent Videos | BMXfeed</title>', $body);
+        $this->assertStringContainsString('<h1>Recent Videos</h1>', $body);
+    }
+
     public function testNonexistentVideoReturns404()
     {
         $response = $this->get('/video/nonexistent-slug');

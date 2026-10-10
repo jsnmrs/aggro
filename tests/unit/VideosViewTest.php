@@ -28,15 +28,24 @@ final class VideosViewTest extends CIUnitTestCase
     /**
      * Render the videos view with the given rows and page counts.
      */
-    private function renderVideos(array $build, int $endpage): string
+    private function renderVideos(array $build, int $endpage, int $page = 1, string $title = 'Recent Videos'): string
     {
         return view('videos', [
             'build'   => $build,
-            'page'    => 1,
+            'title'   => $title,
+            'page'    => $page,
             'endpage' => $endpage,
             'sort'    => 'recent',
             'slug'    => 'video',
         ]);
+    }
+
+    public function testHeadingIsThePageTitle(): void
+    {
+        $output = $this->renderVideos([$this->makeRow('abc123', 'First Video')], 8, 2, 'Recent Videos 2 of 8');
+
+        $this->assertStringContainsString('<h1>Recent Videos 2 of 8</h1>', $output);
+        $this->assertStringContainsString('Recent Videos 2 of 8 | BMXfeed</title>', $output);
     }
 
     public function testGridIsAListOfVideos(): void

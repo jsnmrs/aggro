@@ -5,10 +5,7 @@
 
 <main id="content" class="floor" tabindex="-1">
   <div class="wrap">
-    <h1>Recent Videos<?php
-    if ($page >= 2) {
-        echo ' ' . $page . ' of ' . $endpage;
-    } ?></h1>
+    <h1><?= esc($title); ?></h1>
   </div>
 
 <?php if ($endpage === 0) { ?>
