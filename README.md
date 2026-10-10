@@ -368,3 +368,4 @@ Aggro is open-source software licensed under the MIT license. See the [LICENSE](
 ## Support
 
 - Issues — [GitHub Issues](https://github.com/jsnmrs/aggro/issues)
+- Accessibility — [Accessibility statement](.github/ACCESSIBILITY.md)
