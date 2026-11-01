@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+## Description: Update the CodeIgniter framework and merge skeleton file changes
+## Usage: framework-update [--check] [version]
+## Example: "ddev framework-update", "ddev framework-update --check", "ddev framework-update 4.7.6"
+
+# Abort if anything fails
+set -e
+
+cd "$DDEV_APPROOT" || exit
+
+PACKAGE="codeigniter4/framework"
+
+banner() {
+  echo -e "\\n\\033[1;33m$1\\033[0m"
+}
+
+fail() {
+  echo "Error: $1" >&2
+  exit 1
+}
+
+installed_version() {
+  jq -r --arg pkg "$PACKAGE" '.packages[] | select(.name == $pkg) | .version' composer.lock
+}
+
+CHECK_ONLY=false
+TARGET=""
+for ARG in "$@"; do
+  case "$ARG" in
+    --check) CHECK_ONLY=true ;;
+    -*) fail "Unknown option $ARG. Usage: ddev framework-update [--check] [version]" ;;
+    *) TARGET="$ARG" ;;
+  esac
+done
+
+banner "Checking prerequisites..."
+for TOOL in gh jq composer curl; do
+  command -v "$TOOL" > /dev/null 2>&1 || fail "$TOOL is required on the host."
+done
+[ -z "$(git status --porcelain)" ] || fail "The working tree is not clean. Commit or stash your changes first."
+BASE=$(git rev-parse --abbrev-ref HEAD)
+[ "$BASE" != "main" ] || fail "Refusing to run on main. Create a feature branch first."
+echo "Branch: $BASE"
+
+banner "Resolving versions..."
+CURRENT=$(installed_version)
+[ -n "$CURRENT" ] || fail "Could not find $PACKAGE in composer.lock."
+if [ -z "$TARGET" ]; then
+  TARGET=$(curl -fsS "https://repo.packagist.org/p2/${PACKAGE}.json" | jq -r --arg pkg "$PACKAGE" '.packages[$pkg][0].version')
+  if [ -z "$TARGET" ] || [ "$TARGET" = "null" ]; then
+    fail "Could not read the latest version from Packagist."
+  fi
+fi
+# Composer and the framework tags both use the vX.Y.Z form
+TARGET="v${TARGET#v}"
+echo "Current: $CURRENT"
+echo "Target:  $TARGET"
+if [ "$CURRENT" = "$TARGET" ]; then
+  echo "Already on $TARGET. Nothing to do."
+  exit 0
+fi
+
+banner "Release notes for $TARGET..."
+DIGITS="${TARGET#v}"
+DIGITS="${DIGITS//./}"
+echo "Changelog:     https://codeigniter4.github.io/userguide/changelogs/${TARGET}.html"
+echo "Upgrade notes: https://codeigniter4.github.io/userguide/installation/upgrade_${DIGITS}.html"
+echo "Compare:       https://github.com/${PACKAGE}/compare/${CURRENT}...${TARGET}"
+
+banner "Checking skeleton files (app/, public/, env, spark) for changes..."
+CHANGED=$(gh api "repos/${PACKAGE}/compare/${CURRENT}...${TARGET}" --paginate --jq '.files[].filename') \
+  || fail "GitHub compare failed for ${CURRENT}...${TARGET}. Does the tag exist?"
+# grep exits 1 when every changed file is under system/, which is the expected empty result
+SKELETON=$(printf '%s\n' "$CHANGED" | grep -v '^system/' | grep -v '^$' || true)
+if [ -n "$SKELETON" ]; then
+  echo "$SKELETON"
+else
+  echo "No skeleton changes."
+fi
+
+if [ "$CHECK_ONLY" = true ]; then
+  banner "Check complete. Run without --check to apply the update."
+  exit 0
+fi
+
+if [ -n "$SKELETON" ]; then
+  banner "Patching skeleton files with tatter/patches..."
+  # The patcher runs on the host: public/thumbs is a DDEV bind mount, so its
+  # rm -rf public/ fails inside the container
+  if vendor/bin/patch -v "$TARGET"; then
+    git checkout "$BASE"
+    git merge --ff-only tatter/patches
+    git branch -D tatter/patches
+    git show --stat HEAD
+    echo "Review the skeleton commit above. Drop it with: git reset --hard HEAD~1"
+  else
+    cat >&2 <<RECOVERY
+
+The patcher stopped before finishing. Your branch ($BASE) is untouched.
+If it reported conflicts, resolve the markers and run: git cherry-pick --continue
+Otherwise recover with:
+
+  git checkout -f $BASE
+  git clean -fd
+  git branch -D tatter/scratch tatter/patches
+  ddev composer install
+
+RECOVERY
+    exit 1
+  fi
+else
+  echo "Skipping tatter/patches: no skeleton files changed between $CURRENT and $TARGET."
+fi
+
+banner "Updating $PACKAGE in the container..."
+ddev composer update "$PACKAGE"
+INSTALLED=$(installed_version)
+[ "$INSTALLED" = "$TARGET" ] || fail "composer.lock is on $INSTALLED, not $TARGET. Check the $PACKAGE constraint in composer.json."
+
+banner "Running tests and checks..."
+ddev test
+ddev check
+
+banner "Framework updated to $TARGET"
+git status --short
+echo "Suggested commit: Update CodeIgniter framework to ${TARGET#v}"
