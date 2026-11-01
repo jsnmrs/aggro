@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
-## Description: Run front-end build
+## Description: Install front-end dependencies and run the build
 ## Usage: frontend
 ## Example: "ddev frontend"
 
 # Abort if anything fails
 set -e
 
+# Skip lifecycle scripts so the postinstall hook does not run the build a
+# second time; the build runs explicitly below.
+echo -e "\\n\\033[1;33mInstalling npm packages from package-lock.json...\\033[0m"
+npm ci --ignore-scripts
+
+echo -e "\\n\\033[1;33mRunning front-end build...\\033[0m"
 npm run build
