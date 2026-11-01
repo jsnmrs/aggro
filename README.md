@@ -120,23 +120,24 @@ Maintenance tasks can be run via CLI using `ddev fire` for local or `ddev tunnel
 
 ### Updating CodeIgniter
 
-Framework code lives in `vendor/` and updates through Composer, but the framework also ships skeleton files (`app/`, `public/`, `env`, `spark`) that are copies in this repo. When a release changes those files, [tatter/patches](https://github.com/tattersoftware/codeigniter4-patches) generates the diff and merges it into the project.
+Framework code lives in `vendor/` and updates through Composer, but the framework also ships skeleton files (`app/`, `public/`, `env`, `spark`) that are copies in this repo. When a release changes those files, [tatter/patches](https://github.com/tattersoftware/codeigniter4-patches) generates the diff and merges it into the project. The `ddev framework-update` command runs the whole workflow:
 
-1. Start from a clean working tree on a feature branch
-2. Run the patcher on the host, not in the container — `public/thumbs` is a DDEV bind mount, so the script's `rm -rf public/` always fails inside the container:
-   ```bash
-   vendor/bin/patch
-   ```
-3. Interpret the outcome:
-   - No skeleton changes — the script stops on the `tatter/scratch` branch with "nothing added to commit" (or an empty cherry-pick). There is nothing to reconcile; run the recovery steps below and move on
-   - Skeleton changes — the diff lands on the `tatter/patches` branch (resolve any conflict markers, then `git cherry-pick --continue`). Review it, merge it into your feature branch, and delete both `tatter/*` branches
-4. Update the framework itself:
-   ```bash
-   ddev composer update codeigniter4/framework
-   ```
-5. Verify with `ddev test` and `ddev check`
+```bash
+ddev framework-update --check   # report the current and latest versions and any skeleton changes, change nothing
+ddev framework-update           # update to the latest release
+ddev framework-update 4.7.6     # update to a specific release
+```
 
-The patcher never modifies your original branch. If it stops partway, recover with:
+Start from a clean working tree on a feature branch. The command:
+
+1. Reads the installed version from `composer.lock` and the target from Packagist (or the argument)
+2. Prints links to the release changelog and upgrade notes — read them for breaking changes
+3. Compares the two tags on GitHub and lists changed files outside `system/`
+4. Runs `vendor/bin/patch` only when skeleton files changed, then fast-forwards the resulting `tatter/patches` commit onto your branch for review (drop it with `git reset --hard HEAD~1`)
+5. Runs `ddev composer update codeigniter4/framework`
+6. Verifies with `ddev test` and `ddev check`
+
+It stops before committing. The patcher runs on the host, not in the container — `public/thumbs` is a DDEV bind mount, so the script's `rm -rf public/` always fails inside the container. The patcher never modifies your original branch. If it stops partway (usually a merge conflict), resolve the conflict markers and run `git cherry-pick --continue`, or recover with:
 
 ```bash
 git checkout -f <your-branch>
