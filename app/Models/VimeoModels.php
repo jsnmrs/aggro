@@ -48,7 +48,8 @@ class VimeoModels extends Model
                 continue;
             }
 
-            if ($videoId === $item->id && ! $this->aggroModel->checkVideo($item->id)) {
+            // The Vimeo API returns ids as JSON numbers, so compare as strings
+            if ((string) $videoId === (string) $item->id && ! $this->aggroModel->checkVideo($item->id)) {
                 $video = vimeo_parse_meta($item);
                 $this->aggroModel->addVideo($video);
 
