@@ -272,6 +272,20 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertSame(404, $result->response()->getStatusCode());
     }
 
+    public function testGetYoutubeDoesNotReportAddedWhenSourceLookupFails(): void
+    {
+        // Network access is blocked in tests, so the source lookup for a
+        // well-formed video ID fails
+        $result = $this->controller(Aggro::class)
+            ->execute('getYoutube', 'dQw4w9WgXcQ');
+
+        $body = (string) $result->response()->getBody();
+
+        $this->assertSame(404, $result->response()->getStatusCode());
+        $this->assertStringNotContainsString('Added', $body);
+        $this->assertStringContainsString('Could not look up https://www.youtube.com/watch?v=dQw4w9WgXcQ.', $body);
+    }
+
     public function testGetLogCleanReturnsConfirmation(): void
     {
         // In CLI mode gate_check() returns true

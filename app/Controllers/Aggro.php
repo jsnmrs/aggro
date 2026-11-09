@@ -5,8 +5,6 @@ namespace App\Controllers;
 use App\Models\AggroModels;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
-use App\Models\VimeoModels;
-use App\Models\YoutubeModels;
 use App\Services\ChannelFetchService;
 use App\Services\FeedIngestionService;
 use App\Services\PlaysService;
@@ -266,7 +264,6 @@ class Aggro extends BaseController
     {
         helper(['aggro', 'vimeo']);
         $aggroModel = new AggroModels();
-        $vimeoModel = new VimeoModels();
 
         if (! gate_check()) {
             return $this->response->setStatusCode(403);
@@ -295,21 +292,9 @@ class Aggro extends BaseController
         }
 
         if (! $aggroModel->checkVideo($videoID)) {
-            $request = 'https://vimeo.com/api/v2/video/' . $videoID . '.json';
-            $result  = fetch_url($request, 'json', 0);
+            $channelFetchService = new ChannelFetchService();
 
-            if ($result === false || empty($result) || ! isset($result[0]->user_url)) {
-                log_message('error', 'Vimeo API returned no usable data for video ID: ' . $videoID);
-
-                return $this->response->setStatusCode(404);
-            }
-
-            $sourceID             = str_replace('https://vimeo.com/', '', $result[0]->user_url);
-            $data['feed']         = vimeo_get_feed($sourceID);
-            $data['number_added'] = $vimeoModel->searchChannel($data['feed'], $videoID);
-            echo "\nAdded https://vimeo.com/" . $videoID . ' from ' . $sourceID . ".\n";
-
-            return true;
+            return $channelFetchService->addVimeoVideo($videoID) ?? $this->response->setStatusCode(404);
         }
 
         return false;
@@ -323,8 +308,7 @@ class Aggro extends BaseController
     public function getYoutube(?string $videoID = null): bool|ResponseInterface
     {
         helper(['aggro', 'youtube']);
-        $aggroModel   = new AggroModels();
-        $youtubeModel = new YoutubeModels();
+        $aggroModel = new AggroModels();
 
         if (! gate_check()) {
             return $this->response->setStatusCode(403);
@@ -356,12 +340,8 @@ class Aggro extends BaseController
             return false;
         }
 
-        $sourceID = youtube_get_video_source($videoID);
+        $channelFetchService = new ChannelFetchService();
 
-        $data['feed'] = youtube_get_feed($sourceID);
-        $youtubeModel->searchChannel($data['feed'], $videoID);
-        echo "\nAdded https://www.youtube.com/watch?v=" . $videoID . ' from ' . $sourceID . ".\n";
-
-        return true;
+        return $channelFetchService->addYoutubeVideo($videoID) ?? $this->response->setStatusCode(404);
     }
 }

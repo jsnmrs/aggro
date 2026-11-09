@@ -258,4 +258,60 @@ final class VimeoModelsTest extends DatabaseTestCase
         $result = $model->parseChannel($feed);
         $this->assertSame(0, $result);
     }
+
+    public function testSearchChannelMatchesNumericFeedIdAgainstStringVideoId(): void
+    {
+        // The Vimeo API returns ids as JSON numbers; the requested id arrives as a string
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(false);
+        $mockAggro->expects($this->once())
+            ->method('addVideo')
+            ->with($this->callback(static fn (array $video): bool => $video['video_id'] === 76979871));
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $feed = [
+            $this->vimeoFeedItem(11111111),
+            $this->vimeoFeedItem(76979871),
+        ];
+
+        $this->assertTrue($model->searchChannel($feed, '76979871'));
+    }
+
+    public function testSearchChannelReturnsFalseWhenVideoIsNotInFeed(): void
+    {
+        $mockAggro = $this->createMock(AggroModels::class);
+        $mockAggro->method('checkVideo')->willReturn(false);
+        $mockAggro->expects($this->never())->method('addVideo');
+
+        $mockUtility = $this->createMock(UtilityModels::class);
+
+        $model = new VimeoModels($mockAggro, $mockUtility);
+
+        $feed = [
+            $this->vimeoFeedItem(11111111),
+            $this->vimeoFeedItem(22222222),
+        ];
+
+        $this->assertFalse($model->searchChannel($feed, '76979871'));
+    }
+
+    /**
+     * Build a feed item shaped like a decoded Vimeo API response.
+     */
+    private function vimeoFeedItem(int $id): object
+    {
+        return (object) [
+            'id'              => $id,
+            'title'           => 'Test Video',
+            'upload_date'     => '2024-01-01 00:00:00',
+            'thumbnail_large' => 'https://example.com/thumb.jpg',
+            'user_name'       => 'testuser',
+            'user_url'        => 'https://vimeo.com/testuser',
+            'width'           => 1920,
+            'height'          => 1080,
+        ];
+    }
 }
