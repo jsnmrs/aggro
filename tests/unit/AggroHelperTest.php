@@ -443,6 +443,46 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertFalse(TestLogger::didLog('error', $url . ' returned 429.'));
     }
 
+    public function testFetchUrlTreatsEveryErrorStatusAsFailedFetch(): void
+    {
+        // An error page has a body, and it must not reach callers as content
+        foreach ([400, 401, 410, 502, 503] as $status) {
+            $httpStatus = null;
+            $result     = fetch_url($this->localUrl('/error-page/' . $status), 'text', 0, $httpStatus);
+
+            $this->assertFalse($result, 'Status ' . $status . ' returned its error page.');
+            $this->assertSame($status, $httpStatus);
+        }
+    }
+
+    public function testFetchUrlLogsOtherErrorStatusesAtWarning(): void
+    {
+        $url = $this->localUrl('/error-page/503');
+        fetch_url($url, 'text', 0);
+
+        $this->assertLogged('warning', $url . ' returned 503.');
+        $this->assertFalse(TestLogger::didLog('error', $url . ' returned 503.'));
+    }
+
+    public function testFetchUrlLogs403And500AtError(): void
+    {
+        foreach ([403, 500] as $status) {
+            $url = $this->localUrl('/error-page/' . $status);
+
+            $this->assertFalse(fetch_url($url, 'text', 0));
+            $this->assertLogged('error', $url . ' returned ' . $status . '.');
+        }
+    }
+
+    public function testFetchUrlReturnsBodyForSuccessStatus(): void
+    {
+        $httpStatus = null;
+        $result     = fetch_url($this->localUrl('/body/page'), 'text', 0, $httpStatus);
+
+        $this->assertSame('<html><body>Not an image</body></html>', $result);
+        $this->assertSame(200, $httpStatus);
+    }
+
     public function testFetchUrlStatusMethodExists(): void
     {
         $this->assertTrue(function_exists('fetch_url_status'));

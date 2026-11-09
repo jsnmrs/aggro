@@ -272,6 +272,31 @@ if (! function_exists('fetch_thumbnail')) {
     }
 }
 
+if (! function_exists('fetch_failure_log_level')) {
+    /**
+     * Pick the log level for a fetch that failed with an HTTP status.
+     *
+     * @param int $httpCode
+     *                      HTTP status of the failed fetch.
+     *
+     * @return string
+     *                Log level.
+     */
+    function fetch_failure_log_level($httpCode)
+    {
+        // A 404 means the content is gone, not an application error,
+        // so it stays out of Sentry (which only receives error and above).
+        // A 429 is the host being rate limited. Its body is a CAPTCHA page,
+        // not the content, so callers must see a failed fetch rather than
+        // parse it. It clears on its own, so it also stays at warning.
+        $failureLogLevels = [403 => 'error', 404 => 'warning', 429 => 'warning', 500 => 'error'];
+
+        // Most other statuses are transient, such as a 502 or 503 from an
+        // overloaded host, so they stay at warning too.
+        return $failureLogLevels[$httpCode] ?? 'warning';
+    }
+}
+
 if (! function_exists('fetch_url')) {
     /**
      * Fetch contents of URL (via CURL). Decode if XML or JSON.
@@ -315,16 +340,11 @@ if (! function_exists('fetch_url')) {
         $errorInfo  = curl_error($fetch);
         curl_close($fetch);
 
-        // A 404 means the content is gone, not an application error,
-        // so it stays out of Sentry (which only receives error and above).
-        // A 429 is the host being rate limited. Its body is a CAPTCHA page,
-        // not the content, so callers must see a failed fetch rather than
-        // parse it. It clears on its own, so it also stays at warning.
-        $failureLogLevels = [403 => 'error', 404 => 'warning', 429 => 'warning', 500 => 'error'];
-
-        if (isset($failureLogLevels[$httpCode])) {
+        // The body of a 4xx or 5xx response is an error page, not the
+        // content, so callers must see a failed fetch rather than parse it.
+        if ($httpCode >= 400) {
             $message = $url . ' returned ' . $httpCode . '.';
-            log_message($failureLogLevels[$httpCode], $message);
+            log_message(fetch_failure_log_level($httpCode), $message);
 
             return false;
         }
