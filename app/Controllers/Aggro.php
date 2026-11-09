@@ -81,7 +81,7 @@ class Aggro extends BaseController
     /**
      * Clean aggro log.
      */
-    public function getLogClean(): ResponseInterface
+    public function getLogClean(): ResponseInterface|string
     {
         helper('aggro');
         $utilityModel = new UtilityModels();
@@ -90,9 +90,11 @@ class Aggro extends BaseController
             return $this->response->setStatusCode(403);
         }
 
-        $utilityModel->cleanLog();
+        if (! $utilityModel->cleanLog()) {
+            return $this->response->setStatusCode(500)->setBody('Could not clear old log entries.');
+        }
 
-        return $this->response->redirect('/aggro/log');
+        return 'Old log entries cleared.';
     }
 
     /**
@@ -117,7 +119,7 @@ class Aggro extends BaseController
     /**
      * Clean aggro error logs.
      */
-    public function getLogErrorClean(): ResponseInterface
+    public function getLogErrorClean(): ResponseInterface|string
     {
         helper('aggro');
 
@@ -127,7 +129,7 @@ class Aggro extends BaseController
 
         clean_error_logs();
 
-        return $this->response->redirect('/aggro/log/error');
+        return 'Old error logs cleared.';
     }
 
     /**

@@ -271,16 +271,34 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertSame(404, $result->response()->getStatusCode());
     }
 
-    public function testGetLogCleanExecutesSuccessfully(): void
+    public function testGetLogCleanReturnsConfirmation(): void
     {
+        if ($this->db->DBDriver === 'SQLite3') {
+            $this->markTestSkipped('cleanLog() runs OPTIMIZE TABLE, which SQLite does not support');
+        }
+
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getLogClean');
 
-        // Should redirect to /aggro/log
-        $this->assertTrue(
-            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
-        );
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('Old log entries cleared.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
+    }
+
+    public function testGetLogCleanReportsFailureWhenCleanFails(): void
+    {
+        if ($this->db->DBDriver !== 'SQLite3') {
+            $this->markTestSkipped('Relies on SQLite rejecting the OPTIMIZE TABLE that cleanLog() runs');
+        }
+
+        // In CLI mode gate_check() returns true
+        $result = $this->controller(Aggro::class)
+            ->execute('getLogClean');
+
+        $this->assertSame(500, $result->response()->getStatusCode());
+        $this->assertSame('Could not clear old log entries.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
     }
 
     public function testGetLogErrorExecutesSuccessfully(): void
@@ -292,16 +310,15 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($result->isOK());
     }
 
-    public function testGetLogErrorCleanExecutesSuccessfully(): void
+    public function testGetLogErrorCleanReturnsConfirmation(): void
     {
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getLogErrorClean');
 
-        // Should redirect to /aggro/log/error
-        $this->assertTrue(
-            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
-        );
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('Old error logs cleared.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
     }
 
     public function testGetInfoMethodSetsHeaders(): void
