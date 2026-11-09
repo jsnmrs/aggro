@@ -37,21 +37,34 @@ if (! function_exists('decode_entities')) {
     }
 }
 
-if (! function_exists('clean_error_log')) {
+if (! function_exists('clean_error_logs')) {
     /**
      * Clean error logs.
+     *
+     * Logs dated today or later are kept. A log written under a timezone
+     * ahead of the current one carries tomorrow's date, and it is still
+     * the log in use.
+     *
+     * @param string|null $directory
+     *                               Optional. Log directory with a trailing slash.
+     *                               Defaults to the application log directory.
      *
      * @return bool
      *              Logs deleted.
      */
-    function clean_error_logs()
+    function clean_error_logs($directory = null)
     {
-        $path     = WRITEPATH . '/logs/*.log';
-        $files    = glob($path);
-        $todaylog = WRITEPATH . '/logs/' . date('Y-m-d') . '.log';
+        $directory ??= WRITEPATH . '/logs/';
+        $path  = $directory . '*.log';
+        $files = glob($path);
+        $today = date('Y-m-d');
 
         foreach ($files as $file) {
-            if (is_file($file) && ($file !== $todaylog)) {
+            // CodeIgniter's file handler names log files log-Y-m-d.log
+            $current = preg_match('/^log-(\d{4}-\d{2}-\d{2})\.log$/', basename($file), $match) === 1
+                && $match[1] >= $today;
+
+            if (is_file($file) && ! $current) {
                 unlink($file);
             }
         }
