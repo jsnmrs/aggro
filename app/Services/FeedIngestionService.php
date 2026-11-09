@@ -12,6 +12,11 @@ use RuntimeException;
  */
 class FeedIngestionService
 {
+    /**
+     * Width of the news_featured.story_permalink column.
+     */
+    private const PERMALINK_LENGTH = 255;
+
     protected $db;
     protected $utilityModel;
 
@@ -245,7 +250,9 @@ class FeedIngestionService
     }
 
     /**
-     * Insert feed item into database.
+     * Insert feed item into database, or update the stored story when it
+     * changed. An unchanged story is left alone, so a run over a feed
+     * with nothing new writes no stories.
      *
      * @param int    $siteId
      * @param object $item
@@ -260,8 +267,61 @@ class FeedIngestionService
             'story_date'      => $item->get_date('Y-m-d H:i:s'),
         ];
 
-        // Use replace to simulate INSERT IGNORE behavior
-        $this->db->table('news_featured')->replace($data);
+        $stored = $this->findStory($data['story_permalink']);
+
+        if ($stored === null) {
+            $this->db->table('news_featured')->insert($data);
+
+            return;
+        }
+
+        if ($this->storyChanged($stored, $data)) {
+            $this->db->table('news_featured')
+                ->where('story_id', $stored['story_id'])
+                ->update($data);
+        }
+    }
+
+    /**
+     * Find the stored story for a permalink.
+     *
+     * @param string|null $permalink
+     *
+     * @return array|null Story row, or null when the story is not stored
+     */
+    private function findStory($permalink)
+    {
+        // MySQL can cut a stored permalink to the column width, so a long
+        // permalink is matched on its stored form as well
+        $permalink = (string) $permalink;
+        $stored    = mb_substr($permalink, 0, self::PERMALINK_LENGTH);
+
+        $query = $this->db->table('news_featured')
+            ->whereIn('story_permalink', array_unique([$permalink, $stored]))
+            ->get();
+
+        if ($query === false) {
+            return null;
+        }
+
+        return $query->getRowArray();
+    }
+
+    /**
+     * Check whether a feed item differs from its stored story.
+     *
+     * @param array $stored Story row from the database
+     * @param array $data   Story data built from the feed item
+     */
+    private function storyChanged(array $stored, array $data): bool
+    {
+        foreach ($data as $column => $value) {
+            if ((string) $stored[$column] !== (string) $value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
