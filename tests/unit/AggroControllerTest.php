@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Controllers\Aggro;
 use App\Controllers\BaseController;
 use CodeIgniter\Test\ControllerTestTrait;
+use Config\Database;
 use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
@@ -285,16 +286,34 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertStringContainsString('Could not look up https://www.youtube.com/watch?v=dQw4w9WgXcQ.', $body);
     }
 
-    public function testGetLogCleanExecutesSuccessfully(): void
+    public function testGetLogCleanReturnsConfirmation(): void
     {
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getLogClean');
 
-        // Should redirect to /aggro/log
-        $this->assertTrue(
-            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
-        );
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('Old log entries cleared.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
+    }
+
+    public function testGetLogCleanReportsFailureWhenCleanFails(): void
+    {
+        // Without the log table, the clean fails
+        $forge = Database::forge($this->DBGroup);
+        $forge->renameTable('aggro_log', 'aggro_log_hidden');
+
+        try {
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getLogClean');
+        } finally {
+            $forge->renameTable('aggro_log_hidden', 'aggro_log');
+        }
+
+        $this->assertSame(500, $result->response()->getStatusCode());
+        $this->assertSame('Could not clear old log entries.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
     }
 
     public function testGetLogErrorExecutesSuccessfully(): void
@@ -306,16 +325,15 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($result->isOK());
     }
 
-    public function testGetLogErrorCleanExecutesSuccessfully(): void
+    public function testGetLogErrorCleanReturnsConfirmation(): void
     {
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getLogErrorClean');
 
-        // Should redirect to /aggro/log/error
-        $this->assertTrue(
-            $result->response()->hasHeader('Location') || $result->isRedirect() || $result->isOK(),
-        );
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('Old error logs cleared.', $result->response()->getBody());
+        $this->assertFalse($result->response()->hasHeader('Location'));
     }
 
     public function testGetInfoMethodSetsHeaders(): void

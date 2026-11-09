@@ -21,21 +21,8 @@ class UtilityModels extends Model
     public function cleanLog()
     {
         try {
-            $this->db->transStart();
-
             $now        = date('Y-m-d H:i:s');
             $cutoffDate = date('Y-m-d H:i:s', strtotime('-1 day', strtotime($now)));
-
-            // Count entries to be deleted
-            $query = $this->db->table('aggro_log')
-                ->where('log_date <', $cutoffDate)
-                ->get();
-
-            if ($query === false) {
-                throw new DatabaseException('Failed to query old log entries');
-            }
-
-            $update = count($query->getResultArray());
 
             // Delete old entries
             $result = $this->db->table('aggro_log')
@@ -46,18 +33,9 @@ class UtilityModels extends Model
                 throw new DatabaseException('Failed to delete old log entries');
             }
 
-            // Note: OPTIMIZE TABLE may not be necessary for every cleanup
-            // and can be resource intensive on large tables
-            $cleanup = 'OPTIMIZE TABLE aggro_log';
-            $this->db->query($cleanup);
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                log_message('error', 'Transaction failed in cleanLog');
-
-                return false;
-            }
+            // The delete reports how many entries it removed, so they
+            // are never loaded just to be counted
+            $update = $this->db->affectedRows();
 
             $message = $update . ' log entries, older than 1 day deleted.';
             $this->sendLog($message);
