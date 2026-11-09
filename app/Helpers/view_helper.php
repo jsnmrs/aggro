@@ -6,6 +6,7 @@
  * Helper functions for view rendering and formatting.
  */
 
+use CodeIgniter\I18n\Exceptions\I18nException;
 use CodeIgniter\I18n\Time;
 
 if (! function_exists('humanizeTime')) {
@@ -29,7 +30,10 @@ if (! function_exists('timeAgo')) {
     /**
      * Render a relative time inside a <time> element with an ISO 8601 datetime.
      *
-     * @param string      $date     Date in Y-m-d H:i:s format
+     * A missing or unparseable date renders as an empty string, since feed
+     * items are not required to carry one.
+     *
+     * @param string|null $date     Date in Y-m-d H:i:s format
      * @param string      $timezone Timezone the date is stored in
      * @param string|null $class    Optional class attribute
      *
@@ -37,7 +41,16 @@ if (! function_exists('timeAgo')) {
      */
     function timeAgo($date, $timezone, $class = null)
     {
-        $time  = Time::createFromFormat('Y-m-d H:i:s', $date, $timezone);
+        if ($date === null || $date === '') {
+            return '';
+        }
+
+        try {
+            $time = Time::createFromFormat('Y-m-d H:i:s', $date, $timezone);
+        } catch (I18nException $e) {
+            return '';
+        }
+
         $attrs = $class === null ? '' : ' class="' . esc($class, 'attr') . '"';
 
         return '<time' . $attrs . ' datetime="' . esc($time->format('c')) . '">' . esc($time->humanize()) . '</time>';

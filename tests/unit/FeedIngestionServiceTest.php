@@ -305,10 +305,64 @@ final class FeedIngestionServiceTest extends ServiceTestCase
         $this->assertSame(1, $this->countRecords('news_featured'));
     }
 
+    public function testSaveFeedItemsStoresFetchTimeForDatelessStory()
+    {
+        $before = date('Y-m-d H:i:s');
+
+        $this->assertTrue($this->ingest([['Undated story', 'https://example.com/undated', null]]));
+
+        $stored = $this->storedStories()['https://example.com/undated'] ?? null;
+        $this->assertNotNull($stored);
+        $this->assertNotNull($stored['story_date']);
+        $this->assertGreaterThanOrEqual($before, $stored['story_date']);
+        $this->assertLessThanOrEqual(date('Y-m-d H:i:s'), $stored['story_date']);
+    }
+
+    public function testSaveFeedItemsKeepsLastPostTimeForDatelessFirstItem()
+    {
+        $this->db->table('news_feeds')->insert([
+            'site_id'              => 1,
+            'site_name'            => 'Test Site',
+            'site_slug'            => 'test-site',
+            'site_url'             => 'https://example.com',
+            'site_feed'            => 'https://example.com/feed.xml',
+            'site_category'        => 'news',
+            'flag_featured'        => 1,
+            'flag_stream'          => 0,
+            'flag_spoof'           => 0,
+            'site_date_added'      => '2026-01-01 00:00:00',
+            'site_date_updated'    => '2026-01-01 00:00:00',
+            'site_date_last_fetch' => '2026-10-01 09:00:00',
+            'site_date_last_post'  => '2026-10-01 10:00:00',
+        ]);
+
+        $this->assertTrue($this->ingest([['Undated story', 'https://example.com/undated', null]]));
+
+        $site = $this->db->table('news_feeds')->where('site_id', 1)->get()->getRowArray();
+        $this->assertSame('2026-10-01 10:00:00', $site['site_date_last_post']);
+        $this->assertSame(1, $this->countRecords('news_featured'));
+    }
+
+    public function testSaveFeedItemsLeavesDatelessStoryAloneOnSecondRun()
+    {
+        $this->assertTrue($this->ingest([['Undated story', 'https://example.com/undated', null]]));
+
+        // Pin the stored date so a rewrite with the fetch time is visible
+        $this->db->table('news_featured')
+            ->where('story_permalink', 'https://example.com/undated')
+            ->update(['story_date' => '2026-10-01 10:00:00']);
+
+        $this->assertTrue($this->ingest([['Undated story', 'https://example.com/undated', null]]));
+
+        $stored = $this->storedStories()['https://example.com/undated'];
+        $this->assertSame('2026-10-01 10:00:00', $stored['story_date']);
+        $this->assertSame(1, $this->countRecords('news_featured'));
+    }
+
     /**
      * Ingest a batch of stories through saveFeedItems().
      *
-     * @param list<array{0: string, 1: string, 2: string}> $stories Title, permalink, and date for each story
+     * @param list<array{0: string, 1: string, 2: string|null}> $stories Title, permalink, and date for each story
      */
     private function ingest(array $stories, int $siteId = 1): bool
     {
@@ -318,7 +372,7 @@ final class FeedIngestionServiceTest extends ServiceTestCase
             public function __construct(
                 private readonly string $title,
                 private readonly string $permalink,
-                private readonly string $date,
+                private readonly ?string $date,
             ) {
             }
 
@@ -332,7 +386,7 @@ final class FeedIngestionServiceTest extends ServiceTestCase
                 return $this->permalink;
             }
 
-            public function get_date(string $format): string
+            public function get_date(string $format): ?string
             {
                 return $this->date;
             }
