@@ -411,6 +411,10 @@ class VideoRepository
     /**
      * Get single video.
      *
+     * A retired video is not returned, so its page stops rendering along
+     * with its list entries. Archived videos and Shorts are returned, since
+     * their pages stay reachable as permanent links.
+     *
      * @param string $slug
      *                     Video id.
      *
@@ -421,6 +425,7 @@ class VideoRepository
     {
         $query = $this->db->table('aggro_videos')
             ->where('video_id', $slug)
+            ->where('flag_bad', 0)
             ->limit(1)
             ->get();
 
