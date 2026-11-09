@@ -45,7 +45,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithMultipartFormDataWithBoundaryIsAccepted(): void
     {
         $contentType = 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -55,7 +55,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithMultipartFormDataWithoutBoundaryIsAccepted(): void
     {
         $contentType = 'multipart/form-data';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -65,7 +65,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithApplicationJsonIsAccepted(): void
     {
         $contentType = 'application/json';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -75,7 +75,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithApplicationJsonCharsetIsAccepted(): void
     {
         $contentType = 'application/json; charset=utf-8';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -85,7 +85,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithFormUrlEncodedIsAccepted(): void
     {
         $contentType = 'application/x-www-form-urlencoded';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -95,7 +95,7 @@ final class SecurityFilterTest extends CIUnitTestCase
     public function testPostWithInvalidContentTypeIsRejected(): void
     {
         $contentType = 'text/plain';
-        $request     = $this->createMockRequest('post', $contentType);
+        $request     = $this->createMockRequest('POST', $contentType);
 
         $result = $this->filter->before($request);
 
@@ -103,9 +103,29 @@ final class SecurityFilterTest extends CIUnitTestCase
         $this->assertSame(415, $result->getStatusCode());
     }
 
+    public function testPostMethodIsMatchedInAnyCase(): void
+    {
+        $request = $this->createMockRequest('post', 'text/plain');
+
+        $result = $this->filter->before($request);
+
+        $this->assertInstanceOf(Response::class, $result);
+        $this->assertSame(415, $result->getStatusCode());
+    }
+
+    public function testPostWithoutContentTypeIsAccepted(): void
+    {
+        // A POST with no Content-Type has no body for PHP to parse
+        $request = $this->createMockRequest('POST');
+
+        $result = $this->filter->before($request);
+
+        $this->assertNull($result, 'A POST without a content type should be accepted');
+    }
+
     public function testGetRequestBypassesContentTypeCheck(): void
     {
-        $request = $this->createMockRequest('get');
+        $request = $this->createMockRequest('GET');
 
         $result = $this->filter->before($request);
 
@@ -114,7 +134,7 @@ final class SecurityFilterTest extends CIUnitTestCase
 
     public function testPutRequestBypassesContentTypeCheck(): void
     {
-        $request = $this->createMockRequest('put', 'application/json');
+        $request = $this->createMockRequest('PUT', 'application/json');
 
         $result = $this->filter->before($request);
 
@@ -123,7 +143,7 @@ final class SecurityFilterTest extends CIUnitTestCase
 
     public function testDeleteRequestBypassesContentTypeCheck(): void
     {
-        $request = $this->createMockRequest('delete');
+        $request = $this->createMockRequest('DELETE');
 
         $result = $this->filter->before($request);
 
@@ -132,7 +152,7 @@ final class SecurityFilterTest extends CIUnitTestCase
 
     public function testAfterSetsXContentTypeOptionsHeader(): void
     {
-        $request  = $this->createMockRequest('get');
+        $request  = $this->createMockRequest('GET');
         $response = new Response(new App());
 
         $this->filter->after($request, $response);
@@ -142,7 +162,7 @@ final class SecurityFilterTest extends CIUnitTestCase
 
     public function testAfterSetsXXSSProtectionHeader(): void
     {
-        $request  = $this->createMockRequest('get');
+        $request  = $this->createMockRequest('GET');
         $response = new Response(new App());
 
         $this->filter->after($request, $response);
@@ -152,7 +172,7 @@ final class SecurityFilterTest extends CIUnitTestCase
 
     public function testAfterReturnsNull(): void
     {
-        $request  = $this->createMockRequest('get');
+        $request  = $this->createMockRequest('GET');
         $response = new Response(new App());
 
         $result = $this->filter->after($request, $response);

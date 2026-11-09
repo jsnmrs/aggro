@@ -16,8 +16,9 @@ class SecurityFilter implements FilterInterface
         $_POST   = $this->removeNullBytes($_POST);
         $_COOKIE = $this->removeNullBytes($_COOKIE);
 
-        // Validate content type for POST requests
-        if ($request->getMethod() === 'post') {
+        // Validate content type for POST requests. The framework reports
+        // the method as the server received it, which is uppercase.
+        if (strtoupper($request->getMethod()) === 'POST') {
             $contentType     = $request->getHeaderLine('Content-Type');
             $baseContentType = explode(';', $contentType)[0];
             $allowedTypes    = [
@@ -25,7 +26,9 @@ class SecurityFilter implements FilterInterface
                 'multipart/form-data',
                 'application/json',
             ];
-            if (! in_array(trim($baseContentType), $allowedTypes, true)) {
+            // A POST with no Content-Type has no body for PHP to parse,
+            // so there is nothing to validate
+            if ($contentType !== '' && ! in_array(trim($baseContentType), $allowedTypes, true)) {
                 return Services::response()->setStatusCode(415);
             }
         }
