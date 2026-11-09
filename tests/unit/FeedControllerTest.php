@@ -27,11 +27,6 @@ final class FeedControllerTest extends ServiceTestCase
         $this->assertInstanceOf(BaseController::class, $this->feedController);
     }
 
-    public function testGetIndexMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->feedController, 'getIndex'));
-    }
-
     public function testGetOpmlMethodExists(): void
     {
         $this->assertTrue(method_exists($this->feedController, 'getOpml'));
@@ -71,16 +66,6 @@ final class FeedControllerTest extends ServiceTestCase
     {
         $result = $this->controller(Feed::class)
             ->execute('getNewsfeed');
-
-        $response = $result->response();
-
-        $this->assertSame('application/rss+xml; charset=UTF-8', $response->getHeaderLine('Content-Type'));
-    }
-
-    public function testGetIndexCallsGetNewsfeed(): void
-    {
-        $result = $this->controller(Feed::class)
-            ->execute('getIndex');
 
         $response = $result->response();
 

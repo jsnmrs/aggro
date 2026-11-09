@@ -36,12 +36,14 @@ class SecurityFilter implements FilterInterface
         return null;
     }
 
+    /**
+     * Nothing runs after the controller. The security headers are set in
+     * public/.htaccess.
+     *
+     * @param mixed|null $arguments
+     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Add security headers
-        $response->setHeader('X-Content-Type-Options', 'nosniff');
-        $response->setHeader('X-XSS-Protection', '1; mode=block');
-
         return null;
     }
 

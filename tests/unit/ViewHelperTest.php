@@ -16,74 +16,6 @@ final class ViewHelperTest extends CIUnitTestCase
         helper('view');
     }
 
-    public function testHumanizeTimeMethodExists(): void
-    {
-        $this->assertTrue(function_exists('humanizeTime'));
-    }
-
-    public function testHumanizeTimeWithValidDate(): void
-    {
-        $date     = '2024-01-01 12:00:00';
-        $timezone = 'America/New_York';
-
-        $result = humanizeTime($date, $timezone);
-
-        $this->assertIsString($result);
-        $this->assertNotEmpty($result);
-    }
-
-    public function testHumanizeTimeWithRecentDate(): void
-    {
-        $date     = date('Y-m-d H:i:s', strtotime('-1 hour'));
-        $timezone = 'UTC';
-
-        $result = humanizeTime($date, $timezone);
-
-        $this->assertIsString($result);
-        $this->assertStringContainsString('ago', $result);
-    }
-
-    public function testHumanizeTimeWithOldDate(): void
-    {
-        $date     = '2020-01-01 12:00:00';
-        $timezone = 'UTC';
-
-        $result = humanizeTime($date, $timezone);
-
-        $this->assertIsString($result);
-        // Should contain either "ago" or formatted date
-        $this->assertNotEmpty($result);
-    }
-
-    public function testHumanizeTimeWithDifferentTimezones(): void
-    {
-        $date      = '2024-01-01 12:00:00';
-        $timezones = [
-            'UTC',
-            'America/New_York',
-            'Europe/London',
-            'Asia/Tokyo',
-        ];
-
-        foreach ($timezones as $timezone) {
-            $result = humanizeTime($date, $timezone);
-            $this->assertIsString($result);
-            $this->assertNotEmpty($result);
-        }
-    }
-
-    public function testHumanizeTimeWithInvalidDateThrowsException(): void
-    {
-        $this->expectException(Exception::class);
-        humanizeTime('not-a-date', 'UTC');
-    }
-
-    public function testHumanizeTimeWithInvalidTimezoneThrowsException(): void
-    {
-        $this->expectException(Exception::class);
-        humanizeTime('2024-01-01 12:00:00', 'Invalid/Timezone');
-    }
-
     public function testTimeAgoRendersTimeElementWithOffset(): void
     {
         $result = timeAgo('2024-07-01 12:00:00', 'America/New_York', 'ago--muted');
@@ -109,10 +41,19 @@ final class ViewHelperTest extends CIUnitTestCase
         $this->assertStringContainsString('&quot;', $result);
     }
 
-    public function testTimeAgoWithInvalidDateThrowsException(): void
+    public function testTimeAgoWithInvalidDateReturnsEmptyString(): void
     {
-        $this->expectException(Exception::class);
-        timeAgo('not-a-date', 'UTC');
+        $this->assertSame('', timeAgo('not-a-date', 'UTC'));
+    }
+
+    public function testTimeAgoWithNullDateReturnsEmptyString(): void
+    {
+        $this->assertSame('', timeAgo(null, 'UTC'));
+    }
+
+    public function testTimeAgoWithEmptyDateReturnsEmptyString(): void
+    {
+        $this->assertSame('', timeAgo('', 'UTC'));
     }
 
     public function testDisplayStoryMethodExists(): void
@@ -252,7 +193,6 @@ final class ViewHelperTest extends CIUnitTestCase
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
-            'humanizeTime',
             'timeAgo',
             'storyTitle',
             'videoTitle',
@@ -267,26 +207,8 @@ final class ViewHelperTest extends CIUnitTestCase
     public function testFunctionReturnTypes(): void
     {
         // Test basic return types
-        $result1 = humanizeTime('2024-01-01 12:00:00', 'UTC');
-        $this->assertIsString($result1);
-
-        $row     = [1 => ['story_title' => 'Test', 'story_permalink' => 'https://example.com', 'story_hash' => 'hash']];
-        $result2 = displayStory($row, 1);
-        $this->assertIsString($result2);
-    }
-
-    public function testHumanizeTimeEdgeCases(): void
-    {
-        // Test with future date
-        $futureDate = date('Y-m-d H:i:s', strtotime('+1 hour'));
-        $result     = humanizeTime($futureDate, 'UTC');
+        $row    = [1 => ['story_title' => 'Test', 'story_permalink' => 'https://example.com', 'story_hash' => 'hash']];
+        $result = displayStory($row, 1);
         $this->assertIsString($result);
-        $this->assertNotEmpty($result);
-
-        // Test with date at midnight
-        $midnightDate = date('Y-m-d') . ' 00:00:00';
-        $result       = humanizeTime($midnightDate, 'UTC');
-        $this->assertIsString($result);
-        $this->assertNotEmpty($result);
     }
 }

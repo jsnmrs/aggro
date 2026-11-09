@@ -133,37 +133,20 @@ class Aggro extends BaseController
     /**
      * Update featured/stream pages.
      *
-     * Set cron to run every 5 minutes.
+     * Set cron to run every 6 minutes.
      */
-    public function getNews(?string $slug = null): ResponseInterface|string
+    public function getNews(): ResponseInterface|string
     {
         helper('aggro');
-        $newsModel = new NewsModels();
 
         if (! gate_check()) {
             return $this->response->setStatusCode(403);
         }
 
-        if ($slug === null) {
-            $feedIngestionService = new FeedIngestionService();
-            $feedIngestionService->featuredBuilder();
+        $feedIngestionService = new FeedIngestionService();
+        $feedIngestionService->featuredBuilder();
 
-            return 'Featured page built.';
-        }
-
-        if ($slug === 'clean') {
-            $newsModel->featuredCleaner();
-
-            return 'Featured news stories cleared.';
-        }
-
-        if ($slug === 'cc') {
-            clean_feed_cache();
-
-            return 'Feed caches cleared.';
-        }
-
-        return $this->response->setStatusCode(404);
+        return 'Featured page built.';
     }
 
     /**
@@ -202,7 +185,7 @@ class Aggro extends BaseController
     /**
      * Update archive old videos, run cleanup.
      *
-     * Set cron to run every 60 minutes.
+     * Set cron to run every day at 2am.
      */
     public function getSweep(): bool|ResponseInterface
     {
@@ -258,7 +241,7 @@ class Aggro extends BaseController
     /**
      * Vimeo video fetcher.
      *
-     * Set cron to run every 5 minutes.
+     * Set cron to run every 7 minutes.
      */
     public function getVimeo(?string $videoID = null): bool|ResponseInterface
     {

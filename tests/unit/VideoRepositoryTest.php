@@ -72,6 +72,37 @@ final class VideoRepositoryTest extends RepositoryTestCase
         $this->assertFalse($result);
     }
 
+    public function testGetVideoReturnsFalseForRetiredVideo()
+    {
+        // Arrange
+        $this->db->table('aggro_videos')->insert($this->createTestVideo([
+            'video_id' => 'retired_video',
+            'flag_bad' => 1,
+        ]));
+
+        // Act
+        $result = $this->repository->getVideo('retired_video');
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    public function testGetVideoReturnsArchivedVideo()
+    {
+        // Arrange
+        $this->db->table('aggro_videos')->insert($this->createTestVideo([
+            'video_id'     => 'archived_video',
+            'flag_archive' => 1,
+        ]));
+
+        // Act
+        $result = $this->repository->getVideo('archived_video');
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertSame('archived_video', $result['video_id']);
+    }
+
     public function testGetVideosReturnsActiveVideos()
     {
         // Arrange

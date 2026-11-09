@@ -138,6 +138,30 @@ final class FrontControllerTest extends RepositoryTestCase
         $response->assertStatus(404);
     }
 
+    public function testRetiredVideoReturns404()
+    {
+        $this->db->table('aggro_videos')->insert($this->createTestVideo([
+            'video_id' => 'retiredvid1',
+            'flag_bad' => 1,
+        ]));
+
+        $this->get('/video/retiredvid1')->assertStatus(404);
+    }
+
+    public function testArchivedVideoStillRenders()
+    {
+        $this->db->table('aggro_videos')->insert($this->createTestVideo([
+            'video_id'     => 'archivedvid',
+            'video_title'  => 'Archived ride',
+            'flag_archive' => 1,
+        ]));
+
+        $response = $this->get('/video/archivedvid');
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('Archived ride', (string) $response->response()->getBody());
+    }
+
     public function testSitemapReturnsXml()
     {
         $response = $this->get('/sitemap.xml');
