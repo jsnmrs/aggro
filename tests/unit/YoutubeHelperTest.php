@@ -58,48 +58,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertFalse($result);
     }
 
-    public function testYoutubeIdFromUrlMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_id_from_url'));
-    }
-
-    public function testYoutubeIdFromUrlWithValidYoutubeUrl(): void
-    {
-        $testCases = [
-            'https://www.youtube.com/watch?v=dQw4w9WgXcQ' => 'dQw4w9WgXcQ',
-            'https://youtube.com/watch?v=dQw4w9WgXcQ'     => 'dQw4w9WgXcQ',
-            'https://youtu.be/dQw4w9WgXcQ'                => 'dQw4w9WgXcQ',
-            'https://www.youtube.com/embed/dQw4w9WgXcQ'   => 'dQw4w9WgXcQ',
-        ];
-
-        foreach ($testCases as $url => $expectedId) {
-            $result = youtube_id_from_url($url);
-            $this->assertSame($expectedId, $result, "Failed to extract ID from URL: {$url}");
-        }
-    }
-
-    public function testYoutubeIdFromUrlWithInvalidUrl(): void
-    {
-        $invalidUrls = [
-            'https://example.com/video',
-            'https://vimeo.com/123456',
-            'not-a-url',
-            '',
-        ];
-
-        foreach ($invalidUrls as $url) {
-            $result = youtube_id_from_url($url);
-            $this->assertFalse($result, "Should return false for invalid URL: {$url}");
-        }
-    }
-
-    public function testYoutubeIdFromUrlWithUrlParameters(): void
-    {
-        $url    = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10s&list=playlist';
-        $result = youtube_id_from_url($url);
-        $this->assertSame('dQw4w9WgXcQ', $result);
-    }
-
     public function testYoutubeGetDimensionsMethodExists(): void
     {
         $this->assertTrue(function_exists('youtube_get_dimensions'));
@@ -304,7 +262,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $expectedFunctions = [
             'youtube_get_feed',
             'youtube_get_video_source',
-            'youtube_id_from_url',
             'youtube_get_dimensions',
             'youtube_parse_dimensions',
             'youtube_get_short',
@@ -323,22 +280,5 @@ final class YoutubeHelperTest extends CIUnitTestCase
         // Test that functions return expected types for invalid input
         $this->assertInstanceOf(SimplePie::class, youtube_get_feed(''));
         $this->assertFalse(youtube_get_video_source(''));
-        $this->assertFalse(youtube_id_from_url('invalid'));
-    }
-
-    public function testYoutubeIdExtractionEdgeCases(): void
-    {
-        // Test various YouTube URL formats
-        $testCases = [
-            'https://www.youtube.com/watch?v=ABC123&feature=youtu.be' => 'ABC123',
-            'https://m.youtube.com/watch?v=XYZ789'                    => 'XYZ789',
-            'https://gaming.youtube.com/watch?v=DEF456'               => 'DEF456',
-        ];
-
-        foreach ($testCases as $url => $expectedId) {
-            $result = youtube_id_from_url($url);
-            // May or may not extract based on regex patterns
-            $this->assertTrue($result === $expectedId || $result === false);
-        }
     }
 }

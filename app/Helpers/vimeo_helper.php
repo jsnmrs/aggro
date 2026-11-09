@@ -69,32 +69,6 @@ if (! function_exists('vimeo_get_plays')) {
     }
 }
 
-if (! function_exists('vimeo_id_from_url')) {
-    /**
-     * Parse vimeo video id from full URL.
-     *
-     * @param string $url
-     *                    Full video URL.
-     *
-     * @return false|string
-     *                      Vimeo id from full URL, or false if not found.
-     */
-    function vimeo_id_from_url($url)
-    {
-        $pattern = '/vimeo\\.com\\/([0-9]{1,10})/';
-        if (preg_match($pattern, $url, $match)) {
-            return $match[1];
-        }
-
-        $pattern = '/player\\.vimeo\\.com\\/video\\/([0-9]{1,10})/';
-        if (preg_match($pattern, $url, $match)) {
-            return $match[1];
-        }
-
-        return false;
-    }
-}
-
 if (! function_exists('vimeo_parse_meta')) {
     /**
      * Parse vimeo video metadata for DB import.

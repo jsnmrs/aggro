@@ -79,34 +79,6 @@ if (! function_exists('youtube_get_video_source')) {
     }
 }
 
-if (! function_exists('youtube_id_from_url')) {
-    /**
-     * Parse youtube video id from full URL.
-     *
-     * @param string $url
-     *                    Full video URL.
-     *
-     * @return false|string
-     *                      Youtube id from full URL, or false if not found.
-     */
-    function youtube_id_from_url($url)
-    {
-        $match   = [];
-        $pattern = '/^.*(youtu.be\\/|v\\/|u\\/\\w\\/|embed\\/|watch\\?v=|\\&v=)([^#\\&\\?]*).*/';
-        preg_match($pattern, $url, $match);
-
-        if (isset($match[2]) && strlen($match[2]) === 11) {
-            // Add validation to ensure clean ID
-            $id = trim($match[2]);
-            if (preg_match('/^[\w-]{11}$/', $id)) {
-                return $id;
-            }
-        }
-
-        return false;
-    }
-}
-
 if (! function_exists('youtube_parse_dimensions')) {
     /**
      * Read the video dimensions out of a fetched YouTube oEmbed response.

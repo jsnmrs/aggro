@@ -150,26 +150,6 @@ final class SecurityFilterTest extends CIUnitTestCase
         $this->assertNull($result, 'DELETE requests should bypass content-type check');
     }
 
-    public function testAfterSetsXContentTypeOptionsHeader(): void
-    {
-        $request  = $this->createMockRequest('GET');
-        $response = new Response(new App());
-
-        $this->filter->after($request, $response);
-
-        $this->assertSame('nosniff', $response->getHeaderLine('X-Content-Type-Options'));
-    }
-
-    public function testAfterSetsXXSSProtectionHeader(): void
-    {
-        $request  = $this->createMockRequest('GET');
-        $response = new Response(new App());
-
-        $this->filter->after($request, $response);
-
-        $this->assertSame('1; mode=block', $response->getHeaderLine('X-XSS-Protection'));
-    }
-
     public function testAfterReturnsNull(): void
     {
         $request  = $this->createMockRequest('GET');

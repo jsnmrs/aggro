@@ -11,14 +11,6 @@ use App\Models\NewsModels;
 class Feed extends BaseController
 {
     /**
-     * Index -> RSS feed.
-     */
-    public function getIndex()
-    {
-        $this->getNewsfeed();
-    }
-
-    /**
      * OPML generator.
      */
     public function getOpml()

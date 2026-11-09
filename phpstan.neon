@@ -33,8 +33,6 @@ parameters:
         - '#Function log_message not found.#'
         - '#Function clean_path not found.#'
         - '#Function is_cli not found.#'
-        - '#Function csrf_token not found.#'
-        - '#Function csrf_hash not found.#'
         - '#Function lang not found.#'
         - '#Function config not found.#'
         - '#Function env not found.#'

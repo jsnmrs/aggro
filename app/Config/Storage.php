@@ -75,12 +75,4 @@ class Storage extends BaseConfig
     {
         return 60 * 60 * 24 * $this->cleanupDays;
     }
-
-    /**
-     * Get archive age in seconds.
-     */
-    public function getArchiveAgeSeconds(): int
-    {
-        return 60 * 60 * 24 * $this->archiveDays;
-    }
 }

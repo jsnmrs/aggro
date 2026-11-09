@@ -97,29 +97,6 @@ if (! function_exists('clean_feed_cache')) {
     }
 }
 
-if (! function_exists('clean_thumbnail')) {
-    /**
-     * Delete thumbnail.
-     *
-     * @param string $videoid
-     *                        Video id.
-     *
-     * @return bool
-     *              Thumbnail deleted.
-     */
-    function clean_thumbnail($videoid)
-    {
-        $storageConfig = config('Storage');
-        $path          = $storageConfig->getThumbnailPath($videoid);
-
-        if (file_exists($path)) {
-            unlink($path);
-        }
-
-        return true;
-    }
-}
-
 if (! function_exists('fetch_error_logs')) {
     /**
      * Get error logs.
@@ -299,14 +276,13 @@ if (! function_exists('fetch_failure_log_level')) {
 
 if (! function_exists('fetch_url')) {
     /**
-     * Fetch contents of URL (via CURL). Decode if XML or JSON.
+     * Fetch contents of URL (via CURL). Decode if JSON.
      *
      * @param string   $url
      *                              URL to be fetched.
      * @param string   $format
      *                              Format to be returned:
      *                              - text: return as text, no decoding.
-     *                              - simplexml: return as decoded XML.
      *                              - json: return as decoded JSON.
      * @param int      $spoof
      *                              Spoof user agent flag (1 = spoof, 0 = default).
@@ -316,8 +292,8 @@ if (! function_exists('fetch_url')) {
      * @param-out int $httpStatus
      *
      * @return array|false|object|string
-     *                                   Decoded object/array for json, SimpleXMLElement for simplexml,
-     *                                   string for text, or false on error.
+     *                                   Decoded object/array for json, string for text,
+     *                                   or false on error.
      */
     function fetch_url($url, $format = 'text', $spoof = 0, &$httpStatus = null)
     {
@@ -358,19 +334,6 @@ if (! function_exists('fetch_url')) {
             log_message('warning', $message);
 
             return false;
-        }
-
-        if ($format === 'simplexml') {
-            libxml_use_internal_errors(true);
-            $response = simplexml_load_string($response);
-            $errors   = libxml_get_errors();
-
-            if (! empty($errors)) {
-                $message = $url . ' is throwing XML errors.';
-                log_message('error', $message);
-
-                return false;
-            }
         }
 
         if ($format === 'json') {
@@ -501,81 +464,5 @@ if (! function_exists('safe_file_write')) {
         }
 
         return true;
-    }
-}
-
-if (! function_exists('safe_file_read')) {
-    /**
-     * Safely read data from a file with error handling.
-     *
-     * @param string $path The file path to read from
-     * @param string $mode The file open mode (default: 'rb')
-     *
-     * @return false|string File contents on success, false on failure
-     */
-    function safe_file_read($path, $mode = 'rb')
-    {
-        if (! is_file($path)) {
-            log_message('error', 'File does not exist: ' . $path);
-
-            return false;
-        }
-
-        $fileSize = filesize($path);
-        if ($fileSize === false) {
-            log_message('error', 'Failed to get file size: ' . $path);
-
-            return false;
-        }
-
-        // Handle empty files
-        if ($fileSize === 0) {
-            return '';
-        }
-
-        $file = fopen($path, $mode);
-        if ($file === false) {
-            log_message('error', 'Failed to open file for reading: ' . $path);
-
-            return false;
-        }
-
-        $content = fread($file, $fileSize);
-        if ($content === false) {
-            log_message('error', 'Failed to read file: ' . $path);
-            fclose($file);
-
-            return false;
-        }
-
-        if (fclose($file) === false) {
-            log_message('error', 'Failed to close file after reading: ' . $path);
-        }
-
-        return $content;
-    }
-}
-
-if (! function_exists('csrf_action_form')) {
-    /**
-     * Generate a CSRF-protected form for admin actions
-     *
-     * @param string $action The action URL
-     * @param string $label  The button label
-     * @param string $class  Optional CSS class for the button
-     *
-     * @return string HTML form with CSRF token
-     */
-    function csrf_action_form($action, $label, $class = '')
-    {
-        $csrf     = csrf_token();
-        $csrfHash = csrf_hash();
-
-        $html = '<form method="POST" action="' . esc($action) . '" style="display:inline;">';
-        $html .= '<input type="hidden" name="' . esc($csrf) . '" value="' . esc($csrfHash) . '">';
-        $html .= '<button type="submit" class="' . esc($class) . '">' . esc($label) . '</button>';
-        $html .= '</form>';
-
-        return $html;
     }
 }

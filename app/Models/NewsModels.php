@@ -209,22 +209,6 @@ class NewsModels extends Model
     }
 
     /**
-     * Get total count of featured stories for pagination.
-     *
-     * @return int Total number of featured stories
-     */
-    public function getStreamPageTotal()
-    {
-        $query = $this->db->table('news_featured')
-            ->selectCount('news_featured.site_id', 'total')
-            ->join('news_feeds', 'news_featured.site_id = news_feeds.site_id', 'inner')
-            ->get();
-        $result = $query->getRow();
-
-        return (int) $result->total;
-    }
-
-    /**
      * Update feed data.
      *
      * @param string $slug

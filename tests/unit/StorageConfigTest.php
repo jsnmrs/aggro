@@ -42,14 +42,6 @@ final class StorageConfigTest extends CIUnitTestCase
         $this->assertGreaterThan(0, $seconds);
     }
 
-    public function testGetArchiveAgeSeconds(): void
-    {
-        $seconds = $this->config->getArchiveAgeSeconds();
-
-        $this->assertSame(60 * 60 * 24 * $this->config->archiveDays, $seconds);
-        $this->assertGreaterThan(0, $seconds);
-    }
-
     public function testDefaultValues(): void
     {
         $this->assertSame('.webp', $this->config->thumbnailExtension);
@@ -71,10 +63,7 @@ final class StorageConfigTest extends CIUnitTestCase
     public function testArchiveAgeIsLessThanCleanupAge(): void
     {
         // Archive age should be less than cleanup age (archive before cleanup)
-        $this->assertLessThan(
-            $this->config->getCleanupAgeSeconds(),
-            $this->config->getArchiveAgeSeconds(),
-        );
+        $this->assertLessThan($this->config->cleanupDays, $this->config->archiveDays);
     }
 
     public function testThumbnailPathIncludesExtension(): void

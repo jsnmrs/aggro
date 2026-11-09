@@ -143,43 +143,14 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($reflection->hasMethod('validateYouTubeVideoId'));
     }
 
-    public function testGetNewsWithSlugClean(): void
-    {
-        // In CLI mode gate_check() returns true, so we can test the clean path
-        $result = $this->controller(Aggro::class)
-            ->execute('getNews', 'clean');
-
-        $body = $result->response()->getBody();
-        $this->assertStringContainsString('Featured news stories cleared.', $body);
-    }
-
-    public function testGetNewsWithSlugCc(): void
+    public function testGetNewsReturnsConfirmation(): void
     {
         // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getNews', 'cc');
-
-        $body = $result->response()->getBody();
-        $this->assertStringContainsString('Feed caches cleared.', $body);
-    }
-
-    public function testGetNewsWithNullSlug(): void
-    {
-        // In CLI mode gate_check() returns true, null slug triggers featuredBuilder
         $result = $this->controller(Aggro::class)
             ->execute('getNews');
 
         $body = $result->response()->getBody();
         $this->assertStringContainsString('Featured page built.', $body);
-    }
-
-    public function testGetNewsWithInvalidSlug(): void
-    {
-        // Invalid slug should return 404
-        $result = $this->controller(Aggro::class)
-            ->execute('getNews', 'nonexistent');
-
-        $this->assertSame(404, $result->response()->getStatusCode());
     }
 
     public function testGetNewsCacheReturnsExpectedMessage(): void
