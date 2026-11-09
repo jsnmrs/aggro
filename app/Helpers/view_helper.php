@@ -9,23 +9,6 @@
 use CodeIgniter\I18n\Exceptions\I18nException;
 use CodeIgniter\I18n\Time;
 
-if (! function_exists('humanizeTime')) {
-    /**
-     * Humanize the time for a given date.
-     *
-     * @param string $date
-     * @param string $timezone
-     *
-     * @return string
-     */
-    function humanizeTime($date, $timezone)
-    {
-        $time = Time::createFromFormat('Y-m-d H:i:s', $date, $timezone);
-
-        return $time->humanize();
-    }
-}
-
 if (! function_exists('timeAgo')) {
     /**
      * Render a relative time inside a <time> element with an ISO 8601 datetime.

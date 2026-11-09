@@ -44,41 +44,6 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertTrue($params[1]->isOptional());
     }
 
-    public function testVimeoIdFromUrlMethodExists(): void
-    {
-        $this->assertTrue(function_exists('vimeo_id_from_url'));
-    }
-
-    public function testVimeoIdFromUrlWithValidVimeoUrl(): void
-    {
-        // Test only the first case to avoid potential undefined index errors
-        $url    = 'https://vimeo.com/123456789';
-        $result = vimeo_id_from_url($url);
-        $this->assertSame('123456789', $result);
-    }
-
-    public function testVimeoIdFromUrlWithInvalidUrl(): void
-    {
-        $invalidUrls = [
-            'https://example.com/video',
-            'https://youtube.com/watch?v=123456',
-            'not-a-url',
-            '',
-        ];
-
-        foreach ($invalidUrls as $url) {
-            $result = vimeo_id_from_url($url);
-            $this->assertFalse($result, "Should return false for invalid URL: {$url}");
-        }
-    }
-
-    public function testVimeoIdFromUrlWithUrlParameters(): void
-    {
-        $url    = 'https://vimeo.com/123456789?autoplay=1&color=ffffff';
-        $result = vimeo_id_from_url($url);
-        $this->assertSame('123456789', $result);
-    }
-
     public function testVimeoParseMetaMethodExists(): void
     {
         $this->assertTrue(function_exists('vimeo_parse_meta'));
@@ -253,7 +218,6 @@ final class VimeoHelperTest extends CIUnitTestCase
     {
         $expectedFunctions = [
             'vimeo_get_feed',
-            'vimeo_id_from_url',
             'vimeo_parse_meta',
         ];
 
@@ -266,21 +230,5 @@ final class VimeoHelperTest extends CIUnitTestCase
     {
         // Test that functions return expected types for invalid input
         $this->assertFalse(vimeo_get_feed(''));
-        $this->assertFalse(vimeo_id_from_url('invalid'));
-    }
-
-    public function testVimeoIdExtractionWithEdgeCases(): void
-    {
-        // Test various edge cases for ID extraction
-        $testCases = [
-            'vimeo.com/123456789'          => '123456789', // Without protocol
-            'https://vimeo.com/123456789/' => '123456789', // With trailing slash
-        ];
-
-        foreach ($testCases as $url => $expectedId) {
-            $result = vimeo_id_from_url($url);
-            // Result depends on regex implementation
-            $this->assertTrue($result === $expectedId || $result === false);
-        }
     }
 }

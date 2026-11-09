@@ -35,22 +35,6 @@ final class SecurityTest extends DatabaseTestCase
         }
     }
 
-    public function testVideoIdValidation()
-    {
-        // Valid YouTube IDs
-        $this->assertNotNull($this->validationService->validateVideoId('dQw4w9WgXcQ', 'youtube'));
-
-        // Invalid YouTube IDs
-        $this->assertNull($this->validationService->validateVideoId('../../etc/passwd', 'youtube'));
-        $this->assertNull($this->validationService->validateVideoId('<script>alert(1)</script>', 'youtube'));
-
-        // Valid Vimeo IDs
-        $this->assertNotNull($this->validationService->validateVideoId('123456789', 'vimeo'));
-
-        // Invalid Vimeo IDs
-        $this->assertNull($this->validationService->validateVideoId('abc123', 'vimeo'));
-    }
-
     public function testGateKeyValidation()
     {
         // Valid gate keys
@@ -63,23 +47,6 @@ final class SecurityTest extends DatabaseTestCase
         $this->assertFalse($this->validationService->validateGateKey('key with spaces'));
         $this->assertFalse($this->validationService->validateGateKey('key@domain.com'));
         $this->assertFalse($this->validationService->validateGateKey("key'with'quotes"));
-    }
-
-    public function testIntegerSanitization()
-    {
-        // Valid integers
-        $this->assertSame(5, $this->validationService->sanitizeInt('5'));
-        $this->assertSame(10, $this->validationService->sanitizeInt(10));
-
-        // Invalid inputs should return min value
-        $this->assertSame(0, $this->validationService->sanitizeInt('abc'));
-        $this->assertSame(0, $this->validationService->sanitizeInt(null));
-        $this->assertSame(0, $this->validationService->sanitizeInt(''));
-
-        // Test with custom min/max
-        $this->assertSame(1, $this->validationService->sanitizeInt(-5, 1, 10));
-        $this->assertSame(10, $this->validationService->sanitizeInt(15, 1, 10));
-        $this->assertSame(5, $this->validationService->sanitizeInt(5, 1, 10));
     }
 
     public function testSlugSanitization()

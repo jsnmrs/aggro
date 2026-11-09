@@ -320,43 +320,6 @@ final class NewsModelsTest extends ServiceTestCase
         $this->assertCount(2, $result);
     }
 
-    public function testGetStreamPageTotalReturnsCorrectCount()
-    {
-        // Arrange
-        $this->db->table('news_feeds')->insert([
-            'site_id'              => 1,
-            'site_name'            => 'Test Site',
-            'site_slug'            => 'test-site',
-            'site_url'             => 'https://example.com',
-            'site_feed'            => 'https://example.com/feed.xml',
-            'site_category'        => 'news',
-            'flag_featured'        => 1,
-            'flag_stream'          => 0,
-            'flag_spoof'           => 0,
-            'site_date_added'      => date('Y-m-d H:i:s'),
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post'  => date('Y-m-d H:i:s'),
-        ]);
-
-        // Insert 5 stories
-        for ($i = 1; $i <= 5; $i++) {
-            $this->db->table('news_featured')->insert([
-                'site_id'         => 1,
-                'story_title'     => "Story {$i}",
-                'story_permalink' => "https://example.com/story-{$i}",
-                'story_hash'      => sha1("https://example.com/story-{$i}"),
-                'story_date'      => date('Y-m-d H:i:s'),
-            ]);
-        }
-
-        // Act
-        $result = $this->model->getStreamPageTotal();
-
-        // Assert
-        $this->assertSame(5, $result);
-    }
-
     public function testUpdateFeedUpdatesTimestamps()
     {
         // Arrange

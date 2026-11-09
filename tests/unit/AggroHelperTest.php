@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
-use ReflectionFunction;
 use SimplePie\SimplePie;
 use Tests\Support\LocalHttpServerTrait;
 use TypeError;
@@ -75,23 +74,6 @@ final class AggroHelperTest extends CIUnitTestCase
     {
         $result = clean_feed_cache();
         $this->assertIsInt($result);
-    }
-
-    public function testCleanThumbnailMethodExists(): void
-    {
-        $this->assertTrue(function_exists('clean_thumbnail'));
-    }
-
-    public function testCleanThumbnailWithValidId(): void
-    {
-        $result = clean_thumbnail('test123');
-        $this->assertIsBool($result);
-    }
-
-    public function testCleanThumbnailWithEmptyId(): void
-    {
-        $result = clean_thumbnail('');
-        $this->assertIsBool($result);
     }
 
     public function testFetchErrorLogsMethodExists(): void
@@ -281,36 +263,11 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertFalse($result);
     }
 
-    public function testSafeFileReadMethodExists(): void
-    {
-        $this->assertTrue(function_exists('safe_file_read'));
-    }
-
-    public function testSafeFileReadWithValidFile(): void
-    {
-        $tmpfile = tempnam(sys_get_temp_dir(), 'test');
-        file_put_contents($tmpfile, 'test content');
-
-        $result = safe_file_read($tmpfile);
-        $this->assertSame('test content', $result);
-
-        // Clean up
-        unlink($tmpfile);
-    }
-
-    public function testSafeFileReadWithInvalidFile(): void
-    {
-        $result = safe_file_read('/invalid/path/file.txt');
-        $this->assertFalse($result);
-    }
-
     public function testAllFunctionsExist(): void
     {
         $expectedFunctions = [
             'clean_error_logs',
             'clean_feed_cache',
-            'clean_thumbnail',
-            'csrf_action_form',
             'decode_entities',
             'fetch_error_logs',
             'fetch_feed',
@@ -319,7 +276,6 @@ final class AggroHelperTest extends CIUnitTestCase
             'fetch_url_status',
             'gate_check',
             'safe_file_write',
-            'safe_file_read',
         ];
 
         foreach ($expectedFunctions as $function) {
@@ -594,46 +550,13 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertFalse($result);
     }
 
-    public function testCsrfActionFormMethodExists(): void
-    {
-        $this->assertTrue(function_exists('csrf_action_form'));
-    }
-
-    public function testCsrfActionFormReturnsFormHtml(): void
-    {
-        // csrf_token()/csrf_hash() require Security config with cookie-based CSRF
-        // Mock the function behavior by testing the function signature instead
-        $reflection = new ReflectionFunction('csrf_action_form');
-        $params     = $reflection->getParameters();
-
-        $this->assertSame('action', $params[0]->getName());
-        $this->assertSame('label', $params[1]->getName());
-        $this->assertSame('class', $params[2]->getName());
-        $this->assertSame('', $params[2]->getDefaultValue());
-    }
-
-    public function testSafeFileWriteAndReadRoundTrip(): void
+    public function testSafeFileWriteWritesData(): void
     {
         $tmpfile = tempnam(sys_get_temp_dir(), 'test');
         $data    = 'Hello, World! 🌍';
 
-        $writeResult = safe_file_write($tmpfile, $data);
-        $this->assertTrue($writeResult);
-
-        $readResult = safe_file_read($tmpfile);
-        $this->assertSame($data, $readResult);
-
-        unlink($tmpfile);
-    }
-
-    public function testSafeFileReadWithEmptyFile(): void
-    {
-        $tmpfile = tempnam(sys_get_temp_dir(), 'test');
-        // Create an empty file
-        file_put_contents($tmpfile, '');
-
-        $result = safe_file_read($tmpfile);
-        $this->assertSame('', $result);
+        $this->assertTrue(safe_file_write($tmpfile, $data));
+        $this->assertSame($data, file_get_contents($tmpfile));
 
         unlink($tmpfile);
     }
