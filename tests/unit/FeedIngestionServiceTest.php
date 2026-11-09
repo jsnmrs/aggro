@@ -214,6 +214,159 @@ final class FeedIngestionServiceTest extends ServiceTestCase
         $this->assertSame(0, $service->sleepCallCount);
     }
 
+    public function testSaveFeedItemsLeavesUnchangedStoriesAlone()
+    {
+        $batch = [
+            ['First story', 'https://example.com/first', '2026-10-01 10:00:00'],
+            ['Second story', 'https://example.com/second', '2026-10-02 10:00:00'],
+        ];
+
+        $this->assertTrue($this->ingest($batch));
+        $before = $this->storedStories();
+
+        $this->assertTrue($this->ingest($batch));
+
+        // Same rows, same ids: the repeat run wrote nothing
+        $this->assertSame($before, $this->storedStories());
+        $this->assertCount(2, $before);
+    }
+
+    public function testSaveFeedItemsInsertsOnlyNewStories()
+    {
+        $first = ['First story', 'https://example.com/first', '2026-10-01 10:00:00'];
+        $new   = ['New story', 'https://example.com/new', '2026-10-03 10:00:00'];
+
+        $this->ingest([$first]);
+        $before = $this->storedStories();
+
+        $this->assertTrue($this->ingest([$new, $first]));
+        $after = $this->storedStories();
+
+        $this->assertCount(2, $after);
+        $this->assertSame($before['https://example.com/first'], $after['https://example.com/first']);
+        $this->assertSame('New story', $after['https://example.com/new']['story_title']);
+    }
+
+    public function testSaveFeedItemsUpdatesChangedStoryInPlace()
+    {
+        $this->ingest([['Original title', 'https://example.com/first', '2026-10-01 10:00:00']]);
+        $before = $this->storedStories()['https://example.com/first'];
+
+        $this->assertTrue($this->ingest([['Corrected title', 'https://example.com/first', '2026-10-01 12:30:00']]));
+        $after = $this->storedStories();
+
+        $this->assertCount(1, $after);
+        $this->assertSame($before['story_id'], $after['https://example.com/first']['story_id']);
+        $this->assertSame('Corrected title', $after['https://example.com/first']['story_title']);
+        $this->assertSame('2026-10-01 12:30:00', $after['https://example.com/first']['story_date']);
+    }
+
+    public function testSaveFeedItemsMovesSharedStoryToLatestSiteInPlace()
+    {
+        $story = ['Shared story', 'https://example.com/shared', '2026-10-01 10:00:00'];
+
+        $this->ingest([$story], 1);
+        $before = $this->storedStories()['https://example.com/shared'];
+
+        // A second site whose feed carries the same permalink takes the story over
+        $this->assertTrue($this->ingest([$story], 2));
+        $after = $this->storedStories();
+
+        $this->assertCount(1, $after);
+        $this->assertSame($before['story_id'], $after['https://example.com/shared']['story_id']);
+        $this->assertSame('2', (string) $after['https://example.com/shared']['site_id']);
+    }
+
+    public function testSaveFeedItemsMatchesPermalinkStoredAtColumnWidth()
+    {
+        // MySQL can cut a long permalink to the 255-character column width
+        $long   = 'https://example.com/' . str_repeat('a', 300);
+        $stored = substr($long, 0, 255);
+
+        $this->db->table('news_featured')->insert([
+            'site_id'         => 1,
+            'story_title'     => 'Long link story',
+            'story_permalink' => $stored,
+            'story_hash'      => sha1($long),
+            'story_date'      => '2026-10-01 10:00:00',
+        ]);
+
+        $this->assertTrue($this->ingest([['Long link story', $long, '2026-10-01 10:00:00']]));
+
+        $this->assertSame(1, $this->countRecords('news_featured'));
+    }
+
+    public function testSaveFeedItemsStoresRepeatedPermalinkOnce()
+    {
+        $story = ['Repeated story', 'https://example.com/repeated', '2026-10-01 10:00:00'];
+
+        $this->assertTrue($this->ingest([$story, $story]));
+
+        $this->assertSame(1, $this->countRecords('news_featured'));
+    }
+
+    /**
+     * Ingest a batch of stories through saveFeedItems().
+     *
+     * @param list<array{0: string, 1: string, 2: string}> $stories Title, permalink, and date for each story
+     */
+    private function ingest(array $stories, int $siteId = 1): bool
+    {
+        helper('aggro');
+
+        $items = array_map(static fn (array $story): object => new class (...$story) {
+            public function __construct(
+                private readonly string $title,
+                private readonly string $permalink,
+                private readonly string $date,
+            ) {
+            }
+
+            public function get_title(): string
+            {
+                return $this->title;
+            }
+
+            public function get_permalink(): string
+            {
+                return $this->permalink;
+            }
+
+            public function get_date(string $format): string
+            {
+                return $this->date;
+            }
+        }, $stories);
+
+        $fetch = new class ($items) {
+            public function __construct(private readonly array $items)
+            {
+            }
+
+            public function get_items(int $start = 0, int $end = 0): array
+            {
+                return $this->items;
+            }
+        };
+
+        $reflection = new ReflectionClass(FeedIngestionService::class);
+        $method     = $reflection->getMethod('saveFeedItems');
+
+        return $method->invoke($this->service, (object) ['site_id' => $siteId], $fetch);
+    }
+
+    /**
+     * Get every stored story, keyed by permalink.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function storedStories(): array
+    {
+        $rows = $this->db->table('news_featured')->orderBy('story_id', 'ASC')->get()->getResultArray();
+
+        return array_column($rows, null, 'story_permalink');
+    }
+
     private function makeTransactionStub(array $transStatusReturns, array $errorReturns): object
     {
         return new class ($transStatusReturns, $errorReturns) {
