@@ -485,6 +485,67 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertSame(404, $httpStatus);
     }
 
+    public function testFetchThumbnailStoresWebpThumbnail(): void
+    {
+        $this->withThumbnailDirectory(function (string $path): void {
+            $downloads = $this->downloadFiles();
+
+            $this->assertTrue(fetch_thumbnail('test_video', $this->localUrl('/body/image')));
+
+            $this->assertFileExists($path);
+            $this->assertSame(IMAGETYPE_WEBP, getimagesize($path)[2]);
+            // The web server reads thumbnails as another user
+            $this->assertSame(0644, fileperms($path) & 0777);
+            $this->assertSame($downloads, $this->downloadFiles());
+        });
+    }
+
+    public function testFetchThumbnailLeavesNoFileWhenDownloadIsNotAnImage(): void
+    {
+        $this->withThumbnailDirectory(function (string $path): void {
+            $downloads = $this->downloadFiles();
+
+            $this->assertFalse(fetch_thumbnail('test_video', $this->localUrl('/body/page')));
+
+            // A leftover file would stop the thumbnail from being retried
+            $this->assertFileDoesNotExist($path);
+            $this->assertSame($downloads, $this->downloadFiles());
+        });
+    }
+
+    /**
+     * Run a test against a temporary thumbnail directory.
+     *
+     * @param callable(string): void $test Receives the thumbnail path for the video id test_video
+     */
+    private function withThumbnailDirectory(callable $test): void
+    {
+        $storageConfig = config('Storage');
+        $original      = $storageConfig->thumbnailPath;
+        $directory     = sys_get_temp_dir() . '/aggro-thumbs-' . uniqid() . '/';
+        mkdir($directory);
+
+        $storageConfig->thumbnailPath = $directory;
+
+        try {
+            $test($storageConfig->getThumbnailPath('test_video'));
+        } finally {
+            $storageConfig->thumbnailPath = $original;
+            array_map('unlink', glob($directory . '*'));
+            rmdir($directory);
+        }
+    }
+
+    /**
+     * List the thumbnail downloads waiting in the system temporary directory.
+     *
+     * @return list<string>
+     */
+    private function downloadFiles(): array
+    {
+        return glob(sys_get_temp_dir() . '/thumb*');
+    }
+
     public function testFetchUrlHttpStatusBackwardCompatible(): void
     {
         // Calling without the httpStatus param should still work
