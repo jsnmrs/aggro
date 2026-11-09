@@ -1,6 +1,7 @@
 <?php
 
 use App\Repositories\ChannelRepository;
+use CodeIgniter\Test\TestLogger;
 use Tests\Support\RepositoryTestCase;
 
 /**
@@ -167,8 +168,8 @@ final class ChannelRepositoryTest extends RepositoryTestCase
 
     public function testGetChannelsIncludesChannelsBelowFailureThreshold()
     {
-        // A channel one fail short of the hard cap is still eligible once its
-        // backoff window has elapsed (24 hours for fail_count >= 5).
+        // A channel one fail short of the slow retry threshold is still eligible
+        // once its backoff window has elapsed (24 hours for fail_count >= 5).
         $channel = $this->createTestChannel([
             'source_slug'         => 'recovering_channel',
             'source_type'         => 'youtube',
@@ -265,6 +266,77 @@ final class ChannelRepositoryTest extends RepositoryTestCase
         $this->assertIsArray($results);
         $this->assertCount(1, $results);
         $this->assertSame('healthy_stale', $results[0]->source_slug);
+    }
+
+    public function testChannelAtFailureThresholdIsRetriedAfterAWeek()
+    {
+        // Past the threshold a channel is no longer retried daily, but it is
+        // not dropped: it gets one attempt a week
+        $channels = [
+            $this->createTestChannel([
+                'source_slug'         => 'threshold_channel',
+                'source_type'         => 'youtube',
+                'source_date_updated' => date('Y-m-d H:i:s', strtotime('-8 days')),
+                'source_fail_count'   => 20,
+            ]),
+            $this->createTestChannel([
+                'source_slug'         => 'long_failing_channel',
+                'source_type'         => 'youtube',
+                'source_date_updated' => date('Y-m-d H:i:s', strtotime('-9 days')),
+                'source_fail_count'   => 35,
+            ]),
+        ];
+
+        $this->db->table('aggro_sources')->insertBatch($channels);
+
+        $results = $this->repository->getChannels('30', 'youtube', '10');
+
+        $this->assertIsArray($results);
+        $this->assertSame(
+            ['long_failing_channel', 'threshold_channel'],
+            array_column($results, 'source_slug'),
+        );
+    }
+
+    public function testChannelAtFailureThresholdIsNotRetriedWithinAWeek()
+    {
+        // 6 days is well past the 24-hour backoff, but short of the weekly retry
+        $channel = $this->createTestChannel([
+            'source_slug'         => 'threshold_channel',
+            'source_type'         => 'youtube',
+            'source_date_updated' => date('Y-m-d H:i:s', strtotime('-6 days')),
+            'source_fail_count'   => 20,
+        ]);
+
+        $this->db->table('aggro_sources')->insert($channel);
+
+        $this->assertFalse($this->repository->getChannels('30', 'youtube', '10'));
+    }
+
+    public function testIncrementChannelFailCountLogsWhenChannelReachesThreshold()
+    {
+        $this->db->table('aggro_sources')->insert($this->createTestChannel([
+            'source_slug'       => 'dying_channel',
+            'source_fail_count' => 19,
+        ]));
+
+        $this->repository->incrementChannelFailCount('dying_channel');
+
+        $this->assertLogged('error', 'Channel dying_channel failed 20 fetches in a row and moves to the slow retry schedule.');
+    }
+
+    public function testIncrementChannelFailCountLogsOnlyOnReachingThreshold()
+    {
+        $this->db->table('aggro_sources')->insertBatch([
+            $this->createTestChannel(['source_slug' => 'flaky_channel', 'source_fail_count' => 3]),
+            $this->createTestChannel(['source_slug' => 'dead_channel', 'source_fail_count' => 20]),
+        ]);
+
+        $this->repository->incrementChannelFailCount('flaky_channel');
+        $this->repository->incrementChannelFailCount('dead_channel');
+
+        $this->assertFalse(TestLogger::didLog('error', 'Channel flaky_channel failed 20 fetches in a row and moves to the slow retry schedule.'));
+        $this->assertFalse(TestLogger::didLog('error', 'Channel dead_channel failed 20 fetches in a row and moves to the slow retry schedule.'));
     }
 
     public function testIncrementChannelFailCount()
