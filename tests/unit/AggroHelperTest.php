@@ -33,6 +33,39 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertIsBool($result);
     }
 
+    public function testCleanErrorLogsKeepsLogsDatedTodayOrLaterAndRemovesOlderLogs(): void
+    {
+        $directory = sys_get_temp_dir() . '/aggro-logs-' . uniqid() . '/';
+        mkdir($directory);
+
+        // CodeIgniter's file handler names log files log-Y-m-d.log
+        $today = $directory . 'log-' . date('Y-m-d') . '.log';
+        // A log written under a timezone ahead of this one carries tomorrow's date
+        $tomorrow = $directory . 'log-' . date('Y-m-d', strtotime('+1 day')) . '.log';
+        $older    = $directory . 'log-2000-01-01.log';
+        $undated  = $directory . 'undated.log';
+        $other    = $directory . 'index.html';
+
+        file_put_contents($today, 'today');
+        file_put_contents($tomorrow, 'tomorrow');
+        file_put_contents($older, 'older');
+        file_put_contents($undated, 'undated');
+        file_put_contents($other, 'not a log');
+
+        try {
+            $this->assertTrue(clean_error_logs($directory));
+
+            $this->assertFileExists($today);
+            $this->assertFileExists($tomorrow);
+            $this->assertFileDoesNotExist($older);
+            $this->assertFileDoesNotExist($undated);
+            $this->assertFileExists($other);
+        } finally {
+            array_map('unlink', glob($directory . '*'));
+            rmdir($directory);
+        }
+    }
+
     public function testCleanFeedCacheMethodExists(): void
     {
         $this->assertTrue(function_exists('clean_feed_cache'));
