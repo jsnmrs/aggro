@@ -27,6 +27,14 @@ INDEX_PATH='/home/bmxfeed/aggro/current/public/index.php'
 ## Archive old videos every day (at 2am)
 0 2 * * * $PHP_PATH $INDEX_PATH aggro sweep
 
+## aggro log-clean
+## Clean aggro log entries older than 1 day every day (at 3am)
+0 3 * * * $PHP_PATH $INDEX_PATH aggro log-clean
+
+## aggro log-error-clean
+## Clean old error log files every 7 days
+30 3 * * 0 $PHP_PATH $INDEX_PATH aggro log-error-clean
+
 ## aggro plays
 ## Refresh a batch of Vimeo play counts every hour
 0 * * * * $PHP_PATH $INDEX_PATH aggro plays

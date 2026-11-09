@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Controllers\Aggro;
 use App\Controllers\BaseController;
 use CodeIgniter\Test\ControllerTestTrait;
+use Config\Database;
 use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
@@ -273,10 +274,6 @@ final class AggroControllerTest extends DatabaseTestCase
 
     public function testGetLogCleanReturnsConfirmation(): void
     {
-        if ($this->db->DBDriver === 'SQLite3') {
-            $this->markTestSkipped('cleanLog() runs OPTIMIZE TABLE, which SQLite does not support');
-        }
-
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getLogClean');
@@ -288,13 +285,17 @@ final class AggroControllerTest extends DatabaseTestCase
 
     public function testGetLogCleanReportsFailureWhenCleanFails(): void
     {
-        if ($this->db->DBDriver !== 'SQLite3') {
-            $this->markTestSkipped('Relies on SQLite rejecting the OPTIMIZE TABLE that cleanLog() runs');
-        }
+        // Without the log table, the clean fails
+        $forge = Database::forge($this->DBGroup);
+        $forge->renameTable('aggro_log', 'aggro_log_hidden');
 
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getLogClean');
+        try {
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getLogClean');
+        } finally {
+            $forge->renameTable('aggro_log_hidden', 'aggro_log');
+        }
 
         $this->assertSame(500, $result->response()->getStatusCode());
         $this->assertSame('Could not clear old log entries.', $result->response()->getBody());

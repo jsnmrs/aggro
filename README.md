@@ -194,6 +194,8 @@ The `.crontab` file defines scheduled tasks for:
 - YouTube video checks — every 5 minutes
 - Vimeo video checks — every 7 minutes
 - Archive management — daily
+- Log cleanup — daily
+- Error log cleanup — weekly
 - Feed cache clearing — monthly
 - Vimeo play count refresh — hourly
 

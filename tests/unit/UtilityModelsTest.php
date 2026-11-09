@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\UtilityModels;
 use CodeIgniter\Model;
+use Config\Database;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -140,18 +141,30 @@ final class UtilityModelsTest extends DatabaseTestCase
 
     public function testCleanLogWithOldEntries(): void
     {
-        // Skip test that requires actual database manipulation with date functions
-        $this->markTestSkipped('Method requires MySQL DATE_SUB function not available in SQLite test environment');
+        $this->insertLogEntry('-3 days', 'Older entry');
+        $this->insertLogEntry('-2 days', 'Old entry');
+        $this->insertLogEntry('-1 hour', 'Recent entry');
 
-        // This would test removing log entries older than 1 day
+        $this->assertTrue($this->model->cleanLog());
+
+        $messages = array_column($this->db->table('aggro_log')->get()->getResultArray(), 'log_message');
+
+        $this->assertNotContains('Older entry', $messages);
+        $this->assertNotContains('Old entry', $messages);
+        $this->assertContains('Recent entry', $messages);
     }
 
-    public function testCleanLogOptimizesTable(): void
+    public function testCleanLogReturnsFalseWhenDeleteFails(): void
     {
-        // Skip test that requires MySQL OPTIMIZE TABLE functionality
-        $this->markTestSkipped('Method requires MySQL OPTIMIZE TABLE not available in SQLite test environment');
+        // Without the log table, the delete fails
+        $forge = Database::forge($this->DBGroup);
+        $forge->renameTable('aggro_log', 'aggro_log_hidden');
 
-        // This would test that table optimization occurs after cleanup
+        try {
+            $this->assertFalse($this->model->cleanLog());
+        } finally {
+            $forge->renameTable('aggro_log_hidden', 'aggro_log');
+        }
     }
 
     public function testGetLogLimitsResults(): void
@@ -191,14 +204,6 @@ final class UtilityModelsTest extends DatabaseTestCase
         // Method should return empty array on database error as per implementation
     }
 
-    public function testCleanLogTransactionHandling(): void
-    {
-        // Skip test that requires transaction error simulation
-        $this->markTestSkipped('Method requires database transaction error simulation');
-
-        // This would test transaction rollback on failure
-    }
-
     public function testSendLogReturnsFalseOnException(): void
     {
         // Test that sendLog returns false when exceptions occur
@@ -209,9 +214,23 @@ final class UtilityModelsTest extends DatabaseTestCase
 
     public function testCleanLogLogsResults(): void
     {
-        // Skip test that requires working database with proper date handling
-        $this->markTestSkipped('Method requires database with DATE_SUB functionality for proper testing');
+        $this->insertLogEntry('-3 days', 'Older entry');
+        $this->insertLogEntry('-2 days', 'Old entry');
+        $this->insertLogEntry('-1 hour', 'Recent entry');
 
-        // This would test that cleanLog calls sendLog with results
+        $this->model->cleanLog();
+
+        $this->seeInDatabase('aggro_log', ['log_message' => '2 log entries, older than 1 day deleted.']);
+    }
+
+    /**
+     * Insert a log entry dated relative to now.
+     */
+    private function insertLogEntry(string $when, string $message): void
+    {
+        $this->db->table('aggro_log')->insert([
+            'log_date'    => date('Y-m-d H:i:s', strtotime($when)),
+            'log_message' => $message,
+        ]);
     }
 }

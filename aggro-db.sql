@@ -18,8 +18,9 @@ CREATE TABLE `aggro_log` (
   `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `log_date` datetime NOT NULL,
   `log_message` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`log_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1669037 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`log_id`),
+  KEY `idx_log_date` (`log_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1670467 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `aggro_sources`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -83,7 +84,7 @@ CREATE TABLE `migrations` (
   `time` int(11) NOT NULL,
   `batch` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `migrations` WRITE;
@@ -93,6 +94,7 @@ INSERT INTO `migrations` VALUES (2,'2026-07-07-120000','App\\Database\\Migration
 INSERT INTO `migrations` VALUES (3,'2026-08-30-120000','App\\Database\\Migrations\\AddDurationIssueCount','default','App',1788118339,3);
 INSERT INTO `migrations` VALUES (4,'2026-10-08-120000','App\\Database\\Migrations\\AddFlagShort','default','App',1791469673,4);
 INSERT INTO `migrations` VALUES (5,'2026-10-09-120000','App\\Database\\Migrations\\DropDurationColumns','default','App',1791497649,5);
+INSERT INTO `migrations` VALUES (7,'2026-11-08-120000','App\\Database\\Migrations\\AddLogDateIndex','default','App',1794183986,6);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `news_feeds`;
