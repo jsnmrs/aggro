@@ -54,10 +54,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
       - name: Composer install
-        run: composer install
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
       - name: Deploy
         uses: deployphp/action@v1
         with:
+          deployer-version: '8.0.5'
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           dep: deploy stage=dev -vvv
         env:
