@@ -41,10 +41,19 @@ final class ViewHelperTest extends CIUnitTestCase
         $this->assertStringContainsString('&quot;', $result);
     }
 
-    public function testTimeAgoWithInvalidDateThrowsException(): void
+    public function testTimeAgoWithInvalidDateReturnsEmptyString(): void
     {
-        $this->expectException(Exception::class);
-        timeAgo('not-a-date', 'UTC');
+        $this->assertSame('', timeAgo('not-a-date', 'UTC'));
+    }
+
+    public function testTimeAgoWithNullDateReturnsEmptyString(): void
+    {
+        $this->assertSame('', timeAgo(null, 'UTC'));
+    }
+
+    public function testTimeAgoWithEmptyDateReturnsEmptyString(): void
+    {
+        $this->assertSame('', timeAgo('', 'UTC'));
     }
 
     public function testDisplayStoryMethodExists(): void

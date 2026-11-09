@@ -238,12 +238,18 @@ class FeedIngestionService
     /**
      * Update last post time for feed.
      *
+     * An item without a date leaves the last post time as it was.
+     *
      * @param int    $siteId
      * @param object $item
      */
     private function updateLastPostTime($siteId, $item)
     {
         $lastPost = $item->get_date('Y-m-d H:i:s');
+        if ($lastPost === null) {
+            return;
+        }
+
         $this->db->table('news_feeds')
             ->where('site_id', $siteId)
             ->update(['site_date_last_post' => $lastPost]);
@@ -253,6 +259,9 @@ class FeedIngestionService
      * Insert feed item into database, or update the stored story when it
      * changed. An unchanged story is left alone, so a run over a feed
      * with nothing new writes no stories.
+     *
+     * An item without a date is stored under the fetch time, and keeps
+     * that date on later runs.
      *
      * @param int    $siteId
      * @param object $item
@@ -270,9 +279,14 @@ class FeedIngestionService
         $stored = $this->findStory($data['story_permalink']);
 
         if ($stored === null) {
+            $data['story_date'] ??= date('Y-m-d H:i:s');
             $this->db->table('news_featured')->insert($data);
 
             return;
+        }
+
+        if ($data['story_date'] === null) {
+            unset($data['story_date']);
         }
 
         if ($this->storyChanged($stored, $data)) {
