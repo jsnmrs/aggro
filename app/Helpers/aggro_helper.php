@@ -231,44 +231,44 @@ if (! function_exists('fetch_thumbnail')) {
         $path          = $storageConfig->getThumbnailPath($videoid);
         $buffer        = fetch_url($thumbnail, 'text', 0, $httpStatus);
 
-        if (! empty($buffer)) {
-            $file = fopen($path, 'wb');
-            if ($file === false) {
-                log_message('error', 'Failed to open thumbnail file for writing: ' . $path);
-
-                return false;
-            }
-
-            $bytesWritten = fwrite($file, $buffer, strlen($buffer));
-            if ($bytesWritten === false || $bytesWritten !== strlen($buffer)) {
-                log_message('error', 'Failed to write complete thumbnail data to file: ' . $path);
-                fclose($file);
-
-                return false;
-            }
-
-            if (fclose($file) === false) {
-                log_message('error', 'Failed to close thumbnail file: ' . $path);
-
-                return false;
-            }
-
-            try {
-                Services::image()
-                    ->withFile($path)
-                    ->resize($storageConfig->thumbnailWidth, $storageConfig->thumbnailHeight, false, 'width')
-                    ->convert(IMAGETYPE_WEBP)
-                    ->save($path, $storageConfig->thumbnailQuality);
-
-                return true;
-            } catch (RuntimeException $e) {
-                log_message('error', 'Failed to process thumbnail image: ' . $e->getMessage());
-
-                return false;
-            }
+        if (empty($buffer)) {
+            return false;
         }
 
-        return false;
+        // The download is kept outside the thumbnail directory until it is
+        // processed. A file at the thumbnail path stops the thumbnail from
+        // being fetched again, so only a finished thumbnail may land there.
+        $download = tempnam(sys_get_temp_dir(), 'thumb');
+        if ($download === false) {
+            log_message('error', 'Failed to create a temporary file for thumbnail: ' . $path);
+
+            return false;
+        }
+
+        try {
+            if (! safe_file_write($download, $buffer)) {
+                return false;
+            }
+
+            Services::image()
+                ->withFile($download)
+                ->resize($storageConfig->thumbnailWidth, $storageConfig->thumbnailHeight, false, 'width')
+                ->convert(IMAGETYPE_WEBP)
+                ->save($path, $storageConfig->thumbnailQuality);
+
+            return true;
+        } catch (RuntimeException $e) {
+            log_message('error', 'Failed to process thumbnail image: ' . $e->getMessage());
+
+            // A failed save can leave partial output behind
+            if (is_file($path)) {
+                unlink($path);
+            }
+
+            return false;
+        } finally {
+            unlink($download);
+        }
     }
 }
 
