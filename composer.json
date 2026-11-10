@@ -7,27 +7,27 @@
   "require": {
     "php": "^8.4",
     "codeigniter4/framework": "^4.7",
-    "friendsofphp/php-cs-fixer": "^3.95",
-    "nexusphp/cs-config": "^3.29",
-    "nikic/php-parser": "^5.9",
-    "pdepend/pdepend": "^2.16",
     "sentry/sentry": "^4.34",
-    "simplepie/simplepie": "^1.9",
-    "symfony/config": "^7.4",
-    "symfony/dependency-injection": "^7.4",
-    "symfony/var-exporter": "^8.1",
-    "symfony/yaml": "^8.1"
+    "simplepie/simplepie": "^1.9"
   },
   "require-dev": {
     "codeigniter/coding-standard": "^1.9",
     "deployer/deployer": "^8.0",
+    "friendsofphp/php-cs-fixer": "^3.95",
     "mikey179/vfsstream": "^1.6",
+    "nexusphp/cs-config": "^3.29",
+    "nikic/php-parser": "^5.9",
+    "pdepend/pdepend": "^2.16",
     "phpmd/phpmd": "^2.15",
     "phpstan/phpstan": "^2.3",
     "phpunit/phpunit": "^11.5",
     "sebastian/complexity": "^4.0",
     "sebastian/lines-of-code": "^3.0",
     "squizlabs/php_codesniffer": "^4.0",
+    "symfony/config": "^7.4",
+    "symfony/dependency-injection": "^7.4",
+    "symfony/var-exporter": "^8.1",
+    "symfony/yaml": "^8.1",
     "tatter/patches": "^2.1"
   },
   "autoload-dev": {
