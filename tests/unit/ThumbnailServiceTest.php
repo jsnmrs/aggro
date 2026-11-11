@@ -1,13 +1,18 @@
 <?php
 
 use App\Services\ThumbnailService;
+use Tests\Support\LocalHttpServerTrait;
 use Tests\Support\ServiceTestCase;
+use Tests\Support\TemporaryStorageTrait;
 
 /**
  * @internal
  */
 final class ThumbnailServiceTest extends ServiceTestCase
 {
+    use LocalHttpServerTrait;
+    use TemporaryStorageTrait;
+
     private ThumbnailService $service;
 
     protected function setUp(): void
@@ -16,128 +21,78 @@ final class ThumbnailServiceTest extends ServiceTestCase
         $this->service = new ThumbnailService();
     }
 
-    public function testCheckThumbsReturnsTrue()
+    public function testCheckThumbsFetchesMissingThumbnails()
     {
-        // Arrange
-        $video = [
-            'video_id'              => 'test_video',
-            'aggro_date_added'      => date('Y-m-d H:i:s'),
-            'aggro_date_updated'    => date('Y-m-d H:i:s'),
-            'video_date_uploaded'   => date('Y-m-d H:i:s'),
-            'flag_archive'          => 0,
-            'flag_bad'              => 0,
-            'video_plays'           => 100,
-            'video_title'           => 'Test Video',
-            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
-            'video_width'           => 1920,
-            'video_height'          => 1080,
-            'video_aspect_ratio'    => '16:9',
-            'video_source_id'       => 'test_source',
-            'video_source_username' => 'testuser',
-            'video_source_url'      => 'https://example.com/video',
-            'video_type'            => 'youtube',
-        ];
+        $this->insertTestVideo($this->makeTestVideo('missing_thumb', [
+            'video_thumbnail_url' => $this->localUrl('/body/image'),
+        ]));
 
-        $this->insertTestVideo($video);
+        $this->withThumbnailDirectory(function (): void {
+            $this->assertTrue($this->service->checkThumbs());
 
-        // Act
-        $result = $this->service->checkThumbs();
+            $path = config('Storage')->getThumbnailPath('missing_thumb');
+            $this->assertFileExists($path);
+            $this->assertSame(IMAGETYPE_WEBP, getimagesize($path)[2]);
+        });
+    }
 
-        // Assert
-        $this->assertTrue($result);
+    public function testCheckThumbsLeavesExistingThumbnailsAlone()
+    {
+        $this->insertTestVideo($this->makeTestVideo('has_thumb', [
+            'video_thumbnail_url' => $this->localUrl('/body/image'),
+        ]));
+
+        $this->withThumbnailDirectory(function (): void {
+            $path = config('Storage')->getThumbnailPath('has_thumb');
+            file_put_contents($path, 'existing');
+
+            $this->assertTrue($this->service->checkThumbs());
+
+            $this->assertSame('existing', file_get_contents($path));
+        });
     }
 
     public function testCheckThumbsOnlyProcessesActiveVideos()
     {
-        // Arrange
-        $activeVideo = [
-            'video_id'              => 'active_video',
-            'aggro_date_added'      => date('Y-m-d H:i:s'),
-            'aggro_date_updated'    => date('Y-m-d H:i:s'),
-            'video_date_uploaded'   => date('Y-m-d H:i:s'),
-            'flag_archive'          => 0,
-            'flag_bad'              => 0,
-            'video_plays'           => 100,
-            'video_title'           => 'Active Video',
-            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
-            'video_width'           => 1920,
-            'video_height'          => 1080,
-            'video_aspect_ratio'    => '16:9',
-            'video_source_id'       => 'test_source',
-            'video_source_username' => 'testuser',
-            'video_source_url'      => 'https://example.com/video',
-            'video_type'            => 'youtube',
-        ];
+        $image = $this->localUrl('/body/image');
+        $this->insertTestVideo($this->makeTestVideo('active_video', ['video_thumbnail_url' => $image]));
+        $this->insertTestVideo($this->makeTestVideo('archived_video', ['video_thumbnail_url' => $image, 'flag_archive' => 1]));
+        $this->insertTestVideo($this->makeTestVideo('bad_video', ['video_thumbnail_url' => $image, 'flag_bad' => 1]));
 
-        $archivedVideo = [
-            'video_id'              => 'archived_video',
-            'aggro_date_added'      => date('Y-m-d H:i:s'),
-            'aggro_date_updated'    => date('Y-m-d H:i:s'),
-            'video_date_uploaded'   => date('Y-m-d H:i:s'),
-            'flag_archive'          => 1, // Archived
-            'flag_bad'              => 0,
-            'video_plays'           => 100,
-            'video_title'           => 'Archived Video',
-            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
-            'video_width'           => 1920,
-            'video_height'          => 1080,
-            'video_aspect_ratio'    => '16:9',
-            'video_source_id'       => 'test_source',
-            'video_source_username' => 'testuser',
-            'video_source_url'      => 'https://example.com/video',
-            'video_type'            => 'youtube',
-        ];
+        $this->withThumbnailDirectory(function (): void {
+            $storageConfig = config('Storage');
 
-        $badVideo = [
-            'video_id'              => 'bad_video',
-            'aggro_date_added'      => date('Y-m-d H:i:s'),
-            'aggro_date_updated'    => date('Y-m-d H:i:s'),
-            'video_date_uploaded'   => date('Y-m-d H:i:s'),
-            'flag_archive'          => 0,
-            'flag_bad'              => 1, // Bad
-            'video_plays'           => 100,
-            'video_title'           => 'Bad Video',
-            'video_thumbnail_url'   => 'https://example.com/thumb.jpg',
-            'video_width'           => 1920,
-            'video_height'          => 1080,
-            'video_aspect_ratio'    => '16:9',
-            'video_source_id'       => 'test_source',
-            'video_source_username' => 'testuser',
-            'video_source_url'      => 'https://example.com/video',
-            'video_type'            => 'youtube',
-        ];
+            $this->assertTrue($this->service->checkThumbs());
 
-        $this->insertTestVideo($activeVideo);
-        $this->insertTestVideo($archivedVideo);
-        $this->insertTestVideo($badVideo);
-
-        // Act
-        $result = $this->service->checkThumbs();
-
-        // Assert
-        $this->assertTrue($result);
-
-        // The method should only process active videos (flag_archive=0 AND flag_bad=0)
-        // We can't easily test the file operations in unit tests, but we can verify
-        // the method completes successfully
+            $this->assertFileExists($storageConfig->getThumbnailPath('active_video'));
+            $this->assertFileDoesNotExist($storageConfig->getThumbnailPath('archived_video'));
+            $this->assertFileDoesNotExist($storageConfig->getThumbnailPath('bad_video'));
+        });
     }
 
-    public function testCleanThumbsReturnsTrue()
+    public function testCleanThumbsRemovesOnlyOldThumbnails()
     {
-        // Act - Test with no files to clean
-        $result = $this->service->cleanThumbs();
+        $this->withThumbnailDirectory(function (string $directory): void {
+            $old   = $directory . 'old.webp';
+            $fresh = $directory . 'fresh.webp';
+            file_put_contents($old, 'old');
+            file_put_contents($fresh, 'fresh');
+            touch($old, time() - config('Storage')->getCleanupAgeSeconds() - 60);
 
-        // Assert
-        $this->assertTrue($result);
+            $this->assertTrue($this->service->cleanThumbs());
+
+            $this->assertFileDoesNotExist($old);
+            $this->assertFileExists($fresh);
+        });
     }
 
     public function testCheckThumbsHandlesEmptyDatabase()
     {
-        // Act - No videos in database
-        $result = $this->service->checkThumbs();
+        $this->withThumbnailDirectory(function (string $directory): void {
+            $this->assertTrue($this->service->checkThumbs());
 
-        // Assert
-        $this->assertTrue($result);
+            $this->assertSame([], glob($directory . '*'));
+        });
     }
 
     public function testIsFileEligibleForDeletionWithOldFile()
@@ -260,29 +215,6 @@ final class ThumbnailServiceTest extends ServiceTestCase
         $this->assertTrue($reflection->hasMethod('isFileEligibleForDeletion'));
         $this->assertTrue($reflection->hasMethod('deleteFile'));
         $this->assertTrue($reflection->hasMethod('logCleanupResults'));
-    }
-
-    public function testCheckThumbsReturnsBoolean()
-    {
-        $result = $this->service->checkThumbs();
-        $this->assertIsBool($result);
-    }
-
-    public function testCleanThumbsReturnsBoolean()
-    {
-        $result = $this->service->cleanThumbs();
-        $this->assertIsBool($result);
-    }
-
-    public function testServiceUsesCorrectDependencies()
-    {
-        // Test that service properly uses Database and UtilityModels
-        // This verifies the constructor setup without accessing private properties
-        $result1 = $this->service->checkThumbs();
-        $result2 = $this->service->cleanThumbs();
-
-        $this->assertIsBool($result1);
-        $this->assertIsBool($result2);
     }
 
     public function testIncrementThumbnailIssueCount()

@@ -8,6 +8,7 @@ use CodeIgniter\Test\ControllerTestTrait;
 use Config\Database;
 use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
+use Tests\Support\TemporaryStorageTrait;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ use Tests\Support\DatabaseTestCase;
 final class AggroControllerTest extends DatabaseTestCase
 {
     use ControllerTestTrait;
+    use TemporaryStorageTrait;
 
     protected Aggro $aggroController;
 
@@ -153,14 +155,19 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertStringContainsString('Featured page built.', $body);
     }
 
-    public function testGetNewsCacheReturnsExpectedMessage(): void
+    public function testGetNewsCacheClearsTheFeedCache(): void
     {
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getNewsCache');
+        $this->withFeedCacheDirectory(function (string $directory): void {
+            file_put_contents($directory . 'feed.spc', 'cached');
 
-        $body = $result->response()->getBody();
-        $this->assertStringContainsString('Feed caches cleared.', $body);
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getNewsCache');
+
+            $this->assertSame(200, $result->response()->getStatusCode());
+            $this->assertSame('Feed caches cleared.', $result->response()->getBody());
+            $this->assertFileDoesNotExist($directory . 'feed.spc');
+        });
     }
 
     public function testGetNewsCleanReturnsExpectedMessage(): void
@@ -173,14 +180,23 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertStringContainsString('Featured news stories cleared.', $body);
     }
 
-    public function testGetSweepExecutesSuccessfully(): void
+    public function testGetSweepChecksAndCleansThumbnails(): void
     {
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getSweep');
+        $this->withThumbnailDirectory(function (string $directory): void {
+            $old = $directory . 'old.webp';
+            file_put_contents($old, 'old');
+            touch($old, time() - config('Storage')->getCleanupAgeSeconds() - 60);
 
-        // getSweep should complete without errors
-        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getSweep');
+
+            $this->assertSame(200, $result->response()->getStatusCode());
+            $body = (string) $result->response()->getBody();
+            $this->assertStringContainsString('Thumbnails checked.', $body);
+            $this->assertStringContainsString('Thumbnails cleaned up.', $body);
+            $this->assertFileDoesNotExist($old);
+        });
     }
 
     public function testGetPlaysMethodExists(): void
@@ -287,24 +303,38 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertFalse($result->response()->hasHeader('Location'));
     }
 
-    public function testGetLogErrorExecutesSuccessfully(): void
+    public function testGetLogErrorShowsTheErrorLogs(): void
     {
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getLogError');
+        $this->withLogDirectory(function (string $directory): void {
+            file_put_contents($directory . 'log-2026-01-01.log', 'CRITICAL - something broke');
 
-        $this->assertTrue($result->isOK());
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getLogError');
+
+            $this->assertSame(200, $result->response()->getStatusCode());
+            $this->assertStringContainsString('CRITICAL - something broke', (string) $result->response()->getBody());
+        });
     }
 
-    public function testGetLogErrorCleanReturnsConfirmation(): void
+    public function testGetLogErrorCleanRemovesOldLogs(): void
     {
-        // In CLI mode gate_check() returns true
-        $result = $this->controller(Aggro::class)
-            ->execute('getLogErrorClean');
+        $this->withLogDirectory(function (string $directory): void {
+            $older = $directory . 'log-2000-01-01.log';
+            $today = $directory . 'log-' . date('Y-m-d') . '.log';
+            file_put_contents($older, 'older');
+            file_put_contents($today, 'today');
 
-        $this->assertSame(200, $result->response()->getStatusCode());
-        $this->assertSame('Old error logs cleared.', $result->response()->getBody());
-        $this->assertFalse($result->response()->hasHeader('Location'));
+            // In CLI mode gate_check() returns true
+            $result = $this->controller(Aggro::class)
+                ->execute('getLogErrorClean');
+
+            $this->assertSame(200, $result->response()->getStatusCode());
+            $this->assertSame('Old error logs cleared.', $result->response()->getBody());
+            $this->assertFalse($result->response()->hasHeader('Location'));
+            $this->assertFileDoesNotExist($older);
+            $this->assertFileExists($today);
+        });
     }
 
     public function testGetInfoMethodSetsHeaders(): void

@@ -37,32 +37,35 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertTrue(function_exists('clean_error_logs'));
     }
 
-    public function testCleanErrorLogsReturnsBoolean(): void
+    public function testCleanErrorLogsDefaultsToTheLogDirectory(): void
     {
-        $result = clean_error_logs();
-        $this->assertIsBool($result);
+        $this->withLogDirectory(function (string $directory): void {
+            $older = $directory . 'log-2000-01-01.log';
+            file_put_contents($older, 'older');
+
+            $this->assertTrue(clean_error_logs());
+
+            $this->assertFileDoesNotExist($older);
+        });
     }
 
     public function testCleanErrorLogsKeepsLogsDatedTodayOrLaterAndRemovesOlderLogs(): void
     {
-        $directory = sys_get_temp_dir() . '/aggro-logs-' . uniqid() . '/';
-        mkdir($directory);
+        $this->withLogDirectory(function (string $directory): void {
+            // CodeIgniter's file handler names log files log-Y-m-d.log
+            $today = $directory . 'log-' . date('Y-m-d') . '.log';
+            // A log written under a timezone ahead of this one carries tomorrow's date
+            $tomorrow = $directory . 'log-' . date('Y-m-d', strtotime('+1 day')) . '.log';
+            $older    = $directory . 'log-2000-01-01.log';
+            $undated  = $directory . 'undated.log';
+            $other    = $directory . 'index.html';
 
-        // CodeIgniter's file handler names log files log-Y-m-d.log
-        $today = $directory . 'log-' . date('Y-m-d') . '.log';
-        // A log written under a timezone ahead of this one carries tomorrow's date
-        $tomorrow = $directory . 'log-' . date('Y-m-d', strtotime('+1 day')) . '.log';
-        $older    = $directory . 'log-2000-01-01.log';
-        $undated  = $directory . 'undated.log';
-        $other    = $directory . 'index.html';
+            file_put_contents($today, 'today');
+            file_put_contents($tomorrow, 'tomorrow');
+            file_put_contents($older, 'older');
+            file_put_contents($undated, 'undated');
+            file_put_contents($other, 'not a log');
 
-        file_put_contents($today, 'today');
-        file_put_contents($tomorrow, 'tomorrow');
-        file_put_contents($older, 'older');
-        file_put_contents($undated, 'undated');
-        file_put_contents($other, 'not a log');
-
-        try {
             $this->assertTrue(clean_error_logs($directory));
 
             $this->assertFileExists($today);
@@ -70,10 +73,7 @@ final class AggroHelperTest extends CIUnitTestCase
             $this->assertFileDoesNotExist($older);
             $this->assertFileDoesNotExist($undated);
             $this->assertFileExists($other);
-        } finally {
-            array_map('unlink', glob($directory . '*'));
-            rmdir($directory);
-        }
+        });
     }
 
     public function testCleanFeedCacheMethodExists(): void
@@ -81,10 +81,19 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertTrue(function_exists('clean_feed_cache'));
     }
 
-    public function testCleanFeedCacheReturnsInteger(): void
+    public function testCleanFeedCacheRemovesCacheFilesAndCountsThem(): void
     {
-        $result = clean_feed_cache();
-        $this->assertIsInt($result);
+        $this->withFeedCacheDirectory(function (string $directory): void {
+            file_put_contents($directory . 'one.spc', 'one');
+            file_put_contents($directory . 'two.spc', 'two');
+            file_put_contents($directory . 'index.html', 'not a cache file');
+
+            $this->assertSame(2, clean_feed_cache());
+
+            $this->assertFileDoesNotExist($directory . 'one.spc');
+            $this->assertFileDoesNotExist($directory . 'two.spc');
+            $this->assertFileExists($directory . 'index.html');
+        });
     }
 
     public function testFetchErrorLogsMethodExists(): void
@@ -92,10 +101,15 @@ final class AggroHelperTest extends CIUnitTestCase
         $this->assertTrue(function_exists('fetch_error_logs'));
     }
 
-    public function testFetchErrorLogsReturnsArray(): void
+    public function testFetchErrorLogsReturnsTheContentsOfEachLog(): void
     {
-        $result = fetch_error_logs();
-        $this->assertIsArray($result);
+        $this->withLogDirectory(function (string $directory): void {
+            file_put_contents($directory . 'log-2026-01-01.log', 'first');
+            file_put_contents($directory . 'log-2026-01-02.log', 'second');
+            file_put_contents($directory . 'index.html', 'not a log');
+
+            $this->assertSame(['first', 'second'], fetch_error_logs());
+        });
     }
 
     public function testFetchFeedMethodExists(): void
@@ -105,10 +119,12 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchFeedWithValidParameters(): void
     {
-        // The fetch is blocked, so the feed comes back carrying an error
-        $result = fetch_feed('invalid-url', 0);
-        $this->assertInstanceOf(SimplePie::class, $result);
-        $this->assertNotNull($result->error());
+        $this->withFeedCacheDirectory(function (): void {
+            // The fetch is blocked, so the feed comes back carrying an error
+            $result = fetch_feed('invalid-url', 0);
+            $this->assertInstanceOf(SimplePie::class, $result);
+            $this->assertNotNull($result->error());
+        });
     }
 
     public function testFetchFeedSendsDefaultAgentUnlessSpoofed(): void
@@ -515,7 +531,8 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchThumbnailStoresWebpThumbnail(): void
     {
-        $this->withThumbnailDirectory(function (string $path): void {
+        $this->withThumbnailDirectory(function (): void {
+            $path      = config('Storage')->getThumbnailPath('test_video');
             $downloads = $this->downloadFiles();
 
             $this->assertTrue(fetch_thumbnail('test_video', $this->localUrl('/body/image')));
@@ -530,7 +547,8 @@ final class AggroHelperTest extends CIUnitTestCase
 
     public function testFetchThumbnailLeavesNoFileWhenDownloadIsNotAnImage(): void
     {
-        $this->withThumbnailDirectory(function (string $path): void {
+        $this->withThumbnailDirectory(function (): void {
+            $path      = config('Storage')->getThumbnailPath('test_video');
             $downloads = $this->downloadFiles();
 
             $this->assertFalse(fetch_thumbnail('test_video', $this->localUrl('/body/page')));
@@ -539,29 +557,6 @@ final class AggroHelperTest extends CIUnitTestCase
             $this->assertFileDoesNotExist($path);
             $this->assertSame($downloads, $this->downloadFiles());
         });
-    }
-
-    /**
-     * Run a test against a temporary thumbnail directory.
-     *
-     * @param callable(string): void $test Receives the thumbnail path for the video id test_video
-     */
-    private function withThumbnailDirectory(callable $test): void
-    {
-        $storageConfig = config('Storage');
-        $original      = $storageConfig->thumbnailPath;
-        $directory     = sys_get_temp_dir() . '/aggro-thumbs-' . uniqid() . '/';
-        mkdir($directory);
-
-        $storageConfig->thumbnailPath = $directory;
-
-        try {
-            $test($storageConfig->getThumbnailPath('test_video'));
-        } finally {
-            $storageConfig->thumbnailPath = $original;
-            array_map('unlink', glob($directory . '*'));
-            rmdir($directory);
-        }
     }
 
     /**
