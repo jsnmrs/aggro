@@ -320,67 +320,6 @@ final class NewsModelsTest extends ServiceTestCase
         $this->assertCount(2, $result);
     }
 
-    public function testUpdateFeedUpdatesTimestamps()
-    {
-        // Arrange
-        $oldFetchTime = date('Y-m-d H:i:s', strtotime('-1 hour'));
-        $oldPostTime  = date('Y-m-d H:i:s', strtotime('-2 hours'));
-        $itemDate     = date('Y-m-d H:i:s', strtotime('-30 minutes'));
-
-        $this->db->table('news_feeds')->insert([
-            'site_id'              => 1,
-            'site_name'            => 'Test Site',
-            'site_slug'            => 'test-site',
-            'site_url'             => 'https://example.com',
-            'site_feed'            => 'https://example.com/feed.xml',
-            'site_category'        => 'news',
-            'flag_featured'        => 1,
-            'flag_stream'          => 0,
-            'flag_spoof'           => 0,
-            'site_date_added'      => date('Y-m-d H:i:s'),
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => $oldFetchTime,
-            'site_date_last_post'  => $oldPostTime,
-        ]);
-
-        // Mock a feed object with one item
-        $mockFeed = new class ($itemDate) {
-            private string $date;
-
-            public function __construct(string $date)
-            {
-                $this->date = $date;
-            }
-
-            public function get_items(int $start = 0, int $end = 0): array
-            {
-                $item = new class ($this->date) {
-                    private string $date;
-
-                    public function __construct(string $date)
-                    {
-                        $this->date = $date;
-                    }
-
-                    public function get_date(string $format): string
-                    {
-                        return $this->date;
-                    }
-                };
-
-                return [$item];
-            }
-        };
-
-        // Act
-        $this->model->updateFeed('test-site', $mockFeed);
-
-        // Assert
-        $row = $this->db->table('news_feeds')->where('site_slug', 'test-site')->get()->getRowArray();
-        $this->assertSame($itemDate, $row['site_date_last_post']);
-        $this->assertNotSame($oldFetchTime, $row['site_date_last_fetch']);
-    }
-
     public function testGetSitesHandlesDatabaseError()
     {
         // With an empty table, getSites should return an empty array

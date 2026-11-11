@@ -207,32 +207,4 @@ class NewsModels extends Model
 
         return $query->getResult();
     }
-
-    /**
-     * Update feed data.
-     *
-     * @param string $slug
-     *                     Site slug (as ID).
-     * @param object $feed
-     *                     Fetched feed object.
-     *
-     * @return void
-     */
-    public function updateFeed($slug, $feed)
-    {
-        foreach ($feed->get_items(0, 1) as $item) {
-            $lastPost = $item->get_date('Y-m-d H:i:s');
-        }
-
-        if (isset($lastPost)) {
-            $lastFetch = date('Y-m-d H:i:s');
-
-            $this->db->table('news_feeds')
-                ->where('site_slug', $slug)
-                ->update([
-                    'site_date_last_fetch' => $lastFetch,
-                    'site_date_last_post'  => $lastPost,
-                ]);
-        }
-    }
 }

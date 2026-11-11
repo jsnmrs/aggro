@@ -29,6 +29,9 @@ class FeedIngestionService
     /**
      * Build featured, stream entries.
      *
+     * Every feed is fetched so each site's directory page renders from
+     * the cache. Only featured and stream feeds have their stories stored.
+     *
      * @return bool
      *              Fetched true.
      */
@@ -37,12 +40,12 @@ class FeedIngestionService
         helper(['aggro', 'text']);
 
         try {
-            $featured = $this->getFeaturedFeeds();
-            if ($featured === false || empty($featured)) {
+            $feeds = $this->getFeeds();
+            if ($feeds === false || empty($feeds)) {
                 return false;
             }
 
-            $stats = $this->processFeaturedFeeds($featured);
+            $stats = $this->processFeeds($feeds);
 
             $this->logFeaturedStats($stats);
 
@@ -59,22 +62,18 @@ class FeedIngestionService
     }
 
     /**
-     * Get featured and stream feeds from database.
+     * Get every feed from database.
      *
      * @return array|false
      */
-    private function getFeaturedFeeds()
+    private function getFeeds()
     {
         $query = $this->db->table('news_feeds')
-            ->groupStart()
-            ->where('flag_featured', 1)
-            ->orWhere('flag_stream', 1)
-            ->groupEnd()
             ->orderBy('site_name', 'ASC')
             ->get();
 
         if ($query === false) {
-            log_message('error', 'Failed to query featured feeds');
+            log_message('error', 'Failed to query feeds');
 
             return false;
         }
@@ -83,18 +82,24 @@ class FeedIngestionService
     }
 
     /**
-     * Process all featured feeds.
+     * Process all feeds.
      *
-     * @param array $featured
+     * @param array $feeds
      *
-     * @return array Stats with counter and errorCount
+     * @return array Stats with counter and errorCount for the featured and stream feeds
      */
-    private function processFeaturedFeeds($featured)
+    private function processFeeds($feeds)
     {
         $counter    = 0;
         $errorCount = 0;
 
-        foreach ($featured as $row) {
+        foreach ($feeds as $row) {
+            if (! $this->isIngested($row)) {
+                $this->warmFeedCache($row);
+
+                continue;
+            }
+
             $result = $this->processSingleFeed($row);
             if ($result === true) {
                 $counter++;
@@ -105,6 +110,28 @@ class FeedIngestionService
         }
 
         return ['counter' => $counter, 'errorCount' => $errorCount];
+    }
+
+    /**
+     * Whether a feed's stories are stored.
+     *
+     * @param object $row
+     */
+    private function isIngested($row): bool
+    {
+        return (int) $row->flag_featured === 1 || (int) $row->flag_stream === 1;
+    }
+
+    /**
+     * Fetch a feed so its directory page finds it in the cache.
+     *
+     * A failed fetch is logged by fetch_feed() and tried again next run.
+     *
+     * @param object $row
+     */
+    private function warmFeedCache($row): void
+    {
+        fetch_feed($row->site_feed, $row->flag_spoof);
     }
 
     /**

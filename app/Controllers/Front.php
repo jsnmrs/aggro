@@ -99,9 +99,9 @@ class Front extends BaseController
         $data['build'] = $newsModel->getSite($slug);
 
         if (! empty($data['build'])) {
-            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], 0, 3600);
+            // The same agent as the cron fetch, so the page reads the cache file cron wrote
+            $data['feedfetch'] = fetch_feed($data['build']['site_feed'], (int) $data['build']['flag_spoof'], 3600);
             $data['canonical'] = base_url('sites/' . $slug);
-            $newsModel->updateFeed($slug, $data['feedfetch']);
 
             return view('site', $data);
         }

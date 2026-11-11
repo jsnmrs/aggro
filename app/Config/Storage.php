@@ -16,6 +16,11 @@ class Storage extends BaseConfig
      */
     public string $thumbnailPath = ROOTPATH . 'public/thumbs/';
 
+    /**
+     * Feed cache directory.
+     */
+    public string $feedCachePath = WRITEPATH . 'cache/';
+
     public string $thumbnailExtension = '.webp';
     public int $thumbnailWidth        = 600;
     public int $thumbnailHeight       = 338;
