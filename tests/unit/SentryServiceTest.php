@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use App\Libraries\SentryService;
 use Exception;
-use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -18,11 +17,6 @@ final class SentryServiceTest extends DatabaseTestCase
     {
         parent::setUp();
         $this->service = new SentryService();
-    }
-
-    public function testServiceInstantiatesCorrectly(): void
-    {
-        $this->assertInstanceOf(SentryService::class, $this->service);
     }
 
     public function testCaptureExceptionReturnsSentryId(): void
@@ -86,11 +80,10 @@ final class SentryServiceTest extends DatabaseTestCase
 
     public function testAddBreadcrumbHandlesUninitializedState(): void
     {
-        // Test that addBreadcrumb doesn't throw when not initialized
-        $this->service->addBreadcrumb('Test breadcrumb', 'test', ['key' => 'value']);
+        // addBreadcrumb must not throw when Sentry is not initialized
+        $this->expectNotToPerformAssertions();
 
-        // Should complete without errors
-        $this->assertTrue(true);
+        $this->service->addBreadcrumb('Test breadcrumb', 'test', ['key' => 'value']);
     }
 
     public function testStartTransaction(): void
@@ -120,31 +113,10 @@ final class SentryServiceTest extends DatabaseTestCase
 
     public function testFlushHandlesUninitializedState(): void
     {
-        // Test that flush doesn't throw when not initialized
+        // flush must not throw when Sentry is not initialized
+        $this->expectNotToPerformAssertions();
+
         $this->service->flush(5);
-
-        // Should complete without errors
-        $this->assertTrue(true);
-    }
-
-    public function testServiceMethodsExist(): void
-    {
-        // Verify all public methods exist
-        $this->assertTrue(method_exists($this->service, 'captureException'));
-        $this->assertTrue(method_exists($this->service, 'captureMessage'));
-        $this->assertTrue(method_exists($this->service, 'addBreadcrumb'));
-        $this->assertTrue(method_exists($this->service, 'startTransaction'));
-        $this->assertTrue(method_exists($this->service, 'flush'));
-    }
-
-    public function testServiceHasProtectedMethods(): void
-    {
-        $reflection = new ReflectionClass($this->service);
-
-        // Verify protected methods exist
-        $this->assertTrue($reflection->hasMethod('initialize'));
-        $this->assertTrue($reflection->hasMethod('configureScope'));
-        $this->assertTrue($reflection->hasMethod('filterSensitiveData'));
     }
 
     public function testCaptureExceptionWithInvalidException(): void
@@ -194,11 +166,10 @@ final class SentryServiceTest extends DatabaseTestCase
 
     public function testAddBreadcrumbWithEmptyData(): void
     {
-        // Test breadcrumb with empty data array
-        $this->service->addBreadcrumb('Test breadcrumb', 'test', []);
+        // An empty data array must not throw
+        $this->expectNotToPerformAssertions();
 
-        // Should complete without errors
-        $this->assertTrue(true);
+        $this->service->addBreadcrumb('Test breadcrumb', 'test', []);
     }
 
     public function testStartTransactionWithDefaultOp(): void
@@ -212,10 +183,9 @@ final class SentryServiceTest extends DatabaseTestCase
 
     public function testServiceHandlesNullTimeout(): void
     {
-        // Test flush with null timeout
-        $this->service->flush(null);
+        // A null timeout must not throw
+        $this->expectNotToPerformAssertions();
 
-        // Should complete without errors
-        $this->assertTrue(true);
+        $this->service->flush(null);
     }
 }

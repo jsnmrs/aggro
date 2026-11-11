@@ -26,22 +26,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->frontController = new Front();
     }
 
-    public function testGetIndexMethodExists()
-    {
-        // Test that the getIndex method exists and is callable
-        // This verifies the home page endpoint has the expected method
-        $this->assertTrue(method_exists($this->frontController, 'getIndex'));
-        $this->assertIsCallable([$this->frontController, 'getIndex']);
-    }
-
-    public function testGetFeaturedMethodExists()
-    {
-        // Test that the getFeatured method exists and is callable
-        // This verifies the featured page endpoint has the expected method
-        $this->assertTrue(method_exists($this->frontController, 'getFeatured'));
-        $this->assertIsCallable([$this->frontController, 'getFeatured']);
-    }
-
     public function testGetIndexCallsGetFeatured()
     {
         // Test that getIndex() calls getFeatured() by checking method relationships
@@ -62,31 +46,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertStringContainsString('getFeatured', $methodCode);
     }
 
-    public function testControllerExtendsBaseController()
-    {
-        // Verify the controller inheritance is correct
-        $this->assertInstanceOf(Controller::class, $this->frontController);
-    }
-
-    public function testControllerHasExpectedMethods()
-    {
-        // Test that all expected public methods exist
-        $expectedMethods = ['getIndex', 'getFeatured', 'getAbout', 'getError404', 'getSites', 'getStream', 'getVideo'];
-
-        foreach ($expectedMethods as $method) {
-            $this->assertTrue(
-                method_exists($this->frontController, $method),
-                "Method {$method} should exist on Front controller",
-            );
-        }
-    }
-
-    public function testGetAboutMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'getAbout'));
-        $this->assertIsCallable([$this->frontController, 'getAbout']);
-    }
-
     public function testGetAboutReturnsCorrectData()
     {
         $result = $this->controller(Front::class)
@@ -97,12 +56,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertStringContainsString('About', $response->getBody());
     }
 
-    public function testGetError404MethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'getError404'));
-        $this->assertIsCallable([$this->frontController, 'getError404']);
-    }
-
     public function testGetError404Sets404Status()
     {
         $result = $this->controller(Front::class)
@@ -110,12 +63,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
 
         $response = $result->response();
         $this->assertSame(404, $response->getStatusCode());
-    }
-
-    public function testGetSitesMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'getSites'));
-        $this->assertIsCallable([$this->frontController, 'getSites']);
     }
 
     public function testGetSitesWithNullSlug()
@@ -136,24 +83,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
-    public function testGetStreamMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'getStream'));
-        $this->assertIsCallable([$this->frontController, 'getStream']);
-    }
-
-    public function testGetVideoMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'getVideo'));
-        $this->assertIsCallable([$this->frontController, 'getVideo']);
-    }
-
-    public function testSanitizeSlugMethodExists()
-    {
-        $reflection = new ReflectionClass($this->frontController);
-        $this->assertTrue($reflection->hasMethod('sanitizeSlug'));
-    }
-
     public function testSanitizeSlugCleansInput()
     {
         $reflection = new ReflectionClass($this->frontController);
@@ -168,12 +97,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertSame('validslug', $method->invokeArgs($this->frontController, ['valid@#$slug']));
     }
 
-    public function testIsVideoListRequestMethodExists()
-    {
-        $reflection = new ReflectionClass($this->frontController);
-        $this->assertTrue($reflection->hasMethod('isVideoListRequest'));
-    }
-
     public function testIsVideoListRequestLogic()
     {
         $reflection = new ReflectionClass($this->frontController);
@@ -185,18 +108,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertTrue($method->invokeArgs($this->frontController, ['recent']));
         $this->assertFalse($method->invokeArgs($this->frontController, ['specific-video']));
         $this->assertFalse($method->invokeArgs($this->frontController, ['anothervideo']));
-    }
-
-    public function testHandleVideosPaginationMethodExists()
-    {
-        $reflection = new ReflectionClass($this->frontController);
-        $this->assertTrue($reflection->hasMethod('handleVideosPagination'));
-    }
-
-    public function testHandleIndividualVideoMethodExists()
-    {
-        $reflection = new ReflectionClass($this->frontController);
-        $this->assertTrue($reflection->hasMethod('handleIndividualVideo'));
     }
 
     public function testHandleIndividualVideoWithInvalidSlug()
@@ -240,12 +151,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
-    public function testSitemapMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'sitemap'));
-        $this->assertIsCallable([$this->frontController, 'sitemap']);
-    }
-
     public function testSitemapReturnsXmlResponse()
     {
         $result = $this->controller(Front::class)
@@ -264,12 +169,6 @@ final class FrontControllerUnitTest extends RepositoryTestCase
         $body = $result->response()->getBody();
         $this->assertStringContainsString('<?xml', $body);
         $this->assertStringContainsString('<urlset', $body);
-    }
-
-    public function testRobotsMethodExists()
-    {
-        $this->assertTrue(method_exists($this->frontController, 'robots'));
-        $this->assertIsCallable([$this->frontController, 'robots']);
     }
 
     public function testRobotsReturnsTextPlainResponse()

@@ -111,11 +111,6 @@ final class YoutubeModelsTest extends DatabaseTestCase
         return $mockAggro;
     }
 
-    public function testModelExtendsCodeIgniterModel(): void
-    {
-        $this->assertInstanceOf(Model::class, $this->model);
-    }
-
     public function testConstructorAcceptsDependencyInjection(): void
     {
         $mockAggro   = $this->createMock(AggroModels::class);
@@ -132,24 +127,6 @@ final class YoutubeModelsTest extends DatabaseTestCase
         $this->assertSame($mockUtility, $utilityProp->getValue($model));
     }
 
-    public function testConstructorCreatesDefaultDependencies(): void
-    {
-        $model = new YoutubeModels();
-
-        $reflection = new ReflectionClass($model);
-
-        $aggroProp = $reflection->getProperty('aggroModel');
-        $this->assertInstanceOf(AggroModels::class, $aggroProp->getValue($model));
-
-        $utilityProp = $reflection->getProperty('utilityModel');
-        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
-    }
-
-    public function testSearchChannelMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'searchChannel'));
-    }
-
     public function testSearchChannelWithNullFeed(): void
     {
         $mockFeed = new class () {
@@ -161,11 +138,6 @@ final class YoutubeModelsTest extends DatabaseTestCase
 
         $result = $this->model->searchChannel($mockFeed, 'test123');
         $this->assertFalse($result);
-    }
-
-    public function testParseChannelMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'parseChannel'));
     }
 
     public function testParseChannelWithEmptyFeed(): void
@@ -217,35 +189,8 @@ final class YoutubeModelsTest extends DatabaseTestCase
             }
         };
 
-        $result = $this->model->parseChannel($mockFeed);
-        $this->assertIsInt($result);
-        $this->assertGreaterThanOrEqual(0, $result);
-    }
-
-    public function testSearchChannelReturnsBoolean(): void
-    {
-        $mockFeed = new class () {
-            public function get_items($start = 0, $end = 0): array
-            {
-                return [];
-            }
-        };
-
-        $result = $this->model->searchChannel($mockFeed, 'test123');
-        $this->assertIsBool($result);
-    }
-
-    public function testParseChannelReturnsInteger(): void
-    {
-        $mockFeed = new class () {
-            public function get_items($start = 0, $end = 0): array
-            {
-                return [];
-            }
-        };
-
-        $result = $this->model->parseChannel($mockFeed);
-        $this->assertIsInt($result);
+        // A feed with no items adds no videos
+        $this->assertSame(0, $this->model->parseChannel($mockFeed));
     }
 
     public function testSearchChannelWithValidVideoId(): void
@@ -507,20 +452,6 @@ final class YoutubeModelsTest extends DatabaseTestCase
         // Test with null video ID
         $result = $this->model->searchChannel($mockFeed, null);
         $this->assertFalse($result);
-    }
-
-    public function testModelMethodsReturnCorrectTypes(): void
-    {
-        $mockFeed = new class () {
-            public function get_items($start = 0, $end = 0): array
-            {
-                return [];
-            }
-        };
-
-        // Verify return types for all public methods
-        $this->assertIsBool($this->model->searchChannel($mockFeed, 'test'));
-        $this->assertIsInt($this->model->parseChannel($mockFeed));
     }
 
     public function testSearchChannelFlagsShort(): void

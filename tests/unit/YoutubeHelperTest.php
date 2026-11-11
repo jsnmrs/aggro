@@ -19,30 +19,36 @@ final class YoutubeHelperTest extends CIUnitTestCase
         helper('youtube');
     }
 
-    public function testYoutubeGetFeedMethodExists(): void
+    public function testYoutubeGetFeedBuildsUserFeedUrl(): void
     {
-        $this->assertTrue(function_exists('youtube_get_feed'));
+        $this->assertSame(
+            'https://www.youtube.com/feeds/videos.xml?user=someuser',
+            youtube_get_feed('someuser')->subscribe_url(),
+        );
     }
 
-    public function testYoutubeGetFeedWithValidId(): void
+    public function testYoutubeGetFeedBuildsChannelFeedUrl(): void
     {
-        // The fetch is blocked, so the feed comes back carrying an error
-        $result = youtube_get_feed('invalid_channel_id');
-        $this->assertInstanceOf(SimplePie::class, $result);
-        $this->assertNotNull($result->error());
+        $this->assertSame(
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCabcdef',
+            youtube_get_feed('UCabcdef')->subscribe_url(),
+        );
+    }
+
+    public function testYoutubeGetFeedBuildsPlaylistFeedUrl(): void
+    {
+        $this->assertSame(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=PLabcdef',
+            youtube_get_feed('PLabcdef')->subscribe_url(),
+        );
     }
 
     public function testYoutubeGetFeedWithEmptyId(): void
     {
-        // Returns a SimplePie object even for an empty ID
+        // An empty id still builds a feed, and the blocked fetch leaves it carrying an error
         $result = youtube_get_feed('');
-        $this->assertInstanceOf(SimplePie::class, $result);
+        $this->assertSame('https://www.youtube.com/feeds/videos.xml?user=', $result->subscribe_url());
         $this->assertNotNull($result->error());
-    }
-
-    public function testYoutubeGetVideoSourceMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_get_video_source'));
     }
 
     public function testYoutubeGetVideoSourceWithValidId(): void
@@ -56,11 +62,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
     {
         $result = youtube_get_video_source('');
         $this->assertFalse($result);
-    }
-
-    public function testYoutubeGetDimensionsMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_get_dimensions'));
     }
 
     public function testYoutubeGetDimensionsWithInvalidId(): void
@@ -104,11 +105,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
 
         $this->assertSame($expected, youtube_parse_dimensions(false));
         $this->assertSame($expected, youtube_parse_dimensions('Not Found'));
-    }
-
-    public function testYoutubeParseMetaMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_parse_meta'));
     }
 
     public function testYoutubeParseMetaWithValidItem(): void
@@ -195,11 +191,6 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $this->assertNull(youtube_parse_short(500, ''));
     }
 
-    public function testYoutubeGetShortMethodExists(): void
-    {
-        $this->assertTrue(function_exists('youtube_get_short'));
-    }
-
     public function testYoutubeGetShortReturnsNullWhenFetchFails(): void
     {
         // The fetch is blocked, so the probe never completes
@@ -255,30 +246,5 @@ final class YoutubeHelperTest extends CIUnitTestCase
         $item = $this->makeFeedItem('');
 
         $this->assertSame('', youtube_parse_title($item));
-    }
-
-    public function testAllFunctionsExist(): void
-    {
-        $expectedFunctions = [
-            'youtube_get_feed',
-            'youtube_get_video_source',
-            'youtube_get_dimensions',
-            'youtube_parse_dimensions',
-            'youtube_get_short',
-            'youtube_parse_short',
-            'youtube_parse_title',
-            'youtube_parse_meta',
-        ];
-
-        foreach ($expectedFunctions as $function) {
-            $this->assertTrue(function_exists($function), "Function {$function} does not exist");
-        }
-    }
-
-    public function testFunctionReturnTypes(): void
-    {
-        // Test that functions return expected types for invalid input
-        $this->assertInstanceOf(SimplePie::class, youtube_get_feed(''));
-        $this->assertFalse(youtube_get_video_source(''));
     }
 }

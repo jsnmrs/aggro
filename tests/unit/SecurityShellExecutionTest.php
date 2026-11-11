@@ -43,16 +43,14 @@ final class SecurityShellExecutionTest extends DatabaseTestCase
     /**
      * Test getGitVersion method works without shell injection vulnerabilities
      */
-    public function testGetGitVersionMethodExists()
+    public function testGetGitVersionReturnsADescribeStringOrNothing()
     {
-        $this->assertTrue($this->reflection->hasMethod('getGitVersion'));
-
         $getGitVersionMethod = $this->reflection->getMethod('getGitVersion');
         $getGitVersionMethod->setAccessible(true);
 
-        // Should return a string (empty or version)
+        // git describe --tags --always gives a tag, a tag with distance and hash, or a bare hash
         $result = $getGitVersionMethod->invoke($this->sentryConfig);
-        $this->assertIsString($result);
+        $this->assertMatchesRegularExpression('/\A(|[0-9a-f]{7,40}|v?\d[\w.\-]*)\z/', $result);
     }
 
     /**

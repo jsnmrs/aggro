@@ -55,11 +55,6 @@ final class ViewHelperTest extends CIUnitTestCase
         $this->assertSame('', timeAgo('', 'UTC'));
     }
 
-    public function testDisplayStoryMethodExists(): void
-    {
-        $this->assertTrue(function_exists('displayStory'));
-    }
-
     public function testDisplayStoryWithValidRow(): void
     {
         $row = [
@@ -187,27 +182,5 @@ final class ViewHelperTest extends CIUnitTestCase
         $result = displayStory($row, 'story1');
 
         $this->assertSame('<li>No recent posts</li>', $result);
-    }
-
-    public function testAllFunctionsExist(): void
-    {
-        $expectedFunctions = [
-            'timeAgo',
-            'storyTitle',
-            'videoTitle',
-            'displayStory',
-        ];
-
-        foreach ($expectedFunctions as $function) {
-            $this->assertTrue(function_exists($function), "Function {$function} does not exist");
-        }
-    }
-
-    public function testFunctionReturnTypes(): void
-    {
-        // Test basic return types
-        $row    = [1 => ['story_title' => 'Test', 'story_permalink' => 'https://example.com', 'story_hash' => 'hash']];
-        $result = displayStory($row, 1);
-        $this->assertIsString($result);
     }
 }

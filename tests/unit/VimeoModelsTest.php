@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use App\Models\AggroModels;
 use App\Models\UtilityModels;
 use App\Models\VimeoModels;
-use CodeIgniter\Model;
 use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 
@@ -22,11 +21,6 @@ final class VimeoModelsTest extends DatabaseTestCase
         $this->model = new VimeoModels();
     }
 
-    public function testModelExtendsCodeIgniterModel(): void
-    {
-        $this->assertInstanceOf(Model::class, $this->model);
-    }
-
     public function testConstructorAcceptsDependencyInjection(): void
     {
         $mockAggro   = $this->createMock(AggroModels::class);
@@ -41,24 +35,6 @@ final class VimeoModelsTest extends DatabaseTestCase
 
         $utilityProp = $reflection->getProperty('utilityModel');
         $this->assertSame($mockUtility, $utilityProp->getValue($model));
-    }
-
-    public function testConstructorCreatesDefaultDependencies(): void
-    {
-        $model = new VimeoModels();
-
-        $reflection = new ReflectionClass($model);
-
-        $aggroProp = $reflection->getProperty('aggroModel');
-        $this->assertInstanceOf(AggroModels::class, $aggroProp->getValue($model));
-
-        $utilityProp = $reflection->getProperty('utilityModel');
-        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
-    }
-
-    public function testSearchChannelMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'searchChannel'));
     }
 
     public function testSearchChannelWithFalseFeed(): void
@@ -101,11 +77,6 @@ final class VimeoModelsTest extends DatabaseTestCase
         $this->assertFalse($result);
     }
 
-    public function testParseChannelMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'parseChannel'));
-    }
-
     public function testParseChannelWithFalseFeed(): void
     {
         $result = $this->model->parseChannel(false);
@@ -136,28 +107,7 @@ final class VimeoModelsTest extends DatabaseTestCase
         $this->assertSame(0, $result);
     }
 
-    public function testParseChannelReturnsIntegerOrFalse(): void
-    {
-        $result = $this->model->parseChannel([]);
-        $this->assertTrue(is_int($result) || $result === false);
-    }
-
-    public function testSearchChannelReturnsBoolean(): void
-    {
-        $result = $this->model->searchChannel([], 'test123');
-        $this->assertIsBool($result);
-    }
-
-    public function testParseChannelHandlesValidObjectWithoutExistingVideo(): void
-    {
-        $feed = [];
-
-        $result = $this->model->parseChannel($feed);
-        $this->assertIsInt($result);
-        $this->assertGreaterThanOrEqual(0, $result);
-    }
-
-    public function testSearchChannelHandlesValidObjectStructure(): void
+    public function testSearchChannelStoresTheMatchingVideo(): void
     {
         $feed = [
             (object) [
@@ -175,8 +125,9 @@ final class VimeoModelsTest extends DatabaseTestCase
             ],
         ];
 
-        $result = $this->model->searchChannel($feed, 'test123');
-        $this->assertIsBool($result);
+        $this->assertTrue($this->model->searchChannel($feed, 'test123'));
+
+        $this->seeInDatabase('aggro_videos', ['video_id' => 'test123']);
     }
 
     public function testModelHandlesErrorConditionsGracefully(): void

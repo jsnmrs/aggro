@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Controllers\BaseController;
 use App\Controllers\Feed;
 use CodeIgniter\Test\ControllerTestTrait;
 use Tests\Support\ServiceTestCase;
@@ -22,16 +21,6 @@ final class FeedControllerTest extends ServiceTestCase
         $this->feedController = new Feed();
     }
 
-    public function testControllerExtendsBaseController(): void
-    {
-        $this->assertInstanceOf(BaseController::class, $this->feedController);
-    }
-
-    public function testGetOpmlMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->feedController, 'getOpml'));
-    }
-
     public function testGetOpmlSetsCorrectContentType(): void
     {
         $result = $this->controller(Feed::class)
@@ -42,11 +31,6 @@ final class FeedControllerTest extends ServiceTestCase
         $this->assertSame('text/x-opml; charset=UTF-8', $response->getHeaderLine('Content-Type'));
     }
 
-    public function testGetVideofeedMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->feedController, 'getVideofeed'));
-    }
-
     public function testGetVideofeedSetsCorrectContentType(): void
     {
         $result = $this->controller(Feed::class)
@@ -55,11 +39,6 @@ final class FeedControllerTest extends ServiceTestCase
         $response = $result->response();
 
         $this->assertSame('application/rss+xml; charset=UTF-8', $response->getHeaderLine('Content-Type'));
-    }
-
-    public function testGetNewsfeedMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->feedController, 'getNewsfeed'));
     }
 
     public function testGetNewsfeedSetsCorrectContentType(): void

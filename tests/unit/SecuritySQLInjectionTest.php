@@ -41,8 +41,8 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
             // Should not throw exception and should return safe result
             $result = $this->newsModels->getSite($input);
 
-            // Verify the query executed safely
-            $this->assertTrue(is_array($result) || $result === null);
+            // No site has that slug, and nothing was executed as SQL
+            $this->assertNull($result);
 
             // Verify table still exists
             $this->assertTrue($this->db->tableExists('news_feeds'));
@@ -71,8 +71,8 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
                 // Should handle malicious input safely
                 $result = $this->newsModels->streamPage($page, $limit);
 
-                // Verify it returns an array (even if empty)
-                $this->assertIsArray($result);
+                // Nothing matches, and nothing was executed as SQL
+                $this->assertSame([], $result);
 
                 // Verify tables still exist
                 $this->assertTrue($this->db->tableExists('news_featured'));
@@ -118,7 +118,7 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
         // Test getSite with special characters
         $testSlug = "test's-slug";
         $result   = $this->newsModels->getSite($testSlug);
-        $this->assertTrue(is_array($result) || $result === null);
+        $this->assertNull($result);
 
         // Test sendLog with quotes
         $testMessage = "Test message with 'quotes' and \"double quotes\"";
@@ -133,15 +133,15 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
     {
         // Test with non-numeric page values
         $result = $this->newsModels->streamPage('abc', 'def');
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
 
         // Test with negative values
         $result = $this->newsModels->streamPage(-1, -50);
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
 
         // Test with extremely large values
         $result = $this->newsModels->streamPage(PHP_INT_MAX, PHP_INT_MAX);
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
     }
 
     /**
@@ -151,14 +151,14 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
     {
         // Test getSites method
         $result = $this->newsModels->getSites();
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
 
         // Test getSitesRecent method
         $result = $this->newsModels->getSitesRecent();
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
 
         // Test getLog method
         $result = $this->utilityModels->getLog();
-        $this->assertIsArray($result);
+        $this->assertSame([], $result);
     }
 }
