@@ -7,10 +7,25 @@
  * and a Location header pointing at a watch page, so callers can see
  * a redirect without following it. /body/image answers with a JPEG and
  * /body/page with an HTML page, for callers that read the response body.
+ * /body/feed answers with an RSS feed whose one item is titled with the
+ * request's User-Agent, so callers can see which agent they sent.
  * /error-page/<code> answers with that status and an HTML error page.
  */
 $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $code = (int) basename($path);
+
+if ($path === '/body/feed') {
+    header('Content-Type: application/rss+xml');
+    $agent = htmlspecialchars($_SERVER['HTTP_USER_AGENT'] ?? '', ENT_XML1);
+    echo '<?xml version="1.0" encoding="UTF-8"?>'
+        . '<rss version="2.0"><channel>'
+        . '<title>Local feed</title><link>http://127.0.0.1/</link><description>Test feed</description>'
+        . '<item><title>' . $agent . '</title><link>http://127.0.0.1/posts/1</link>'
+        . '<pubDate>Mon, 02 Nov 2026 10:00:00 +0000</pubDate></item>'
+        . '</channel></rss>';
+
+    return;
+}
 
 if ($path === '/body/image') {
     header('Content-Type: image/jpeg');

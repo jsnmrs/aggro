@@ -1,13 +1,18 @@
 <?php
 
 use App\Services\FeedIngestionService;
+use Tests\Support\LocalHttpServerTrait;
 use Tests\Support\ServiceTestCase;
+use Tests\Support\TemporaryStorageTrait;
 
 /**
  * @internal
  */
 final class FeedIngestionServiceTest extends ServiceTestCase
 {
+    use LocalHttpServerTrait;
+    use TemporaryStorageTrait;
+
     private FeedIngestionService $service;
 
     protected function setUp(): void
@@ -81,32 +86,36 @@ final class FeedIngestionServiceTest extends ServiceTestCase
         $this->assertTrue($result);
     }
 
-    public function testFeaturedBuilderIgnoresNonFeaturedNonStreamFeeds()
+    public function testFeaturedBuilderWarmsCacheForDirectoryOnlySiteWithoutStoringStories()
     {
-        // Arrange
-        $feedData = [
+        // A site that is neither featured nor stream only has a directory
+        // page, which renders from the feed cache
+        $this->db->table('news_feeds')->insert([
             'site_id'              => 1,
-            'site_name'            => 'Test Non-Featured Site',
-            'site_slug'            => 'test-non-featured',
+            'site_name'            => 'Test Directory Site',
+            'site_slug'            => 'test-directory',
             'site_url'             => 'https://example.com',
-            'site_feed'            => 'https://example.com/feed.xml',
+            'site_feed'            => $this->localUrl('/body/feed'),
             'site_category'        => 'other',
             'flag_featured'        => 0,
-            'flag_stream'          => 0, // Neither featured nor stream
+            'flag_stream'          => 0,
             'flag_spoof'           => 0,
-            'site_date_added'      => date('Y-m-d H:i:s'),
-            'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s', strtotime('-1 hour')),
-            'site_date_last_post'  => date('Y-m-d H:i:s', strtotime('-2 hours')),
-        ];
+            'site_date_added'      => '2026-01-01 00:00:00',
+            'site_date_updated'    => '2026-01-01 00:00:00',
+            'site_date_last_fetch' => '2026-10-01 09:00:00',
+            'site_date_last_post'  => '2026-10-01 10:00:00',
+        ]);
 
-        $this->db->table('news_feeds')->insert($feedData);
+        $this->withFeedCacheDirectory(function (string $directory): void {
+            $this->assertTrue($this->service->featuredBuilder());
 
-        // Act
-        $result = $this->service->featuredBuilder();
+            $this->assertCount(1, glob($directory . '*.spc'));
+        });
 
-        // Assert
-        $this->assertFalse($result); // Should return false as no featured/stream feeds found
+        $this->assertSame(0, $this->countRecords('news_featured'));
+        $site = $this->db->table('news_feeds')->where('site_id', 1)->get()->getRowArray();
+        $this->assertSame('2026-10-01 09:00:00', $site['site_date_last_fetch']);
+        $this->assertSame('2026-10-01 10:00:00', $site['site_date_last_post']);
     }
 
     public function testFeaturedBuilderHandlesMultipleFeeds()

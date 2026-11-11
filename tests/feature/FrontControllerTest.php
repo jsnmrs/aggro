@@ -1,35 +1,58 @@
 <?php
 
 use CodeIgniter\Test\FeatureTestTrait;
+use Tests\Support\DistinctUserAgentsTrait;
+use Tests\Support\LocalHttpServerTrait;
 use Tests\Support\RepositoryTestCase;
+use Tests\Support\TemporaryStorageTrait;
 
 /**
  * @internal
  */
 final class FrontControllerTest extends RepositoryTestCase
 {
+    use DistinctUserAgentsTrait;
     use FeatureTestTrait;
+    use LocalHttpServerTrait;
+    use TemporaryStorageTrait;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->useDistinctUserAgents();
 
         // Seed test data for news_feeds table
-        $this->db->table('news_feeds')->insert([
-            'site_id'              => 1,
-            'site_name'            => 'Test Site',
-            'site_slug'            => 'test-site',
+        $this->seedSite([
+            'site_id'       => 1,
+            'site_name'     => 'Test Site',
+            'site_slug'     => 'test-site',
+            'site_feed'     => 'https://test.com/feed',
+            'flag_featured' => 1,
+        ]);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->restoreUserAgents();
+        parent::tearDown();
+    }
+
+    /**
+     * Insert a site into news_feeds.
+     */
+    private function seedSite(array $overrides): void
+    {
+        $this->db->table('news_feeds')->insert(array_merge([
             'site_url'             => 'https://test.com',
-            'site_feed'            => 'https://test.com/feed',
             'site_category'        => 'news',
             'site_date_added'      => date('Y-m-d H:i:s'),
             'site_date_updated'    => date('Y-m-d H:i:s'),
-            'site_date_last_fetch' => date('Y-m-d H:i:s'),
-            'site_date_last_post'  => date('Y-m-d H:i:s'),
-            'flag_featured'        => 1,
+            'site_date_last_fetch' => '2026-10-01 09:00:00',
+            'site_date_last_post'  => '2026-10-01 10:00:00',
+            'flag_featured'        => 0,
             'flag_stream'          => 0,
             'flag_spoof'           => 0,
-        ]);
+        ], $overrides));
     }
 
     public function testAboutPageLoads()
@@ -62,6 +85,87 @@ final class FrontControllerTest extends RepositoryTestCase
         $response = $this->get('/sites');
 
         $response->assertStatus(200);
+    }
+
+    public function testSitePageShowsSiteName()
+    {
+        $this->withFeedCacheDirectory(function (): void {
+            $response = $this->get('/sites/test-site');
+
+            $response->assertStatus(200);
+            $response->assertSee('Test Site');
+        });
+    }
+
+    public function testSitePageSendsDefaultAgentForUnspoofedSite()
+    {
+        $this->seedSite([
+            'site_id'   => 2,
+            'site_name' => 'Plain Site',
+            'site_slug' => 'plain-site',
+            'site_feed' => $this->localUrl('/body/feed'),
+        ]);
+
+        $this->withFeedCacheDirectory(function (): void {
+            $body = (string) $this->get('/sites/plain-site')->response()->getBody();
+
+            // The local feed titles its one item with the agent it was sent
+            $this->assertStringContainsString(self::DEFAULT_AGENT, $body);
+            $this->assertStringNotContainsString(self::SPOOF_AGENT, $body);
+        });
+    }
+
+    public function testSitePageSendsSpoofedAgentForSpoofedSite()
+    {
+        $this->seedSite([
+            'site_id'    => 2,
+            'site_name'  => 'Spoofed Site',
+            'site_slug'  => 'spoofed-site',
+            'site_feed'  => $this->localUrl('/body/feed'),
+            'flag_spoof' => 1,
+        ]);
+
+        $this->withFeedCacheDirectory(function (): void {
+            $body = (string) $this->get('/sites/spoofed-site')->response()->getBody();
+
+            $this->assertStringContainsString(self::SPOOF_AGENT, $body);
+            $this->assertStringNotContainsString(self::DEFAULT_AGENT, $body);
+        });
+    }
+
+    public function testSitePageViewLeavesTheSiteRowAlone()
+    {
+        $this->seedSite([
+            'site_id'   => 2,
+            'site_name' => 'Plain Site',
+            'site_slug' => 'plain-site',
+            'site_feed' => $this->localUrl('/body/feed'),
+        ]);
+        $before = $this->db->table('news_feeds')->where('site_slug', 'plain-site')->get()->getRowArray();
+
+        $this->withFeedCacheDirectory(function (): void {
+            $this->get('/sites/plain-site')->assertStatus(200);
+        });
+
+        $after = $this->db->table('news_feeds')->where('site_slug', 'plain-site')->get()->getRowArray();
+        $this->assertSame($before, $after);
+    }
+
+    public function testSitePageShowsMessageWhenFeedIsDown()
+    {
+        $this->seedSite([
+            'site_id'   => 2,
+            'site_name' => 'Down Site',
+            'site_slug' => 'down-site',
+            'site_feed' => $this->localUrl('/status/500'),
+        ]);
+
+        $this->withFeedCacheDirectory(function (): void {
+            $response = $this->get('/sites/down-site');
+
+            $response->assertStatus(200);
+            $response->assertSee('Unable to get Down Site feed.');
+        });
     }
 
     public function testStreamPageLoads()

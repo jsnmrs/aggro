@@ -5,7 +5,9 @@ namespace Tests\Unit;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\TestLogger;
 use SimplePie\SimplePie;
+use Tests\Support\DistinctUserAgentsTrait;
 use Tests\Support\LocalHttpServerTrait;
+use Tests\Support\TemporaryStorageTrait;
 use TypeError;
 
 /**
@@ -13,12 +15,21 @@ use TypeError;
  */
 final class AggroHelperTest extends CIUnitTestCase
 {
+    use DistinctUserAgentsTrait;
     use LocalHttpServerTrait;
+    use TemporaryStorageTrait;
 
     protected function setUp(): void
     {
         parent::setUp();
         helper('aggro');
+        $this->useDistinctUserAgents();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->restoreUserAgents();
+        parent::tearDown();
     }
 
     public function testCleanErrorLogsMethodExists(): void
@@ -98,6 +109,27 @@ final class AggroHelperTest extends CIUnitTestCase
         $result = fetch_feed('invalid-url', 0);
         $this->assertInstanceOf(SimplePie::class, $result);
         $this->assertNotNull($result->error());
+    }
+
+    public function testFetchFeedSendsDefaultAgentUnlessSpoofed(): void
+    {
+        $this->withFeedCacheDirectory(function (): void {
+            $this->assertSame(self::DEFAULT_AGENT, fetch_feed('invalid-url', 0)->useragent);
+            $this->assertSame(self::SPOOF_AGENT, fetch_feed('invalid-url', 1)->useragent);
+            $this->assertSame(self::SPOOF_AGENT, fetch_feed('invalid-url', true)->useragent);
+        });
+    }
+
+    public function testFetchFeedSendsAgentToServerAndCachesTheFeed(): void
+    {
+        $this->withFeedCacheDirectory(function (string $directory): void {
+            $feed = fetch_feed($this->localUrl('/body/feed'), 1);
+
+            $this->assertFalse((bool) $feed->error());
+            // The local feed titles its one item with the agent it was sent
+            $this->assertSame(self::SPOOF_AGENT, $feed->get_items(0, 1)[0]->get_title());
+            $this->assertCount(1, glob($directory . '*.spc'));
+        });
     }
 
     public function testFetchThumbnailMethodExists(): void

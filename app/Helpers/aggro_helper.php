@@ -151,7 +151,7 @@ if (! function_exists('fetch_feed')) {
      * Fetch RSS feed.
      *
      * @param string   $feed  RSS feed URL.
-     * @param bool|int $spoof Spoof user agent (1 = spoof, 0 = default).
+     * @param bool|int $spoof Spoof user agent (1 or true = spoof, 0 or false = default).
      * @param int|null $cache Cache duration in seconds. Default is 30 minutes.
      *
      * @return SimplePie\SimplePie RSS feed data.
@@ -160,7 +160,7 @@ if (! function_exists('fetch_feed')) {
     {
         $userAgent = env('UA_BMXFEED', 'Aggro/1.0');
 
-        if ($spoof === 1) {
+        if ((int) $spoof === 1) {
             $userAgent = env('UA_SPOOF', 'Mozilla/5.0 (compatible; Aggro/1.0)');
         }
 
@@ -168,7 +168,7 @@ if (! function_exists('fetch_feed')) {
         $cacheDuration = $cache ?? $storageConfig->defaultCacheDuration;
 
         $rss = new SimplePie\SimplePie();
-        $rss->set_cache_location(WRITEPATH . '/cache');
+        $rss->set_cache_location(rtrim($storageConfig->feedCachePath, '/'));
         $rss->set_cache_duration($cacheDuration);
         $rss->set_useragent($userAgent);
         $rss->set_item_limit($storageConfig->feedItemLimit);

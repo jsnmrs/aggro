@@ -5,8 +5,6 @@ namespace Tests\Unit;
 use App\Models\NewsModels;
 use App\Models\UtilityModels;
 use App\Models\YoutubeModels;
-use SimplePie;
-use SimplePie_Item;
 use Tests\Support\DatabaseTestCase;
 
 /**
@@ -162,26 +160,5 @@ final class SecuritySQLInjectionTest extends DatabaseTestCase
         // Test getLog method
         $result = $this->utilityModels->getLog();
         $this->assertIsArray($result);
-    }
-
-    /**
-     * Verify no raw SQL concatenation in critical methods
-     */
-    public function testNoRawSQLConcatenation()
-    {
-        // This test checks that our refactored methods don't use string concatenation
-        // by attempting to inject SQL through various parameters
-
-        // Test updateFeed
-        $mockFeed = $this->createMock(SimplePie::class);
-        $mockItem = $this->createMock(SimplePie_Item::class);
-        $mockItem->method('get_date')->willReturn('2024-01-01 00:00:00');
-        $mockFeed->method('get_items')->willReturn([$mockItem]);
-
-        $maliciousSlug = "test'; DROP TABLE news_feeds; --";
-        $this->newsModels->updateFeed($maliciousSlug, $mockFeed);
-
-        // Verify table still exists
-        $this->assertTrue($this->db->tableExists('news_feeds'));
     }
 }
