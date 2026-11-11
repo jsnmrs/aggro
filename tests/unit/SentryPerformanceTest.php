@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Filters\SentryPerformance;
-use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\Response;
 use ReflectionClass;
@@ -20,26 +19,6 @@ final class SentryPerformanceTest extends DatabaseTestCase
     {
         parent::setUp();
         $this->filter = new SentryPerformance();
-    }
-
-    public function testFilterImplementsFilterInterface(): void
-    {
-        $this->assertInstanceOf(FilterInterface::class, $this->filter);
-    }
-
-    public function testFilterInstantiatesCorrectly(): void
-    {
-        $this->assertInstanceOf(SentryPerformance::class, $this->filter);
-    }
-
-    public function testBeforeMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->filter, 'before'));
-    }
-
-    public function testAfterMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->filter, 'after'));
     }
 
     public function testBeforeSkipsInTestEnvironment(): void
@@ -177,13 +156,6 @@ final class SentryPerformanceTest extends DatabaseTestCase
 
         $result = $this->filter->after($mockRequest, $mockResponse, null);
         $this->assertNull($result);
-    }
-
-    public function testFilterConstructorSetsSentryService(): void
-    {
-        // Test that constructor initializes SentryService
-        $filter = new SentryPerformance();
-        $this->assertInstanceOf(SentryPerformance::class, $filter);
     }
 
     public function testFilterHasTransactionProperty(): void

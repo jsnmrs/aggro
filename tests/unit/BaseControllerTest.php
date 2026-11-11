@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Controllers\BaseController;
-use CodeIgniter\Controller;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Test\CIUnitTestCase;
@@ -49,11 +48,6 @@ final class BaseControllerTest extends CIUnitTestCase
     {
         parent::setUp();
         $this->controller = new TestableBaseController();
-    }
-
-    public function testControllerExtendsCodeIgniterController(): void
-    {
-        $this->assertInstanceOf(Controller::class, $this->controller);
     }
 
     public function testHelpersPropertyContainsViewHelper(): void

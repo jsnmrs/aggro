@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\UtilityModels;
-use CodeIgniter\Model;
 use Config\Database;
 use Tests\Support\DatabaseTestCase;
 
@@ -25,118 +24,41 @@ final class UtilityModelsTest extends DatabaseTestCase
         $this->model = new UtilityModels();
     }
 
-    public function testModelExtendsCodeIgniterModel(): void
+    public function testCleanLogWithEmptyDatabaseLogsZeroDeletions(): void
     {
-        $this->assertInstanceOf(Model::class, $this->model);
-    }
+        $this->assertTrue($this->model->cleanLog());
 
-    public function testCleanLogMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'cleanLog'));
-    }
-
-    public function testCleanLogReturnsBoolean(): void
-    {
-        $result = $this->model->cleanLog();
-        $this->assertIsBool($result);
-    }
-
-    public function testCleanLogWithEmptyDatabase(): void
-    {
-        $result = $this->model->cleanLog();
-        // cleanLog may return false when no records to clean or transaction issues
-        $this->assertIsBool($result);
-    }
-
-    public function testGetLogMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'getLog'));
-    }
-
-    public function testGetLogReturnsArray(): void
-    {
-        $result = $this->model->getLog();
-        $this->assertIsArray($result);
+        $this->seeInDatabase('aggro_log', ['log_message' => '0 log entries, older than 1 day deleted.']);
     }
 
     public function testGetLogWithEmptyDatabase(): void
     {
-        $result = $this->model->getLog();
-        $this->assertEmpty($result);
-    }
-
-    public function testSendLogMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'sendLog'));
-    }
-
-    public function testSendLogReturnsBoolean(): void
-    {
-        $result = $this->model->sendLog('Test message');
-        $this->assertIsBool($result);
-    }
-
-    public function testSendLogWithValidMessage(): void
-    {
-        $message = 'Test log message for unit testing';
-        $result  = $this->model->sendLog($message);
-        // sendLog may return false in test environment due to database constraints
-        $this->assertIsBool($result);
+        $this->assertSame([], $this->model->getLog());
     }
 
     public function testSendLogWithEmptyMessage(): void
     {
-        $result = $this->model->sendLog('');
-        $this->assertIsBool($result);
+        $this->assertTrue($this->model->sendLog(''));
+
+        $this->seeInDatabase('aggro_log', ['log_message' => '']);
     }
 
-    public function testSendLogInsertsMessageCorrectly(): void
+    public function testSendLogStoresTheMessage(): void
     {
-        $message = 'Test message for verification';
-        $result  = $this->model->sendLog($message);
+        $this->assertTrue($this->model->sendLog('Test message for verification'));
 
-        if ($result) {
-            $logs = $this->model->getLog();
-            $this->assertNotEmpty($logs);
-
-            $found = false;
-
-            foreach ($logs as $log) {
-                if (isset($log->log_message) && $log->log_message === $message) {
-                    $found = true;
-                    break;
-                }
-            }
-            $this->assertTrue($found, 'Message was not found in log entries');
-        } else {
-            $this->markTestSkipped('Database insert failed, skipping verification test');
-        }
+        $this->seeInDatabase('aggro_log', ['log_message' => 'Test message for verification']);
     }
 
-    public function testGetLogOrdersByDate(): void
+    public function testGetLogReturnsNewestEntriesFirst(): void
     {
-        $result = $this->model->getLog();
-        $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(100, count($result));
-    }
+        $this->insertLogEntry('-3 days', 'Older entry');
+        $this->insertLogEntry('-1 hour', 'Recent entry');
+        $this->insertLogEntry('-2 days', 'Old entry');
 
-    public function testCleanLogHandlesDatabaseErrors(): void
-    {
-        $result = $this->model->cleanLog();
-        $this->assertIsBool($result);
-    }
+        $messages = array_column($this->model->getLog(), 'log_message');
 
-    public function testSendLogHandlesExceptions(): void
-    {
-        $result = $this->model->sendLog('Test exception handling');
-        $this->assertIsBool($result);
-    }
-
-    public function testModelMethodsAreAccessible(): void
-    {
-        $this->assertTrue(method_exists($this->model, 'cleanLog'));
-        $this->assertTrue(method_exists($this->model, 'getLog'));
-        $this->assertTrue(method_exists($this->model, 'sendLog'));
+        $this->assertSame(['Recent entry', 'Old entry', 'Older entry'], $messages);
     }
 
     public function testCleanLogWithOldEntries(): void
@@ -167,49 +89,44 @@ final class UtilityModelsTest extends DatabaseTestCase
         }
     }
 
-    public function testGetLogLimitsResults(): void
+    public function testGetLogReturnsAtMostOneHundredEntries(): void
     {
-        // Test that getLog respects the LIMIT 100 constraint
-        $result = $this->model->getLog();
-        $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(100, count($result));
+        for ($i = 0; $i < 101; $i++) {
+            $this->insertLogEntry('-' . $i . ' minutes', 'Entry ' . $i);
+        }
+
+        $this->assertCount(100, $this->model->getLog());
     }
 
-    public function testSendLogWithNullMessage(): void
+    public function testSendLogReturnsFalseForNullMessage(): void
     {
-        $result = $this->model->sendLog(null);
-        $this->assertIsBool($result);
+        // The message column does not accept null, so the insert fails
+        $this->assertFalse($this->model->sendLog(null));
+
+        $this->assertSame(0, $this->db->table('aggro_log')->countAllResults());
     }
 
-    public function testSendLogWithLongMessage(): void
+    public function testSendLogStoresALongMessageWhole(): void
     {
         $longMessage = str_repeat('This is a long test message. ', 100);
-        $result      = $this->model->sendLog($longMessage);
-        $this->assertIsBool($result);
+
+        $this->assertTrue($this->model->sendLog($longMessage));
+
+        $row = $this->db->table('aggro_log')->get()->getRowArray();
+        $this->assertSame($longMessage, $row['log_message']);
     }
 
-    public function testSendLogDoesNotCreateInfiniteLoop(): void
+    public function testSendLogReturnsFalseWhenInsertFails(): void
     {
-        // Test that sendLog doesn't call log_message to avoid infinite loops
-        $result = $this->model->sendLog('Test message for loop prevention');
-        $this->assertIsBool($result);
-        // The fact that this test completes verifies no infinite loop occurs
-    }
+        // Without the log table, the insert fails
+        $forge = Database::forge($this->DBGroup);
+        $forge->renameTable('aggro_log', 'aggro_log_hidden');
 
-    public function testGetLogReturnsEmptyArrayOnError(): void
-    {
-        // Test error handling in getLog method
-        $result = $this->model->getLog();
-        $this->assertIsArray($result);
-        // Method should return empty array on database error as per implementation
-    }
-
-    public function testSendLogReturnsFalseOnException(): void
-    {
-        // Test that sendLog returns false when exceptions occur
-        // The implementation catches exceptions and returns false
-        $result = $this->model->sendLog('Test exception scenario');
-        $this->assertIsBool($result);
+        try {
+            $this->assertFalse($this->model->sendLog('Test message'));
+        } finally {
+            $forge->renameTable('aggro_log_hidden', 'aggro_log');
+        }
     }
 
     public function testCleanLogLogsResults(): void

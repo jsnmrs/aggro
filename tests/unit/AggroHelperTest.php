@@ -32,11 +32,6 @@ final class AggroHelperTest extends CIUnitTestCase
         parent::tearDown();
     }
 
-    public function testCleanErrorLogsMethodExists(): void
-    {
-        $this->assertTrue(function_exists('clean_error_logs'));
-    }
-
     public function testCleanErrorLogsDefaultsToTheLogDirectory(): void
     {
         $this->withLogDirectory(function (string $directory): void {
@@ -76,11 +71,6 @@ final class AggroHelperTest extends CIUnitTestCase
         });
     }
 
-    public function testCleanFeedCacheMethodExists(): void
-    {
-        $this->assertTrue(function_exists('clean_feed_cache'));
-    }
-
     public function testCleanFeedCacheRemovesCacheFilesAndCountsThem(): void
     {
         $this->withFeedCacheDirectory(function (string $directory): void {
@@ -96,11 +86,6 @@ final class AggroHelperTest extends CIUnitTestCase
         });
     }
 
-    public function testFetchErrorLogsMethodExists(): void
-    {
-        $this->assertTrue(function_exists('fetch_error_logs'));
-    }
-
     public function testFetchErrorLogsReturnsTheContentsOfEachLog(): void
     {
         $this->withLogDirectory(function (string $directory): void {
@@ -110,11 +95,6 @@ final class AggroHelperTest extends CIUnitTestCase
 
             $this->assertSame(['first', 'second'], fetch_error_logs());
         });
-    }
-
-    public function testFetchFeedMethodExists(): void
-    {
-        $this->assertTrue(function_exists('fetch_feed'));
     }
 
     public function testFetchFeedWithValidParameters(): void
@@ -148,21 +128,11 @@ final class AggroHelperTest extends CIUnitTestCase
         });
     }
 
-    public function testFetchThumbnailMethodExists(): void
-    {
-        $this->assertTrue(function_exists('fetch_thumbnail'));
-    }
-
     public function testFetchThumbnailWithValidParameters(): void
     {
         // The fetch is blocked, so there is no image to save
         $result = fetch_thumbnail('test123', 'https://example.com/thumb.jpg');
         $this->assertFalse($result);
-    }
-
-    public function testFetchUrlMethodExists(): void
-    {
-        $this->assertTrue(function_exists('fetch_url'));
     }
 
     public function testFetchUrlWithInvalidUrl(): void
@@ -192,33 +162,6 @@ final class AggroHelperTest extends CIUnitTestCase
     {
         $result = fetch_url('invalid-url', 'json');
         $this->assertFalse($result);
-    }
-
-    public function testGateCheckMethodExists(): void
-    {
-        $this->assertTrue(function_exists('gate_check'));
-    }
-
-    public function testGateCheckReturnsBoolean(): void
-    {
-        $result = gate_check();
-        $this->assertIsBool($result);
-    }
-
-    public function testGateCheckWithoutGateParameter(): void
-    {
-        unset($_GET['g']);
-        $result = gate_check();
-        // gate_check behavior may vary based on environment
-        $this->assertIsBool($result);
-    }
-
-    public function testGateCheckWithValidGateParameter(): void
-    {
-        $_GET['g'] = 'test-gate-value';
-        $result    = gate_check();
-        // Result depends on environment configuration
-        $this->assertIsBool($result);
     }
 
     public function testGateCheckReturnsEarlyInCli(): void
@@ -286,54 +229,11 @@ final class AggroHelperTest extends CIUnitTestCase
         }
     }
 
-    public function testSafeFileWriteMethodExists(): void
-    {
-        $this->assertTrue(function_exists('safe_file_write'));
-    }
-
-    public function testSafeFileWriteWithValidPath(): void
-    {
-        $tmpfile = tempnam(sys_get_temp_dir(), 'test');
-        $result  = safe_file_write($tmpfile, 'test data');
-
-        $this->assertIsBool($result);
-
-        // Clean up
-        if (file_exists($tmpfile)) {
-            unlink($tmpfile);
-        }
-    }
-
     public function testSafeFileWriteWithInvalidPath(): void
     {
         // Writing to /dev/null/invalid should fail
         $result = @safe_file_write('/dev/null/invalid/path', 'test');
         $this->assertFalse($result);
-    }
-
-    public function testAllFunctionsExist(): void
-    {
-        $expectedFunctions = [
-            'clean_error_logs',
-            'clean_feed_cache',
-            'decode_entities',
-            'fetch_error_logs',
-            'fetch_feed',
-            'fetch_thumbnail',
-            'fetch_url',
-            'fetch_url_status',
-            'gate_check',
-            'safe_file_write',
-        ];
-
-        foreach ($expectedFunctions as $function) {
-            $this->assertTrue(function_exists($function), "Function {$function} does not exist");
-        }
-    }
-
-    public function testDecodeEntitiesMethodExists(): void
-    {
-        $this->assertTrue(function_exists('decode_entities'));
     }
 
     public function testDecodeEntitiesWithPlainText(): void
@@ -402,16 +302,6 @@ final class AggroHelperTest extends CIUnitTestCase
         // Named entities should also be decoded
         $result = decode_entities('Test &amp;amp; &amp;quot;quoted&amp;quot;');
         $this->assertSame('Test & "quoted"', $result);
-    }
-
-    public function testFetchUrlPopulatesHttpStatus(): void
-    {
-        $httpStatus = null;
-        // Use an invalid URL that will get a cURL error (no HTTP code)
-        fetch_url('http://localhost:1', 'text', 0, $httpStatus);
-
-        // httpStatus should be set (0 for connection failure)
-        $this->assertIsInt($httpStatus);
     }
 
     public function testFetchUrlHttpStatusSetOn404(): void
@@ -485,11 +375,6 @@ final class AggroHelperTest extends CIUnitTestCase
 
         $this->assertSame('<html><body>Not an image</body></html>', $result);
         $this->assertSame(200, $httpStatus);
-    }
-
-    public function testFetchUrlStatusMethodExists(): void
-    {
-        $this->assertTrue(function_exists('fetch_url_status'));
     }
 
     public function testFetchUrlStatusReturnsStatusWithoutFollowingRedirect(): void

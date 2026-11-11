@@ -176,47 +176,6 @@ final class ThumbnailServiceTest extends ServiceTestCase
         $this->assertFalse($result);
     }
 
-    public function testLogCleanupResults()
-    {
-        // We can test this via reflection by verifying the method runs without error
-        $reflection = new ReflectionClass($this->service);
-        $method     = $reflection->getMethod('logCleanupResults');
-        $method->setAccessible(true);
-
-        // Should not throw — just logs
-        $method->invoke($this->service, 5, 0);
-        $method->invoke($this->service, 3, 2);
-
-        $this->assertTrue(true); // Reached here without error
-    }
-
-    public function testServiceConstructorSetsUpDependencies()
-    {
-        // Test that constructor initializes dependencies
-        $service = new ThumbnailService();
-        $this->assertInstanceOf(ThumbnailService::class, $service);
-    }
-
-    public function testCheckThumbsMethodExists()
-    {
-        $this->assertTrue(method_exists($this->service, 'checkThumbs'));
-    }
-
-    public function testCleanThumbsMethodExists()
-    {
-        $this->assertTrue(method_exists($this->service, 'cleanThumbs'));
-    }
-
-    public function testServiceHasPrivateMethods()
-    {
-        $reflection = new ReflectionClass($this->service);
-
-        // Verify private methods exist
-        $this->assertTrue($reflection->hasMethod('isFileEligibleForDeletion'));
-        $this->assertTrue($reflection->hasMethod('deleteFile'));
-        $this->assertTrue($reflection->hasMethod('logCleanupResults'));
-    }
-
     public function testIncrementThumbnailIssueCount()
     {
         // Arrange

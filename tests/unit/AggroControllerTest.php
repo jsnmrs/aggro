@@ -3,10 +3,8 @@
 namespace Tests\Unit;
 
 use App\Controllers\Aggro;
-use App\Controllers\BaseController;
 use CodeIgniter\Test\ControllerTestTrait;
 use Config\Database;
-use ReflectionClass;
 use Tests\Support\DatabaseTestCase;
 use Tests\Support\TemporaryStorageTrait;
 
@@ -28,16 +26,6 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->aggroController = new Aggro();
     }
 
-    public function testControllerExtendsBaseController(): void
-    {
-        $this->assertInstanceOf(BaseController::class, $this->aggroController);
-    }
-
-    public function testGetIndexMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getIndex'));
-    }
-
     public function testGetIndexReturnsOutput(): void
     {
         ob_start();
@@ -46,11 +34,6 @@ final class AggroControllerTest extends DatabaseTestCase
 
         $this->assertStringContainsString('running cron all day.', $output);
         $this->assertStringContainsString('color:#005600', $output);
-    }
-
-    public function testGetInfoMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getInfo'));
     }
 
     public function testGetInfoReturnsVersionInfo(): void
@@ -65,11 +48,6 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($response->hasHeader('Expires'));
     }
 
-    public function testGetLogMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getLog'));
-    }
-
     public function testGetLogExecutesInCliMode(): void
     {
         // In CLI mode gate_check() returns true, so getLog should succeed
@@ -79,26 +57,6 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertTrue($result->isOK());
     }
 
-    public function testGetLogCleanMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getLogClean'));
-    }
-
-    public function testGetLogErrorMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getLogError'));
-    }
-
-    public function testGetLogErrorCleanMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getLogErrorClean'));
-    }
-
-    public function testGetNewsMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getNews'));
-    }
-
     public function testGetNewsExecutesInCliMode(): void
     {
         // In CLI mode gate_check() returns true, so getNews should succeed
@@ -106,43 +64,6 @@ final class AggroControllerTest extends DatabaseTestCase
             ->execute('getNews');
 
         $this->assertTrue($result->isOK());
-    }
-
-    public function testGetNewsCacheMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getNewsCache'));
-    }
-
-    public function testGetNewsCleanMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getNewsClean'));
-    }
-
-    public function testGetSweepMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getSweep'));
-    }
-
-    public function testGetVimeoMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getVimeo'));
-    }
-
-    public function testGetYoutubeMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getYoutube'));
-    }
-
-    public function testValidateVimeoVideoIdMethodExists(): void
-    {
-        $reflection = new ReflectionClass($this->aggroController);
-        $this->assertTrue($reflection->hasMethod('validateVimeoVideoId'));
-    }
-
-    public function testValidateYouTubeVideoIdMethodExists(): void
-    {
-        $reflection = new ReflectionClass($this->aggroController);
-        $this->assertTrue($reflection->hasMethod('validateYouTubeVideoId'));
     }
 
     public function testGetNewsReturnsConfirmation(): void
@@ -199,30 +120,25 @@ final class AggroControllerTest extends DatabaseTestCase
         });
     }
 
-    public function testGetPlaysMethodExists(): void
-    {
-        $this->assertTrue(method_exists($this->aggroController, 'getPlays'));
-    }
-
-    public function testGetPlaysExecutesSuccessfully(): void
+    public function testGetPlaysReportsTheRefresh(): void
     {
         // In CLI mode gate_check() returns true
         $result = $this->controller(Aggro::class)
             ->execute('getPlays');
 
-        $this->assertTrue($result->isOK() || $result->response()->getStatusCode() === 200);
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertStringContainsString('Play counts refreshed.', (string) $result->response()->getBody());
     }
 
-    public function testGetVimeoWithNullVideoIdExecutes(): void
+    public function testGetVimeoWithoutStaleChannelsFetchesNothing(): void
     {
         // In CLI mode gate_check() returns true, null videoID fetches channels
         $result = $this->controller(Aggro::class)
             ->execute('getVimeo');
 
-        // Returns false (no stale channels) or completes successfully
-        $this->assertTrue(
-            $result->isOK() || $result->response()->getStatusCode() === 200,
-        );
+        // No channel is due, so nothing is fetched and nothing is reported
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('', (string) $result->response()->getBody());
     }
 
     public function testGetVimeoWithInvalidVideoId(): void
@@ -236,16 +152,15 @@ final class AggroControllerTest extends DatabaseTestCase
         $this->assertSame(404, $result->response()->getStatusCode());
     }
 
-    public function testGetYoutubeWithNullVideoIdExecutes(): void
+    public function testGetYoutubeWithoutStaleChannelsFetchesNothing(): void
     {
         // In CLI mode gate_check() returns true, null videoID fetches channels
         $result = $this->controller(Aggro::class)
             ->execute('getYoutube');
 
-        // Returns false (no stale channels) or completes successfully
-        $this->assertTrue(
-            $result->isOK() || $result->response()->getStatusCode() === 200,
-        );
+        // No channel is due, so nothing is fetched and nothing is reported
+        $this->assertSame(200, $result->response()->getStatusCode());
+        $this->assertSame('', (string) $result->response()->getBody());
     }
 
     public function testGetYoutubeWithInvalidVideoId(): void

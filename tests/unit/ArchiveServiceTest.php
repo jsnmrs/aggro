@@ -163,7 +163,7 @@ final class ArchiveServiceTest extends ServiceTestCase
         }
     }
 
-    public function testArchiveVideosReturnsTrue()
+    public function testArchiveVideosLeavesRecentVideosAlone()
     {
         // Arrange - No videos to archive
         $recentVideo = [
@@ -190,8 +190,10 @@ final class ArchiveServiceTest extends ServiceTestCase
         // Act
         $result = $this->service->archiveVideos();
 
-        // Assert - Service may return false due to database connection issues in test environment
-        $this->assertIsBool($result);
+        // Assert
+        $this->assertTrue($result);
+        $this->assertSame(0, $this->countRecords('aggro_videos', ['flag_archive' => 1]));
+        $this->seeInDatabase('aggro_log', ['log_message' => '0 videos archived.']);
     }
 
     public function testArchiveVideosHandlesEmptyDatabase()
@@ -199,7 +201,8 @@ final class ArchiveServiceTest extends ServiceTestCase
         // Act - No videos in database
         $result = $this->service->archiveVideos();
 
-        // Assert - Service may return false due to database connection issues in test environment
-        $this->assertIsBool($result);
+        // Assert
+        $this->assertTrue($result);
+        $this->seeInDatabase('aggro_log', ['log_message' => '0 videos archived.']);
     }
 }

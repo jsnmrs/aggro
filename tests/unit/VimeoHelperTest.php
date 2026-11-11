@@ -16,11 +16,6 @@ final class VimeoHelperTest extends CIUnitTestCase
         helper('vimeo');
     }
 
-    public function testVimeoGetFeedMethodExists(): void
-    {
-        $this->assertTrue(function_exists('vimeo_get_feed'));
-    }
-
     public function testVimeoGetFeedWithValidId(): void
     {
         // The fetch is blocked, so no API response comes back
@@ -42,11 +37,6 @@ final class VimeoHelperTest extends CIUnitTestCase
         $this->assertSame('httpStatus', $params[1]->getName());
         $this->assertTrue($params[1]->isPassedByReference());
         $this->assertTrue($params[1]->isOptional());
-    }
-
-    public function testVimeoParseMetaMethodExists(): void
-    {
-        $this->assertTrue(function_exists('vimeo_parse_meta'));
     }
 
     public function testVimeoParseMetaWithValidItem(): void
@@ -212,18 +202,6 @@ final class VimeoHelperTest extends CIUnitTestCase
 
         $this->assertArrayHasKey('video_aspect_ratio', $result);
         $this->assertSame(1.778, $result['video_aspect_ratio'], 'Zero height should default to 16:9 aspect ratio');
-    }
-
-    public function testAllFunctionsExist(): void
-    {
-        $expectedFunctions = [
-            'vimeo_get_feed',
-            'vimeo_parse_meta',
-        ];
-
-        foreach ($expectedFunctions as $function) {
-            $this->assertTrue(function_exists($function), "Function {$function} does not exist");
-        }
     }
 
     public function testFunctionReturnTypes(): void

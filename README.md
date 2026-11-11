@@ -38,7 +38,7 @@ Aggro follows a clean architecture pattern with separation of concerns:
 - Helpers — Utility functions for common operations
 - Libraries — Third-party integrations and custom components
 
-This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables unit testing with 464 tests achieving 46.22% line coverage across all architectural layers.
+This architecture improves code maintainability, testability, and follows SOLID principles. The clean separation of concerns enables unit testing with 511 tests achieving 71.45% line coverage across all architectural layers.
 
 ## Local development setup
 
@@ -203,14 +203,14 @@ YouTube ingest reads the channel feed, the oEmbed endpoint, and the `/shorts/` r
 
 ## Testing
 
-The project includes 616 tests achieving 67.75% line coverage using PHPUnit for unit testing and multiple code quality tools.
+The project includes 511 tests achieving 71.45% line coverage using PHPUnit for unit testing and multiple code quality tools.
 
 ### Test Suite Overview
 
-- Total Tests — 616 unit and feature tests
-- Coverage — 67.75% line coverage across all components
+- Total Tests — 511 unit and feature tests
+- Coverage — 71.45% line coverage across all components
 - Assertions — 1,155 test assertions ensuring thorough validation
-- External Dependencies — 27 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
+- External Dependencies — 23 tests appropriately skipped for external services (YouTube/Vimeo APIs, Sentry, file system)
 - Test Files — 44 test files covering all major components
 
 ### Unit Testing with PHPUnit
@@ -255,7 +255,7 @@ When running tests with coverage, detailed HTML reports are generated in:
 
 - Coverage reports — `build/logs/html/index.html`
 - Raw coverage data — `build/logs/coverage.xml`
-- Current baseline — 46.22% line coverage, 42.52% method coverage
+- Current baseline — 71.45% line coverage, 55.00% method coverage
 
 Open the HTML report in your browser to view detailed coverage metrics by file and function.
 
@@ -282,11 +282,11 @@ The test suite follows TDD principles and best practices:
 - Fast Execution — In-memory SQLite database for rapid test runs
 - Coverage — Tests cover success paths, error conditions, and edge cases
 - Clean Architecture — Testable design with dependency injection
-- External Service Handling — 86 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
+- External Service Handling — 23 tests appropriately skipped for YouTube/Vimeo APIs, Sentry, and file operations
 
 ### Continuous Integration
 
-GitHub Actions automatically runs the full test suite (464 tests) on all pull requests, including:
+GitHub Actions automatically runs the full test suite (511 tests) on all pull requests, including:
 
 - PHPUnit unit tests with coverage validation
 - Code style checks (PHP CS Fixer, CodeSniffer)
@@ -310,7 +310,7 @@ The application includes the following security measures:
 
 Deployment is handled through GitHub Actions and Deployer with automated testing:
 
-1. Pull Request Testing — All PRs automatically run the complete test suite (464 tests) including PHPUnit tests, code quality checks, and static analysis
+1. Pull Request Testing — All PRs automatically run the complete test suite (511 tests) including PHPUnit tests, code quality checks, and static analysis
 2. Automated deployment — Deployment to production occurs on merge to main branch (only after all tests pass)
 3. Front-end assets — Assets are built and included in deployment
 4. Environment files — Securely transferred during deployment

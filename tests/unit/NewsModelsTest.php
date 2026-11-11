@@ -29,16 +29,6 @@ final class NewsModelsTest extends ServiceTestCase
         $this->assertSame($mockUtility, $utilityProp->getValue($model));
     }
 
-    public function testConstructorCreatesDefaultDependencies(): void
-    {
-        $model = new NewsModels();
-
-        $reflection = new ReflectionClass($model);
-
-        $utilityProp = $reflection->getProperty('utilityModel');
-        $this->assertInstanceOf(UtilityModels::class, $utilityProp->getValue($model));
-    }
-
     public function testFeaturedCleanerRemovesOldStories()
     {
         // Arrange - Insert old and new stories
