@@ -43,6 +43,10 @@
 		<env name="database.tests.password" value=""/>
 		<env name="database.tests.DBDriver" value="SQLite3"/>
 		<env name="database.tests.DBPrefix" value="tests_"/>
+		<!-- Tests exercise failure paths that log at error level. Keep those
+		     messages out of writable/logs; TestLogger records every message
+		     before the threshold applies, so log assertions still work. -->
+		<env name="logger.threshold" value="0" force="true"/>
 		<!-- Keep tests off the network. curl honors the proxy variables, so
 		     pointing them at a closed local port makes every fetch_url() and
 		     SimplePie request fail at once without leaving the machine.

@@ -54,7 +54,7 @@ if (! function_exists('clean_error_logs')) {
      */
     function clean_error_logs($directory = null)
     {
-        $directory ??= WRITEPATH . '/logs/';
+        $directory ??= config('Storage')->logPath;
         $path  = $directory . '*.log';
         $files = glob($path);
         $today = date('Y-m-d');
@@ -83,8 +83,7 @@ if (! function_exists('clean_feed_cache')) {
     function clean_feed_cache()
     {
         $counter = 0;
-        $path    = WRITEPATH . '/cache/*.spc';
-        $files   = glob($path);
+        $files   = glob(config('Storage')->getFeedCacheGlob());
 
         foreach ($files as $file) {
             if (is_file($file)) {
@@ -107,8 +106,7 @@ if (! function_exists('fetch_error_logs')) {
     function fetch_error_logs()
     {
         $results = [];
-        $path    = WRITEPATH . '/logs/*.log';
-        $files   = glob($path);
+        $files   = glob(config('Storage')->getLogGlob());
 
         foreach ($files as $file) {
             if (is_file($file)) {

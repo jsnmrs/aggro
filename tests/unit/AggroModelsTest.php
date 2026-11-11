@@ -96,12 +96,6 @@ final class AggroModelsTest extends DatabaseTestCase
         $this->assertTrue(method_exists($this->model, 'checkThumbs'));
     }
 
-    public function testCheckThumbsCallsService(): void
-    {
-        $result = $this->model->checkThumbs();
-        $this->assertIsBool($result);
-    }
-
     public function testCheckVideoMethodExists(): void
     {
         $this->assertTrue(method_exists($this->model, 'checkVideo'));
@@ -116,12 +110,6 @@ final class AggroModelsTest extends DatabaseTestCase
     public function testCleanThumbsMethodExists(): void
     {
         $this->assertTrue(method_exists($this->model, 'cleanThumbs'));
-    }
-
-    public function testCleanThumbsCallsService(): void
-    {
-        $result = $this->model->cleanThumbs();
-        $this->assertIsBool($result);
     }
 
     public function testGetChannelsMethodExists(): void

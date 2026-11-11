@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use CodeIgniter\Test\CIUnitTestCase;
-use Exception;
 
 /**
  * @internal

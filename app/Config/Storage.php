@@ -21,6 +21,11 @@ class Storage extends BaseConfig
      */
     public string $feedCachePath = WRITEPATH . 'cache/';
 
+    /**
+     * Error log directory.
+     */
+    public string $logPath = WRITEPATH . 'logs/';
+
     public string $thumbnailExtension = '.webp';
     public int $thumbnailWidth        = 600;
     public int $thumbnailHeight       = 338;
@@ -71,6 +76,22 @@ class Storage extends BaseConfig
     public function getThumbnailGlob(): string
     {
         return $this->thumbnailPath . '*' . $this->thumbnailExtension;
+    }
+
+    /**
+     * Get feed cache file glob pattern.
+     */
+    public function getFeedCacheGlob(): string
+    {
+        return $this->feedCachePath . '*.spc';
+    }
+
+    /**
+     * Get error log file glob pattern.
+     */
+    public function getLogGlob(): string
+    {
+        return $this->logPath . '*.log';
     }
 
     /**

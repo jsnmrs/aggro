@@ -19,6 +19,26 @@ trait TemporaryStorageTrait
     }
 
     /**
+     * Run a test against a temporary log directory.
+     *
+     * @param callable(string): void $test Receives the directory path with a trailing slash
+     */
+    private function withLogDirectory(callable $test): void
+    {
+        $this->withStorageDirectory('logPath', 'aggro-logs-', $test);
+    }
+
+    /**
+     * Run a test against a temporary thumbnail directory.
+     *
+     * @param callable(string): void $test Receives the directory path with a trailing slash
+     */
+    private function withThumbnailDirectory(callable $test): void
+    {
+        $this->withStorageDirectory('thumbnailPath', 'aggro-thumbs-', $test);
+    }
+
+    /**
      * Swap a Storage path for a temporary directory while the test runs.
      *
      * @param string                 $property Storage config property holding the path
